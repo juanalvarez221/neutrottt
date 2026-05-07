@@ -26,7 +26,7 @@ export function QuoteShell({
   return (
     <div className="min-h-dvh bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#26123f] via-[#08070d] to-black text-zinc-50">
       <header className="sticky top-0 z-50 border-b border-white/5 bg-black/20 backdrop-blur-md">
-        <div className="mx-auto flex w-full max-w-[1280px] items-center justify-between px-6 py-4">
+        <div className="flex w-full items-center justify-between px-4 py-4 sm:px-6 md:px-10">
           <button
             type="button"
             onClick={() => router.back()}
@@ -52,11 +52,12 @@ export function QuoteShell({
         initial={{ opacity: 0, y: 14 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.45, ease: "easeOut" }}
-        className="mx-auto w-full max-w-[1280px] px-6 pb-28 pt-8"
+        className="w-full px-4 pb-28 pt-8 sm:px-6 md:px-10"
       >
         {firstName ? (
           <p className="typo-body mb-4 text-violet-200/95">
-            Hola, {firstName}. Gracias por confiar en Malianteo independiente.
+            Hola, {firstName}. Estoy aquí para guiarte paso a paso en tu
+            cotización.
           </p>
         ) : null}
         {children}

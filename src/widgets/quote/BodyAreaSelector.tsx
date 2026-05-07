@@ -128,13 +128,13 @@ export function BodyAreaSelector({
 
       <div className="space-y-2">
         <h3 className="typo-section text-center text-[2rem] leading-tight md:text-[2.5rem]">
-          ¿En qué zona del cuerpo
+          ¿En qué zona
           <br />
-          quieres tu tatuaje?
+          irá tu tatuaje?
         </h3>
         <p className="typo-body text-center">
-          Elegir la zona nos ayuda a estimar con mayor precisión tiempo, técnica
-          y complejidad.
+          Esta elección me permite estimar mejor el nivel de detalle, la técnica
+          recomendada y el tiempo aproximado de trabajo.
         </p>
       </div>
 
@@ -156,7 +156,7 @@ export function BodyAreaSelector({
       <div>
         <p className="typo-subtitle mb-3 inline-flex items-center gap-2 text-base text-zinc-100">
           <Sparkles className="h-4 w-4 text-violet-300" />
-          Zonas populares
+          Zonas frecuentes
         </p>
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
           {POPULAR_ZONES.map((id) => {

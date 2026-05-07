@@ -23,14 +23,15 @@ export function QuoteStyleStep({ size, zone }: { size: string; zone: string }) {
       <section className="relative mb-8">
         <div className="pointer-events-none absolute -left-10 -top-10 h-40 w-40 rounded-full bg-violet-600/15 blur-[60px]" />
         <h2 className="typo-section text-[2.2rem] leading-[1.05] md:text-[3.2rem]">
-          Cotización
+          Lenguaje
           <br />
           <span className="bg-gradient-to-r from-white to-zinc-400 bg-clip-text text-transparent">
-            paso 3 de 4
+            visual del diseño
           </span>
         </h2>
         <p className="typo-body mt-3 max-w-xl">
-          Elige el estilo que mejor representa tu idea. Luego lo afinamos juntos.
+          Elige la dirección estética que más te representa. Después la
+          perfeccionamos juntos en la revisión final.
         </p>
       </section>
 
@@ -41,7 +42,7 @@ export function QuoteStyleStep({ size, zone }: { size: string; zone: string }) {
               <span className="text-[10px] font-bold text-white">3</span>
             </div>
             <h3 className="typo-subtitle text-sm uppercase tracking-[0.14em] text-zinc-200">
-              Estilo de tatuaje
+              Estilo artístico
             </h3>
           </div>
 
@@ -95,7 +96,7 @@ export function QuoteStyleStep({ size, zone }: { size: string; zone: string }) {
           }
           className="typo-cta group inline-flex items-center justify-center gap-2 rounded-xl border border-violet-500/35 bg-gradient-to-r from-violet-700 to-fuchsia-600 px-6 py-3 text-white transition hover:-translate-y-0.5 hover:shadow-[0_0_20px_rgba(139,92,246,0.35)]"
         >
-          Siguiente
+          Continuar
           <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
         </button>
       </div>

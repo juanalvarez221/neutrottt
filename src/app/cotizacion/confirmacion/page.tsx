@@ -74,15 +74,15 @@ export default async function CotizacionConfirmacionPage({
 
         <div className="relative z-10">
           <p className="text-xs font-semibold uppercase tracking-[0.22em] text-violet-200/80">
-            Tu cotización
+            Resumen final
           </p>
           <h1 className="typo-section mt-2 text-[2.2rem] md:text-[2.8rem]">
             Confirmación
           </h1>
           <p className="typo-body mt-3 max-w-2xl">
-            Gracias por compartir tu idea. Esta vista previa resume tu solicitud
-            para que la revises con tranquilidad antes de enviarla a Malianteo
-            independiente.
+            Gracias por confiar en mí para tu proyecto. Aquí puedes revisar con
+            calma tu cotización inteligente antes de enviarla a validación con
+            Teo.
           </p>
         </div>
       </section>
@@ -99,8 +99,8 @@ export default async function CotizacionConfirmacionPage({
             </span>
           </div>
           <p className="typo-body mt-2 text-sm">
-            Esta es una proyección inicial para que tengas claridad de inversión
-            antes de la revisión final de Teo.
+            Este cálculo inicial te da un marco claro de inversión antes de la
+            revisión y ajuste oficial.
           </p>
 
           <div className="typo-tech mt-4 grid gap-2 rounded-2xl border border-white/10 bg-black/35 p-4 text-zinc-200">
@@ -147,7 +147,7 @@ export default async function CotizacionConfirmacionPage({
 
         <article className="glass-card rounded-2xl p-5">
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-300">
-            Flujo de confirmación
+            Proceso de validación
           </p>
           <h2 className="typo-subtitle mt-2">
             Revisión con Teo y confirmación oficial
@@ -156,13 +156,14 @@ export default async function CotizacionConfirmacionPage({
             <div className="rounded-xl border border-white/10 bg-white/5 p-3">
               <p className="typo-tech inline-flex items-center gap-2 text-zinc-100">
                 <MessageCircleMore className="h-4 w-4 text-violet-300" />
-                1) Se envía notificación a Teo: nueva cotización inteligente.
+                1) Se notifica a Teo que tienes una nueva cotización
+                inteligente.
               </p>
             </div>
             <div className="rounded-xl border border-white/10 bg-white/5 p-3">
               <p className="typo-tech inline-flex items-center gap-2 text-zinc-100">
                 <PenSquare className="h-4 w-4 text-violet-300" />
-                2) Teo puede confirmar esta cotización o enviar un ajuste.
+                2) Teo valida la propuesta y, si aplica, te comparte un ajuste.
               </p>
             </div>
             <div className="rounded-xl border border-white/10 bg-white/5 p-3">
@@ -181,8 +182,8 @@ export default async function CotizacionConfirmacionPage({
             Enviar cotización a Teo
           </button>
           <p className="typo-tech mt-2 text-zinc-500">
-            Vista previa: en la siguiente fase este botón activará notificación
-            real al panel de Teo.
+            Vista previa: en la siguiente fase este botón activará la
+            notificación real al panel de Teo.
           </p>
         </article>
       </section>

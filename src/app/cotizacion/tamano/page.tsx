@@ -46,16 +46,16 @@ export default function CotizacionTamanoPage() {
     <QuoteShell brand="MALIANTEO">
       <section className="relative mb-8">
         <div className="pointer-events-none absolute -left-10 -top-10 h-40 w-40 rounded-full bg-violet-600/15 blur-[60px]" />
-        <h2 className="text-4xl font-extrabold uppercase leading-[1.05] tracking-tight text-white md:text-6xl">
-          Cotización
+        <h2 className="typo-section text-[2.2rem] leading-[1.05] md:text-[3.2rem]">
+          Definamos
           <br />
           <span className="bg-gradient-to-r from-white to-zinc-400 bg-clip-text text-transparent">
-            paso 1 de 4
+            el tamaño ideal
           </span>
         </h2>
-        <p className="mt-3 max-w-xl text-sm text-zinc-300/90 md:text-base">
-          Empecemos por el tamaño aproximado para darte una estimación más
-          acertada desde el primer momento.
+        <p className="typo-body mt-3 max-w-xl">
+          Este paso me ayuda a darte una estimación inicial más realista en
+          tiempo, sesiones y rango de inversión.
         </p>
       </section>
 
@@ -64,7 +64,7 @@ export default function CotizacionTamanoPage() {
           <div className="flex h-6 w-6 items-center justify-center rounded-full border border-violet-500/30 bg-violet-600/10">
             <span className="text-[10px] font-bold text-white">1</span>
           </div>
-          <h3 className="text-xs font-semibold uppercase tracking-[0.22em] text-zinc-200">
+          <h3 className="typo-subtitle text-sm uppercase tracking-[0.14em] text-zinc-200">
             Tamaño aproximado
           </h3>
         </div>
@@ -142,7 +142,7 @@ export default function CotizacionTamanoPage() {
           onClick={() => router.push(`/cotizacion/ubicacion?size=${size}`)}
           className="group inline-flex items-center justify-center gap-2 rounded-lg border border-violet-500/35 bg-gradient-to-r from-violet-700 to-fuchsia-600 px-6 py-3 text-[14px] font-bold uppercase tracking-[0.2em] text-white transition hover:-translate-y-0.5 hover:shadow-[0_0_20px_rgba(139,92,246,0.35)] active:translate-y-0"
         >
-          Siguiente
+          Continuar
           <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
         </button>
       </div>

@@ -29,7 +29,7 @@ export default function CotizacionPage() {
     const cleanPhone = phone.trim();
     const cleanEmail = email.trim();
     if (!cleanName || !cleanPhone || !cleanEmail) {
-      setError("Por favor completa nombre, celular y correo para continuar.");
+      setError("Para continuar, completa tu nombre, celular y correo.");
       return;
     }
     saveQuoteProfile({ name: cleanName, phone: cleanPhone, email: cleanEmail });
@@ -41,15 +41,15 @@ export default function CotizacionPage() {
       <section className="relative mb-8">
         <div className="pointer-events-none absolute -left-10 -top-10 h-40 w-40 rounded-full bg-violet-600/15 blur-[60px]" />
         <h2 className="typo-section text-[2.2rem] leading-[1.05] md:text-[3.2rem]">
-          Empecemos
+          Conozcámonos
           <br />
           <span className="bg-gradient-to-r from-white to-zinc-400 bg-clip-text text-transparent">
-            con tus datos
+            para crear tu idea
           </span>
         </h2>
         <p className="typo-body mt-3 max-w-xl">
-          Solo te pediremos lo esencial para brindarte una atención cercana,
-          clara y totalmente personalizada.
+          Te pediré solo lo esencial para darte una atención cercana, clara y
+          completamente personalizada desde el primer mensaje.
         </p>
       </section>
 
@@ -119,7 +119,7 @@ export default function CotizacionPage() {
           onClick={onNext}
           className="typo-cta group inline-flex w-full items-center justify-center gap-2 rounded-lg border border-violet-500/35 bg-gradient-to-r from-violet-700 to-fuchsia-600 py-5 text-white transition hover:-translate-y-0.5 hover:shadow-[0_0_20px_rgba(139,92,246,0.35)] active:translate-y-0"
         >
-          Continuar
+          Continuar con mi cotización
           <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
         </button>
       </div>
