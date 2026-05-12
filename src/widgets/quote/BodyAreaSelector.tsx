@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import type { CSSProperties } from "react";
 import { Bone, CircleDot, PersonStanding, Sparkles } from "lucide-react";
 import { useSiteLanguage } from "@/shared/i18n/LanguageProvider";
 
@@ -25,6 +26,7 @@ type ZoneMap = {
 type Hotspot = {
   id: ZoneId;
   className: string;
+  style?: CSSProperties;
 };
 
 const ZONES: ZoneMap[] = [
@@ -55,27 +57,64 @@ const POPULAR_ZONES: ZoneId[] = [
 ];
 
 const FRONT_HOTSPOTS: Hotspot[] = [
-  { id: "cabeza", className: "left-[39%] top-[2.5%] h-[13%] w-[22%]" },
-  { id: "hombro", className: "left-[31%] top-[15.5%] h-[8%] w-[38%]" },
-  { id: "pecho", className: "left-[34%] top-[23.5%] h-[11%] w-[32%]" },
-  { id: "abdomen", className: "left-[36%] top-[35.5%] h-[11%] w-[28%]" },
-  { id: "bicep", className: "left-[22%] top-[24%] h-[11%] w-[10%]" },
-  { id: "bicep", className: "left-[68%] top-[24%] h-[11%] w-[10%]" },
-  { id: "antebrazo", className: "left-[17%] top-[35%] h-[14%] w-[10%]" },
-  { id: "antebrazo", className: "left-[73%] top-[35%] h-[14%] w-[10%]" },
-  { id: "pierna", className: "left-[37%] top-[57%] h-[35%] w-[26%]" },
+  { id: "cabeza", className: "left-[38.5%] top-[3.2%] h-[11.8%] w-[23%] rounded-[999px]" },
+  { id: "hombro", className: "left-[28%] top-[16%] h-[8%] w-[13.5%] rounded-[999px]" },
+  { id: "hombro", className: "left-[58.5%] top-[16%] h-[8%] w-[13.5%] rounded-[999px]" },
+  { id: "pecho", className: "left-[34.5%] top-[22.8%] h-[12%] w-[31%] rounded-[32%]" },
+  { id: "abdomen", className: "left-[36.5%] top-[35.8%] h-[12.8%] w-[27%] rounded-[28%]" },
+  {
+    id: "bicep",
+    className: "left-[22.5%] top-[24%] h-[12.5%] w-[10.3%] rounded-[999px]",
+    style: { transform: "rotate(-12deg)" },
+  },
+  {
+    id: "bicep",
+    className: "left-[67.2%] top-[24%] h-[12.5%] w-[10.3%] rounded-[999px]",
+    style: { transform: "rotate(12deg)" },
+  },
+  {
+    id: "antebrazo",
+    className: "left-[17.8%] top-[35.8%] h-[15.4%] w-[9.8%] rounded-[999px]",
+    style: { transform: "rotate(-10deg)" },
+  },
+  {
+    id: "antebrazo",
+    className: "left-[72.5%] top-[35.8%] h-[15.4%] w-[9.8%] rounded-[999px]",
+    style: { transform: "rotate(10deg)" },
+  },
+  { id: "pierna", className: "left-[38.8%] top-[57.8%] h-[33.8%] w-[11.6%] rounded-[30%]" },
+  { id: "pierna", className: "left-[49.8%] top-[57.8%] h-[33.8%] w-[11.6%] rounded-[30%]" },
 ];
 
 const BACK_HOTSPOTS: Hotspot[] = [
-  { id: "cabeza", className: "left-[39%] top-[2.5%] h-[13%] w-[22%]" },
-  { id: "hombro", className: "left-[31%] top-[15.5%] h-[8%] w-[38%]" },
-  { id: "espalda", className: "left-[33%] top-[24%] h-[20%] w-[34%]" },
-  { id: "tricep", className: "left-[22%] top-[25%] h-[12%] w-[10%]" },
-  { id: "tricep", className: "left-[68%] top-[25%] h-[12%] w-[10%]" },
-  { id: "antebrazo", className: "left-[18%] top-[37%] h-[13%] w-[10%]" },
-  { id: "antebrazo", className: "left-[72%] top-[37%] h-[13%] w-[10%]" },
-  { id: "gluteo", className: "left-[35%] top-[46.5%] h-[10%] w-[30%]" },
-  { id: "pierna", className: "left-[37%] top-[57%] h-[35%] w-[26%]" },
+  { id: "cabeza", className: "left-[38.5%] top-[3.2%] h-[11.8%] w-[23%] rounded-[999px]" },
+  { id: "hombro", className: "left-[28%] top-[16%] h-[8%] w-[13.5%] rounded-[999px]" },
+  { id: "hombro", className: "left-[58.5%] top-[16%] h-[8%] w-[13.5%] rounded-[999px]" },
+  { id: "espalda", className: "left-[33.8%] top-[22.8%] h-[22.4%] w-[32.5%] rounded-[30%]" },
+  {
+    id: "tricep",
+    className: "left-[22.5%] top-[24.8%] h-[12.5%] w-[10.2%] rounded-[999px]",
+    style: { transform: "rotate(-12deg)" },
+  },
+  {
+    id: "tricep",
+    className: "left-[67.3%] top-[24.8%] h-[12.5%] w-[10.2%] rounded-[999px]",
+    style: { transform: "rotate(12deg)" },
+  },
+  {
+    id: "antebrazo",
+    className: "left-[18.2%] top-[36.6%] h-[15.2%] w-[9.8%] rounded-[999px]",
+    style: { transform: "rotate(-10deg)" },
+  },
+  {
+    id: "antebrazo",
+    className: "left-[72.1%] top-[36.6%] h-[15.2%] w-[9.8%] rounded-[999px]",
+    style: { transform: "rotate(10deg)" },
+  },
+  { id: "gluteo", className: "left-[38%] top-[47.2%] h-[9.6%] w-[11.4%] rounded-[45%]" },
+  { id: "gluteo", className: "left-[50.2%] top-[47.2%] h-[9.6%] w-[11.4%] rounded-[45%]" },
+  { id: "pierna", className: "left-[38.8%] top-[57.8%] h-[33.8%] w-[11.6%] rounded-[30%]" },
+  { id: "pierna", className: "left-[49.8%] top-[57.8%] h-[33.8%] w-[11.6%] rounded-[30%]" },
 ];
 
 function BodyMapImage({
@@ -114,12 +153,13 @@ function BodyMapImage({
               type="button"
               onClick={() => onZoneChange(spot.id)}
               aria-label={`${label} (${side})`}
+              style={spot.style}
               className={[
-                "absolute rounded-lg border transition",
+                "absolute border transition-all duration-200",
                 spot.className,
                 active
-                  ? "border-teal-200/90 bg-teal-300/20 shadow-[0_0_0_1px_rgba(94,234,212,0.45)_inset]"
-                  : "border-white/30 bg-black/10 hover:border-teal-200/60 hover:bg-teal-300/10",
+                  ? "border-violet-100/95 bg-violet-500/25 shadow-[0_0_0_1px_rgba(216,180,254,0.55)_inset,0_0_20px_rgba(168,85,247,0.4)]"
+                  : "border-white/28 bg-black/10 hover:border-violet-200/70 hover:bg-violet-500/14",
               ].join(" ")}
             />
           );
@@ -157,7 +197,7 @@ export function BodyAreaSelector({
         </p>
         <div className="mt-2 h-2 w-full overflow-hidden rounded-full border border-white/10 bg-white/5">
           <div
-            className="h-full rounded-full bg-gradient-to-r from-cyan-400/90 via-emerald-400/90 to-teal-300/90"
+            className="h-full rounded-full bg-gradient-to-r from-violet-500/90 via-fuchsia-500/90 to-purple-400/90"
             style={{ width: `${progress}%` }}
           />
         </div>
@@ -198,7 +238,7 @@ export function BodyAreaSelector({
                 onClick={() => onZoneChange(id)}
                 className={
                   active
-                    ? "inline-flex items-center gap-2 rounded-xl border border-teal-300/40 bg-teal-400/15 px-3 py-2 text-sm font-semibold text-teal-100"
+                    ? "inline-flex items-center gap-2 rounded-xl border border-violet-300/45 bg-violet-500/16 px-3 py-2 text-sm font-semibold text-violet-100"
                     : "inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm font-semibold text-zinc-200 transition hover:bg-white/10"
                 }
               >

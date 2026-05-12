@@ -113,11 +113,20 @@ export default async function CotizacionConfirmacionPage({
   const rawSize = getParam(params, "size", "mediano");
   const rawZone = getParam(params, "zone", "brazo");
   const rawStyle = getParam(params, "style", "Realismo oscuro");
+  const rawNotes = getParam(params, "notes", "");
   const size = titleCase(rawSize);
   const zone = titleCase(rawZone);
   const style = rawStyle;
   const estimate = getEstimate(rawSize, rawZone, rawStyle);
 
-  return <QuoteConfirmationStep size={size} zone={zone} style={style} estimate={estimate} />;
+  return (
+    <QuoteConfirmationStep
+      size={size}
+      zone={zone}
+      style={style}
+      notes={rawNotes.trim()}
+      estimate={estimate}
+    />
+  );
 }
 

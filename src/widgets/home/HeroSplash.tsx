@@ -10,7 +10,7 @@ import {
   useTransform,
 } from "framer-motion";
 import Link from "next/link";
-import { ChevronDown, MessageCircle } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import { ProjectsCarousel } from "@/widgets/home/ProjectsCarousel";
 import { MalianteoIntroCarousel } from "@/widgets/home/MalianteoIntroCarousel";
 import { useSiteLanguage } from "@/shared/i18n/LanguageProvider";
@@ -218,18 +218,32 @@ export function HeroSplash({
         <div className="glass-card relative overflow-hidden rounded-3xl p-5 md:p-8">
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(520px_220px_at_10%_0%,rgba(168,85,247,0.2),transparent_58%),radial-gradient(620px_260px_at_100%_100%,rgba(124,58,237,0.16),transparent_60%)]" />
           <div className="relative z-10">
-            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-violet-200/80">
-              {t("identityTag")}
-            </p>
-            <h2 className="typo-section mt-2">
-              {t("identityTitle")}
-            </h2>
-            <p className="typo-body mt-3 max-w-3xl">
-              {t("identityP1")}
-            </p>
-            <p className="typo-body mt-2 max-w-3xl">
-              {t("identityP2")}
-            </p>
+            <div className="grid gap-6 lg:grid-cols-[1.2fr_.8fr] lg:items-end">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.24em] text-violet-200/80">
+                  {t("identityTag")}
+                </p>
+                <h2 className="typo-section mt-2 max-w-4xl">{t("identityTitle")}</h2>
+                <p className="typo-body mt-3 max-w-3xl">{t("identityP1")}</p>
+                <p className="typo-body mt-2 max-w-3xl">{t("identityP2")}</p>
+                <p className="typo-body mt-2 max-w-3xl text-zinc-300">{t("identityP3")}</p>
+              </div>
+
+              <div className="grid gap-2.5">
+                <article className="rounded-2xl border border-white/12 bg-black/30 p-3.5">
+                  <p className="typo-tech text-violet-200">{t("identityCard1Title")}</p>
+                  <p className="mt-1.5 text-sm text-zinc-200">{t("identityCard1Body")}</p>
+                </article>
+                <article className="rounded-2xl border border-white/12 bg-black/30 p-3.5">
+                  <p className="typo-tech text-violet-200">{t("identityCard2Title")}</p>
+                  <p className="mt-1.5 text-sm text-zinc-200">{t("identityCard2Body")}</p>
+                </article>
+                <article className="rounded-2xl border border-violet-400/25 bg-violet-500/10 p-3.5">
+                  <p className="typo-tech text-violet-100">{t("identityCard3Title")}</p>
+                  <p className="mt-1.5 text-sm text-violet-100/90">{t("identityCard3Body")}</p>
+                </article>
+              </div>
+            </div>
 
             <MalianteoIntroCarousel />
           </div>
@@ -242,39 +256,99 @@ export function HeroSplash({
         </div>
       </motion.section>
 
-      <motion.a
-        href="https://www.instagram.com/malianteo_ink/"
-        target="_blank"
-        rel="noreferrer"
-        aria-label="Ir al Instagram de Malianteo"
-        initial={{ opacity: 0, y: 18, scale: 0.96 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ delay: 0.35, duration: 0.5, ease: "easeOut" }}
-        whileHover={{ y: -2, scale: 1.03 }}
-        className="group fixed bottom-6 right-5 z-[70] inline-flex h-14 w-14 items-center justify-center rounded-full border border-white/18 bg-black/55 text-zinc-100 backdrop-blur-xl shadow-[0_16px_36px_-18px_rgba(168,85,247,0.72)] transition hover:border-fuchsia-300/45 hover:text-white"
+      <motion.aside
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3, duration: 0.55, ease: "easeOut" }}
+        className="pointer-events-none fixed bottom-5 right-4 z-[70] flex flex-col items-center gap-3 md:bottom-6 md:right-5"
+        aria-label="Accesos rapidos sociales"
       >
-        <Image
-          src="/brand/instagram-icon.png"
-          alt="Instagram"
-          width={28}
-          height={28}
-          className="h-7 w-7 object-contain drop-shadow-[0_0_10px_rgba(255,255,255,0.24)]"
-        />
-      </motion.a>
+        <motion.a
+          href="https://www.instagram.com/malianteo_ink/"
+          target="_blank"
+          rel="noreferrer"
+          aria-label="Ir al Instagram de Malianteo"
+          animate={{ y: [0, -3, 0], scale: [1, 1.02, 1] }}
+          transition={{ duration: 3.2, repeat: Infinity, ease: "easeInOut" }}
+          whileHover={{ y: -4, scale: 1.05 }}
+          whileTap={{ scale: 0.97 }}
+          className="pointer-events-auto relative inline-flex h-14 w-14 items-center justify-center rounded-full"
+        >
+          <motion.span
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 rounded-full bg-violet-300/55 blur-[12px]"
+            animate={{ opacity: [0, 0, 0.95, 0, 0, 0.72, 0], scale: [0.88, 0.88, 1.2, 1.24, 0.9, 1.16, 0.9] }}
+            transition={{
+              duration: 8.5,
+              repeat: Infinity,
+              ease: "easeInOut",
+              times: [0, 0.54, 0.58, 0.63, 0.9, 0.94, 1],
+            }}
+          />
+          <motion.span
+            aria-hidden="true"
+            className="pointer-events-none absolute left-1/2 top-1/2 h-[76%] w-[6px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-b from-white/0 via-white/90 to-white/0 blur-[1px]"
+            animate={{ opacity: [0, 0, 1, 0, 0], rotate: [-24, -24, -18, -16, -24], scaleY: [0.9, 0.9, 1.15, 1.05, 0.9] }}
+            transition={{
+              duration: 8.5,
+              repeat: Infinity,
+              ease: "easeInOut",
+              times: [0, 0.565, 0.585, 0.605, 1],
+            }}
+          />
+          <Image
+            src="/brand/instagram-bubble-clean.png"
+            alt="Instagram"
+            width={56}
+            height={56}
+            className="h-14 w-14 object-contain drop-shadow-[0_14px_28px_rgba(168,85,247,0.42)]"
+          />
+        </motion.a>
 
-      <motion.a
-        href="https://wa.me/573104798643?text=Hola%20Malianteo%2C%20quiero%20continuar%20mi%20cotizacion."
-        target="_blank"
-        rel="noreferrer"
-        aria-label="Hablar por WhatsApp con Malianteo"
-        initial={{ opacity: 0, y: 18, scale: 0.96 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ delay: 0.42, duration: 0.5, ease: "easeOut" }}
-        whileHover={{ y: -2, scale: 1.03 }}
-        className="group fixed bottom-24 right-5 z-[70] inline-flex h-14 w-14 items-center justify-center rounded-full border border-emerald-400/35 bg-black/55 text-emerald-200 backdrop-blur-xl shadow-[0_16px_36px_-18px_rgba(16,185,129,0.65)] transition hover:border-emerald-300/60 hover:text-emerald-100"
-      >
-        <MessageCircle className="h-6 w-6" />
-      </motion.a>
+        <motion.a
+          href="https://wa.me/573104798643?text=Hola%20Malianteo%2C%20quiero%20continuar%20mi%20cotizacion."
+          target="_blank"
+          rel="noreferrer"
+          aria-label="Hablar por WhatsApp con Malianteo"
+          animate={{ y: [0, -3, 0], scale: [1, 1.02, 1] }}
+          transition={{ duration: 3.2, delay: 0.45, repeat: Infinity, ease: "easeInOut" }}
+          whileHover={{ y: -4, scale: 1.05 }}
+          whileTap={{ scale: 0.97 }}
+          className="pointer-events-auto relative inline-flex h-14 w-14 items-center justify-center rounded-full"
+        >
+          <motion.span
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 rounded-full bg-fuchsia-300/55 blur-[12px]"
+            animate={{ opacity: [0, 0, 0.92, 0, 0, 0.68, 0], scale: [0.88, 0.88, 1.18, 1.22, 0.9, 1.14, 0.9] }}
+            transition={{
+              duration: 9.1,
+              repeat: Infinity,
+              ease: "easeInOut",
+              delay: 0.6,
+              times: [0, 0.56, 0.6, 0.64, 0.9, 0.95, 1],
+            }}
+          />
+          <motion.span
+            aria-hidden="true"
+            className="pointer-events-none absolute left-1/2 top-1/2 h-[76%] w-[6px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-b from-white/0 via-white/90 to-white/0 blur-[1px]"
+            animate={{ opacity: [0, 0, 1, 0, 0], rotate: [22, 22, 15, 14, 22], scaleY: [0.9, 0.9, 1.12, 1.04, 0.9] }}
+            transition={{
+              duration: 9.1,
+              repeat: Infinity,
+              ease: "easeInOut",
+              delay: 0.6,
+              times: [0, 0.59, 0.615, 0.64, 1],
+            }}
+          />
+          <Image
+            src="/brand/whatsapp-bubble-clean.png"
+            alt="WhatsApp"
+            width={56}
+            height={56}
+            className="h-14 w-14 object-contain drop-shadow-[0_14px_28px_rgba(139,92,246,0.38)]"
+          />
+        </motion.a>
+      </motion.aside>
     </main>
   );
 }

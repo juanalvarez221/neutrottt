@@ -7,11 +7,13 @@ import {
   Image as ImageIcon,
   Sparkles,
   MessageCircle,
+  LayoutDashboard,
 } from "lucide-react";
 import { cn } from "@/shared/lib/cn";
 
 const items = [
   { href: "/", label: "Inicio", icon: Home },
+  { href: "/admin", label: "Dash", icon: LayoutDashboard },
   { href: "/proyectos", label: "Proyectos", icon: ImageIcon },
   { href: "/cotizacion", label: "Cotización", icon: Sparkles },
   { href: "/contacto", label: "Contacto", icon: MessageCircle },

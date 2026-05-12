@@ -9,11 +9,13 @@ export function QuoteConfirmationStep({
   size,
   zone,
   style,
+  notes,
   estimate,
 }: {
   size: string;
   zone: string;
   style: string;
+  notes?: string;
   estimate: {
     sessions: string;
     perSession: string;
@@ -63,6 +65,11 @@ export function QuoteConfirmationStep({
               <CheckCircle2 className="h-4 w-4 text-violet-300" />
               {language === "en" ? "Style" : "Estilo"}: {style}
             </p>
+            {notes ? (
+              <p className="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-zinc-200">
+                {t("quoteNotesLabel")}: {notes}
+              </p>
+            ) : null}
           </div>
 
           <div className="mt-4 grid gap-3 sm:grid-cols-3">

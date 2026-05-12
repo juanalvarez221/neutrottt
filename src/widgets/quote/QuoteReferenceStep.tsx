@@ -20,6 +20,7 @@ export function QuoteReferenceStep({
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [referenceFile, setReferenceFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [notes, setNotes] = useState("");
 
   const pickFile = (file: File | null) => {
     if (!file || !file.type.startsWith("image/")) return;
@@ -172,6 +173,23 @@ export function QuoteReferenceStep({
               ? "Optional. You can continue without uploading."
               : "Opcional. Puedes continuar sin subir imagen."}
           </p>
+
+          <div className="mt-5 rounded-xl border border-white/10 bg-black/25 p-3">
+            <label className="space-y-2">
+              <span className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-zinc-300">
+                {t("quoteReferenceNoteLabel")}
+              </span>
+              <textarea
+                value={notes}
+                onChange={(event) => setNotes(event.target.value)}
+                rows={3}
+                maxLength={280}
+                placeholder={t("quoteReferenceNotePlaceholder")}
+                className="w-full resize-none rounded-xl border border-white/10 bg-black/35 px-4 py-3 text-sm text-zinc-100 outline-none transition placeholder:text-zinc-500 focus:border-violet-500/50"
+              />
+              <p className="text-xs text-zinc-400">{t("quoteReferenceNoteHelp")}</p>
+            </label>
+          </div>
         </div>
       </section>
 
@@ -183,7 +201,7 @@ export function QuoteReferenceStep({
           {t("commonBack")}
         </Link>
         <Link
-          href={`/cotizacion/confirmacion?size=${encodeURIComponent(size)}&zone=${encodeURIComponent(zone)}&style=${encodeURIComponent(style)}`}
+          href={`/cotizacion/confirmacion?size=${encodeURIComponent(size)}&zone=${encodeURIComponent(zone)}&style=${encodeURIComponent(style)}&notes=${encodeURIComponent(notes.trim())}`}
           className="rounded-xl border border-violet-500/35 bg-gradient-to-r from-violet-700 to-fuchsia-600 px-6 py-3 text-sm font-bold uppercase tracking-[0.2em] text-white transition hover:-translate-y-0.5 hover:shadow-[0_0_20px_rgba(139,92,246,0.35)]"
         >
           {t("quoteReferenceNext")}

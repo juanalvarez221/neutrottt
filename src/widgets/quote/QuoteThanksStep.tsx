@@ -29,27 +29,50 @@ export function QuoteThanksStep() {
             </h1>
 
             <p className="typo-body mx-auto mt-4 max-w-2xl text-zinc-200">{t("quoteThanksBody")}</p>
+            <p className="typo-tech mx-auto mt-3 max-w-2xl text-zinc-400">{t("quoteThanksDataSaved")}</p>
 
-            <div className="mt-7 grid gap-3 sm:grid-cols-2">
+            <div className="mt-7 grid gap-3 sm:grid-cols-3">
               <a
                 href="https://www.instagram.com/malianteo_ink/"
                 target="_blank"
                 rel="noreferrer"
                 className="group inline-flex items-center justify-center gap-2 rounded-2xl border border-fuchsia-400/35 bg-gradient-to-r from-fuchsia-600 to-violet-600 px-5 py-4 text-sm font-bold uppercase tracking-[0.14em] text-white transition hover:-translate-y-0.5 hover:shadow-[0_0_28px_rgba(217,70,239,0.45)]"
               >
-                <span className="relative h-5 w-5 overflow-hidden rounded-full">
-                  <Image src="/brand/instagram-icon.png" alt="Instagram" fill className="object-contain" />
+                <span className="relative h-6 w-6 overflow-hidden rounded-full">
+                  <Image
+                    src="/brand/instagram-bubble-clean.png"
+                    alt="Instagram"
+                    fill
+                    className="object-contain"
+                  />
                 </span>
                 {t("quoteThanksInstagramCta")}
                 <ExternalLink className="h-4 w-4" />
               </a>
 
               <Link
-                href="https://wa.me/573104798643?text=Hola%20Malianteo%2C%20acepto%20continuar%20mi%20proceso%20de%20cotizacion."
+                href="/cotizacion"
                 className="inline-flex items-center justify-center rounded-2xl border border-white/15 bg-white/5 px-5 py-4 text-sm font-semibold uppercase tracking-[0.14em] text-zinc-100 transition hover:bg-white/10"
               >
-                {t("quoteThanksWhatsappCta")}
+                {t("quoteThanksNewQuoteCta")}
               </Link>
+
+              <a
+                href="https://wa.me/573104798643?text=Hola%20Malianteo%2C%20quiero%20seguir%20con%20mi%20proceso."
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center justify-center gap-2 rounded-2xl border border-emerald-400/35 bg-emerald-500/15 px-5 py-4 text-sm font-semibold uppercase tracking-[0.14em] text-emerald-100 transition hover:bg-emerald-500/20"
+              >
+                <span className="relative h-6 w-6 overflow-hidden rounded-full">
+                  <Image
+                    src="/brand/whatsapp-bubble-clean.png"
+                    alt="WhatsApp"
+                    fill
+                    className="object-contain"
+                  />
+                </span>
+                {t("quoteThanksWhatsappCta")}
+              </a>
             </div>
           </div>
         </article>
