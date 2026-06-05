@@ -1,4 +1,4 @@
-import { QuoteReferenceStep } from "@/widgets/quote/QuoteReferenceStep";
+import { QuoteAdvisoryStep } from "@/widgets/quote/QuoteAdvisoryStep";
 
 type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
 
@@ -12,16 +12,11 @@ function getParam(
   return value ?? fallback;
 }
 
-export default async function CotizacionReferenciaPage({
+export default async function CotizacionAsesoriaPage({
   searchParams,
 }: {
   searchParams: SearchParams;
 }) {
   const params = await searchParams;
-  return (
-    <QuoteReferenceStep
-      size={getParam(params, "size", "mediano")}
-      zone={getParam(params, "zone", "")}
-    />
-  );
+  return <QuoteAdvisoryStep size={getParam(params, "size", "grande")} />;
 }

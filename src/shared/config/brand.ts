@@ -16,3 +16,16 @@ export const WHATSAPP_MESSAGES = {
   quoteFollowUp: "Hola quiero seguir con mi cotización ✴️🔥",
   contact: "Hola quiero cotizar un tatuaje ✴️🔥",
 } as const;
+
+export function buildAdvisoryWhatsAppMessage({
+  mode,
+  slotLabel,
+  clientName,
+}: {
+  mode: "presencial" | "virtual";
+  slotLabel: string;
+  clientName: string;
+}) {
+  const modality = mode === "presencial" ? "presencial (30 min)" : "virtual (15 min)";
+  return `Hola Neutro, soy ${clientName}. Confirmo mi asesoría ${modality} para ${slotLabel} ✴️`;
+}

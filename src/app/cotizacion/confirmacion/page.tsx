@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import { QuoteConfirmationStep } from "@/widgets/quote/QuoteConfirmationStep";
 
 type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
@@ -58,7 +59,7 @@ function getSizeSessionRange(size: string): [number, number] {
 
 function getStyleFactor(style: string) {
   const normalized = normalizeText(style);
-  if (normalized.includes("neutrottt") || normalized.includes("malianteo")) {
+  if (normalized.includes("neutrottt")) {
     return { priceFactor: 0.88, minAdj: 0, maxAdj: -1 };
   }
   if (normalized.includes("linea")) return { priceFactor: 0.95, minAdj: 0, maxAdj: 0 };
@@ -114,21 +115,17 @@ export default async function CotizacionConfirmacionPage({
   const params = await searchParams;
   const rawSize = getParam(params, "size", "mediano");
   const rawZone = getParam(params, "zone", "brazo");
-  const rawStyle = getParam(params, "style", "Realismo oscuro");
-  const rawNotes = getParam(params, "notes", "");
+
+  if (normalizeText(rawSize).includes("gran")) {
+    redirect(`/cotizacion/asesoria?size=${encodeURIComponent(rawSize)}`);
+  }
+
   const size = titleCase(rawSize);
   const zone = titleCase(rawZone);
-  const style = rawStyle;
-  const estimate = getEstimate(rawSize, rawZone, rawStyle);
+  const estimate = getEstimate(rawSize, rawZone, "Neutrottt Style");
 
   return (
-    <QuoteConfirmationStep
-      size={size}
-      zone={zone}
-      style={style}
-      notes={rawNotes.trim()}
-      estimate={estimate}
-    />
+    <QuoteConfirmationStep size={size} zone={zone} estimate={estimate} />
   );
 }
 

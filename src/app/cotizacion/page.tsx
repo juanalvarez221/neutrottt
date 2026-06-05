@@ -59,7 +59,7 @@ export default function CotizacionPage() {
     }
     const fullPhone = `${countryCode} ${cleanPhone}`.replace(/\s+/g, " ").trim();
     saveQuoteProfile({ name: cleanName, phone: fullPhone, email: cleanEmail });
-    router.push("/cotizacion/tamano");
+    router.push("/cotizacion/conexion");
   };
 
   return (

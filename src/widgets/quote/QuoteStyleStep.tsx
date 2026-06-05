@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowRight } from "lucide-react";
 import { QuoteShell } from "@/widgets/quote/QuoteShell";
 import { useSiteLanguage } from "@/shared/i18n/LanguageProvider";
+import { getQuoteDraft, isLargeQuoteSize } from "@/shared/lib/quoteDraft";
 
 const STYLE_OPTIONS = [
   "Realismo oscuro",
@@ -19,6 +20,21 @@ export function QuoteStyleStep({ size, zone }: { size: string; zone: string }) {
   const [style, setStyle] = useState<(typeof STYLE_OPTIONS)[number]>(
     STYLE_OPTIONS[0],
   );
+
+  useEffect(() => {
+    const draft = getQuoteDraft();
+    if (isLargeQuoteSize(size)) {
+      router.replace(`/cotizacion/asesoria?size=${encodeURIComponent(size)}`);
+      return;
+    }
+    if (draft?.zone) {
+      router.replace(
+        `/cotizacion/confirmacion?size=${encodeURIComponent(size)}&zone=${encodeURIComponent(draft.zone)}`,
+      );
+      return;
+    }
+    router.replace(`/cotizacion/ubicacion?size=${encodeURIComponent(size)}`);
+  }, [router, size]);
 
   return (
     <QuoteShell>
@@ -43,7 +59,7 @@ export function QuoteStyleStep({ size, zone }: { size: string; zone: string }) {
         <div className="glass-card rounded-2xl p-5">
           <div className="mb-4 flex items-center gap-3">
             <div className="flex h-6 w-6 items-center justify-center rounded-full border border-amber-500/30 bg-amber-600/10">
-              <span className="text-[10px] font-bold text-white">3</span>
+              <span className="text-[10px] font-bold text-white">6</span>
             </div>
             <h3 className="typo-subtitle text-sm uppercase tracking-[0.14em] text-zinc-200">
               Estilo artístico
@@ -84,7 +100,7 @@ export function QuoteStyleStep({ size, zone }: { size: string; zone: string }) {
           type="button"
           onClick={() =>
             router.push(
-              `/cotizacion/ubicacion?size=${encodeURIComponent(size)}&zone=${encodeURIComponent(zone)}`,
+              `/cotizacion/ubicacion?size=${encodeURIComponent(size)}`,
             )
           }
           className="rounded-xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold text-zinc-100 transition hover:bg-white/8"
@@ -93,11 +109,12 @@ export function QuoteStyleStep({ size, zone }: { size: string; zone: string }) {
         </button>
         <button
           type="button"
-          onClick={() =>
+          onClick={() => {
+            const notes = getQuoteDraft()?.notes ?? "";
             router.push(
-              `/cotizacion/referencia?size=${encodeURIComponent(size)}&zone=${encodeURIComponent(zone)}&style=${encodeURIComponent(style)}`,
-            )
-          }
+              `/cotizacion/confirmacion?size=${encodeURIComponent(size)}&zone=${encodeURIComponent(zone)}&style=${encodeURIComponent(style)}&notes=${encodeURIComponent(notes.trim())}`,
+            );
+          }}
           className="typo-cta group inline-flex items-center justify-center gap-2 rounded-xl border border-amber-500/35 bg-gradient-to-r from-amber-700 to-orange-600 px-6 py-3 text-white transition hover:-translate-y-0.5 hover:shadow-[0_0_20px_rgba(245,158,11,0.35)]"
         >
           {t("quoteContinue")}

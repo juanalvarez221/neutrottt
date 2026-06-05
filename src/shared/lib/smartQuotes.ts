@@ -1,8 +1,11 @@
 export type SmartQuoteStatus =
   | "Pendiente de Ajuste"
+  | "Asesoría Agendada"
   | "Esperando Confirmacion"
   | "Enviada"
   | "Pagada/Agendada";
+
+export type AdvisoryMode = "presencial" | "virtual";
 
 export type SmartQuoteRequest = {
   id: string;
@@ -14,6 +17,14 @@ export type SmartQuoteRequest = {
   zone: string;
   style: string;
   notes: string;
+  connectionValues?: string;
+  connectionCollaboration?: string;
+  connectionPurpose?: string;
+  connectionAftercare?: string;
+  requiresAdvisory?: boolean;
+  advisoryMode?: AdvisoryMode;
+  advisoryScheduledAt?: string;
+  advisoryBookingId?: string;
   estimateSessions: string;
   estimatePerSession: string;
   estimateTotal: string;

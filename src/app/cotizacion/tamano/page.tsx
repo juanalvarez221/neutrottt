@@ -1,10 +1,11 @@
 "use client";
 
 import Image from "next/image";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { QuoteShell } from "@/widgets/quote/QuoteShell";
 import { Check, ArrowRight } from "lucide-react";
+import { getQuoteConnection } from "@/shared/lib/quoteConnection";
 import { useSiteLanguage } from "@/shared/i18n/LanguageProvider";
 
 type SizeOption = "pequeno" | "mediano" | "grande";
@@ -13,6 +14,12 @@ export default function CotizacionTamanoPage() {
   const router = useRouter();
   const { t } = useSiteLanguage();
   const [size, setSize] = useState<SizeOption>("mediano");
+
+  useEffect(() => {
+    if (!getQuoteConnection()) {
+      router.replace("/cotizacion/conexion");
+    }
+  }, [router]);
 
   const options = useMemo(
     () =>
@@ -59,14 +66,14 @@ export default function CotizacionTamanoPage() {
           </span>
         </h2>
         <p className="typo-body mt-4 max-w-2xl leading-relaxed">
-          {t("quoteSizeBody")}
+          {size === "grande" ? t("quoteSizeBodyLarge") : t("quoteSizeBody")}
         </p>
       </section>
 
       <section className="mb-10">
         <div className="mb-4 flex items-center gap-3">
           <div className="flex h-6 w-6 items-center justify-center rounded-full border border-amber-500/30 bg-amber-600/10">
-            <span className="text-[10px] font-bold text-white">1</span>
+            <span className="text-[10px] font-bold text-white">3</span>
           </div>
           <h3 className="typo-subtitle text-sm uppercase tracking-[0.14em] text-zinc-200">
             Tamaño aproximado
@@ -136,7 +143,7 @@ export default function CotizacionTamanoPage() {
       <div className="mt-auto flex items-center justify-between gap-3 pt-6">
         <button
           type="button"
-          onClick={() => router.push("/cotizacion")}
+          onClick={() => router.push("/cotizacion/conexion")}
           className="rounded-xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold text-zinc-100 transition hover:bg-white/8"
         >
           {t("commonBack")}

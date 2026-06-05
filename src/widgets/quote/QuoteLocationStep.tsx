@@ -1,22 +1,42 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { QuoteShell } from "@/widgets/quote/QuoteShell";
 import { ArrowRight } from "lucide-react";
 import { BodyAreaSelector, type ZoneId } from "@/widgets/quote/BodyAreaSelector";
 import { useSiteLanguage } from "@/shared/i18n/LanguageProvider";
+import { getQuoteConnection } from "@/shared/lib/quoteConnection";
+import { getQuoteDraft, isLargeQuoteSize, saveQuoteDraft } from "@/shared/lib/quoteDraft";
 
 export function QuoteLocationStep({ size }: { size: string }) {
   const router = useRouter();
   const { t } = useSiteLanguage();
   const [zone, setZone] = useState<ZoneId>("brazo");
 
+  const isLarge = isLargeQuoteSize(size);
+
+  useEffect(() => {
+    if (!getQuoteConnection()) {
+      router.replace("/cotizacion/conexion");
+      return;
+    }
+    const saved = getQuoteDraft();
+    if (saved?.zone && saved.size === size) {
+      setZone(saved.zone as ZoneId);
+    }
+  }, [router, size]);
+
   const nextHref = useMemo(
     () =>
-      `/cotizacion/estilo?size=${encodeURIComponent(size)}&zone=${encodeURIComponent(zone)}`,
+      `/cotizacion/referencia?size=${encodeURIComponent(size)}&zone=${encodeURIComponent(zone)}`,
     [size, zone],
   );
+
+  const goNext = () => {
+    saveQuoteDraft({ size, zone, notes: getQuoteDraft()?.notes ?? "" });
+    router.push(nextHref);
+  };
 
   return (
     <QuoteShell>
@@ -33,7 +53,7 @@ export function QuoteLocationStep({ size }: { size: string }) {
           </span>
         </h2>
         <p className="typo-body mt-4 max-w-2xl leading-relaxed">
-          {t("quoteLocationBody")}
+          {isLarge ? t("quoteLocationBodyLarge") : t("quoteLocationBody")}
         </p>
       </section>
 
@@ -41,13 +61,13 @@ export function QuoteLocationStep({ size }: { size: string }) {
         <div className="glass-card rounded-2xl p-5">
           <div className="mb-4 flex items-center gap-3">
             <div className="flex h-6 w-6 items-center justify-center rounded-full border border-amber-500/30 bg-amber-600/10">
-              <span className="text-[10px] font-bold text-white">2</span>
+              <span className="text-[10px] font-bold text-white">4</span>
             </div>
             <h3 className="typo-subtitle text-sm uppercase tracking-[0.14em] text-zinc-200">
-              Ubicación en el cuerpo
+              {t("quoteLocationCardTitle")}
             </h3>
           </div>
-          <BodyAreaSelector zone={zone} onZoneChange={setZone} />
+          <BodyAreaSelector zone={zone} onZoneChange={setZone} isLargeProject={isLarge} />
         </div>
       </section>
 
@@ -62,7 +82,7 @@ export function QuoteLocationStep({ size }: { size: string }) {
 
         <button
           type="button"
-          onClick={() => router.push(nextHref)}
+          onClick={goNext}
           className="group inline-flex items-center justify-center gap-2 rounded-xl border border-amber-500/35 bg-gradient-to-r from-amber-700 to-orange-600 px-6 py-3 text-sm font-bold uppercase tracking-[0.2em] text-white transition hover:-translate-y-0.5 hover:shadow-[0_0_20px_rgba(245,158,11,0.35)]"
         >
           {t("quoteContinue")}
@@ -72,4 +92,3 @@ export function QuoteLocationStep({ size }: { size: string }) {
     </QuoteShell>
   );
 }
-

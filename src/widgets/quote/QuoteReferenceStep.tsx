@@ -3,24 +3,34 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import type { ChangeEvent, DragEvent } from "react";
 import { QuoteShell } from "@/widgets/quote/QuoteShell";
 import { useSiteLanguage } from "@/shared/i18n/LanguageProvider";
+import {
+  getQuoteDraft,
+  isLargeQuoteSize,
+  saveQuoteDraft,
+} from "@/shared/lib/quoteDraft";
+import { getQuoteConnection } from "@/shared/lib/quoteConnection";
 
-export function QuoteReferenceStep({
-  size,
-  zone,
-  style,
-}: {
-  size: string;
-  zone: string;
-  style: string;
-}) {
+export function QuoteReferenceStep({ size, zone }: { size: string; zone: string }) {
+  const router = useRouter();
   const { language, t } = useSiteLanguage();
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [referenceFile, setReferenceFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [notes, setNotes] = useState("");
+  const isLarge = isLargeQuoteSize(size);
+
+  useEffect(() => {
+    if (!getQuoteConnection()) {
+      router.replace("/cotizacion/conexion");
+      return;
+    }
+    if (!zone.trim()) {
+      router.replace(`/cotizacion/ubicacion?size=${encodeURIComponent(size)}`);
+    }
+  }, [router, size, zone]);
 
   const pickFile = (file: File | null) => {
     if (!file || !file.type.startsWith("image/")) return;
@@ -64,6 +74,19 @@ export function QuoteReferenceStep({
     };
   }, [previewUrl]);
 
+  const onContinue = () => {
+    saveQuoteDraft({ size, zone, notes: "" });
+    if (isLarge) {
+      router.push(`/cotizacion/asesoria?size=${encodeURIComponent(size)}`);
+      return;
+    }
+    router.push(
+      `/cotizacion/confirmacion?size=${encodeURIComponent(size)}&zone=${encodeURIComponent(zone)}`,
+    );
+  };
+
+  const backHref = `/cotizacion/ubicacion?size=${encodeURIComponent(size)}`;
+
   return (
     <QuoteShell>
       <section className="relative mb-8">
@@ -78,18 +101,28 @@ export function QuoteReferenceStep({
             {t("quoteReferenceTitle2")}
           </span>
         </h2>
-        <p className="typo-body mt-4 max-w-2xl leading-relaxed">{t("quoteReferenceBody")}</p>
+        <p className="typo-body mt-4 max-w-2xl leading-relaxed">
+          {isLarge ? t("quoteReferenceBodyLarge") : t("quoteReferenceBody")}
+        </p>
+        {isLarge ? (
+          <p className="typo-tech mt-3 text-xs uppercase tracking-[0.14em] text-amber-200/75">
+            {t("quoteReferenceLargeNotice")}
+          </p>
+        ) : null}
       </section>
 
       <section className="mb-8">
         <div className="glass-card rounded-2xl p-5">
           <div className="mb-4 flex items-center gap-3">
             <div className="flex h-6 w-6 items-center justify-center rounded-full border border-amber-500/30 bg-amber-600/10">
-              <span className="text-[10px] font-bold text-white">4</span>
+              <span className="text-[10px] font-bold text-white">5</span>
             </div>
             <h3 className="typo-subtitle text-sm uppercase tracking-[0.14em] text-zinc-200">
-              {language === "en" ? "Visual references (optional)" : "Referencias visuales (opcional)"}
+              {t("quoteReferenceVisualCard")}
             </h3>
+            <span className="typo-tech rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-[10px] uppercase tracking-[0.12em] text-zinc-400">
+              {language === "en" ? "Optional" : "Opcional"}
+            </span>
           </div>
 
           <div
@@ -147,15 +180,11 @@ export function QuoteReferenceStep({
                 </div>
               </div>
             ) : (
-              <div className="flex min-h-44 items-center justify-center">
+              <div className="flex min-h-36 items-center justify-center">
                 <div className="text-center">
                   <div className="mx-auto h-12 w-12 rounded-2xl border border-white/10 bg-white/5" />
                   <p className="mt-3 text-sm font-semibold text-zinc-50">{t("quoteReferenceUpload")}</p>
-                  <p className="mt-1 text-xs text-zinc-400">
-                    {language === "en"
-                      ? "Drag and drop or select an image"
-                      : "Arrastra y suelta o selecciona una imagen"}
-                  </p>
+                  <p className="mt-1 text-xs text-zinc-400">{t("quoteReferenceVisualHint")}</p>
                   <button
                     type="button"
                     onClick={() => inputRef.current?.click()}
@@ -167,45 +196,23 @@ export function QuoteReferenceStep({
               </div>
             )}
           </div>
-
-          <p className="mt-3 text-xs text-zinc-400">
-            {language === "en"
-              ? "Optional. You can continue without uploading."
-              : "Opcional. Puedes continuar sin subir imagen."}
-          </p>
-
-          <div className="mt-5 rounded-xl border border-white/10 bg-black/25 p-3">
-            <label className="space-y-2">
-              <span className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-zinc-300">
-                {t("quoteReferenceNoteLabel")}
-              </span>
-              <textarea
-                value={notes}
-                onChange={(event) => setNotes(event.target.value)}
-                rows={3}
-                maxLength={280}
-                placeholder={t("quoteReferenceNotePlaceholder")}
-                className="w-full resize-none rounded-xl border border-white/10 bg-black/35 px-4 py-3 text-sm text-zinc-100 outline-none transition placeholder:text-zinc-500 focus:border-amber-500/50"
-              />
-              <p className="text-xs text-zinc-400">{t("quoteReferenceNoteHelp")}</p>
-            </label>
-          </div>
         </div>
       </section>
 
       <div className="mt-6 flex items-center justify-between gap-3">
         <Link
-          href={`/cotizacion/estilo?size=${encodeURIComponent(size)}&zone=${encodeURIComponent(zone)}`}
+          href={backHref}
           className="rounded-xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold text-zinc-100 transition hover:bg-white/8"
         >
           {t("commonBack")}
         </Link>
-        <Link
-          href={`/cotizacion/confirmacion?size=${encodeURIComponent(size)}&zone=${encodeURIComponent(zone)}&style=${encodeURIComponent(style)}&notes=${encodeURIComponent(notes.trim())}`}
+        <button
+          type="button"
+          onClick={onContinue}
           className="rounded-xl border border-amber-500/35 bg-gradient-to-r from-amber-700 to-orange-600 px-6 py-3 text-sm font-bold uppercase tracking-[0.2em] text-white transition hover:-translate-y-0.5 hover:shadow-[0_0_20px_rgba(245,158,11,0.35)]"
         >
-          {t("quoteReferenceNext")}
-        </Link>
+          {isLarge ? t("quoteReferenceNextLarge") : t("quoteReferenceNextSmall")}
+        </button>
       </div>
     </QuoteShell>
   );

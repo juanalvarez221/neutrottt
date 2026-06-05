@@ -1,23 +1,24 @@
 "use client";
 
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { QuoteShell } from "@/widgets/quote/QuoteShell";
 import { BadgeDollarSign, CheckCircle2, Sparkles } from "lucide-react";
 import { useSiteLanguage } from "@/shared/i18n/LanguageProvider";
 import { getQuoteProfile } from "@/shared/lib/quoteProfile";
+import { getQuoteConnection, mapConnectionToSmartQuote } from "@/shared/lib/quoteConnection";
 import { addSmartQuoteRequest } from "@/shared/lib/smartQuotes";
+import { isLargeQuoteSize, setQuoteCompletionType } from "@/shared/lib/quoteDraft";
+
+const DEFAULT_QUOTE_STYLE = "Neutrottt Style";
 
 export function QuoteConfirmationStep({
   size,
   zone,
-  style,
-  notes,
   estimate,
 }: {
   size: string;
   zone: string;
-  style: string;
-  notes?: string;
   estimate: {
     sessions: string;
     perSession: string;
@@ -27,9 +28,17 @@ export function QuoteConfirmationStep({
   const router = useRouter();
   const { language, t } = useSiteLanguage();
 
+  useEffect(() => {
+    if (isLargeQuoteSize(size)) {
+      router.replace(`/cotizacion/asesoria?size=${encodeURIComponent(size.toLowerCase())}`);
+    }
+  }, [router, size]);
+
   const registerQuoteAndContinue = () => {
     const profile = getQuoteProfile();
+    const connection = getQuoteConnection();
     if (profile) {
+      const connectionFields = connection ? mapConnectionToSmartQuote(connection, t) : {};
       addSmartQuoteRequest({
         id: `SQ-${Date.now()}`,
         createdAt: new Date().toISOString(),
@@ -38,14 +47,16 @@ export function QuoteConfirmationStep({
         email: profile.email,
         size,
         zone,
-        style,
-        notes: notes ?? "",
+        style: DEFAULT_QUOTE_STYLE,
+        notes: "",
+        ...connectionFields,
         estimateSessions: estimate.sessions,
         estimatePerSession: estimate.perSession,
         estimateTotal: estimate.total,
         status: "Pendiente de Ajuste",
       });
     }
+    setQuoteCompletionType("cotizacion");
     router.push("/cotizacion/gracias");
   };
 
@@ -86,15 +97,6 @@ export function QuoteConfirmationStep({
               <CheckCircle2 className="h-4 w-4 text-amber-300" />
               {language === "en" ? "Area" : "Zona"}: {zone}
             </p>
-            <p className="inline-flex items-center gap-2 text-zinc-200">
-              <CheckCircle2 className="h-4 w-4 text-amber-300" />
-              {language === "en" ? "Style" : "Estilo"}: {style}
-            </p>
-            {notes ? (
-              <p className="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-zinc-200">
-                {t("quoteNotesLabel")}: {notes}
-              </p>
-            ) : null}
           </div>
 
           <div className="mt-4 grid gap-3 sm:grid-cols-3">

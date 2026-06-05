@@ -3,6 +3,7 @@ import { Inter, Space_Mono, Syncopate, UnifrakturMaguntia } from "next/font/goog
 import "./globals.css";
 import { LanguageProvider } from "@/shared/i18n/LanguageProvider";
 import { LanguagePrompt } from "@/widgets/i18n/LanguagePrompt";
+import { NavigationScrollManager } from "@/widgets/navigation/NavigationScrollManager";
 
 const fontInter = Inter({
   variable: "--font-inter",
@@ -46,6 +47,7 @@ export default function RootLayout({
     >
       <body suppressHydrationWarning className="min-h-full flex flex-col bg-[#050403] text-zinc-50">
         <LanguageProvider>
+          <NavigationScrollManager />
           <div aria-hidden className="amber-storm">
             <span className="amber-storm__flash amber-storm__flash--a" />
             <span className="amber-storm__flash amber-storm__flash--b" />

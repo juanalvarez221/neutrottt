@@ -182,11 +182,13 @@ function BodyMapImage({
 export function BodyAreaSelector({
   zone,
   onZoneChange,
+  isLargeProject = false,
 }: {
   zone: ZoneId;
   onZoneChange: (zone: ZoneId) => void;
+  isLargeProject?: boolean;
 }) {
-  const { language } = useSiteLanguage();
+  const { language, t } = useSiteLanguage();
   const progress = 50;
 
   return (
@@ -210,9 +212,7 @@ export function BodyAreaSelector({
           {language === "en" ? "are you tattooing?" : "quieres tatuar?"}
         </h3>
         <p className="typo-body text-center">
-          {language === "en"
-            ? "Pick it and I'll give you a more accurate estimate."
-            : "Eligela y te doy una estimacion mas precisa."}
+          {isLargeProject ? t("quoteLocationHintAdvisory") : t("quoteLocationHintQuote")}
         </p>
       </div>
 

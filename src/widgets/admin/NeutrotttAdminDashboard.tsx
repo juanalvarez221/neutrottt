@@ -29,6 +29,7 @@ import {
   type DesignHistoryKind,
   type DesignTargetType,
 } from "@/shared/lib/designHistory";
+import { AdvisoryAgendaPanel } from "@/widgets/admin/AdvisoryAgendaPanel";
 
 type ExternalProject = {
   id: string;
@@ -45,6 +46,7 @@ type AssetItem = {
 
 const STATUS_STYLES: Record<SmartQuoteStatus, string> = {
   "Pendiente de Ajuste": "border-amber-500/30 bg-amber-500/10 text-amber-200",
+  "Asesoría Agendada": "border-sky-500/30 bg-sky-500/10 text-sky-200",
   "Esperando Confirmacion":
     "border-sky-500/30 bg-sky-500/10 text-sky-200",
   Enviada: "border-amber-500/30 bg-amber-600/15 text-amber-100",
@@ -476,7 +478,7 @@ export function NeutrotttAdminDashboard() {
                 onClick={() => setAgendaVisible((v) => !v)}
                 className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm font-semibold text-zinc-200 transition hover:bg-white/10"
               >
-                <CalendarDays className="h-4 w-4" /> Agenda del Dia
+                <CalendarDays className="h-4 w-4" /> Asesorías
               </button>
               <button
                 onClick={() => setRemindersSent((n) => n + 1)}
@@ -491,18 +493,7 @@ export function NeutrotttAdminDashboard() {
           </div>
         </Card>
 
-        {agendaVisible ? (
-          <Card>
-            <div className="p-4 sm:p-5">
-              <h2 className="text-sm font-semibold text-zinc-50">Agenda de hoy</h2>
-              <div className="mt-2 space-y-1.5 text-sm text-zinc-300">
-                <p>10:00 - Revision diseno Laura M.</p>
-                <p>13:00 - Sesion 1 blackwork Daniel R.</p>
-                <p>16:30 - Follow-up cicatrizacion Sara O.</p>
-              </div>
-            </div>
-          </Card>
-        ) : null}
+        {agendaVisible ? <AdvisoryAgendaPanel /> : null}
 
         <div className="grid gap-3 xl:grid-cols-[1.35fr_.95fr]">
           <div className="space-y-3">
@@ -575,6 +566,32 @@ export function NeutrotttAdminDashboard() {
                                 {quote.notes || "Sin notas"}
                               </span>
                             </p>
+                            {quote.connectionAftercare ? (
+                              <p>
+                                Origen:{" "}
+                                <span className="text-zinc-100">{quote.connectionAftercare}</span>
+                              </p>
+                            ) : null}
+                            {quote.connectionValues ? (
+                              <p className="sm:col-span-2">
+                                Valores:{" "}
+                                <span className="text-zinc-100">{quote.connectionValues}</span>
+                              </p>
+                            ) : null}
+                            {quote.connectionCollaboration ? (
+                              <p className="sm:col-span-2">
+                                Ajustes:{" "}
+                                <span className="text-zinc-100">
+                                  {quote.connectionCollaboration}
+                                </span>
+                              </p>
+                            ) : null}
+                            {quote.connectionPurpose ? (
+                              <p className="sm:col-span-2">
+                                Nota de match:{" "}
+                                <span className="text-zinc-100">{quote.connectionPurpose}</span>
+                              </p>
+                            ) : null}
                           </div>
 
                           <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">

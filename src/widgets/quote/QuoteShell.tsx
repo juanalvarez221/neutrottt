@@ -13,9 +13,11 @@ import { HeroBrandTitle } from "@/widgets/home/HeroBrandTitle";
 export function QuoteShell({
   children,
   brand = BRAND.name,
+  showGreeting = true,
 }: {
   children: React.ReactNode;
   brand?: string;
+  showGreeting?: boolean;
 }) {
   const router = useRouter();
   const { t } = useSiteLanguage();
@@ -90,7 +92,7 @@ export function QuoteShell({
         transition={{ duration: 0.45, ease: "easeOut" }}
         className="relative z-10 w-full px-4 pb-28 pt-8 sm:px-6 md:px-10"
       >
-        {firstName ? (
+        {showGreeting && firstName ? (
           <p className="typo-body mb-6 max-w-2xl leading-relaxed text-amber-100/95">
             {t("quoteGreeting", { name: firstName })}
           </p>
