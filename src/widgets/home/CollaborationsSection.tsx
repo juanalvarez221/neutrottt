@@ -11,7 +11,7 @@ import { scrollRevealViewport } from "@/shared/motion/scrollReveal";
 const DANNIEL_ARTIST = {
   handle: "@dannielcuervo",
   instagramUrl: "https://www.instagram.com/dannielcuervo/",
-  avatar: "/brand/collab-malianteo-portrait.png",
+  avatar: "/brand/collab-danniel-cuervo.png",
   nameKey: "collabDannielName" as SiteCopyKey,
   altKey: "collabDannielAlt" as SiteCopyKey,
   avatarPosition: "center 18%",
@@ -20,7 +20,7 @@ const DANNIEL_ARTIST = {
 const MALIANTEO_ARTIST = {
   handle: "@malianteo_ink",
   instagramUrl: "https://www.instagram.com/malianteo_ink/",
-  avatar: "/brand/collab-danniel-cuervo.png",
+  avatar: "/brand/collab-malianteo-portrait.png",
   nameKey: "collabMalianteoName" as SiteCopyKey,
   altKey: "collabMalianteoAlt" as SiteCopyKey,
   avatarPosition: "center 22%",
