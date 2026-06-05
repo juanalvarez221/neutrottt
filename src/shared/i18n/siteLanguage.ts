@@ -117,7 +117,8 @@ export const SITE_COPY = {
       "Misma mesa, mismo estándar. Una pieza donde el detalle se siente antes de explicarse.",
     collabMalianteoFeaturedVideoAlt:
       "Video del proceso del tatuaje con Malianteo Ink y Neutrottt",
-    collabMalianteoFeaturedResultAlt: "Resultado final — espalda en realismo y contraste",
+    collabMalianteoFeaturedResultAlt:
+      "Resultado final — espalda con Malianteo Ink y Neutrottt en estudio",
     identityTag: "Identidad",
     identityTitle: "Arte con carácter",
     identityP1:
@@ -318,7 +319,8 @@ export const SITE_COPY = {
       "Same table, same standard. A piece you feel before you explain it.",
     collabMalianteoFeaturedVideoAlt:
       "Tattoo process video with Malianteo Ink and Neutrottt",
-    collabMalianteoFeaturedResultAlt: "Final result — back piece in realism and contrast",
+    collabMalianteoFeaturedResultAlt:
+      "Final result — back piece with Malianteo Ink and Neutrottt in studio",
     identityTag: "Identity",
     identityTitle: "Art with character",
     identityP1:

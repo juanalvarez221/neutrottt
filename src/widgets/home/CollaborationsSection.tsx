@@ -77,7 +77,7 @@ const FEATURED_PROJECTS: FeaturedProject[] = [
     indexLabel: "02",
     video: "/brand/collab-malianteo-back-video.mp4",
     poster: "/brand/collab-malianteo-back-piece.jpg",
-    resultImage: "/brand/collab-malianteo-back-piece.jpg",
+    resultImage: "/brand/collab-malianteo-neutro-result.png",
     resultAltKey: "collabMalianteoFeaturedResultAlt",
     tagKey: "collabMalianteoFeaturedTag",
     titleKey: "collabMalianteoFeaturedTitle",
