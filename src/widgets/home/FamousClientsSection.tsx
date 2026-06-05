@@ -19,6 +19,8 @@ import {
 } from "lucide-react";
 import { useSiteLanguage } from "@/shared/i18n/LanguageProvider";
 import type { SiteCopyKey, SiteLanguage } from "@/shared/i18n/siteLanguage";
+import { useHorizontalDragScroll } from "@/shared/hooks/useHorizontalDragScroll";
+import { scrollRevealViewport } from "@/shared/motion/scrollReveal";
 
 const PILL_KEYS = ["famousPill1", "famousPill2", "famousPill3"] as const;
 
@@ -188,6 +190,7 @@ function InstagramPostCard({
   );
 
   const scrollerRef = useRef<HTMLDivElement>(null);
+  const { wasDragged } = useHorizontalDragScroll(scrollerRef);
   const lastTapRef = useRef(0);
   const shareTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -251,7 +254,8 @@ function InstagramPostCard({
     [triggerHeartBurst],
   );
 
-  const handleMediaTap = () => {
+  const handleMediaPointerUp = () => {
+    if (wasDragged()) return;
     const now = Date.now();
     if (now - lastTapRef.current < 320) {
       applyLike(true);
@@ -311,7 +315,7 @@ function InstagramPostCard({
     <motion.article
       initial={{ opacity: 0, y: 24 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount: 0.2 }}
+      viewport={scrollRevealViewport}
       transition={{ duration: 0.5, ease: "easeOut" }}
       className="ig-post-card relative w-full overflow-hidden rounded-xl sm:rounded-2xl"
     >
@@ -360,9 +364,10 @@ function InstagramPostCard({
         <div
           ref={scrollerRef}
           onScroll={syncSlide}
+          onPointerUp={multi ? handleMediaPointerUp : undefined}
           className={
             multi
-              ? "ig-post-media-scroll relative flex w-full snap-x snap-mandatory overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+              ? "ig-post-media-scroll relative flex w-full snap-x snap-mandatory overflow-x-auto overscroll-x-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
               : "relative w-full"
           }
         >
@@ -376,17 +381,9 @@ function InstagramPostCard({
               }
             >
               <div
-                role="button"
-                tabIndex={0}
-                className="ig-post-media-frame w-full cursor-default"
-                onClick={handleMediaTap}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") {
-                    e.preventDefault();
-                    applyLike(!liked);
-                  }
-                }}
-                aria-label={t("famousLikeAria")}
+                className="ig-post-media-frame w-full"
+                onPointerUp={!multi ? handleMediaPointerUp : undefined}
+                onDoubleClick={() => applyLike(true)}
               >
                 {s.content}
               </div>
@@ -428,7 +425,7 @@ function InstagramPostCard({
               <button
                 type="button"
                 onClick={() => goToSlide(slide - 1)}
-                className="absolute left-2 top-1/2 z-10 hidden -translate-y-1/2 rounded-full bg-black/50 p-1.5 text-white backdrop-blur-sm transition hover:bg-black/70 sm:flex"
+                className="absolute left-2 top-1/2 z-10 flex -translate-y-1/2 rounded-full bg-black/50 p-1.5 text-white backdrop-blur-sm transition hover:bg-black/70"
                 aria-label="Anterior"
               >
                 <ChevronLeft className="h-5 w-5" strokeWidth={2} />
@@ -438,7 +435,7 @@ function InstagramPostCard({
               <button
                 type="button"
                 onClick={() => goToSlide(slide + 1)}
-                className="absolute right-2 top-1/2 z-10 hidden -translate-y-1/2 rounded-full bg-black/50 p-1.5 text-white backdrop-blur-sm transition hover:bg-black/70 sm:flex"
+                className="absolute right-2 top-1/2 z-10 flex -translate-y-1/2 rounded-full bg-black/50 p-1.5 text-white backdrop-blur-sm transition hover:bg-black/70"
                 aria-label="Siguiente"
               >
                 <ChevronRight className="h-5 w-5" strokeWidth={2} />
@@ -616,7 +613,7 @@ export function FamousClientsSection() {
     <motion.section
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount: 0.15 }}
+      viewport={scrollRevealViewport}
       transition={{ duration: 0.55, ease: "easeOut" }}
       className="page-section relative w-full overflow-hidden border-t border-white/[0.06] bg-[linear-gradient(180deg,rgba(20,14,8,0.98),rgba(8,6,4,1))] py-10 sm:py-14 md:py-16"
       aria-labelledby="famous-clients-heading"

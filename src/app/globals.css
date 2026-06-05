@@ -926,6 +926,14 @@ body {
 .ig-post-media-scroll {
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
+  touch-action: pan-x pan-y;
+  cursor: grab;
+}
+
+.ig-post-media-scroll.is-dragging {
+  cursor: grabbing;
+  scroll-snap-type: none;
+  user-select: none;
 }
 
 .ig-post-dot-active {

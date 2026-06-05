@@ -2,10 +2,13 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useRef } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { Layers } from "lucide-react";
 import { useSiteLanguage } from "@/shared/i18n/LanguageProvider";
 import type { SiteCopyKey } from "@/shared/i18n/siteLanguage";
+import { useHorizontalDragScroll } from "@/shared/hooks/useHorizontalDragScroll";
+import { scrollRevealViewport } from "@/shared/motion/scrollReveal";
 
 const STAGGER_S = 0.58;
 
@@ -70,6 +73,61 @@ const PORTFOLIO_PIECES: {
   },
 ];
 
+function PolaroidCard({
+  piece,
+  t,
+  className = "",
+}: {
+  piece: (typeof PORTFOLIO_PIECES)[number];
+  t: (key: SiteCopyKey) => string;
+  className?: string;
+}) {
+  return (
+    <div className={`portfolio-polaroid relative overflow-hidden rounded-[3px] p-2 pb-3 sm:p-2.5 sm:pb-3.5 ${className}`}>
+      <span
+        aria-hidden
+        className="portfolio-polaroid-tape absolute -top-2 left-1/2 z-30 h-5 w-14 -translate-x-1/2 rotate-[-2deg] rounded-[2px] opacity-90"
+      />
+      <div className="relative flex aspect-[4/5] items-center justify-center overflow-hidden bg-zinc-950">
+        <Image
+          src={piece.src}
+          alt={t(piece.altKey)}
+          fill
+          quality={92}
+          sizes="280px"
+          className="object-contain"
+        />
+      </div>
+      <figcaption className="mt-2 px-0.5">
+        <p className="typo-polaroid-tag">{t(piece.categoryKey)}</p>
+        <p className="typo-polaroid-title mt-0.5">{t(piece.titleKey)}</p>
+      </figcaption>
+    </div>
+  );
+}
+
+function PortfolioMobileStrip({ t }: { t: (key: SiteCopyKey) => string }) {
+  const scrollerRef = useRef<HTMLDivElement>(null);
+  useHorizontalDragScroll(scrollerRef);
+
+  return (
+    <div
+      ref={scrollerRef}
+      className="ig-post-media-scroll page-bleed-x mt-8 flex gap-4 overflow-x-auto overscroll-x-contain px-4 pb-4 snap-x snap-mandatory [scrollbar-width:none] md:hidden [&::-webkit-scrollbar]:hidden"
+    >
+      {PORTFOLIO_PIECES.map((piece) => (
+        <figure
+          key={piece.src}
+          className="w-[min(82vw,280px)] shrink-0 snap-center"
+          style={{ rotate: `${piece.rotate}deg` }}
+        >
+          <PolaroidCard piece={piece} t={t} />
+        </figure>
+      ))}
+    </div>
+  );
+}
+
 function PortfolioPolaroid({
   piece,
   index,
@@ -98,7 +156,7 @@ function PortfolioPolaroid({
           ? { opacity: 1, rotate: piece.rotate, y: 0, scale: 1 }
           : { opacity: 1, rotate: piece.rotate, y: 0, scale: 1 }
       }
-      viewport={{ once: true, amount: 0.35 }}
+      viewport={scrollRevealViewport}
       transition={{
         delay: photoDelay,
         duration: 0.55,
@@ -112,7 +170,7 @@ function PortfolioPolaroid({
         className="portfolio-photo-flash pointer-events-none absolute -inset-[18%] z-20 rounded-sm"
         initial={{ opacity: 0 }}
         whileInView={{ opacity: [0, 1, 0] }}
-        viewport={{ once: true, amount: 0.35 }}
+        viewport={scrollRevealViewport}
         transition={{
           delay: flashDelay,
           duration: reducedMotion ? 0.2 : 0.42,
@@ -121,32 +179,11 @@ function PortfolioPolaroid({
         }}
       />
 
-      {/* Cinta */}
-      <span
-        aria-hidden
-        className="portfolio-polaroid-tape absolute -top-2 left-1/2 z-30 h-5 w-14 -translate-x-1/2 rotate-[-2deg] rounded-[2px] opacity-90"
-      />
-
       <motion.div
-        className="portfolio-polaroid relative overflow-hidden rounded-[3px] p-2 pb-3 sm:p-2.5 sm:pb-3.5"
+        className="relative"
         whileHover={{ y: -4, transition: { duration: 0.25 } }}
       >
-        <div className="relative aspect-[4/5] overflow-hidden bg-zinc-900">
-          <Image
-            src={piece.src}
-            alt={t(piece.altKey)}
-            fill
-            quality={92}
-            sizes="240px"
-            className="object-cover"
-            style={{ objectPosition: piece.objectPosition ?? "center" }}
-            priority={index < 2}
-          />
-        </div>
-        <figcaption className="mt-2 px-0.5">
-          <p className="typo-polaroid-tag">{t(piece.categoryKey)}</p>
-          <p className="typo-polaroid-title mt-0.5">{t(piece.titleKey)}</p>
-        </figcaption>
+        <PolaroidCard piece={piece} t={t} />
       </motion.div>
     </motion.figure>
   );
@@ -156,11 +193,13 @@ function PortfolioPhotoWall({ t }: { t: (key: SiteCopyKey) => string }) {
   const reducedMotion = useReducedMotion();
 
   return (
-    <motion.div
-      className="portfolio-photo-wall page-bleed-x relative mt-8 min-h-[42rem] w-full overflow-hidden border-y border-white/[0.08] sm:mt-10 md:min-h-[38rem] lg:min-h-[40rem]"
+    <>
+      <PortfolioMobileStrip t={t} />
+      <motion.div
+        className="portfolio-photo-wall page-bleed-x relative mt-8 hidden min-h-[38rem] w-full overflow-hidden border-y border-white/[0.08] sm:mt-10 md:block lg:min-h-[40rem]"
       initial={{ opacity: 0 }}
       whileInView={{ opacity: 1 }}
-      viewport={{ once: true, amount: 0.12 }}
+      viewport={scrollRevealViewport}
       transition={{ duration: 0.5 }}
     >
       {PORTFOLIO_PIECES.map((piece, i) => (
@@ -172,7 +211,8 @@ function PortfolioPhotoWall({ t }: { t: (key: SiteCopyKey) => string }) {
           reducedMotion={!!reducedMotion}
         />
       ))}
-    </motion.div>
+      </motion.div>
+    </>
   );
 }
 

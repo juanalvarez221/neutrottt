@@ -157,9 +157,15 @@ export function AboutProcessCarousel() {
   return (
     <div className="mt-8 sm:mt-10">
       <div
-        className="about-process-carousel-viewport page-bleed-x relative cursor-grab overflow-hidden active:cursor-grabbing"
+        className="about-process-carousel-viewport page-bleed-x relative cursor-grab overflow-hidden touch-pan-y active:cursor-grabbing"
         aria-roledescription="carrusel"
         aria-label={t("aboutProcessLabel")}
+        onPointerEnter={() => {
+          pausedRef.current = true;
+        }}
+        onPointerLeave={() => {
+          if (!draggingRef.current) pausedRef.current = false;
+        }}
       >
         <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-8 bg-gradient-to-r from-[#080605] to-transparent sm:w-12 md:w-16" />
         <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-8 bg-gradient-to-l from-[#080605] to-transparent sm:w-12 md:w-16" />
@@ -183,7 +189,7 @@ export function AboutProcessCarousel() {
               className="about-process-frame flex w-[min(92vw,480px)] shrink-0 flex-col overflow-hidden rounded-xl border border-white/10 bg-zinc-950/90 sm:rounded-2xl"
               draggable={false}
             >
-              <div className="relative flex h-[min(72vw,380px)] items-center justify-center p-3 sm:h-[400px] sm:p-4">
+              <div className="relative flex h-[min(78vw,420px)] items-center justify-center bg-black p-3 sm:h-[440px] sm:p-4">
                 <Image
                   src={slide.src}
                   alt={t(slide.altKey)}

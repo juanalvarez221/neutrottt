@@ -6,6 +6,7 @@ import { useSiteLanguage } from "@/shared/i18n/LanguageProvider";
 import type { SiteCopyKey } from "@/shared/i18n/siteLanguage";
 import { AboutProcessCarousel } from "@/widgets/home/AboutProcessCarousel";
 import { StudioLocationTrigger } from "@/shared/ui/StudioLocationTrigger";
+import { scrollRevealViewport } from "@/shared/motion/scrollReveal";
 
 const MILESTONES: {
   titleKey: SiteCopyKey;
@@ -21,7 +22,7 @@ const MILESTONES: {
 const fadeUp = {
   initial: { opacity: 0, y: 16 },
   whileInView: { opacity: 1, y: 0 },
-  viewport: { once: true, amount: 0.2 },
+  viewport: scrollRevealViewport,
   transition: { duration: 0.45, ease: "easeOut" as const },
 };
 
@@ -46,7 +47,7 @@ export function AboutIntroSection() {
     <motion.section
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount: 0.08 }}
+      viewport={scrollRevealViewport}
       transition={{ duration: 0.55, ease: "easeOut" }}
       className="page-section relative w-full overflow-hidden border-t border-white/[0.06] bg-[#080605]/90 py-10 sm:py-14 md:py-18"
       aria-labelledby="about-intro-heading"
