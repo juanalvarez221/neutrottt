@@ -1003,6 +1003,25 @@ body {
   }
 }
 
+.collab-showcase {
+  box-shadow:
+    0 0 0 1px rgba(245, 158, 11, 0.06),
+    0 24px 70px rgba(0, 0, 0, 0.48);
+}
+
+.collab-showcase-media {
+  isolation: isolate;
+}
+
+.collab-credit-card:focus-visible {
+  outline: 2px solid rgba(245, 158, 11, 0.45);
+  outline-offset: 2px;
+}
+
+.collab-result-frame {
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.38);
+}
+
 .famous-badge-wrap {
   isolation: isolate;
 }

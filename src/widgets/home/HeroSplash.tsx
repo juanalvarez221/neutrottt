@@ -19,6 +19,7 @@ import { HeroBrandTitle } from "@/widgets/home/HeroBrandTitle";
 import { HeroPortraitBanner } from "@/widgets/home/HeroPortraitBanner";
 import { AboutIntroSection } from "@/widgets/home/AboutIntroSection";
 import { FamousClientsSection } from "@/widgets/home/FamousClientsSection";
+import { CollaborationsSection } from "@/widgets/home/CollaborationsSection";
 import { useSiteLanguage } from "@/shared/i18n/LanguageProvider";
 
 type HeroSplashProps = {
@@ -258,6 +259,7 @@ export function HeroSplash({
 
       <AboutIntroSection />
       <FamousClientsSection />
+      <CollaborationsSection />
 
       <ProjectsCarousel />
 
