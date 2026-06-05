@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { Play, Sparkles } from "lucide-react";
+import { Play, Sparkles, Users } from "lucide-react";
 import { BRAND } from "@/shared/config/brand";
 import { useSiteLanguage } from "@/shared/i18n/LanguageProvider";
 import type { SiteCopyKey } from "@/shared/i18n/siteLanguage";
@@ -115,10 +115,10 @@ function CollabCreditCard({
       target="_blank"
       rel="noreferrer"
       aria-label={`${t(artist.nameKey)} — Instagram`}
-      className="collab-credit-card group flex flex-col items-center gap-2.5 rounded-2xl border border-white/[0.08] bg-white/[0.03] px-3 py-4 text-center transition hover:border-amber-500/25 hover:bg-amber-500/[0.05] sm:px-4 sm:py-5"
+      className="collab-credit-card group flex min-w-[7.5rem] shrink-0 snap-center flex-col items-center gap-2.5 rounded-2xl border border-white/[0.08] bg-white/[0.03] px-3 py-4 text-center transition hover:border-amber-500/30 hover:bg-amber-500/[0.06] sm:min-w-0 sm:px-4 sm:py-5"
     >
       <div className="ig-post-avatar-ring rounded-full">
-        <div className="relative h-14 w-14 overflow-hidden rounded-full bg-zinc-900 sm:h-16 sm:w-16">
+        <div className="relative h-14 w-14 overflow-hidden rounded-full bg-zinc-900 ring-1 ring-white/10 sm:h-16 sm:w-16">
           <Image
             src={artist.avatar}
             alt={t(artist.altKey)}
@@ -145,44 +145,44 @@ function CollabMediaColumn({
   t: (key: SiteCopyKey) => string;
 }) {
   return (
-    <div className="flex flex-col gap-4 sm:gap-5">
-      <div className="collab-showcase-media relative aspect-[9/16] max-h-[min(92vw,520px)] overflow-hidden rounded-2xl border border-white/[0.08] bg-zinc-950 sm:max-h-[28rem] sm:rounded-3xl">
-        <p className="typo-micro absolute left-4 top-4 z-10 rounded-full border border-white/10 bg-black/55 px-3 py-1 tracking-[0.16em] text-amber-100/90 backdrop-blur-sm">
+    <div className="collab-story flex flex-col gap-3 sm:gap-4">
+      <div className="collab-showcase-media relative overflow-hidden rounded-2xl border border-white/[0.1] bg-zinc-950 sm:rounded-3xl">
+        <div className="collab-stage-label collab-stage-label--process">
           {t("collabProcessLabel")}
-        </p>
-        <video
-          src={project.video}
-          poster={project.poster}
-          className="absolute inset-0 h-full w-full object-cover object-center"
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="metadata"
-          aria-label={t(project.videoAltKey)}
-        />
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/15" />
-        <span className="pointer-events-none absolute bottom-4 right-4 flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-black/45 text-white backdrop-blur-sm">
-          <Play className="h-3.5 w-3.5 fill-current" strokeWidth={0} />
-        </span>
-        <span className="collab-showcase-index pointer-events-none absolute bottom-4 left-4 font-[var(--font-display)] text-[3.5rem] leading-none text-white/[0.07] sm:text-[4.5rem]">
-          {project.indexLabel}
-        </span>
+        </div>
+        <div className="relative aspect-[9/16] max-h-[min(88vw,480px)] sm:max-h-[26rem]">
+          <video
+            src={project.video}
+            poster={project.poster}
+            className="absolute inset-0 h-full w-full object-cover object-center"
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="auto"
+            aria-label={t(project.videoAltKey)}
+          />
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-black/25" />
+          <span className="pointer-events-none absolute bottom-4 right-4 flex h-9 w-9 items-center justify-center rounded-full border border-white/15 bg-black/50 text-white backdrop-blur-md">
+            <Play className="h-4 w-4 fill-current" strokeWidth={0} />
+          </span>
+        </div>
       </div>
 
-      <figure className="collab-result-frame overflow-hidden rounded-2xl border border-white/[0.08] bg-zinc-950 sm:rounded-3xl">
-        <figcaption className="typo-micro border-b border-white/[0.06] px-4 py-3 tracking-[0.16em] text-amber-100/85">
+      <figure className="collab-result-frame overflow-hidden rounded-2xl border border-white/[0.1] bg-zinc-950 sm:rounded-3xl">
+        <figcaption className="collab-stage-label collab-stage-label--result border-b border-white/[0.06]">
           {t("collabResultLabel")}
         </figcaption>
-        <div className="relative flex min-h-[12rem] items-center justify-center p-3 sm:min-h-[16rem] sm:p-4">
+        <div className="relative flex min-h-[11rem] items-center justify-center bg-[#050403] p-3 sm:min-h-[15rem] sm:p-5">
           <Image
             src={project.resultImage}
             alt={t(project.resultAltKey)}
             width={1200}
             height={900}
             quality={92}
-            className="h-auto max-h-[min(72vw,420px)] w-full object-contain object-center"
-            sizes="(max-width: 1024px) 100vw, 560px"
+            priority={project.indexLabel === "01"}
+            className="h-auto max-h-[min(68vw,400px)] w-full object-contain object-center"
+            sizes="(max-width: 1024px) 100vw, 540px"
           />
         </div>
       </figure>
@@ -203,33 +203,43 @@ function FeaturedCollabProject({
 
   return (
     <motion.article
-      initial={{ opacity: 0, y: 28 }}
+      initial={{ opacity: 0, y: 32 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={scrollRevealViewport}
-      transition={{ duration: 0.55, delay: index * 0.05, ease: [0.22, 1, 0.36, 1] }}
-      className="collab-showcase overflow-hidden rounded-2xl border border-white/[0.08] bg-[#0a0806] sm:rounded-3xl"
+      transition={{ duration: 0.6, delay: index * 0.04, ease: [0.22, 1, 0.36, 1] }}
+      className="collab-showcase relative overflow-hidden rounded-2xl border border-white/[0.08] bg-[#0a0806]/95 sm:rounded-3xl"
     >
-      <div className={`grid lg:grid-cols-2 ${reverse ? "lg:[direction:rtl]" : ""}`}>
+      <span
+        className="collab-showcase-index pointer-events-none absolute right-5 top-5 z-10 font-[var(--font-display)] text-[3.25rem] leading-none text-white/[0.05] sm:text-[4.25rem]"
+        aria-hidden
+      >
+        {project.indexLabel}
+      </span>
+
+      <div className={`grid gap-8 p-4 sm:p-6 lg:grid-cols-2 lg:gap-10 lg:p-8 ${reverse ? "lg:[direction:rtl]" : ""}`}>
         <div className={reverse ? "lg:[direction:ltr]" : ""}>
           <CollabMediaColumn project={project} t={t} />
         </div>
 
         <div
-          className={`flex flex-col justify-center p-6 sm:p-8 lg:p-10 ${reverse ? "lg:[direction:ltr]" : ""}`}
+          className={`flex flex-col justify-center lg:py-2 ${reverse ? "lg:[direction:ltr]" : ""}`}
         >
-          <p className="typo-eyebrow text-amber-300/85">{t(project.tagKey)}</p>
+          <p className="typo-eyebrow text-amber-300/90">{t(project.tagKey)}</p>
           <h3 className="typo-section-md mt-3 text-balance">{t(project.titleKey)}</h3>
           <p className="typo-lead mt-4 max-w-md text-balance text-zinc-300">{t(project.hookKey)}</p>
 
-          <div className="mt-8">
-            <p className="typo-micro mb-4 tracking-[0.18em] text-zinc-500">{t("collabCreditsLabel")}</p>
+          <div className="mt-8 sm:mt-10">
+            <p className="typo-micro mb-4 flex items-center gap-2 tracking-[0.18em] text-zinc-500">
+              <Users className="h-3.5 w-3.5 text-amber-400/80" strokeWidth={2} />
+              {t("collabCreditsLabel")}
+            </p>
             <ul
-              className={`grid gap-3 ${
-                project.artists.length === 3 ? "sm:grid-cols-3" : "grid-cols-2 sm:max-w-md"
+              className={`collab-artist-strip flex snap-x snap-mandatory gap-3 overflow-x-auto overscroll-x-contain pb-1 [scrollbar-width:none] sm:grid sm:overflow-visible sm:pb-0 sm:[scrollbar-width:auto] [&::-webkit-scrollbar]:hidden ${
+                project.artists.length === 3 ? "sm:grid-cols-3" : "sm:max-w-md sm:grid-cols-2"
               }`}
             >
               {project.artists.map((artist) => (
-                <li key={artist.handle}>
+                <li key={artist.handle} className="sm:min-w-0">
                   <CollabCreditCard artist={artist} t={t} />
                 </li>
               ))}
@@ -245,32 +255,32 @@ export function CollaborationsSection() {
   const { t } = useSiteLanguage();
 
   return (
-    <section
-      className="relative w-full border-t border-white/[0.08] bg-[linear-gradient(180deg,#080605,#0c0a08)] py-12 sm:py-16 md:py-20"
+    <motion.section
+      id="colaboraciones"
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={scrollRevealViewport}
+      transition={{ duration: 0.55, ease: "easeOut" }}
+      className="page-section relative scroll-mt-20 w-full overflow-hidden border-y border-white/[0.08] bg-[linear-gradient(180deg,rgba(12,9,6,0.98),rgba(6,5,4,1))] py-12 sm:scroll-mt-24 sm:py-16 md:py-20"
       aria-labelledby="collaborations-heading"
     >
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(520px_240px_at_12%_0%,rgba(245,158,11,0.14),transparent_62%),radial-gradient(420px_200px_at_88%_100%,rgba(180,83,9,0.08),transparent_58%)]" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(560px_260px_at_8%_0%,rgba(245,158,11,0.16),transparent_62%),radial-gradient(480px_220px_at_92%_100%,rgba(180,83,9,0.1),transparent_58%)]" />
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-amber-500/25 to-transparent" />
 
       <div className="page-section-pad relative z-10">
-        <motion.header
-          initial={{ opacity: 0, y: 16 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={scrollRevealViewport}
-          transition={{ duration: 0.5, ease: "easeOut" }}
-          className="mx-auto max-w-2xl text-center"
-        >
-          <p className="typo-eyebrow inline-flex items-center justify-center gap-2">
+        <header className="mx-auto max-w-2xl text-center sm:text-left">
+          <p className="typo-eyebrow inline-flex items-center justify-center gap-2 sm:justify-start">
             <Sparkles className="h-3.5 w-3.5 text-amber-400/90" strokeWidth={2} />
             {t("collabTag")}
           </p>
           <h2 id="collaborations-heading" className="typo-section-sm mt-3 text-balance">
             {t("collabTitle")}
           </h2>
-          <p className="typo-body typo-body-emphasis mx-auto mt-4 max-w-lg text-balance text-zinc-300">
+          <p className="typo-body typo-body-emphasis mx-auto mt-4 max-w-lg text-balance text-zinc-300 sm:mx-0">
             {t("collabBody")}
           </p>
           <p className="typo-micro mt-4 text-zinc-500">{t("collabFootnote")}</p>
-        </motion.header>
+        </header>
 
         <div className="mx-auto mt-10 flex max-w-6xl flex-col gap-8 sm:mt-14 sm:gap-10">
           {FEATURED_PROJECTS.map((project, index) => (
@@ -278,6 +288,6 @@ export function CollaborationsSection() {
           ))}
         </div>
       </div>
-    </section>
+    </motion.section>
   );
 }
