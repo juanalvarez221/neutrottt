@@ -76,12 +76,10 @@ export function MalianteoIntroCarousel() {
     <div className="mt-6">
       <div
         ref={scrollerRef}
-        className="relative overflow-x-auto rounded-3xl border border-white/10 bg-black/40 p-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        className="relative overflow-x-auto overscroll-x-contain rounded-3xl border border-white/10 bg-black/40 p-3 [scrollbar-width:none] [touch-action:pan-x_pan-y] [&::-webkit-scrollbar]:hidden"
         onMouseDown={() => setIsInteracting(true)}
         onMouseUp={() => setIsInteracting(false)}
         onMouseLeave={() => setIsInteracting(false)}
-        onTouchStart={() => setIsInteracting(true)}
-        onTouchEnd={() => setIsInteracting(false)}
       >
         <div className="pointer-events-none absolute inset-y-0 left-0 z-20 w-16 bg-gradient-to-r from-black/90 to-transparent" />
         <div className="pointer-events-none absolute inset-y-0 right-0 z-20 w-16 bg-gradient-to-l from-black/90 to-transparent" />

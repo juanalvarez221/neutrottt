@@ -35,6 +35,9 @@ const PROCESS_SLIDES: {
 
 const AUTO_SPEED = 0.65;
 const DUPLICATES = 2;
+const AXIS_THRESHOLD = 10;
+
+type DragAxis = "undecided" | "horizontal" | "vertical";
 
 export function AboutProcessCarousel() {
   const { t } = useSiteLanguage();
@@ -43,10 +46,13 @@ export function AboutProcessCarousel() {
   const setWidthRef = useRef(0);
   const pausedRef = useRef(false);
   const draggingRef = useRef(false);
+  const axisRef = useRef<DragAxis>("undecided");
   const pointerStartX = useRef(0);
+  const pointerStartY = useRef(0);
   const offsetAtDragStart = useRef(0);
   const rafRef = useRef<number | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [isHorizontalDrag, setIsHorizontalDrag] = useState(false);
 
   const slides = Array.from({ length: DUPLICATES }, () => PROCESS_SLIDES).flat();
 
@@ -87,6 +93,53 @@ export function AboutProcessCarousel() {
     setActiveIndex(idx);
   }, []);
 
+  const finishDrag = useCallback(() => {
+    draggingRef.current = false;
+    pausedRef.current = false;
+    axisRef.current = "undecided";
+    setIsHorizontalDrag(false);
+    normalizeOffset();
+    applyTransform();
+    updateActiveIndex();
+  }, [applyTransform, normalizeOffset, updateActiveIndex]);
+
+  const applyDragDelta = useCallback(
+    (clientX: number) => {
+      const delta = clientX - pointerStartX.current;
+      offsetRef.current = offsetAtDragStart.current + delta;
+      applyTransform();
+      updateActiveIndex();
+    },
+    [applyTransform, updateActiveIndex],
+  );
+
+  const beginInteraction = useCallback((clientX: number, clientY: number) => {
+    axisRef.current = "undecided";
+    pointerStartX.current = clientX;
+    pointerStartY.current = clientY;
+    offsetAtDragStart.current = offsetRef.current;
+  }, []);
+
+  const resolveAxis = useCallback((clientX: number, clientY: number) => {
+    const dx = clientX - pointerStartX.current;
+    const dy = clientY - pointerStartY.current;
+
+    if (Math.abs(dx) < AXIS_THRESHOLD && Math.abs(dy) < AXIS_THRESHOLD) {
+      return null;
+    }
+
+    if (Math.abs(dy) > Math.abs(dx)) {
+      axisRef.current = "vertical";
+      return "vertical" as const;
+    }
+
+    axisRef.current = "horizontal";
+    draggingRef.current = true;
+    pausedRef.current = true;
+    setIsHorizontalDrag(true);
+    return "horizontal" as const;
+  }, []);
+
   useEffect(() => {
     measure();
     const ro = new ResizeObserver(measure);
@@ -114,73 +167,103 @@ export function AboutProcessCarousel() {
     };
   }, [applyTransform, normalizeOffset, updateActiveIndex]);
 
+  useEffect(() => {
+    const track = trackRef.current;
+    if (!track) return;
+
+    const onTouchStart = (event: TouchEvent) => {
+      if (event.touches.length !== 1) return;
+      beginInteraction(event.touches[0].clientX, event.touches[0].clientY);
+    };
+
+    const onTouchMove = (event: TouchEvent) => {
+      if (event.touches.length !== 1) return;
+
+      if (axisRef.current === "vertical") return;
+
+      const touch = event.touches[0];
+      if (axisRef.current === "undecided") {
+        const axis = resolveAxis(touch.clientX, touch.clientY);
+        if (axis !== "horizontal") return;
+      }
+
+      event.preventDefault();
+      applyDragDelta(touch.clientX);
+    };
+
+    const onTouchEnd = () => {
+      if (axisRef.current === "horizontal") finishDrag();
+      else axisRef.current = "undecided";
+    };
+
+    track.addEventListener("touchstart", onTouchStart, { passive: true });
+    track.addEventListener("touchmove", onTouchMove, { passive: false });
+    track.addEventListener("touchend", onTouchEnd);
+    track.addEventListener("touchcancel", onTouchEnd);
+
+    return () => {
+      track.removeEventListener("touchstart", onTouchStart);
+      track.removeEventListener("touchmove", onTouchMove);
+      track.removeEventListener("touchend", onTouchEnd);
+      track.removeEventListener("touchcancel", onTouchEnd);
+    };
+  }, [applyDragDelta, beginInteraction, finishDrag, resolveAxis]);
+
   const onPointerDown = (e: ReactPointerEvent<HTMLDivElement>) => {
-    if (e.button !== 0) return;
-    draggingRef.current = true;
-    pausedRef.current = true;
-    pointerStartX.current = e.clientX;
-    offsetAtDragStart.current = offsetRef.current;
-    e.currentTarget.setPointerCapture(e.pointerId);
+    if (e.button !== 0 || e.pointerType === "touch") return;
+    beginInteraction(e.clientX, e.clientY);
   };
 
   const onPointerMove = (e: ReactPointerEvent<HTMLDivElement>) => {
-    if (!draggingRef.current) return;
-    const delta = e.clientX - pointerStartX.current;
-    offsetRef.current = offsetAtDragStart.current + delta;
-    normalizeOffset();
-    applyTransform();
-    updateActiveIndex();
-  };
+    if (e.pointerType === "touch") return;
+    if (axisRef.current === "vertical") return;
 
-  const endDrag = (e: ReactPointerEvent<HTMLDivElement>) => {
-    if (!draggingRef.current) return;
-    draggingRef.current = false;
-    try {
-      e.currentTarget.releasePointerCapture(e.pointerId);
-    } catch {
-      /* already released */
+    if (axisRef.current === "undecided") {
+      const axis = resolveAxis(e.clientX, e.clientY);
+      if (axis === "horizontal") {
+        e.currentTarget.setPointerCapture(e.pointerId);
+      }
+      if (axis !== "horizontal") return;
     }
+
+    applyDragDelta(e.clientX);
   };
 
   const onPointerUp = (e: ReactPointerEvent<HTMLDivElement>) => {
-    endDrag(e);
-    pausedRef.current = false;
-  };
-
-  const onPointerLeave = (e: ReactPointerEvent<HTMLDivElement>) => {
-    if (draggingRef.current) {
-      endDrag(e);
-      pausedRef.current = false;
+    if (e.pointerType === "touch") return;
+    if (axisRef.current === "horizontal") {
+      try {
+        e.currentTarget.releasePointerCapture(e.pointerId);
+      } catch {
+        /* already released */
+      }
+      finishDrag();
+      return;
     }
+    axisRef.current = "undecided";
   };
 
   return (
     <div className="mt-8 sm:mt-10">
       <div
-        className="about-process-carousel-viewport page-bleed-x relative cursor-grab overflow-hidden touch-pan-y active:cursor-grabbing"
+        className="about-process-carousel-viewport page-bleed-x relative cursor-grab overflow-hidden active:cursor-grabbing"
         aria-roledescription="carrusel"
         aria-label={t("aboutProcessLabel")}
-        onPointerEnter={() => {
-          pausedRef.current = true;
-        }}
-        onPointerLeave={() => {
-          if (!draggingRef.current) pausedRef.current = false;
-        }}
       >
         <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-8 bg-gradient-to-r from-[#080605] to-transparent sm:w-12 md:w-16" />
         <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-8 bg-gradient-to-l from-[#080605] to-transparent sm:w-12 md:w-16" />
 
         <div
           ref={trackRef}
-          className="about-process-carousel-track flex touch-none gap-4 will-change-transform select-none"
+          className={`about-process-carousel-track flex gap-4 will-change-transform select-none ${
+            isHorizontalDrag ? "is-horizontal-drag" : ""
+          }`}
           onPointerDown={onPointerDown}
           onPointerMove={onPointerMove}
           onPointerUp={onPointerUp}
           onPointerCancel={onPointerUp}
-          onPointerLeave={onPointerLeave}
           onLostPointerCapture={() => {
-            draggingRef.current = false;
-            pausedRef.current = false;
+            if (draggingRef.current) finishDrag();
           }}
         >
           {slides.map((slide, i) => (
@@ -202,9 +285,7 @@ export function AboutProcessCarousel() {
                 />
               </div>
               <figcaption className="border-t border-white/[0.08] bg-black/50 px-4 py-3 text-center">
-                <p className="typo-caption leading-snug">
-                  {t(slide.captionKey)}
-                </p>
+                <p className="typo-caption leading-snug">{t(slide.captionKey)}</p>
               </figcaption>
             </figure>
           ))}

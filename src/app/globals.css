@@ -813,11 +813,16 @@ body {
 }
 
 .about-process-carousel-viewport {
-  touch-action: pan-y;
+  touch-action: pan-y pinch-zoom;
 }
 
 .about-process-carousel-track {
+  touch-action: pan-y pinch-zoom;
+}
+
+.about-process-carousel-track.is-horizontal-drag {
   touch-action: none;
+  cursor: grabbing;
 }
 
 .portfolio-one-pct-glow {
@@ -928,6 +933,10 @@ body {
   -webkit-overflow-scrolling: touch;
   touch-action: pan-x pan-y;
   cursor: grab;
+}
+
+.ig-post-media-scroll .ig-post-media-frame > * {
+  pointer-events: none;
 }
 
 .ig-post-media-scroll.is-dragging {
@@ -1067,7 +1076,7 @@ body {
 .collab-artist-strip {
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
-  touch-action: pan-x;
+  touch-action: pan-x pan-y;
 }
 
 @media (min-width: 640px) {

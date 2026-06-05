@@ -25,6 +25,9 @@ export function useHorizontalDragScroll<T extends HTMLElement>(
 
     const onPointerDown = (event: PointerEvent) => {
       if (event.button !== 0) return;
+      // Touch: scroll nativo horizontal; capturar el pointer bloquea swipe y scroll vertical.
+      if (event.pointerType === "touch") return;
+
       pointerIdRef.current = event.pointerId;
       startXRef.current = event.clientX;
       startScrollLeftRef.current = el.scrollLeft;

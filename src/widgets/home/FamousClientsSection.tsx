@@ -192,6 +192,8 @@ function InstagramPostCard({
   const scrollerRef = useRef<HTMLDivElement>(null);
   const { wasDragged } = useHorizontalDragScroll(scrollerRef);
   const lastTapRef = useRef(0);
+  const touchMovedRef = useRef(false);
+  const touchStartXRef = useRef(0);
   const shareTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const username = client.handle.replace("@", "");
@@ -255,7 +257,7 @@ function InstagramPostCard({
   );
 
   const handleMediaPointerUp = () => {
-    if (wasDragged()) return;
+    if (wasDragged() || touchMovedRef.current) return;
     const now = Date.now();
     if (now - lastTapRef.current < 320) {
       applyLike(true);
@@ -365,6 +367,26 @@ function InstagramPostCard({
           ref={scrollerRef}
           onScroll={syncSlide}
           onPointerUp={multi ? handleMediaPointerUp : undefined}
+          onTouchStart={
+            multi
+              ? (event) => {
+                  touchMovedRef.current = false;
+                  touchStartXRef.current = event.touches[0]?.clientX ?? 0;
+                }
+              : undefined
+          }
+          onTouchMove={
+            multi
+              ? (event) => {
+                  const touch = event.touches[0];
+                  if (!touch) return;
+                  if (Math.abs(touch.clientX - touchStartXRef.current) > 8) {
+                    touchMovedRef.current = true;
+                  }
+                }
+              : undefined
+          }
+          onTouchEnd={multi ? handleMediaPointerUp : undefined}
           className={
             multi
               ? "ig-post-media-scroll relative flex w-full snap-x snap-mandatory overflow-x-auto overscroll-x-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
