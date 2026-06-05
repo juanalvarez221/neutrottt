@@ -23,7 +23,7 @@ const MALIANTEO_ARTIST = {
   avatar: "/brand/collab-malianteo-portrait.png",
   nameKey: "collabMalianteoName" as SiteCopyKey,
   altKey: "collabMalianteoAlt" as SiteCopyKey,
-  avatarPosition: "center 22%",
+  avatarPosition: "center 28%",
 };
 
 const NEUTROTT_ARTIST = {
