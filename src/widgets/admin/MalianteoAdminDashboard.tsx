@@ -47,7 +47,7 @@ const STATUS_STYLES: Record<SmartQuoteStatus, string> = {
   "Pendiente de Ajuste": "border-amber-500/30 bg-amber-500/10 text-amber-200",
   "Esperando Confirmacion":
     "border-sky-500/30 bg-sky-500/10 text-sky-200",
-  Enviada: "border-violet-500/30 bg-violet-600/15 text-violet-100",
+  Enviada: "border-amber-500/30 bg-amber-600/15 text-amber-100",
   "Pagada/Agendada": "border-emerald-500/30 bg-emerald-500/10 text-emerald-200",
 };
 
@@ -103,14 +103,14 @@ function estimateImageCard(
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  ctx.fillStyle = "rgba(139,92,246,0.25)";
+  ctx.fillStyle = "rgba(245,158,11,0.25)";
   ctx.beginPath();
   ctx.arc(980, 140, 260, 0, Math.PI * 2);
   ctx.fill();
 
   ctx.fillStyle = "#ffffff";
   ctx.font = "700 58px Inter, sans-serif";
-  ctx.fillText("MALIANTEO INK", 70, 120);
+  ctx.fillText("NEUTROTTT", 70, 120);
 
   ctx.fillStyle = "#c4b5fd";
   ctx.font = "600 36px Inter, sans-serif";
@@ -412,7 +412,7 @@ export function MalianteoAdminDashboard() {
       <div className="space-y-4 pb-2">
         <Card>
           <div className="p-4 sm:p-5">
-            <p className="text-[11px] font-semibold tracking-[0.18em] text-violet-200/80 uppercase">
+            <p className="text-[11px] font-semibold tracking-[0.18em] text-amber-200/80 uppercase">
               Vista Admin
             </p>
             <h1 className="mt-1 text-2xl font-semibold text-zinc-50 sm:text-3xl">
@@ -462,7 +462,7 @@ export function MalianteoAdminDashboard() {
             <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-4">
               <button
                 onClick={addManualQuote}
-                className="inline-flex items-center justify-center gap-2 rounded-xl border border-violet-500/30 bg-violet-600/15 px-3 py-2.5 text-sm font-semibold text-violet-100 transition hover:bg-violet-600/25"
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-amber-500/30 bg-amber-600/15 px-3 py-2.5 text-sm font-semibold text-amber-100 transition hover:bg-amber-600/25"
               >
                 <Plus className="h-4 w-4" /> Nueva Cotizacion
               </button>
@@ -509,7 +509,7 @@ export function MalianteoAdminDashboard() {
             <Card>
               <div className="p-4 sm:p-5">
                 <div className="flex items-center gap-2">
-                  <CircleDollarSign className="h-4 w-4 text-violet-300" />
+                  <CircleDollarSign className="h-4 w-4 text-amber-300" />
                   <h2 className="text-sm font-semibold text-zinc-50">
                     Cotizaciones Inteligentes
                   </h2>
@@ -635,7 +635,7 @@ export function MalianteoAdminDashboard() {
 
                           <button
                             onClick={() => adjustAndSendWhatsApp(quote)}
-                            className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-violet-500/30 bg-violet-600/15 px-3 py-2.5 text-xs font-semibold text-violet-100 transition hover:bg-violet-600/25 sm:w-auto"
+                            className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-amber-500/30 bg-amber-600/15 px-3 py-2.5 text-xs font-semibold text-amber-100 transition hover:bg-amber-600/25 sm:w-auto"
                           >
                             <Send className="h-3.5 w-3.5" /> Ajustar y enviar por
                             WhatsApp
@@ -892,7 +892,7 @@ export function MalianteoAdminDashboard() {
             <Card>
               <div className="p-4 sm:p-5">
                 <div className="flex items-center gap-2">
-                  <UserRound className="h-4 w-4 text-violet-300" />
+                  <UserRound className="h-4 w-4 text-amber-300" />
                   <h2 className="text-sm font-semibold text-zinc-50">CRM de Tatuajes</h2>
                 </div>
                 <div className="mt-3 space-y-2">
@@ -917,7 +917,7 @@ export function MalianteoAdminDashboard() {
             <Card>
               <div className="p-4 sm:p-5">
                 <div className="flex items-center gap-2">
-                  <Clock3 className="h-4 w-4 text-violet-300" />
+                  <Clock3 className="h-4 w-4 text-amber-300" />
                   <h2 className="text-sm font-semibold text-zinc-50">
                     Calculadora de Rentabilidad
                   </h2>
@@ -974,7 +974,7 @@ export function MalianteoAdminDashboard() {
             <Card>
               <div className="p-4 sm:p-5">
                 <div className="flex items-center gap-2">
-                  <FileSignature className="h-4 w-4 text-violet-300" />
+                  <FileSignature className="h-4 w-4 text-amber-300" />
                   <h2 className="text-sm font-semibold text-zinc-50">
                     Consentimiento Digital
                   </h2>
@@ -993,7 +993,7 @@ export function MalianteoAdminDashboard() {
                   </select>
                   <button
                     onClick={sendConsent}
-                    className="inline-flex items-center justify-center gap-2 rounded-xl border border-violet-500/30 bg-violet-600/15 px-3 py-2.5 text-sm font-semibold text-violet-100 transition hover:bg-violet-600/25"
+                    className="inline-flex items-center justify-center gap-2 rounded-xl border border-amber-500/30 bg-amber-600/15 px-3 py-2.5 text-sm font-semibold text-amber-100 transition hover:bg-amber-600/25"
                   >
                     <Send className="h-4 w-4" /> Enviar formulario legal
                   </button>

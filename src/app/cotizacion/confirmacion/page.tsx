@@ -58,7 +58,9 @@ function getSizeSessionRange(size: string): [number, number] {
 
 function getStyleFactor(style: string) {
   const normalized = normalizeText(style);
-  if (normalized.includes("malianteo")) return { priceFactor: 0.88, minAdj: 0, maxAdj: -1 };
+  if (normalized.includes("neutrottt") || normalized.includes("malianteo")) {
+    return { priceFactor: 0.88, minAdj: 0, maxAdj: -1 };
+  }
   if (normalized.includes("linea")) return { priceFactor: 0.95, minAdj: 0, maxAdj: 0 };
   if (normalized.includes("surreal")) return { priceFactor: 1.04, minAdj: 0, maxAdj: 1 };
   return { priceFactor: 1.1, minAdj: 0, maxAdj: 1 };

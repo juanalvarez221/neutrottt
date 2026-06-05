@@ -45,10 +45,10 @@ export default function CotizacionTamanoPage() {
   );
 
   return (
-    <QuoteShell brand="MALIANTEO">
+    <QuoteShell>
       <section className="relative mb-8">
-        <div className="pointer-events-none absolute -left-10 -top-10 h-40 w-40 rounded-full bg-violet-600/15 blur-[60px]" />
-        <p className="typo-tech mb-2 uppercase tracking-[0.16em] text-violet-200/85">
+        <div className="pointer-events-none absolute -left-10 -top-10 h-40 w-40 rounded-full bg-amber-600/15 blur-[60px]" />
+        <p className="typo-tech mb-2 uppercase tracking-[0.16em] text-amber-200/85">
           {t("quoteSizeStep")}
         </p>
         <h2 className="typo-section text-[2.2rem] leading-[1.05] md:text-[3.2rem]">
@@ -65,7 +65,7 @@ export default function CotizacionTamanoPage() {
 
       <section className="mb-10">
         <div className="mb-4 flex items-center gap-3">
-          <div className="flex h-6 w-6 items-center justify-center rounded-full border border-violet-500/30 bg-violet-600/10">
+          <div className="flex h-6 w-6 items-center justify-center rounded-full border border-amber-500/30 bg-amber-600/10">
             <span className="text-[10px] font-bold text-white">1</span>
           </div>
           <h3 className="typo-subtitle text-sm uppercase tracking-[0.14em] text-zinc-200">
@@ -92,7 +92,7 @@ export default function CotizacionTamanoPage() {
                     className={[
                       "relative mb-4 aspect-square max-h-44 w-full overflow-hidden rounded-lg border md:max-h-48",
                       selected
-                        ? "border-violet-500/30 bg-black/60"
+                        ? "border-amber-500/30 bg-black/60"
                         : "border-white/5 bg-black/40",
                     ].join(" ")}
                   >
@@ -107,7 +107,7 @@ export default function CotizacionTamanoPage() {
                       ].join(" ")}
                     />
                     {selected ? (
-                      <span className="absolute right-2 top-2 z-20 inline-flex h-6 w-6 items-center justify-center rounded-full bg-violet-600 text-white shadow-lg">
+                      <span className="absolute right-2 top-2 z-20 inline-flex h-6 w-6 items-center justify-center rounded-full bg-amber-600 text-white shadow-lg">
                         <Check className="h-4 w-4" />
                       </span>
                     ) : null}
@@ -120,7 +120,7 @@ export default function CotizacionTamanoPage() {
                     <span
                       className={[
                         "mt-1 block text-sm font-semibold",
-                        selected ? "text-violet-200/80" : "text-zinc-300/80",
+                        selected ? "text-amber-200/80" : "text-zinc-300/80",
                       ].join(" ")}
                     >
                       {o.detail}
@@ -144,7 +144,7 @@ export default function CotizacionTamanoPage() {
         <button
           type="button"
           onClick={() => router.push(`/cotizacion/ubicacion?size=${size}`)}
-          className="group inline-flex items-center justify-center gap-2 rounded-lg border border-violet-500/35 bg-gradient-to-r from-violet-700 to-fuchsia-600 px-6 py-3 text-[14px] font-bold uppercase tracking-[0.2em] text-white transition hover:-translate-y-0.5 hover:shadow-[0_0_20px_rgba(139,92,246,0.35)] active:translate-y-0"
+          className="group inline-flex items-center justify-center gap-2 rounded-lg border border-amber-500/35 bg-gradient-to-r from-amber-700 to-orange-600 px-6 py-3 text-[14px] font-bold uppercase tracking-[0.2em] text-white transition hover:-translate-y-0.5 hover:shadow-[0_0_20px_rgba(245,158,11,0.35)] active:translate-y-0"
         >
           {t("quoteContinue")}
           <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />

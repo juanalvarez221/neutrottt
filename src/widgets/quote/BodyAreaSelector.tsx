@@ -158,8 +158,8 @@ function BodyMapImage({
                 "absolute border transition-all duration-200",
                 spot.className,
                 active
-                  ? "border-violet-100/95 bg-violet-500/25 shadow-[0_0_0_1px_rgba(216,180,254,0.55)_inset,0_0_20px_rgba(168,85,247,0.4)]"
-                  : "border-white/28 bg-black/10 hover:border-violet-200/70 hover:bg-violet-500/14",
+                  ? "border-amber-100/95 bg-amber-500/25 shadow-[0_0_0_1px_rgba(253,230,138,0.55)_inset,0_0_20px_rgba(251,191,36,0.4)]"
+                  : "border-white/28 bg-black/10 hover:border-amber-200/70 hover:bg-amber-500/14",
               ].join(" ")}
             />
           );
@@ -197,7 +197,7 @@ export function BodyAreaSelector({
         </p>
         <div className="mt-2 h-2 w-full overflow-hidden rounded-full border border-white/10 bg-white/5">
           <div
-            className="h-full rounded-full bg-gradient-to-r from-violet-500/90 via-fuchsia-500/90 to-purple-400/90"
+            className="h-full rounded-full bg-gradient-to-r from-amber-500/90 via-orange-500/90 to-amber-400/90"
             style={{ width: `${progress}%` }}
           />
         </div>
@@ -223,7 +223,7 @@ export function BodyAreaSelector({
 
       <div>
         <p className="typo-subtitle mb-3 inline-flex items-center gap-2 text-base text-zinc-100">
-          <Sparkles className="h-4 w-4 text-violet-300" />
+          <Sparkles className="h-4 w-4 text-amber-300" />
           {language === "en" ? "Popular areas" : "Zonas frecuentes"}
         </p>
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
@@ -238,7 +238,7 @@ export function BodyAreaSelector({
                 onClick={() => onZoneChange(id)}
                 className={
                   active
-                    ? "inline-flex items-center gap-2 rounded-xl border border-violet-300/45 bg-violet-500/16 px-3 py-2 text-sm font-semibold text-violet-100"
+                    ? "inline-flex items-center gap-2 rounded-xl border border-amber-300/45 bg-amber-500/16 px-3 py-2 text-sm font-semibold text-amber-100"
                     : "inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm font-semibold text-zinc-200 transition hover:bg-white/10"
                 }
               >
@@ -260,7 +260,7 @@ export function BodyAreaSelector({
         <select
           value={zone}
           onChange={(e) => onZoneChange(e.target.value as ZoneId)}
-          className="w-full rounded-lg border border-white/10 bg-black/30 px-4 py-3 text-base font-semibold text-zinc-100 outline-none focus:border-violet-500/45"
+          className="w-full rounded-lg border border-white/10 bg-black/30 px-4 py-3 text-base font-semibold text-zinc-100 outline-none focus:border-amber-500/45"
         >
           {ZONES.map((item) => (
             <option key={item.id} value={item.id}>

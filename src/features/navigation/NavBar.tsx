@@ -36,20 +36,20 @@ export function NavBar() {
                   href={it.href}
                   className={cn(
                     "flex flex-col items-center justify-center gap-1 px-2 py-3 text-[11px] font-semibold tracking-wide transition",
-                    active ? "text-violet-200" : "text-zinc-300 hover:text-zinc-50",
+                    active ? "text-amber-200" : "text-zinc-300 hover:text-zinc-50",
                   )}
                 >
                   <span
                     className={cn(
                       "relative flex h-9 w-9 items-center justify-center rounded-xl border transition",
                       active
-                        ? "border-violet-500/30 bg-violet-600/15"
+                        ? "border-amber-500/30 bg-amber-600/15"
                         : "border-white/10 bg-white/5",
                     )}
                   >
                     <Icon className="h-4 w-4" />
                     {active ? (
-                      <span className="absolute -bottom-1 h-1 w-6 rounded-full bg-violet-500/70 blur-[0.5px]" />
+                      <span className="absolute -bottom-1 h-1 w-6 rounded-full bg-amber-500/70 blur-[0.5px]" />
                     ) : null}
                   </span>
                   <span className="leading-none">{it.label}</span>

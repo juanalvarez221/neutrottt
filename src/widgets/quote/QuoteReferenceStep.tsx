@@ -65,10 +65,10 @@ export function QuoteReferenceStep({
   }, [previewUrl]);
 
   return (
-    <QuoteShell brand="MALIANTEO">
+    <QuoteShell>
       <section className="relative mb-8">
-        <div className="pointer-events-none absolute -left-10 -top-10 h-40 w-40 rounded-full bg-violet-600/15 blur-[60px]" />
-        <p className="typo-tech mb-2 uppercase tracking-[0.16em] text-violet-200/85">
+        <div className="pointer-events-none absolute -left-10 -top-10 h-40 w-40 rounded-full bg-amber-600/15 blur-[60px]" />
+        <p className="typo-tech mb-2 uppercase tracking-[0.16em] text-amber-200/85">
           {t("quoteReferenceStep")}
         </p>
         <h2 className="typo-section text-[2.2rem] leading-[1.05] md:text-[3.2rem]">
@@ -84,7 +84,7 @@ export function QuoteReferenceStep({
       <section className="mb-8">
         <div className="glass-card rounded-2xl p-5">
           <div className="mb-4 flex items-center gap-3">
-            <div className="flex h-6 w-6 items-center justify-center rounded-full border border-violet-500/30 bg-violet-600/10">
+            <div className="flex h-6 w-6 items-center justify-center rounded-full border border-amber-500/30 bg-amber-600/10">
               <span className="text-[10px] font-bold text-white">4</span>
             </div>
             <h3 className="typo-subtitle text-sm uppercase tracking-[0.14em] text-zinc-200">
@@ -159,7 +159,7 @@ export function QuoteReferenceStep({
                   <button
                     type="button"
                     onClick={() => inputRef.current?.click()}
-                    className="mt-4 rounded-xl border border-violet-500/35 bg-violet-600/15 px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-violet-100 transition hover:bg-violet-600/20"
+                    className="mt-4 rounded-xl border border-amber-500/35 bg-amber-600/15 px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-amber-100 transition hover:bg-amber-600/20"
                   >
                     {language === "en" ? "Select image" : "Seleccionar imagen"}
                   </button>
@@ -185,7 +185,7 @@ export function QuoteReferenceStep({
                 rows={3}
                 maxLength={280}
                 placeholder={t("quoteReferenceNotePlaceholder")}
-                className="w-full resize-none rounded-xl border border-white/10 bg-black/35 px-4 py-3 text-sm text-zinc-100 outline-none transition placeholder:text-zinc-500 focus:border-violet-500/50"
+                className="w-full resize-none rounded-xl border border-white/10 bg-black/35 px-4 py-3 text-sm text-zinc-100 outline-none transition placeholder:text-zinc-500 focus:border-amber-500/50"
               />
               <p className="text-xs text-zinc-400">{t("quoteReferenceNoteHelp")}</p>
             </label>
@@ -202,7 +202,7 @@ export function QuoteReferenceStep({
         </Link>
         <Link
           href={`/cotizacion/confirmacion?size=${encodeURIComponent(size)}&zone=${encodeURIComponent(zone)}&style=${encodeURIComponent(style)}&notes=${encodeURIComponent(notes.trim())}`}
-          className="rounded-xl border border-violet-500/35 bg-gradient-to-r from-violet-700 to-fuchsia-600 px-6 py-3 text-sm font-bold uppercase tracking-[0.2em] text-white transition hover:-translate-y-0.5 hover:shadow-[0_0_20px_rgba(139,92,246,0.35)]"
+          className="rounded-xl border border-amber-500/35 bg-gradient-to-r from-amber-700 to-orange-600 px-6 py-3 text-sm font-bold uppercase tracking-[0.2em] text-white transition hover:-translate-y-0.5 hover:shadow-[0_0_20px_rgba(245,158,11,0.35)]"
         >
           {t("quoteReferenceNext")}
         </Link>

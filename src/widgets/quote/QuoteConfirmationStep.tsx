@@ -50,12 +50,12 @@ export function QuoteConfirmationStep({
   };
 
   return (
-    <QuoteShell brand="MALIANTEO">
-      <section className="relative overflow-hidden rounded-3xl border border-white/10 bg-[radial-gradient(560px_260px_at_15%_0%,rgba(168,85,247,0.26),transparent_60%),linear-gradient(180deg,rgba(255,255,255,0.05),transparent_35%),#0d0d0e] p-5 md:p-8">
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(560px_280px_at_90%_100%,rgba(124,58,237,0.14),transparent_62%)]" />
+    <QuoteShell>
+      <section className="relative overflow-hidden rounded-3xl border border-white/10 bg-[radial-gradient(560px_260px_at_15%_0%,rgba(251,191,36,0.26),transparent_60%),linear-gradient(180deg,rgba(255,255,255,0.05),transparent_35%),#0d0d0e] p-5 md:p-8">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(560px_280px_at_90%_100%,rgba(217,119,6,0.14),transparent_62%)]" />
 
         <div className="relative z-10">
-          <p className="typo-tech uppercase tracking-[0.16em] text-violet-200/85">
+          <p className="typo-tech uppercase tracking-[0.16em] text-amber-200/85">
             {t("quoteSummaryTag")}
           </p>
           <h1 className="typo-section mt-2 text-[2rem] md:text-[2.6rem]">
@@ -69,25 +69,25 @@ export function QuoteConfirmationStep({
         <article className="glass-card rounded-2xl p-5">
           <div className="flex items-center justify-between gap-3">
             <p className="typo-subtitle inline-flex items-center gap-2 text-sm uppercase tracking-[0.14em] text-zinc-300">
-              <BadgeDollarSign className="h-4 w-4 text-violet-300" />
+              <BadgeDollarSign className="h-4 w-4 text-amber-300" />
               {language === "en" ? "Summary" : "Resumen"}
             </p>
-            <span className="typo-tech rounded-full border border-violet-500/35 bg-violet-600/20 px-3 py-1 text-violet-100">
+            <span className="typo-tech rounded-full border border-amber-500/35 bg-amber-600/20 px-3 py-1 text-amber-100">
               {estimate.total}
             </span>
           </div>
 
           <div className="typo-tech mt-4 grid gap-2 rounded-2xl border border-white/10 bg-black/35 p-4 text-zinc-200">
             <p className="inline-flex items-center gap-2 text-zinc-200">
-              <Sparkles className="h-4 w-4 text-violet-300" />
+              <Sparkles className="h-4 w-4 text-amber-300" />
               {language === "en" ? "Size" : "Tamano"}: {size}
             </p>
             <p className="inline-flex items-center gap-2 text-zinc-200">
-              <CheckCircle2 className="h-4 w-4 text-violet-300" />
+              <CheckCircle2 className="h-4 w-4 text-amber-300" />
               {language === "en" ? "Area" : "Zona"}: {zone}
             </p>
             <p className="inline-flex items-center gap-2 text-zinc-200">
-              <CheckCircle2 className="h-4 w-4 text-violet-300" />
+              <CheckCircle2 className="h-4 w-4 text-amber-300" />
               {language === "en" ? "Style" : "Estilo"}: {style}
             </p>
             {notes ? (
@@ -108,11 +108,11 @@ export function QuoteConfirmationStep({
               </p>
               <p className="typo-subtitle mt-1 text-sm text-zinc-100">{estimate.perSession}</p>
             </div>
-            <div className="rounded-xl border border-violet-500/25 bg-violet-500/10 p-3">
-              <p className="typo-tech text-violet-200/80">
+            <div className="rounded-xl border border-amber-500/25 bg-amber-500/10 p-3">
+              <p className="typo-tech text-amber-200/80">
                 {language === "en" ? "Estimated total" : "Total estimado"}
               </p>
-              <p className="typo-subtitle mt-1 text-sm text-violet-100">{estimate.total}</p>
+              <p className="typo-subtitle mt-1 text-sm text-amber-100">{estimate.total}</p>
             </div>
           </div>
         </article>
@@ -121,7 +121,7 @@ export function QuoteConfirmationStep({
           <button
             type="button"
             onClick={registerQuoteAndContinue}
-            className="typo-cta inline-flex w-full items-center justify-center gap-2 rounded-xl border border-violet-500/35 bg-gradient-to-r from-violet-700 to-fuchsia-600 px-5 py-4 text-white transition hover:-translate-y-0.5 hover:shadow-[0_0_24px_rgba(139,92,246,0.35)] active:translate-y-0"
+            className="typo-cta inline-flex w-full items-center justify-center gap-2 rounded-xl border border-amber-500/35 bg-gradient-to-r from-amber-700 to-orange-600 px-5 py-4 text-white transition hover:-translate-y-0.5 hover:shadow-[0_0_24px_rgba(245,158,11,0.35)] active:translate-y-0"
           >
             {t("quoteActionCta")}
           </button>

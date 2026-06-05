@@ -17,12 +17,12 @@ export function LanguagePrompt() {
         transition={{ duration: 0.4, ease: "easeOut" }}
         className="relative w-full max-w-lg overflow-hidden rounded-3xl border border-white/15 bg-zinc-950/95 p-6 shadow-[0_28px_70px_-28px_rgba(0,0,0,0.95)]"
       >
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(500px_220px_at_12%_0%,rgba(168,85,247,0.3),transparent_62%),radial-gradient(420px_220px_at_100%_100%,rgba(217,70,239,0.22),transparent_65%)]" />
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(500px_220px_at_12%_0%,rgba(251,191,36,0.3),transparent_62%),radial-gradient(420px_220px_at_100%_100%,rgba(249,115,22,0.22),transparent_65%)]" />
 
         <div className="relative z-10">
-          <div className="inline-flex items-center gap-2 rounded-full border border-violet-400/30 bg-violet-500/10 px-3 py-1.5">
-            <Globe2 className="h-4 w-4 text-violet-200" />
-            <p className="typo-tech uppercase tracking-[0.16em] text-violet-200/90">
+          <div className="inline-flex items-center gap-2 rounded-full border border-amber-400/30 bg-amber-500/10 px-3 py-1.5">
+            <Globe2 className="h-4 w-4 text-amber-200" />
+            <p className="typo-tech uppercase tracking-[0.16em] text-amber-200/90">
               Language
             </p>
           </div>
@@ -38,10 +38,10 @@ export function LanguagePrompt() {
               onClick={() => setLanguage("es")}
               whileHover={{ y: -2 }}
               whileTap={{ scale: 0.99 }}
-              className="group rounded-2xl border border-violet-400/35 bg-violet-600/15 p-4 text-left transition hover:border-violet-300/55 hover:bg-violet-600/22"
+              className="group rounded-2xl border border-amber-400/35 bg-amber-600/15 p-4 text-left transition hover:border-amber-300/55 hover:bg-amber-600/22"
             >
-              <p className="text-sm font-semibold text-violet-50">{t("languageEs")}</p>
-              <p className="mt-1 text-xs text-violet-100/75">
+              <p className="text-sm font-semibold text-amber-50">{t("languageEs")}</p>
+              <p className="mt-1 text-xs text-amber-100/75">
                 Experiencia completa en espanol.
               </p>
             </motion.button>
@@ -61,7 +61,7 @@ export function LanguagePrompt() {
           </div>
 
           <div className="mt-4 inline-flex items-center gap-2 text-xs text-zinc-400">
-            <Sparkles className="h-3.5 w-3.5 text-violet-300/90" />
+            <Sparkles className="h-3.5 w-3.5 text-amber-300/90" />
             You can change this anytime later.
           </div>
         </div>

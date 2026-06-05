@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Space_Mono, Syncopate } from "next/font/google";
+import { Inter, Space_Mono, Syncopate, UnifrakturMaguntia } from "next/font/google";
 import "./globals.css";
 import { LanguageProvider } from "@/shared/i18n/LanguageProvider";
 import { LanguagePrompt } from "@/widgets/i18n/LanguagePrompt";
@@ -22,9 +22,15 @@ const fontMono = Space_Mono({
   weight: ["400", "700"],
 });
 
+const fontGothic = UnifrakturMaguntia({
+  variable: "--font-gothic",
+  subsets: ["latin"],
+  weight: ["400"],
+});
+
 export const metadata: Metadata = {
-  title: "Malianteo Ink — Tattoo Artist",
-  description: "Prototipo UI (no funcional) para Malianteo / Malianteo_Ink.",
+  title: "Neutrottt — Sombras y Lettering",
+  description: "Tatuador en sombras y lettering · Emerald Tattoo Studio, Medellín.",
 };
 
 export default function RootLayout({
@@ -36,14 +42,14 @@ export default function RootLayout({
     <html
       lang="es"
       suppressHydrationWarning
-      className={`${fontInter.variable} ${fontDisplay.variable} ${fontMono.variable} h-full antialiased`}
+      className={`${fontInter.variable} ${fontDisplay.variable} ${fontMono.variable} ${fontGothic.variable} h-full antialiased`}
     >
-      <body suppressHydrationWarning className="min-h-full flex flex-col bg-black text-zinc-50">
+      <body suppressHydrationWarning className="min-h-full flex flex-col bg-[#050403] text-zinc-50">
         <LanguageProvider>
-          <div aria-hidden className="purple-storm">
-            <span className="purple-storm__flash purple-storm__flash--a" />
-            <span className="purple-storm__flash purple-storm__flash--b" />
-            <span className="purple-storm__flash purple-storm__flash--c" />
+          <div aria-hidden className="amber-storm">
+            <span className="amber-storm__flash amber-storm__flash--a" />
+            <span className="amber-storm__flash amber-storm__flash--b" />
+            <span className="amber-storm__flash amber-storm__flash--c" />
           </div>
           <div className="relative z-10">{children}</div>
           <LanguagePrompt />

@@ -10,7 +10,7 @@ const STYLE_OPTIONS = [
   "Realismo oscuro",
   "Surrealismo",
   "Lineas",
-  "Malianteo Style",
+  "Neutrottt Style",
 ] as const;
 
 export function QuoteStyleStep({ size, zone }: { size: string; zone: string }) {
@@ -21,10 +21,10 @@ export function QuoteStyleStep({ size, zone }: { size: string; zone: string }) {
   );
 
   return (
-    <QuoteShell brand="MALIANTEO">
+    <QuoteShell>
       <section className="relative mb-8">
-        <div className="pointer-events-none absolute -left-10 -top-10 h-40 w-40 rounded-full bg-violet-600/15 blur-[60px]" />
-        <p className="typo-tech mb-2 uppercase tracking-[0.16em] text-violet-200/85">
+        <div className="pointer-events-none absolute -left-10 -top-10 h-40 w-40 rounded-full bg-amber-600/15 blur-[60px]" />
+        <p className="typo-tech mb-2 uppercase tracking-[0.16em] text-amber-200/85">
           {t("quoteStyleStep")}
         </p>
         <h2 className="typo-section text-[2.2rem] leading-[1.05] md:text-[3.2rem]">
@@ -42,7 +42,7 @@ export function QuoteStyleStep({ size, zone }: { size: string; zone: string }) {
       <section className="mb-8">
         <div className="glass-card rounded-2xl p-5">
           <div className="mb-4 flex items-center gap-3">
-            <div className="flex h-6 w-6 items-center justify-center rounded-full border border-violet-500/30 bg-violet-600/10">
+            <div className="flex h-6 w-6 items-center justify-center rounded-full border border-amber-500/30 bg-amber-600/10">
               <span className="text-[10px] font-bold text-white">3</span>
             </div>
             <h3 className="typo-subtitle text-sm uppercase tracking-[0.14em] text-zinc-200">
@@ -60,7 +60,7 @@ export function QuoteStyleStep({ size, zone }: { size: string; zone: string }) {
                   onClick={() => setStyle(option)}
                   className={
                     selected
-                      ? "flex items-center justify-between rounded-2xl border border-violet-500/30 bg-violet-600/15 p-3"
+                      ? "flex items-center justify-between rounded-2xl border border-amber-500/30 bg-amber-600/15 p-3"
                       : "flex items-center justify-between rounded-2xl border border-white/10 bg-white/5 p-3 transition hover:bg-white/8"
                   }
                 >
@@ -68,7 +68,7 @@ export function QuoteStyleStep({ size, zone }: { size: string; zone: string }) {
                   <span
                     className={
                       selected
-                        ? "h-2.5 w-2.5 rounded-full bg-violet-500"
+                        ? "h-2.5 w-2.5 rounded-full bg-amber-500"
                         : "h-2.5 w-2.5 rounded-full bg-white/20"
                     }
                   />
@@ -98,7 +98,7 @@ export function QuoteStyleStep({ size, zone }: { size: string; zone: string }) {
               `/cotizacion/referencia?size=${encodeURIComponent(size)}&zone=${encodeURIComponent(zone)}&style=${encodeURIComponent(style)}`,
             )
           }
-          className="typo-cta group inline-flex items-center justify-center gap-2 rounded-xl border border-violet-500/35 bg-gradient-to-r from-violet-700 to-fuchsia-600 px-6 py-3 text-white transition hover:-translate-y-0.5 hover:shadow-[0_0_20px_rgba(139,92,246,0.35)]"
+          className="typo-cta group inline-flex items-center justify-center gap-2 rounded-xl border border-amber-500/35 bg-gradient-to-r from-amber-700 to-orange-600 px-6 py-3 text-white transition hover:-translate-y-0.5 hover:shadow-[0_0_20px_rgba(245,158,11,0.35)]"
         >
           {t("quoteContinue")}
           <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
