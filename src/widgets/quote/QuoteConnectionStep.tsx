@@ -31,7 +31,7 @@ import {
 import { getFirstName, getQuoteProfile } from "@/shared/lib/quoteProfile";
 
 const TOTAL_QUESTIONS = 4;
-const HOOK_PAUSE_MS = 4600;
+const HOOK_PAUSE_MS = 3800;
 
 function scrollStepToTop() {
   window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
@@ -229,7 +229,6 @@ export function QuoteConnectionStep() {
             title1={t("quoteConnectionRewardTitle1")}
             title2={t("quoteConnectionRewardTitle2")}
             tag={t("quoteConnectionRewardTag")}
-            eyebrow={t("quoteConnectionRewardEyebrow")}
             continueLabel={t("quoteConnectionRewardContinue")}
             tapHint={t("quoteConnectionRewardTapHint")}
             praise={rewardPraise}
@@ -244,7 +243,6 @@ export function QuoteConnectionStep() {
           <QuoteConnectionIntro
             title={t("quoteConnectionTitle")}
             title2={t("quoteConnectionTitle2")}
-            eyebrow={t("quoteConnectionIntroEyebrow")}
             onComplete={handleIntroComplete}
           />
         }
@@ -259,36 +257,17 @@ export function QuoteConnectionStep() {
             <div className="pointer-events-none absolute -left-10 -top-10 h-40 w-40 rounded-full bg-amber-600/15 blur-[60px]" />
 
             {!showForm || step === 0 ? (
-              <motion.div
+              <motion.p
                 className={[
-                  "mx-auto max-w-xl",
-                  showForm ? "" : "px-2 text-center",
+                  "typo-body max-w-lg leading-relaxed text-amber-100/95",
+                  showForm ? "text-sm" : "text-center text-[clamp(1.05rem,4.2vw,1.35rem)]",
                 ].join(" ")}
-                initial={{ opacity: 0, y: 20, filter: "blur(10px)" }}
+                initial={{ opacity: 0, y: 16, filter: "blur(8px)" }}
                 animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+                transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
               >
-                {!showForm ? (
-                  <motion.p
-                    className="typo-tech mb-4 text-[0.62rem] uppercase tracking-[0.3em] text-amber-200/65"
-                    initial={{ opacity: 0, letterSpacing: "0.45em" }}
-                    animate={{ opacity: 1, letterSpacing: "0.3em" }}
-                    transition={{ duration: 0.75, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-                  >
-                    {t("quoteConnectionIntroEyebrow")}
-                  </motion.p>
-                ) : null}
-                <motion.p
-                  className={[
-                    "leading-relaxed text-amber-50/95",
-                    showForm
-                      ? "typo-body max-w-lg text-sm"
-                      : "font-[family-name:var(--font-stack-sans)] text-[clamp(1rem,3.8vw,1.22rem)] font-medium tracking-[0.01em]",
-                  ].join(" ")}
-                >
-                  {t("quoteConnectionHook")}
-                </motion.p>
-              </motion.div>
+                {t("quoteConnectionHook")}
+              </motion.p>
             ) : null}
 
             <AnimatePresence>
