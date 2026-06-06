@@ -168,7 +168,10 @@ export const SITE_COPY = {
     quoteConnectionStep: "Conexión",
     quoteConnectionTitle: "No cualquiera",
     quoteConnectionTitle2: "es mi cliente",
-    quoteConnectionHook: "No es arrogancia. Tatuar es confiar. Busco conexión real.",
+    quoteConnectionHook:
+      "Cada pieza es una colaboración curada. Este breve proceso nos permite evaluar si somos el equipo creativo adecuado.",
+    quoteConnectionIntroEyebrow: "Neutrottt · Curaduría",
+    quoteConnectionRewardEyebrow: "Perfil validado",
     quoteConnectionPace: "Una pregunta a la vez. Sin apuro.",
     quoteConnectionProgress: "{current} de {total}",
     quoteConnectionMultiHint: "Puedes elegir varias opciones.",
@@ -498,7 +501,10 @@ export const SITE_COPY = {
     quoteConnectionStep: "Connection",
     quoteConnectionTitle: "Not everyone",
     quoteConnectionTitle2: "is my client",
-    quoteConnectionHook: "Not arrogance. Tattooing is trust. I look for a real connection.",
+    quoteConnectionHook:
+      "Every piece is a curated collaboration. This brief process helps us assess whether we're the right creative fit.",
+    quoteConnectionIntroEyebrow: "Neutrottt · Curation",
+    quoteConnectionRewardEyebrow: "Profile validated",
     quoteConnectionPace: "One question at a time. No rush.",
     quoteConnectionProgress: "{current} of {total}",
     quoteConnectionMultiHint: "You can choose several options.",

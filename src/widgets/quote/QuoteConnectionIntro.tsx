@@ -2,16 +2,30 @@
 
 import { useEffect } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import {
+  CinematicBackdrop,
+  FloatingDust,
+  FrameCorners,
+  MonoEyebrow,
+  ShimmerPass,
+  StaggeredHeadline,
+} from "@/widgets/quote/ConnectionCinematic";
 
-const INTRO_DURATION_MS = 5200;
+const INTRO_DURATION_MS = 7400;
 
 type QuoteConnectionIntroProps = {
   title: string;
   title2: string;
+  eyebrow?: string;
   onComplete: () => void;
 };
 
-export function QuoteConnectionIntro({ title, title2, onComplete }: QuoteConnectionIntroProps) {
+export function QuoteConnectionIntro({
+  title,
+  title2,
+  eyebrow = "Neutrottt · Curaduría",
+  onComplete,
+}: QuoteConnectionIntroProps) {
   const reduceMotion = useReducedMotion();
 
   useEffect(() => {
@@ -27,66 +41,81 @@ export function QuoteConnectionIntro({ title, title2, onComplete }: QuoteConnect
 
   return (
     <motion.div
-      className="absolute inset-0 z-30 flex min-h-[min(72dvh,640px)] items-center justify-center"
+      className="absolute inset-0 z-30 flex min-h-[min(72dvh,640px)] items-center justify-center overflow-hidden"
       initial={{ opacity: 1 }}
       aria-live="polite"
       aria-label={`${title} ${title2}`}
     >
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_90%_70%_at_50%_45%,rgba(245,158,11,0.14),transparent_65%)]" />
-      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,transparent,rgba(5,4,3,0.35),transparent)]" />
+      <CinematicBackdrop variant="intro" />
+      <FloatingDust count={26} />
 
-      <div className="relative px-6 text-center">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.92 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-          className="mx-auto mb-8 h-px w-16 origin-center bg-gradient-to-r from-transparent via-amber-400/70 to-transparent"
-        />
+      <motion.div
+        className="pointer-events-none absolute left-1/2 top-[42%] h-56 w-56 -translate-x-1/2 -translate-y-1/2 rounded-full border border-amber-400/20"
+        initial={{ scale: 0.35, opacity: 0 }}
+        animate={{ scale: [0.35, 1.25, 1.05], opacity: [0, 0.45, 0.2] }}
+        transition={{ duration: 2.2, ease: [0.22, 1, 0.36, 1] }}
+      />
+      <motion.div
+        className="pointer-events-none absolute left-1/2 top-[42%] h-72 w-72 -translate-x-1/2 -translate-y-1/2 rounded-full border border-amber-500/10"
+        initial={{ scale: 0.2, opacity: 0 }}
+        animate={{ scale: [0.2, 1.45, 1.2], opacity: [0, 0.28, 0.1] }}
+        transition={{ duration: 2.6, delay: 0.18, ease: [0.22, 1, 0.36, 1] }}
+      />
 
-        <div className="overflow-hidden">
-          <motion.p
-            className="typo-section text-[clamp(2rem,7vw,3.25rem)] font-semibold leading-[1.02] tracking-[-0.02em] text-white"
-            initial={{ opacity: 0, y: "110%", filter: "blur(10px)" }}
-            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-            transition={{ duration: 0.75, delay: 0.12, ease: [0.22, 1, 0.36, 1] }}
+      <div className="connection-cinema__panel relative mx-4 w-full max-w-2xl px-6 py-10 text-center md:px-10 md:py-12">
+        <FrameCorners delay={0.25} />
+        <ShimmerPass delay={1.05} />
+
+        <MonoEyebrow label={eyebrow} delay={0.15} />
+
+        <div className="overflow-hidden [perspective:900px]">
+          <p className="sr-only">
+            {title} {title2}
+          </p>
+          <p
+            className="font-[family-name:var(--font-stack-display)] text-[clamp(2.15rem,8.5vw,4rem)] font-bold uppercase leading-[0.92] tracking-[0.06em] text-white"
+            aria-hidden
           >
-            {title}
-          </motion.p>
+            <StaggeredHeadline text={title} delay={0.28} stagger={0.045} />
+          </p>
         </div>
 
         <motion.div
           className="mx-auto my-5 h-px overflow-hidden"
           initial={{ width: 0, opacity: 0 }}
-          animate={{ width: "min(12rem, 42vw)", opacity: 1 }}
-          transition={{ duration: 0.65, delay: 0.55, ease: [0.22, 1, 0.36, 1] }}
+          animate={{ width: "min(14rem, 52vw)", opacity: 1 }}
+          transition={{ duration: 0.75, delay: 0.95, ease: [0.22, 1, 0.36, 1] }}
         >
-          <div className="h-full w-full bg-gradient-to-r from-amber-600/20 via-amber-400/80 to-amber-600/20" />
+          <motion.div
+            className="h-full w-full bg-gradient-to-r from-transparent via-amber-300 to-transparent"
+            animate={{ opacity: [0.5, 1, 0.5] }}
+            transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
+          />
         </motion.div>
 
-        <div className="overflow-hidden">
-          <motion.p
-            className="typo-section bg-gradient-to-r from-white via-amber-100 to-zinc-400 bg-clip-text text-[clamp(2rem,7vw,3.25rem)] font-semibold leading-[1.02] tracking-[-0.02em] text-transparent"
-            initial={{ opacity: 0, y: "100%", filter: "blur(12px)" }}
-            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-            transition={{ duration: 0.8, delay: 0.72, ease: [0.22, 1, 0.36, 1] }}
+        <div className="overflow-hidden [perspective:900px]">
+          <p
+            className="bg-gradient-to-r from-amber-50 via-white to-amber-200 bg-clip-text font-[family-name:var(--font-stack-brand)] text-[clamp(2.35rem,9vw,4.35rem)] leading-[0.95] tracking-[-0.01em] text-transparent"
+            aria-hidden
           >
-            {title2}
-          </motion.p>
+            <StaggeredHeadline text={title2} delay={1.05} stagger={0.042} />
+          </p>
         </div>
 
         <motion.div
-          className="mx-auto mt-10 h-0.5 w-48 overflow-hidden rounded-full bg-white/10"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.9, duration: 0.3 }}
+          className="mx-auto mt-10 h-[3px] w-56 overflow-hidden rounded-full bg-white/8 md:w-64"
+          initial={{ opacity: 0, scaleX: 0.6 }}
+          animate={{ opacity: 1, scaleX: 1 }}
+          transition={{ delay: 1.35, duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
         >
           <motion.div
-            className="h-full origin-left rounded-full bg-gradient-to-r from-amber-500 to-orange-500"
+            className="h-full origin-left rounded-full bg-gradient-to-r from-amber-600 via-amber-300 to-orange-500"
             initial={{ scaleX: 0 }}
             animate={{ scaleX: 1 }}
-            transition={{ duration: 4, delay: 0.95, ease: "linear" }}
+            transition={{ duration: 5.2, delay: 1.45, ease: "linear" }}
           />
         </motion.div>
+
       </div>
     </motion.div>
   );
@@ -108,17 +137,17 @@ export function QuoteConnectionIntroGate({
           <motion.div
             key="intro"
             className="absolute inset-0"
-            exit={{ opacity: 0, filter: "blur(10px)", scale: 0.98 }}
-            transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
+            exit={{ opacity: 0, filter: "blur(14px)", scale: 1.03 }}
+            transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
           >
             {intro}
           </motion.div>
         ) : (
           <motion.div
             key="questions"
-            initial={{ opacity: 0, y: 18, filter: "blur(6px)" }}
+            initial={{ opacity: 0, y: 22, filter: "blur(8px)" }}
             animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-            transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
           >
             {children}
           </motion.div>
