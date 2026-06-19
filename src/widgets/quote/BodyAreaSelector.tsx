@@ -2,59 +2,24 @@
 
 import Image from "next/image";
 import type { CSSProperties } from "react";
-import { Bone, CircleDot, PersonStanding, Sparkles } from "lucide-react";
+import { CircleDot, Sparkles } from "lucide-react";
 import { useSiteLanguage } from "@/shared/i18n/LanguageProvider";
+import {
+  ARM_ZONE_DESC_KEYS,
+  ARM_ZONES,
+  isSpotHighlighted,
+  POPULAR_ZONES,
+  ZONE_LABEL_KEYS,
+  type ZoneId,
+} from "@/shared/lib/quoteZones";
 
-export type ZoneId =
-  | "cabeza"
-  | "bicep"
-  | "tricep"
-  | "brazo"
-  | "antebrazo"
-  | "hombro"
-  | "pecho"
-  | "abdomen"
-  | "espalda"
-  | "pierna"
-  | "gluteo";
-
-type ZoneMap = {
-  id: ZoneId;
-  label: string;
-};
+export type { ZoneId };
 
 type Hotspot = {
   id: ZoneId;
   className: string;
   style?: CSSProperties;
 };
-
-const ZONES: ZoneMap[] = [
-  { id: "cabeza", label: "Cabeza" },
-  { id: "hombro", label: "Hombro" },
-  { id: "espalda", label: "Espalda" },
-  { id: "pecho", label: "Pecho" },
-  { id: "abdomen", label: "Abdomen" },
-  { id: "tricep", label: "Tricep" },
-  { id: "bicep", label: "Bicep" },
-  { id: "antebrazo", label: "Antebrazo" },
-  { id: "pierna", label: "Pierna" },
-  { id: "gluteo", label: "Gluteo" },
-  { id: "brazo", label: "Brazo" },
-];
-
-const POPULAR_ZONES: ZoneId[] = [
-  "cabeza",
-  "hombro",
-  "espalda",
-  "pecho",
-  "abdomen",
-  "bicep",
-  "tricep",
-  "antebrazo",
-  "pierna",
-  "gluteo",
-];
 
 const FRONT_HOTSPOTS: Hotspot[] = [
   { id: "cabeza", className: "left-[38.5%] top-[3.2%] h-[11.8%] w-[23%] rounded-[999px]" },
@@ -121,22 +86,23 @@ function BodyMapImage({
   side,
   zone,
   onZoneChange,
-  language,
+  viewLabel,
 }: {
   side: "front" | "back";
   zone: ZoneId;
   onZoneChange: (zone: ZoneId) => void;
-  language: "es" | "en";
+  viewLabel: string;
 }) {
+  const { t } = useSiteLanguage();
   const hotspots = side === "front" ? FRONT_HOTSPOTS : BACK_HOTSPOTS;
   const src = side === "front" ? "/body/body-map-front.png" : "/body/body-map-back.png";
 
   return (
-    <div className="glass-card relative overflow-hidden rounded-2xl p-3">
-      <div className="relative mx-auto h-[390px] w-full max-w-[260px] overflow-hidden rounded-xl border border-white/12 bg-black/20 sm:h-[460px] sm:max-w-[300px]">
+    <div className="rounded-xl border border-white/8 bg-black/20 p-3">
+      <div className="relative mx-auto aspect-[3/4] w-full max-w-[min(100%,300px)] max-h-[min(68dvh,460px)] overflow-hidden rounded-xl border border-white/12 bg-black/20">
         <Image
           src={src}
-          alt={side === "front" ? "Mapa corporal frontal" : "Mapa corporal trasero"}
+          alt={viewLabel}
           fill
           quality={100}
           sizes="(max-width: 640px) 260px, 300px"
@@ -145,131 +111,180 @@ function BodyMapImage({
         />
 
         {hotspots.map((spot, index) => {
-          const active = zone === spot.id;
-          const label = ZONES.find((item) => item.id === spot.id)?.label ?? spot.id;
+          const active = isSpotHighlighted(zone, spot.id);
+          const label = t(ZONE_LABEL_KEYS[spot.id]);
           return (
             <button
               key={`${side}-${spot.id}-${index}`}
               type="button"
               onClick={() => onZoneChange(spot.id)}
-              aria-label={`${label} (${side})`}
+              aria-label={label}
+              aria-pressed={active}
               style={spot.style}
               className={[
-                "absolute border transition-all duration-200",
+                "body-map-hotspot absolute border transition-all duration-200",
                 spot.className,
                 active
-                  ? "border-amber-100/95 bg-amber-500/25 shadow-[0_0_0_1px_rgba(253,230,138,0.55)_inset,0_0_20px_rgba(251,191,36,0.4)]"
-                  : "border-white/28 bg-black/10 hover:border-amber-200/70 hover:bg-amber-500/14",
+                  ? "border-stone-200/90 bg-stone-500/25 shadow-[0_0_0_1px_rgba(232,226,218,0.45)_inset,0_0_18px_rgba(107,99,92,0.35)]"
+                  : "border-white/25 bg-black/10 hover:border-stone-300/55 hover:bg-stone-500/12",
               ].join(" ")}
             />
           );
         })}
       </div>
 
-      <span className="mt-2 block text-center text-xs font-semibold uppercase tracking-[0.16em] text-zinc-300">
-        {side === "front"
-          ? language === "en"
-            ? "Front view"
-            : "Vista frontal"
-          : language === "en"
-            ? "Back view"
-            : "Vista posterior"}
+      <span className="mt-2 block text-center text-xs font-semibold uppercase tracking-[0.16em] text-zinc-400">
+        {viewLabel}
       </span>
     </div>
   );
 }
 
+function ZoneChip({
+  active,
+  label,
+  onClick,
+}: {
+  active: boolean;
+  label: string;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={active}
+      className={[
+        "inline-flex items-center gap-2 rounded-xl border px-3 py-2.5 text-left text-sm font-semibold transition",
+        active
+          ? "border-stone-400/35 bg-stone-600/14 text-stone-100"
+          : "border-white/10 bg-white/5 text-zinc-200 hover:border-stone-500/22 hover:bg-stone-600/8",
+      ].join(" ")}
+    >
+      <CircleDot className="h-4 w-4 shrink-0 opacity-70" strokeWidth={1.75} />
+      {label}
+    </button>
+  );
+}
+
 export function BodyAreaSelector({
   zone,
+  zoneOther,
   onZoneChange,
+  onZoneOtherChange,
   isLargeProject = false,
 }: {
   zone: ZoneId;
+  zoneOther: string;
   onZoneChange: (zone: ZoneId) => void;
+  onZoneOtherChange: (value: string) => void;
   isLargeProject?: boolean;
 }) {
-  const { language, t } = useSiteLanguage();
-  const progress = 50;
+  const { t } = useSiteLanguage();
 
   return (
-    <div className="space-y-5">
-      <div>
-        <p className="typo-tech text-center uppercase tracking-[0.14em] text-zinc-300">
-          {language === "en" ? "Step 2 of 4" : "Paso 2 de 4"}
-        </p>
-        <div className="mt-2 h-2 w-full overflow-hidden rounded-full border border-white/10 bg-white/5">
-          <div
-            className="h-full rounded-full bg-gradient-to-r from-amber-500/90 via-orange-500/90 to-amber-400/90"
-            style={{ width: `${progress}%` }}
-          />
-        </div>
-      </div>
+    <div className="space-y-6">
+      <p className="text-sm leading-relaxed text-zinc-400">
+        {isLargeProject ? t("quoteLocationHintAdvisory") : t("quoteLocationHintQuote")}
+      </p>
 
-      <div className="space-y-2">
-        <h3 className="typo-section text-center text-[2rem] leading-tight md:text-[2.5rem]">
-          {language === "en" ? "Which area" : "¿Que zona"}
-          <br />
-          {language === "en" ? "are you tattooing?" : "quieres tatuar?"}
-        </h3>
-        <p className="typo-body text-center">
-          {isLargeProject ? t("quoteLocationHintAdvisory") : t("quoteLocationHintQuote")}
+      <div className="space-y-3">
+        <p className="typo-subtitle text-sm uppercase tracking-[0.14em] text-zinc-200">
+          {t("quoteZoneArmSection")}
         </p>
-      </div>
-
-      <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
-        <BodyMapImage side="front" zone={zone} onZoneChange={onZoneChange} language={language} />
-        <BodyMapImage side="back" zone={zone} onZoneChange={onZoneChange} language={language} />
-      </div>
-
-      <div>
-        <p className="typo-subtitle mb-3 inline-flex items-center gap-2 text-base text-zinc-100">
-          <Sparkles className="h-4 w-4 text-amber-300" />
-          {language === "en" ? "Popular areas" : "Zonas frecuentes"}
-        </p>
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-          {POPULAR_ZONES.map((id) => {
-            const item = ZONES.find((z) => z.id === id);
-            if (!item) return null;
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+          {ARM_ZONES.map((id) => {
             const active = zone === id;
             return (
               <button
                 key={id}
                 type="button"
                 onClick={() => onZoneChange(id)}
-                className={
+                aria-pressed={active}
+                className={[
+                  "rounded-xl border px-4 py-3.5 text-left transition",
                   active
-                    ? "inline-flex items-center gap-2 rounded-xl border border-amber-300/45 bg-amber-500/16 px-3 py-2 text-sm font-semibold text-amber-100"
-                    : "inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm font-semibold text-zinc-200 transition hover:bg-white/10"
-                }
+                    ? "border-stone-400/35 bg-stone-600/12 shadow-[inset_0_1px_0_rgba(255,248,240,0.06)]"
+                    : "border-white/10 bg-black/25 hover:border-stone-500/22 hover:bg-stone-600/8",
+                ].join(" ")}
               >
-                {id === "espalda" ? (
-                  <PersonStanding className="h-4 w-4" />
-                ) : id === "pecho" ? (
-                  <Bone className="h-4 w-4" />
-                ) : (
-                  <CircleDot className="h-4 w-4" />
-                )}
-                {item.label}
+                <span className="block text-sm font-semibold text-zinc-50">
+                  {t(ZONE_LABEL_KEYS[id])}
+                </span>
+                <span className="mt-1 block text-xs leading-relaxed text-zinc-400">
+                  {t(ARM_ZONE_DESC_KEYS[id])}
+                </span>
               </button>
             );
           })}
         </div>
       </div>
 
-      <div className="glass-card rounded-xl p-2">
-        <select
-          value={zone}
-          onChange={(e) => onZoneChange(e.target.value as ZoneId)}
-          className="w-full rounded-lg border border-white/10 bg-black/30 px-4 py-3 text-base font-semibold text-zinc-100 outline-none focus:border-amber-500/45"
-        >
-          {ZONES.map((item) => (
-            <option key={item.id} value={item.id}>
-              {item.label}
-            </option>
+      <div className="space-y-3">
+        <p className="typo-subtitle text-sm uppercase tracking-[0.14em] text-zinc-200">
+          {t("quoteZoneBodyMap")}
+        </p>
+        <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
+          <BodyMapImage
+            side="front"
+            zone={zone}
+            onZoneChange={onZoneChange}
+            viewLabel={t("quoteZoneFrontView")}
+          />
+          <BodyMapImage
+            side="back"
+            zone={zone}
+            onZoneChange={onZoneChange}
+            viewLabel={t("quoteZoneBackView")}
+          />
+        </div>
+      </div>
+
+      <div>
+        <p className="typo-subtitle mb-3 inline-flex items-center gap-2 text-sm uppercase tracking-[0.14em] text-zinc-200">
+          <Sparkles className="h-4 w-4 text-stone-400" strokeWidth={1.75} />
+          {t("quoteZonePopular")}
+        </p>
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+          {POPULAR_ZONES.map((id) => (
+            <ZoneChip
+              key={id}
+              active={zone === id}
+              label={t(ZONE_LABEL_KEYS[id])}
+              onClick={() => onZoneChange(id)}
+            />
           ))}
-        </select>
+        </div>
+      </div>
+
+      <div className="space-y-3 rounded-xl border border-white/8 bg-black/20 p-4">
+        <ZoneChip
+          active={zone === "otro"}
+          label={t("quoteZoneOther")}
+          onClick={() => onZoneChange("otro")}
+        />
+        {zone === "otro" ? (
+          <label className="block space-y-2">
+            <span className="text-xs font-semibold uppercase tracking-[0.14em] text-zinc-400">
+              {t("quoteZoneOtherLabel")}
+            </span>
+            <input
+              type="text"
+              value={zoneOther}
+              onChange={(event) => onZoneOtherChange(event.target.value)}
+              maxLength={80}
+              autoFocus
+              placeholder={t("quoteZoneOtherPlaceholder")}
+              className="w-full rounded-xl border border-white/10 bg-black/35 px-4 py-3 text-sm text-zinc-100 outline-none transition placeholder:text-zinc-500 focus:border-stone-500/45"
+            />
+            <span className="block text-xs leading-relaxed text-zinc-500">
+              {t("quoteZoneOtherHint")}
+            </span>
+          </label>
+        ) : (
+          <p className="text-xs leading-relaxed text-zinc-500">{t("quoteZoneOtherHint")}</p>
+        )}
       </div>
     </div>
   );
 }
-

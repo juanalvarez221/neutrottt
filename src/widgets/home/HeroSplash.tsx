@@ -11,8 +11,6 @@ import {
 } from "framer-motion";
 import Link from "next/link";
 import { ChevronDown } from "lucide-react";
-import { SocialBrandIcon } from "@/shared/ui/SocialBrandIcon";
-import { BRAND, WHATSAPP_MESSAGES, whatsappUrl } from "@/shared/config/brand";
 import { StudioLocationTrigger } from "@/shared/ui/StudioLocationTrigger";
 import { ProjectsCarousel } from "@/widgets/home/ProjectsCarousel";
 import { HeroBrandTitle } from "@/widgets/home/HeroBrandTitle";
@@ -79,14 +77,14 @@ export function HeroSplash({
   }, [heroImages.length, useHeroCarousel]);
 
   return (
-    <main className="relative overflow-hidden bg-[#050403] text-white">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(1100px_540px_at_8%_-8%,rgba(245,158,11,0.26),transparent_60%),radial-gradient(920px_480px_at_95%_6%,rgba(251,191,36,0.2),transparent_62%),radial-gradient(1200px_600px_at_50%_105%,rgba(180,83,9,0.2),transparent_64%)]" />
-      <div className="pointer-events-none absolute -left-24 top-[36%] h-64 w-64 rounded-full bg-amber-500/18 blur-[95px] md:h-96 md:w-96" />
-      <div className="pointer-events-none absolute -right-16 top-[58%] h-64 w-64 rounded-full bg-orange-500/14 blur-[95px] md:h-[26rem] md:w-[26rem]" />
-      <div className="pointer-events-none absolute left-1/2 top-[74%] h-60 w-[82vw] -translate-x-1/2 bg-[radial-gradient(ellipse_at_center,rgba(245,158,11,0.2),transparent_68%)] blur-[46px]" />
+    <main className="section-surface section-surface--hero relative overflow-x-clip overflow-y-visible text-ivory">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(1100px_540px_at_8%_-8%,rgba(198,122,54,0.26),transparent_60%),radial-gradient(920px_480px_at_95%_6%,rgba(214,161,90,0.2),transparent_62%),radial-gradient(1200px_600px_at_50%_105%,rgba(158,94,60,0.2),transparent_64%)]" />
+      <div className="pointer-events-none absolute -left-24 top-[36%] h-64 w-64 rounded-full bg-stone-500/12 blur-[95px] md:h-96 md:w-96" />
+      <div className="pointer-events-none absolute -right-16 top-[58%] h-64 w-64 rounded-full bg-stone-600/10 blur-[95px] md:h-[26rem] md:w-[26rem]" />
+      <div className="pointer-events-none absolute left-1/2 top-[74%] h-60 w-[82vw] -translate-x-1/2 bg-[radial-gradient(ellipse_at_center,rgba(214,161,90,0.2),transparent_68%)] blur-[46px]" />
       <section
         ref={sectionRef}
-        className="relative min-h-[100dvh] h-[105dvh] w-full sm:h-[108dvh] md:h-[112dvh] lg:h-[118dvh]"
+        className="relative min-h-[100dvh] w-full"
       >
         <motion.div
           className="sticky top-0 h-[100dvh] overflow-hidden"
@@ -155,15 +153,15 @@ export function HeroSplash({
         <div
           className={
             usePortraitPhoto
-              ? "absolute inset-0 z-[2] bg-[radial-gradient(ellipse_80%_50%_at_50%_100%,rgba(245,158,11,0.18),transparent_65%)]"
-              : "absolute inset-0 z-[2] bg-[radial-gradient(900px_500px_at_50%_0%,rgba(251,191,36,0.28),transparent_60%),radial-gradient(560px_280px_at_22%_16%,rgba(234,88,12,0.18),transparent_64%)]"
+              ? "absolute inset-0 z-[2] bg-[radial-gradient(ellipse_80%_50%_at_50%_100%,rgba(198,122,54,0.18),transparent_65%)]"
+              : "absolute inset-0 z-[2] bg-[radial-gradient(900px_500px_at_50%_0%,rgba(214,161,90,0.28),transparent_60%),radial-gradient(560px_280px_at_22%_16%,rgba(158,94,60,0.18),transparent_64%)]"
           }
         />
 
         <div
           className={
             usePortraitPhoto
-              ? "absolute inset-0 z-[4] flex min-h-[100dvh] w-full flex-col justify-end px-4 pb-[max(1.25rem,env(safe-area-inset-bottom))] text-left sm:px-6 sm:pb-16 md:px-10 md:pb-14 lg:px-14"
+              ? "absolute inset-0 z-[4] flex min-h-[100dvh] w-full flex-col justify-end px-4 pb-[max(5.5rem,calc(1.25rem+env(safe-area-inset-bottom)))] text-left sm:px-6 sm:pb-16 md:px-10 md:pb-14 lg:px-14"
               : "absolute inset-0 z-[4] flex h-[100dvh] w-full flex-col items-center justify-end px-6 pb-16 text-center md:pb-14"
           }
         >
@@ -262,92 +260,6 @@ export function HeroSplash({
       <CollaborationsSection />
 
       <ProjectsCarousel />
-
-      <motion.aside
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3, duration: 0.55, ease: "easeOut" }}
-        className="pointer-events-none fixed bottom-5 right-4 z-[70] flex flex-col items-center gap-3 md:bottom-6 md:right-5"
-        aria-label="Accesos rapidos sociales"
-      >
-        <motion.a
-          href={BRAND.instagramUrl}
-          target="_blank"
-          rel="noreferrer"
-          aria-label={`Ir al Instagram de ${BRAND.name}`}
-          animate={{ y: [0, -3, 0], scale: [1, 1.02, 1] }}
-          transition={{ duration: 3.2, repeat: Infinity, ease: "easeInOut" }}
-          whileHover={{ y: -4, scale: 1.05 }}
-          whileTap={{ scale: 0.97 }}
-          className="pointer-events-auto relative inline-flex h-14 w-14 items-center justify-center rounded-full"
-        >
-          <motion.span
-            aria-hidden="true"
-            className="pointer-events-none absolute inset-0 rounded-full bg-amber-300/55 blur-[12px]"
-            animate={{ opacity: [0, 0, 0.95, 0, 0, 0.72, 0], scale: [0.88, 0.88, 1.2, 1.24, 0.9, 1.16, 0.9] }}
-            transition={{
-              duration: 8.5,
-              repeat: Infinity,
-              ease: "easeInOut",
-              times: [0, 0.54, 0.58, 0.63, 0.9, 0.94, 1],
-            }}
-          />
-          <motion.span
-            aria-hidden="true"
-            className="pointer-events-none absolute left-1/2 top-1/2 h-[76%] w-[6px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-b from-white/0 via-white/90 to-white/0 blur-[1px]"
-            animate={{ opacity: [0, 0, 1, 0, 0], rotate: [-24, -24, -18, -16, -24], scaleY: [0.9, 0.9, 1.15, 1.05, 0.9] }}
-            transition={{
-              duration: 8.5,
-              repeat: Infinity,
-              ease: "easeInOut",
-              times: [0, 0.565, 0.585, 0.605, 1],
-            }}
-          />
-          <span className="relative z-10 inline-flex h-14 w-14 items-center justify-center">
-            <SocialBrandIcon network="instagram" size={56} className="h-14 w-14" />
-          </span>
-        </motion.a>
-
-        <motion.a
-          href={whatsappUrl(WHATSAPP_MESSAGES.quote)}
-          target="_blank"
-          rel="noreferrer"
-          aria-label={`Hablar por WhatsApp con ${BRAND.name}`}
-          animate={{ y: [0, -3, 0], scale: [1, 1.02, 1] }}
-          transition={{ duration: 3.2, delay: 0.45, repeat: Infinity, ease: "easeInOut" }}
-          whileHover={{ y: -4, scale: 1.05 }}
-          whileTap={{ scale: 0.97 }}
-          className="pointer-events-auto relative inline-flex h-14 w-14 items-center justify-center rounded-full"
-        >
-          <motion.span
-            aria-hidden="true"
-            className="pointer-events-none absolute inset-0 rounded-full bg-orange-300/55 blur-[12px]"
-            animate={{ opacity: [0, 0, 0.92, 0, 0, 0.68, 0], scale: [0.88, 0.88, 1.18, 1.22, 0.9, 1.14, 0.9] }}
-            transition={{
-              duration: 9.1,
-              repeat: Infinity,
-              ease: "easeInOut",
-              delay: 0.6,
-              times: [0, 0.56, 0.6, 0.64, 0.9, 0.95, 1],
-            }}
-          />
-          <motion.span
-            aria-hidden="true"
-            className="pointer-events-none absolute left-1/2 top-1/2 h-[76%] w-[6px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-b from-white/0 via-white/90 to-white/0 blur-[1px]"
-            animate={{ opacity: [0, 0, 1, 0, 0], rotate: [22, 22, 15, 14, 22], scaleY: [0.9, 0.9, 1.12, 1.04, 0.9] }}
-            transition={{
-              duration: 9.1,
-              repeat: Infinity,
-              ease: "easeInOut",
-              delay: 0.6,
-              times: [0, 0.59, 0.615, 0.64, 1],
-            }}
-          />
-          <span className="relative z-10 inline-flex h-14 w-14 items-center justify-center">
-            <SocialBrandIcon network="whatsapp" size={56} className="h-14 w-14" />
-          </span>
-        </motion.a>
-      </motion.aside>
     </main>
   );
 }

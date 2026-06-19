@@ -22,6 +22,7 @@ export default async function CotizacionReferenciaPage({
     <QuoteReferenceStep
       size={getParam(params, "size", "mediano")}
       zone={getParam(params, "zone", "")}
+      zoneOther={getParam(params, "zoneOther", "")}
     />
   );
 }

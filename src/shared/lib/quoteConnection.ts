@@ -2,15 +2,23 @@ import type { SiteCopyKey } from "@/shared/i18n/siteLanguage";
 
 export type ReferralSource = "instagram" | "tiktok" | "acquaintance" | "other";
 export type PersonalValue =
-  | "honesty"
-  | "family"
+  | "duality"
+  | "joy"
+  | "light"
+  | "inner_darkness"
+  | "vulnerability"
   | "loyalty"
   | "freedom"
-  | "growth"
-  | "faith"
-  | "discipline"
-  | "respect";
-export type AdjustmentOption = "trust_artist" | "approve_each" | "open_composition" | "keep_idea";
+  | "resilience"
+  | "roots"
+  | "memory"
+  | "transcendence"
+  | "silence";
+export type AdjustmentOption =
+  | "trust_artist"
+  | "open_composition"
+  | "approve_each"
+  | "fixed_idea_only";
 
 export type QuoteConnection = {
   referralSources: ReferralSource[];
@@ -28,22 +36,33 @@ export const REFERRAL_SOURCES: ReferralSource[] = [
 ];
 
 export const PERSONAL_VALUES: PersonalValue[] = [
-  "honesty",
-  "family",
+  "duality",
+  "joy",
+  "light",
+  "inner_darkness",
+  "vulnerability",
   "loyalty",
   "freedom",
-  "growth",
-  "faith",
-  "discipline",
-  "respect",
+  "resilience",
+  "roots",
+  "memory",
+  "transcendence",
+  "silence",
 ];
 
 export const ADJUSTMENT_OPTIONS: AdjustmentOption[] = [
   "trust_artist",
-  "approve_each",
   "open_composition",
-  "keep_idea",
+  "approve_each",
+  "fixed_idea_only",
 ];
+
+/** Opción más cerrada: sin asesoría ni evolución de la idea. */
+export const REJECTED_COLLABORATION_OPTION: AdjustmentOption = "fixed_idea_only";
+
+export function isRejectedCollaboration(adjustments: AdjustmentOption[]): boolean {
+  return adjustments.includes(REJECTED_COLLABORATION_OPTION);
+}
 
 export type ConnectionSelectionMode = "single" | "multiple";
 
@@ -62,21 +81,25 @@ export const REFERRAL_LABEL_KEYS: Record<ReferralSource, SiteCopyKey> = {
 };
 
 export const VALUE_LABEL_KEYS: Record<PersonalValue, SiteCopyKey> = {
-  honesty: "quoteConnectionValueHonesty",
-  family: "quoteConnectionValueFamily",
+  duality: "quoteConnectionValueDuality",
+  joy: "quoteConnectionValueJoy",
+  light: "quoteConnectionValueLight",
+  inner_darkness: "quoteConnectionValueInnerDarkness",
+  vulnerability: "quoteConnectionValueVulnerability",
   loyalty: "quoteConnectionValueLoyalty",
   freedom: "quoteConnectionValueFreedom",
-  growth: "quoteConnectionValueGrowth",
-  faith: "quoteConnectionValueFaith",
-  discipline: "quoteConnectionValueDiscipline",
-  respect: "quoteConnectionValueRespect",
+  resilience: "quoteConnectionValueResilience",
+  roots: "quoteConnectionValueRoots",
+  memory: "quoteConnectionValueMemory",
+  transcendence: "quoteConnectionValueTranscendence",
+  silence: "quoteConnectionValueSilence",
 };
 
 export const ADJUSTMENT_LABEL_KEYS: Record<AdjustmentOption, SiteCopyKey> = {
   trust_artist: "quoteConnectionAdjustTrust",
-  approve_each: "quoteConnectionAdjustApprove",
   open_composition: "quoteConnectionAdjustComposition",
-  keep_idea: "quoteConnectionAdjustKeep",
+  approve_each: "quoteConnectionAdjustApprove",
+  fixed_idea_only: "quoteConnectionAdjustFixed",
 };
 
 const QUOTE_CONNECTION_KEY = "quote_connection";
@@ -88,8 +111,10 @@ function isValidConnection(parsed: unknown): parsed is QuoteConnection {
     Array.isArray(data.referralSources) &&
     data.referralSources.length > 0 &&
     Array.isArray(data.personalValues) &&
+    data.personalValues.every((value) => PERSONAL_VALUES.includes(value as PersonalValue)) &&
     data.personalValues.length > 0 &&
     Array.isArray(data.adjustments) &&
+    data.adjustments.every((option) => ADJUSTMENT_OPTIONS.includes(option as AdjustmentOption)) &&
     data.adjustments.length > 0 &&
     typeof data.openNote === "string"
   );
@@ -153,20 +178,24 @@ export function formatQuoteConnectionForAdmin(connection: QuoteConnection): stri
     other: "Otro",
   };
   const valueLabels: Record<PersonalValue, string> = {
-    honesty: "Honestidad",
-    family: "Familia",
+    duality: "Dualidad",
+    joy: "Alegría",
+    light: "Luz",
+    inner_darkness: "Oscuridad interna",
+    vulnerability: "Vulnerabilidad",
     loyalty: "Lealtad",
     freedom: "Libertad",
-    growth: "Superación",
-    faith: "Fe",
-    discipline: "Disciplina",
-    respect: "Respeto",
+    resilience: "Resiliencia",
+    roots: "Raíces",
+    memory: "Memoria",
+    transcendence: "Trascendencia",
+    silence: "Silencio",
   };
   const adjustmentLabels: Record<AdjustmentOption, string> = {
-    trust_artist: "Confía en ajustes del artista",
-    approve_each: "Aprueba cada ajuste",
-    open_composition: "Abierto a escala y composición",
-    keep_idea: "Idea base con cambios mínimos",
+    trust_artist: "Guía creativa total — confía en el criterio del artista",
+    open_composition: "Base clara, abierto a escala y composición",
+    approve_each: "Colaboración con aprobación en cada ajuste",
+    fixed_idea_only: "Idea cerrada — exactamente eso, sin asesoría",
   };
 
   const referral = connection.referralSources

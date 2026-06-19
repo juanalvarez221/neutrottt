@@ -38,7 +38,7 @@ export function StudioLocationTrigger({
             className="h-3 w-3 shrink-0 text-amber-300/60 transition group-hover:text-amber-200/80"
             strokeWidth={1.75}
           />
-          <span className="text-[0.5rem] font-semibold uppercase tracking-[0.28em] text-amber-100/65 sm:text-[0.52rem]">
+          <span className="text-[0.625rem] font-semibold uppercase tracking-[0.28em] text-amber-100/65 sm:text-[0.68rem]">
             {STUDIO.locationShort}
           </span>
         </button>
@@ -103,7 +103,7 @@ export function StudioLocationTrigger({
         <button
           type="button"
           onClick={openSheet}
-          className="studio-card-cta inline-flex shrink-0 items-center gap-0.5 rounded-md px-2 py-1 text-[0.56rem] font-bold uppercase tracking-[0.12em] sm:gap-1 sm:px-2.5 sm:py-1.5 sm:text-[0.6rem]"
+          className="studio-card-cta inline-flex min-h-[44px] shrink-0 items-center gap-1 rounded-md px-3 py-2.5 text-[0.625rem] font-bold uppercase tracking-[0.12em] sm:gap-1 sm:px-3 sm:text-[0.68rem]"
         >
           <span>{t("studioCardCta")}</span>
           <ChevronRight className="h-2.5 w-2.5 opacity-85 sm:h-3 sm:w-3" strokeWidth={2.5} />

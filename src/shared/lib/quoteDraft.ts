@@ -1,21 +1,39 @@
 export type QuoteDraft = {
   size: string;
   zone?: string;
+  zoneOther?: string;
   notes?: string;
 };
 
 const QUOTE_DRAFT_KEY = "quote_draft";
 
 export function normalizeQuoteSize(size: string) {
-  return size
+  const normalized = size
     .toLowerCase()
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
     .trim();
+
+  if (normalized.includes("peque")) return "mediano";
+  return normalized;
 }
 
 export function isLargeQuoteSize(size: string) {
   return normalizeQuoteSize(size).includes("gran");
+}
+
+/** Solo piezas medianas (8–20 cm) reciben estimado orientativo online. */
+export function receivesOnlinePricing(size: string) {
+  return !isLargeQuoteSize(size);
+}
+
+/** Proyectos grandes (+25 cm) requieren asesoría presencial o virtual. */
+export function requiresProjectAdvisory(size: string) {
+  return isLargeQuoteSize(size);
+}
+
+export function resolveQuoteSizeParam(size: string): "mediano" | "grande" {
+  return isLargeQuoteSize(size) ? "grande" : "mediano";
 }
 
 export function saveQuoteDraft(draft: QuoteDraft) {
@@ -36,6 +54,11 @@ export function getQuoteDraft(): QuoteDraft | null {
   }
 }
 
+export function clearQuoteDraft() {
+  if (typeof window === "undefined") return;
+  window.localStorage.removeItem(QUOTE_DRAFT_KEY);
+}
+
 export const QUOTE_COMPLETION_KEY = "quote_completion_type";
 
 export type QuoteCompletionType = "asesoria" | "cotizacion";
@@ -50,4 +73,9 @@ export function getQuoteCompletionType(): QuoteCompletionType | null {
   const value = window.sessionStorage.getItem(QUOTE_COMPLETION_KEY);
   if (value === "asesoria" || value === "cotizacion") return value;
   return null;
+}
+
+export function clearQuoteCompletionType() {
+  if (typeof window === "undefined") return;
+  window.sessionStorage.removeItem(QUOTE_COMPLETION_KEY);
 }

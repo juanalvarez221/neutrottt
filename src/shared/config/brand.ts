@@ -3,6 +3,8 @@ export const BRAND = {
   nameUpper: "NEUTROTTT",
   instagramHandle: "neutrottt",
   instagramUrl: "https://www.instagram.com/neutrottt/",
+  tiktokHandle: "neutrottt",
+  tiktokUrl: "https://www.tiktok.com/@neutrottt",
   whatsappPhone: "573127311382",
 } as const;
 

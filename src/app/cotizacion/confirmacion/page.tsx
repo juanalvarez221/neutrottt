@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { QuoteConfirmationStep } from "@/widgets/quote/QuoteConfirmationStep";
+import { receivesOnlinePricing } from "@/shared/lib/quoteDraft";
 
 type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
 
@@ -52,7 +53,6 @@ function formatCopCompact(value: number) {
 
 function getSizeSessionRange(size: string): [number, number] {
   const normalized = normalizeText(size);
-  if (normalized.includes("peque")) return [1, 2];
   if (normalized.includes("gran")) return [4, 6];
   return [2, 4];
 }
@@ -70,6 +70,9 @@ function getStyleFactor(style: string) {
 function getZoneFactor(zone: string) {
   const normalized = normalizeText(zone);
   const zoneMap: Record<string, number> = {
+    brazo_completo: 1.08,
+    manga_externa: 1.05,
+    manga_interna: 1.04,
     cabeza: 1.12,
     hombro: 1.06,
     espalda: 1.08,
@@ -81,6 +84,7 @@ function getZoneFactor(zone: string) {
     brazo: 1.03,
     pierna: 1.06,
     gluteo: 1.03,
+    otro: 1.04,
   };
   return zoneMap[normalized] ?? 1.04;
 }
@@ -114,18 +118,23 @@ export default async function CotizacionConfirmacionPage({
 }) {
   const params = await searchParams;
   const rawSize = getParam(params, "size", "mediano");
-  const rawZone = getParam(params, "zone", "brazo");
+  const rawZone = getParam(params, "zone", "brazo_completo");
+  const rawZoneOther = getParam(params, "zoneOther", "");
 
-  if (normalizeText(rawSize).includes("gran")) {
+  if (!receivesOnlinePricing(rawSize)) {
     redirect(`/cotizacion/asesoria?size=${encodeURIComponent(rawSize)}`);
   }
 
   const size = titleCase(rawSize);
-  const zone = titleCase(rawZone);
   const estimate = getEstimate(rawSize, rawZone, "Neutrottt Style");
 
   return (
-    <QuoteConfirmationStep size={size} zone={zone} estimate={estimate} />
+    <QuoteConfirmationStep
+      size={size}
+      zone={rawZone}
+      zoneOther={rawZoneOther}
+      estimate={estimate}
+    />
   );
 }
 

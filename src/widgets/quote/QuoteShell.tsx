@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { MoreVertical, ArrowLeft } from "lucide-react";
 import { motion } from "framer-motion";
 import { getFirstName } from "@/shared/lib/quoteProfile";
+import type { SiteCopyKey } from "@/shared/i18n/siteLanguage";
 import { useSiteLanguage } from "@/shared/i18n/LanguageProvider";
 import { BRAND } from "@/shared/config/brand";
 import { QUOTE_BACKGROUND_VIDEO } from "@/shared/config/quote";
@@ -14,10 +15,12 @@ export function QuoteShell({
   children,
   brand = BRAND.name,
   showGreeting = true,
+  greetingKey = "quoteGreetStart",
 }: {
   children: React.ReactNode;
   brand?: string;
   showGreeting?: boolean;
+  greetingKey?: SiteCopyKey;
 }) {
   const router = useRouter();
   const { t } = useSiteLanguage();
@@ -47,7 +50,7 @@ export function QuoteShell({
   }, []);
 
   return (
-    <div className="relative isolate min-h-dvh overflow-hidden bg-[#050403] text-zinc-50">
+    <div className="relative isolate min-h-dvh overflow-hidden bg-background text-ivory">
       <div className="pointer-events-none absolute inset-0 -z-10" aria-hidden>
         <video
           ref={videoRef}
@@ -60,9 +63,7 @@ export function QuoteShell({
           preload="metadata"
           disablePictureInPicture
         />
-        <div className="absolute inset-0 bg-[#050403]/72" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_120%_80%_at_50%_0%,rgba(245,158,11,0.22),transparent_58%)]" />
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(5,4,3,0.35)_0%,rgba(5,4,3,0.62)_55%,rgba(5,4,3,0.88)_100%)]" />
+        <div className="absolute inset-0 quote-shell-overlay" />
       </div>
 
       <header className="sticky top-0 z-50 border-b border-white/10 bg-black/35 backdrop-blur-md">
@@ -90,12 +91,18 @@ export function QuoteShell({
         initial={{ opacity: 0, y: 14 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.45, ease: "easeOut" }}
-        className="relative z-10 w-full px-4 pb-28 pt-8 sm:px-6 md:px-10"
+        className="relative z-10 w-full pl-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))] pb-[max(1.75rem,calc(1rem+env(safe-area-inset-bottom)))] pt-6 sm:pl-6 sm:pr-6 sm:pt-8 md:pl-10 md:pr-10"
       >
         {showGreeting && firstName ? (
-          <p className="typo-body mb-6 max-w-2xl leading-relaxed text-amber-100/95">
-            {t("quoteGreeting", { name: firstName })}
-          </p>
+          <motion.p
+            key={greetingKey}
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+            className="typo-body mb-6 max-w-2xl text-sm leading-relaxed text-stone-300/92 sm:mb-8 md:text-[0.95rem]"
+          >
+            {t(greetingKey, { name: firstName })}
+          </motion.p>
         ) : null}
         {children}
       </motion.main>

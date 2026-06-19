@@ -1,13 +1,14 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { QuoteShell } from "@/widgets/quote/QuoteShell";
 import {
   QuoteConnectionIntro,
   QuoteConnectionIntroGate,
 } from "@/widgets/quote/QuoteConnectionIntro";
+import { QuoteConnectionDecline } from "@/widgets/quote/QuoteConnectionDecline";
 import { QuoteConnectionReward } from "@/widgets/quote/QuoteConnectionReward";
 import { ArrowRight, Check } from "lucide-react";
 import { useSiteLanguage } from "@/shared/i18n/LanguageProvider";
@@ -17,6 +18,7 @@ import {
   ADJUSTMENT_OPTIONS,
   CONNECTION_SELECTION_MODES,
   getQuoteConnection,
+  isRejectedCollaboration,
   PERSONAL_VALUES,
   REFERRAL_LABEL_KEYS,
   REFERRAL_SOURCES,
@@ -29,9 +31,13 @@ import {
   type ReferralSource,
 } from "@/shared/lib/quoteConnection";
 import { getFirstName, getQuoteProfile } from "@/shared/lib/quoteProfile";
+import {
+  hasApprovedQuoteConnection,
+  QUOTE_FLOW_PATHS,
+  startNewQuoteSession,
+} from "@/shared/lib/quoteFlow";
 
 const TOTAL_QUESTIONS = 4;
-const HOOK_PAUSE_MS = 3800;
 
 function scrollStepToTop() {
   window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
@@ -58,8 +64,8 @@ function ChoiceOption({
       className={[
         "flex items-center justify-between gap-3 rounded-xl border px-4 py-3.5 text-left text-sm transition",
         selected
-          ? "border-amber-500/40 bg-amber-500/10 text-amber-50"
-          : "border-white/10 bg-black/30 text-zinc-200 hover:border-amber-500/25 hover:bg-amber-500/5",
+          ? "border-stone-500/30 bg-stone-600/10 text-stone-100"
+          : "border-white/10 bg-black/30 text-zinc-200 hover:border-stone-500/22 hover:bg-stone-600/8",
       ].join(" ")}
     >
       <span>{label}</span>
@@ -69,16 +75,16 @@ function ChoiceOption({
           isSingle ? "rounded-full" : "rounded-md",
           selected
             ? isSingle
-              ? "border-amber-400/60 bg-amber-500/20"
-              : "border-amber-400/50 bg-amber-500/30"
+              ? "border-stone-400/45 bg-stone-500/15"
+              : "border-stone-400/40 bg-stone-500/20"
             : "border-white/15 bg-black/40",
         ].join(" ")}
       >
         {selected ? (
           isSingle ? (
-            <span className="h-2.5 w-2.5 rounded-full bg-amber-300 shadow-[0_0_8px_rgba(251,191,36,0.55)]" />
+            <span className="h-2.5 w-2.5 rounded-full bg-stone-300 shadow-[0_0_6px_rgba(168,156,144,0.35)]" />
           ) : (
-            <Check className="h-3 w-3 text-amber-100" strokeWidth={3} />
+            <Check className="h-3 w-3 text-stone-200" strokeWidth={3} />
           )
         ) : null}
       </span>
@@ -98,8 +104,6 @@ function pickOption<T extends string>(
 export function QuoteConnectionStep() {
   const router = useRouter();
   const { t } = useSiteLanguage();
-  const reduceMotion = useReducedMotion();
-  const hookTimerRef = useRef<number | null>(null);
   const [showIntro, setShowIntro] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [step, setStep] = useState(0);
@@ -110,7 +114,9 @@ export function QuoteConnectionStep() {
   const [openNote, setOpenNote] = useState("");
   const [error, setError] = useState("");
   const [showReward, setShowReward] = useState(false);
+  const [showDecline, setShowDecline] = useState(false);
   const [rewardConnection, setRewardConnection] = useState<QuoteConnection | null>(null);
+  const [gateReady, setGateReady] = useState(false);
 
   const firstName = useMemo(() => getFirstName(), []);
 
@@ -119,41 +125,32 @@ export function QuoteConnectionStep() {
     return buildConnectionPraise(rewardConnection, t, firstName);
   }, [rewardConnection, t, firstName]);
 
-  const revealQuestions = useCallback(() => {
-    setShowForm(true);
-  }, []);
-
   const handleIntroComplete = useCallback(() => {
     setShowIntro(false);
-    if (reduceMotion) {
-      revealQuestions();
-      return;
-    }
-    hookTimerRef.current = window.setTimeout(revealQuestions, HOOK_PAUSE_MS);
-  }, [reduceMotion, revealQuestions]);
-
-  useEffect(() => {
-    return () => {
-      if (hookTimerRef.current !== null) {
-        window.clearTimeout(hookTimerRef.current);
-      }
-    };
+    setShowForm(true);
   }, []);
 
   useEffect(() => {
     if (!getQuoteProfile()) {
-      router.replace("/cotizacion");
+      router.replace(QUOTE_FLOW_PATHS.profile);
+      return;
+    }
+    if (hasApprovedQuoteConnection()) {
+      startNewQuoteSession();
+      router.replace(QUOTE_FLOW_PATHS.quoteStart);
       return;
     }
     const saved = getQuoteConnection();
-    if (!saved) return;
-    setShowIntro(false);
-    setShowForm(true);
-    setReferralSources(saved.referralSources);
-    setReferralOther(saved.referralOther ?? "");
-    setPersonalValues(saved.personalValues);
-    setAdjustments(saved.adjustments);
-    setOpenNote(saved.openNote);
+    if (saved) {
+      setShowIntro(false);
+      setShowForm(true);
+      setReferralSources(saved.referralSources);
+      setReferralOther(saved.referralOther ?? "");
+      setPersonalValues(saved.personalValues);
+      setAdjustments(saved.adjustments);
+      setOpenNote(saved.openNote);
+    }
+    setGateReady(true);
   }, [router]);
 
   const progressLabel = t("quoteConnectionProgress")
@@ -182,15 +179,26 @@ export function QuoteConnectionStep() {
 
   const finish = () => {
     const connection = buildConnection();
+    if (isRejectedCollaboration(connection.adjustments)) {
+      setShowDecline(true);
+      scrollStepToTop();
+      return;
+    }
     saveQuoteConnection(connection);
     setRewardConnection(connection);
     setShowReward(true);
     scrollStepToTop();
   };
 
+  const handleDeclineComplete = useCallback(() => {
+    setShowDecline(false);
+    router.push("/cotizacion");
+  }, [router]);
+
   const handleRewardComplete = useCallback(() => {
     setShowReward(false);
-    router.push("/cotizacion/tamano");
+    startNewQuoteSession();
+    router.push(QUOTE_FLOW_PATHS.quoteStart);
   }, [router]);
 
   const goNext = () => {
@@ -220,9 +228,36 @@ export function QuoteConnectionStep() {
 
   const showOtherReferral = referralSources.includes("other");
 
+  if (!gateReady) {
+    return (
+      <QuoteShell showGreeting={false}>
+        <div className="flex min-h-[40dvh] items-center justify-center">
+          <p className="typo-tech text-sm uppercase tracking-[0.18em] text-stone-400">
+            {t("quoteConnectionStep")}
+          </p>
+        </div>
+      </QuoteShell>
+    );
+  }
+
   return (
     <QuoteShell showGreeting={false}>
       <AnimatePresence>
+        {showDecline ? (
+          <QuoteConnectionDecline
+            key="connection-decline"
+            tag={t("quoteConnectionDeclineTag")}
+            title1={t("quoteConnectionDeclineTitle1")}
+            title2={t("quoteConnectionDeclineTitle2")}
+            lead={t("quoteConnectionDeclineLead")}
+            lines={[
+              t("quoteConnectionDeclineLine1"),
+              t("quoteConnectionDeclineLine2"),
+            ]}
+            continueLabel={t("quoteConnectionDeclineContinue")}
+            onComplete={handleDeclineComplete}
+          />
+        ) : null}
         {showReward && rewardPraise ? (
           <QuoteConnectionReward
             key="connection-reward"
@@ -243,69 +278,49 @@ export function QuoteConnectionStep() {
           <QuoteConnectionIntro
             title={t("quoteConnectionTitle")}
             title2={t("quoteConnectionTitle2")}
+            manifest={t("quoteConnectionManifest")}
+            eyebrow={t("quoteConnectionStep")}
             onComplete={handleIntroComplete}
           />
         }
       >
-        <div className="relative flex min-h-[min(68dvh,560px)] flex-col">
-          <motion.section
-            className={[
-              "relative mb-6",
-              !showForm ? "flex flex-1 items-center justify-center pb-16" : "",
-            ].join(" ")}
-          >
-            <div className="pointer-events-none absolute -left-10 -top-10 h-40 w-40 rounded-full bg-amber-600/15 blur-[60px]" />
-
-            {!showForm || step === 0 ? (
-              <motion.p
-                className={[
-                  "typo-body max-w-lg leading-relaxed text-amber-100/95",
-                  showForm ? "text-sm" : "text-center text-[clamp(1.05rem,4.2vw,1.35rem)]",
-                ].join(" ")}
-                initial={{ opacity: 0, y: 16, filter: "blur(8px)" }}
+        <div className="relative flex min-h-0 flex-1 flex-col">
+          <AnimatePresence>
+            {showForm ? (
+              <motion.div
+                key="connection-form-header"
+                initial={{ opacity: 0, y: 14, filter: "blur(6px)" }}
                 animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
+                transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+                className="relative mb-6"
               >
-                {t("quoteConnectionHook")}
-              </motion.p>
-            ) : null}
-
-            <AnimatePresence>
-              {showForm ? (
-                <motion.div
-                  key="connection-form-header"
-                  initial={{ opacity: 0, y: 14, filter: "blur(6px)" }}
-                  animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                  transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
-                >
-                  {step === 0 ? (
-                    <p className="typo-body mt-3 max-w-lg text-sm leading-relaxed text-zinc-400">
-                      {t("quoteConnectionPace")}
-                    </p>
-                  ) : null}
-                  <p
-                    className={[
-                      "typo-tech mb-2 uppercase tracking-[0.16em] text-amber-200/85",
-                      step === 0 ? "mt-6" : "mt-0",
-                    ].join(" ")}
-                  >
-                    {t("quoteConnectionStep")} · {progressLabel}
+                {step === 0 ? (
+                  <p className="typo-body max-w-lg text-sm leading-relaxed text-zinc-400">
+                    {t("quoteConnectionPace")}
                   </p>
-                  <div className="flex gap-1.5">
-                    {Array.from({ length: TOTAL_QUESTIONS }).map((_, index) => (
-                      <span
-                        key={index}
-                        className={[
-                          "h-1 flex-1 rounded-full transition",
-                          index <= step ? "bg-amber-500/70" : "bg-white/10",
-                        ].join(" ")}
-                      />
-                    ))}
-                  </div>
-                </motion.div>
-              ) : null}
-            </AnimatePresence>
-          </motion.section>
+                ) : null}
+                <p
+                  className={[
+                    "typo-tech mb-2 uppercase tracking-[0.16em] text-stone-400",
+                    step === 0 ? "mt-6" : "mt-0",
+                  ].join(" ")}
+                >
+                  {t("quoteConnectionStep")} · {progressLabel}
+                </p>
+                <div className="flex gap-1.5">
+                  {Array.from({ length: TOTAL_QUESTIONS }).map((_, index) => (
+                    <span
+                      key={index}
+                      className={[
+                        "h-1 flex-1 rounded-full transition",
+                        index <= step ? "bg-stone-500/55" : "bg-white/10",
+                      ].join(" ")}
+                    />
+                  ))}
+                </div>
+              </motion.div>
+            ) : null}
+          </AnimatePresence>
 
           <AnimatePresence>
             {showForm ? (
@@ -367,7 +382,9 @@ export function QuoteConnectionStep() {
                         <legend className="typo-subtitle mb-1 block text-lg leading-snug text-zinc-50 md:text-xl">
                           {t("quoteConnectionValuesLabel")}
                         </legend>
-                        <p className="text-xs text-zinc-400">{t("quoteConnectionMultiHint")}</p>
+                        <p className="text-xs leading-relaxed text-zinc-400">
+                          {t("quoteConnectionValuesHint")}
+                        </p>
                         <div className="grid gap-2 sm:grid-cols-2">
                           {PERSONAL_VALUES.map((value) => (
                             <ChoiceOption
@@ -391,7 +408,9 @@ export function QuoteConnectionStep() {
                         <legend className="typo-subtitle mb-1 block text-lg leading-snug text-zinc-50 md:text-xl">
                           {t("quoteConnectionAdjustLabel")}
                         </legend>
-                        <p className="text-xs text-zinc-400">{t("quoteConnectionSingleHint")}</p>
+                        <p className="text-xs leading-relaxed text-zinc-400">
+                          {t("quoteConnectionAdjustHint")}
+                        </p>
                         <div
                           className="grid gap-2"
                           role="radiogroup"
@@ -436,18 +455,18 @@ export function QuoteConnectionStep() {
                   </div>
                 </section>
 
-                <div className="mt-auto flex items-center justify-between gap-3 pt-2">
+                <div className="quote-step-footer mt-auto pt-2">
                   <button
                     type="button"
                     onClick={goBack}
-                    className="rounded-xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold text-zinc-100 transition hover:bg-white/8"
+                    className="quote-step-footer-back rounded-xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold text-zinc-100 transition hover:bg-white/8"
                   >
                     {t("commonBack")}
                   </button>
                   <button
                     type="button"
                     onClick={goNext}
-                    className="group inline-flex items-center justify-center gap-2 rounded-lg border border-amber-500/35 bg-gradient-to-r from-amber-700 to-orange-600 px-6 py-3 text-sm font-bold uppercase tracking-[0.16em] text-white transition hover:-translate-y-0.5 hover:shadow-[0_0_20px_rgba(245,158,11,0.35)]"
+                    className="quote-step-footer-next btn-accent focus-ring typo-cta group inline-flex items-center justify-center gap-2 rounded-lg px-6 py-3 active:scale-[0.98]"
                   >
                     {step === TOTAL_QUESTIONS - 1 ? t("quoteConnectionContinue") : t("quoteConnectionNext")}
                     <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />

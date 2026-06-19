@@ -36,13 +36,13 @@ export function QuoteAdvisoryStep({ size }: { size: string }) {
   };
 
   return (
-    <QuoteShell>
+    <QuoteShell greetingKey="quoteGreetAdvisory">
       <section className="relative mb-8">
         <div className="pointer-events-none absolute -left-10 -top-10 h-40 w-40 rounded-full bg-amber-600/15 blur-[60px]" />
         <p className="typo-tech mb-2 uppercase tracking-[0.16em] text-amber-200/85">
           {t("quoteAdvisoryStep")}
         </p>
-        <h2 className="typo-section text-[2.2rem] leading-[1.05] md:text-[3.2rem]">
+        <h2 className="typo-section quote-step-title">
           {t("quoteAdvisoryTitle")}
           <br />
           <span className="bg-gradient-to-r from-white to-zinc-400 bg-clip-text text-transparent">
@@ -50,6 +50,9 @@ export function QuoteAdvisoryStep({ size }: { size: string }) {
           </span>
         </h2>
         <p className="typo-body mt-3 max-w-lg text-sm text-zinc-300">{t("quoteAdvisoryBody")}</p>
+        <p className="typo-tech mt-3 text-xs uppercase tracking-[0.14em] text-stone-400">
+          {t("quoteAdvisoryProjectSaved")}
+        </p>
       </section>
 
       <section className="grid gap-4 md:grid-cols-2">

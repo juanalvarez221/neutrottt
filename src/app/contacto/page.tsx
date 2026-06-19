@@ -10,10 +10,8 @@ export default function ContactoPage() {
   return (
     <AppShell>
       <header>
-        <p className="text-xs font-semibold tracking-[0.18em] text-amber-200/70 uppercase">
-          Contacto
-        </p>
-        <h1 className="mt-1 text-2xl font-semibold text-zinc-50">Hablemos</h1>
+        <p className="typo-eyebrow typo-eyebrow-muted">Contacto</p>
+        <h1 className="typo-section-sm mt-2">Hablemos</h1>
       </header>
 
       <div className="mt-5 grid gap-3">
@@ -25,9 +23,9 @@ export default function ContactoPage() {
 
         <Card>
           <div className="p-4">
-            <SocialBrandIcon network="whatsapp" size={48} className="h-12 w-12" />
-            <p className="mt-3 text-sm font-semibold text-zinc-50">WhatsApp</p>
-            <p className="mt-1 text-xs text-zinc-400">Cotizaciones y agenda.</p>
+            <SocialBrandIcon network="whatsapp" className="h-12 w-12" />
+            <p className="typo-subtitle mt-3 text-sm">WhatsApp</p>
+            <p className="typo-body mt-1 text-sm text-zinc-400">Cotizaciones y agenda.</p>
             <div className="mt-3">
               <Button className="w-full" href={whatsappUrl(WHATSAPP_MESSAGES.contact)}>
                 Continuar en WhatsApp
@@ -38,7 +36,7 @@ export default function ContactoPage() {
 
         <Card>
           <div className="p-4">
-            <SocialBrandIcon network="instagram" size={48} className="h-12 w-12" />
+            <SocialBrandIcon network="instagram" className="h-12 w-12" />
             <p className="mt-3 text-sm font-semibold text-zinc-50">Instagram</p>
             <p className="mt-1 text-xs text-zinc-400">@{BRAND.instagramHandle}</p>
             <div className="mt-3">

@@ -1,4 +1,5 @@
 import type { AdvisoryBooking, AdvisoryMode, AdvisorySlot, AdvisoryStore } from "@/shared/lib/advisoryTypes";
+import { advisoryBookingBlocksSlot } from "@/shared/lib/advisoryBookingLifecycle";
 
 const BOGOTA_OFFSET = "-05:00";
 
@@ -77,7 +78,7 @@ export function isSlotTaken(
   const start = new Date(startsAt);
   const end = new Date(start.getTime() + durationMin * 60_000);
   return store.bookings.some((booking) => {
-    if (booking.status !== "confirmed") return false;
+    if (!advisoryBookingBlocksSlot(booking.status)) return false;
     if (excludeBookingId && booking.id === excludeBookingId) return false;
     return overlaps(start, end, new Date(booking.startsAt), bookingEnd(booking));
   });

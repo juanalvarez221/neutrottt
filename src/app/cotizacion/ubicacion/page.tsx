@@ -1,4 +1,5 @@
 import { QuoteLocationStep } from "@/widgets/quote/QuoteLocationStep";
+import { resolveQuoteSizeParam } from "@/shared/lib/quoteDraft";
 
 type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
 
@@ -18,6 +19,8 @@ export default async function CotizacionUbicacionPage({
   searchParams: SearchParams;
 }) {
   const params = await searchParams;
-  return <QuoteLocationStep size={getParam(params, "size", "mediano")} />;
+  return (
+    <QuoteLocationStep size={resolveQuoteSizeParam(getParam(params, "size", "mediano"))} />
+  );
 }
 

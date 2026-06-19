@@ -31,7 +31,7 @@ export function SideNav() {
               <p className="hero-brand-name text-[2.1rem] leading-[0.9] sm:text-[2.5rem]">
                 Neutrottt
               </p>
-              <p className="hero-brand-tagline mt-2 text-[0.58rem] tracking-[0.38em] text-amber-200/75">
+              <p className="hero-brand-tagline mt-2 text-[0.58rem] tracking-[0.38em] text-stone-400/80">
                 Tattoo Artist
               </p>
             </div>
@@ -49,15 +49,15 @@ export function SideNav() {
                   className={cn(
                     "group flex items-center gap-3 rounded-2xl border px-3 py-2.5 text-sm font-semibold transition",
                     active
-                      ? "border-amber-500/30 bg-amber-600/10 text-amber-100"
-                      : "border-transparent bg-transparent text-zinc-200 hover:border-white/10 hover:bg-white/5",
+                      ? "border-stone-500/25 bg-stone-600/10 text-stone-100"
+                      : "border-transparent bg-transparent text-zinc-300 hover:border-white/10 hover:bg-white/5",
                   )}
                 >
                   <span
                     className={cn(
                       "flex h-9 w-9 items-center justify-center rounded-xl border transition",
                       active
-                        ? "border-amber-500/30 bg-amber-600/15"
+                        ? "border-stone-500/25 bg-stone-600/12"
                         : "border-white/10 bg-white/5 group-hover:bg-white/7",
                     )}
                   >
@@ -71,7 +71,7 @@ export function SideNav() {
 
           <div className="mt-auto pt-6">
             <div className="mt-8 rounded-2xl border border-white/10 bg-white/5 p-4">
-              <p className="text-xs font-semibold tracking-[0.18em] text-amber-200/70 uppercase">
+              <p className="text-xs font-semibold tracking-[0.18em] text-stone-400/80 uppercase">
                 Estilo
               </p>
               <p className="mt-1 text-sm font-semibold text-zinc-50">

@@ -43,7 +43,7 @@ export function QuoteStyleStep({ size, zone }: { size: string; zone: string }) {
         <p className="typo-tech mb-2 uppercase tracking-[0.16em] text-amber-200/85">
           {t("quoteStyleStep")}
         </p>
-        <h2 className="typo-section text-[2.2rem] leading-[1.05] md:text-[3.2rem]">
+        <h2 className="typo-section quote-step-title">
           {t("quoteStyleTitle")}
           <br />
           <span className="bg-gradient-to-r from-white to-zinc-400 bg-clip-text text-transparent">
@@ -95,7 +95,7 @@ export function QuoteStyleStep({ size, zone }: { size: string; zone: string }) {
         </div>
       </section>
 
-      <div className="mt-6 flex items-center justify-between gap-3">
+      <div className="quote-step-footer mt-6">
         <button
           type="button"
           onClick={() =>
@@ -103,7 +103,7 @@ export function QuoteStyleStep({ size, zone }: { size: string; zone: string }) {
               `/cotizacion/ubicacion?size=${encodeURIComponent(size)}`,
             )
           }
-          className="rounded-xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold text-zinc-100 transition hover:bg-white/8"
+          className="quote-step-footer-back rounded-xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold text-zinc-100 transition hover:bg-white/8"
         >
           {t("commonBack")}
         </button>
@@ -115,7 +115,7 @@ export function QuoteStyleStep({ size, zone }: { size: string; zone: string }) {
               `/cotizacion/confirmacion?size=${encodeURIComponent(size)}&zone=${encodeURIComponent(zone)}&style=${encodeURIComponent(style)}&notes=${encodeURIComponent(notes.trim())}`,
             );
           }}
-          className="typo-cta group inline-flex items-center justify-center gap-2 rounded-xl border border-amber-500/35 bg-gradient-to-r from-amber-700 to-orange-600 px-6 py-3 text-white transition hover:-translate-y-0.5 hover:shadow-[0_0_20px_rgba(245,158,11,0.35)]"
+          className="quote-step-footer-next btn-accent focus-ring typo-cta group inline-flex items-center justify-center gap-2 rounded-xl px-6 py-3 active:scale-[0.98]"
         >
           {t("quoteContinue")}
           <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />

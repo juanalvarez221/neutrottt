@@ -12,9 +12,15 @@ import {
   setQuoteCompletionType,
 } from "@/shared/lib/quoteDraft";
 import { getQuoteProfile } from "@/shared/lib/quoteProfile";
-import { addSmartQuoteRequest } from "@/shared/lib/smartQuotes";
+import {
+  addSmartQuoteRequest,
+  persistQuoteRequestToBackend,
+  type SmartQuoteRequest,
+} from "@/shared/lib/smartQuotes";
+import { getAdvisoryDurationMin } from "@/shared/lib/advisoryConfig";
 import type { AdvisoryMode, AdvisorySlot } from "@/shared/lib/advisoryTypes";
 import { formatDayLabel } from "@/shared/lib/advisorySlots";
+import { formatZoneDisplay } from "@/shared/lib/quoteZones";
 import { buildAdvisoryWhatsAppMessage, whatsappUrl } from "@/shared/config/brand";
 import { getStudioFullAddress } from "@/shared/config/studio";
 
@@ -40,6 +46,7 @@ export function QuoteAdvisoryBookingStep({
   const [selectedSlot, setSelectedSlot] = useState<AdvisorySlot | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [durationMin, setDurationMin] = useState(getAdvisoryDurationMin(mode));
 
   useEffect(() => {
     if (!profile || !getQuoteConnection()) {
@@ -67,6 +74,7 @@ export function QuoteAdvisoryBookingStep({
         });
         const payload = (await response.json()) as {
           days?: DaySlots[];
+          durationMin?: number;
           error?: string;
         };
         if (!response.ok) {
@@ -74,6 +82,7 @@ export function QuoteAdvisoryBookingStep({
         }
         const nextDays = (payload.days ?? []).filter((day) => day.slots.length > 0);
         if (!cancelled) {
+          setDurationMin(payload.durationMin ?? getAdvisoryDurationMin(mode));
           setDays(nextDays);
           setSelectedDate(nextDays[0]?.date ?? "");
           setSelectedSlot(null);
@@ -107,6 +116,21 @@ export function QuoteAdvisoryBookingStep({
     setError("");
 
     try {
+      const connection = getQuoteConnection();
+      const connectionFields = connection
+        ? mapConnectionToSmartQuote(connection, t)
+        : {
+            connectionAftercare: undefined,
+            connectionValues: undefined,
+            connectionCollaboration: undefined,
+            connectionPurpose: undefined,
+          };
+      const zoneDisplay = formatZoneDisplay(
+        draft?.zone ?? "brazo_completo",
+        draft?.zoneOther,
+        t,
+      );
+
       const response = await fetch("/api/advisory/book", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -118,6 +142,13 @@ export function QuoteAdvisoryBookingStep({
           email: profile.email,
           projectNotes: draft?.notes ?? "",
           size,
+          brief: {
+            bodyZone: zoneDisplay,
+            referral: connectionFields.connectionAftercare,
+            personalValues: connectionFields.connectionValues,
+            collaborationMode: connectionFields.connectionCollaboration,
+            openNote: connectionFields.connectionPurpose,
+          },
         }),
       });
       const payload = (await response.json()) as {
@@ -130,16 +161,14 @@ export function QuoteAdvisoryBookingStep({
         throw new Error(payload.error ?? t("quoteAdvisoryBookingSubmitError"));
       }
 
-      const connection = getQuoteConnection();
-      const connectionFields = connection ? mapConnectionToSmartQuote(connection, t) : {};
-      addSmartQuoteRequest({
+      const request: SmartQuoteRequest = {
         id: `SQ-${Date.now()}`,
         createdAt: new Date().toISOString(),
         clientName: profile.name,
         phone: profile.phone,
         email: profile.email,
         size,
-        zone: draft?.zone ?? "Por definir en asesoría",
+        zone: zoneDisplay,
         style: "Por definir en asesoría",
         notes: "",
         ...connectionFields,
@@ -151,7 +180,9 @@ export function QuoteAdvisoryBookingStep({
         estimatePerSession: "Por definir",
         estimateTotal: "Por definir en asesoría",
         status: "Asesoría Agendada",
-      });
+      };
+      addSmartQuoteRequest(request);
+      void persistQuoteRequestToBackend(request);
 
       sessionStorage.setItem(
         "quote_advisory_confirmation",
@@ -185,7 +216,7 @@ export function QuoteAdvisoryBookingStep({
     mode === "presencial" ? t("quoteAdvisoryPresencialTitle") : t("quoteAdvisoryVirtualTitle");
 
   return (
-    <QuoteShell>
+    <QuoteShell greetingKey="quoteGreetAdvisoryBook">
       <section className="relative mb-8">
         <div className="pointer-events-none absolute -left-10 -top-10 h-40 w-40 rounded-full bg-amber-600/15 blur-[60px]" />
         <p className="typo-tech mb-2 uppercase tracking-[0.16em] text-amber-200/85">
@@ -196,13 +227,18 @@ export function QuoteAdvisoryBookingStep({
         </h2>
         <p className="typo-body mt-4 max-w-2xl leading-relaxed">{t("quoteAdvisoryBookingBody")}</p>
 
-        <div className="mt-4 inline-flex items-center gap-2 rounded-full border border-amber-500/30 bg-amber-600/10 px-4 py-2 text-sm text-amber-100">
-          {mode === "presencial" ? (
-            <MapPin className="h-4 w-4" />
-          ) : (
-            <Monitor className="h-4 w-4" />
-          )}
-          {modeTitle}
+        <div className="mt-4 flex flex-wrap items-center gap-2">
+          <span className="inline-flex items-center gap-2 rounded-full border border-stone-500/30 bg-stone-600/10 px-4 py-2 text-sm text-stone-100">
+            {mode === "presencial" ? (
+              <MapPin className="h-4 w-4" />
+            ) : (
+              <Monitor className="h-4 w-4" />
+            )}
+            {modeTitle}
+          </span>
+          <span className="typo-tech rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs uppercase tracking-[0.14em] text-zinc-300">
+            {t("quoteAdvisoryBookingDuration").replace("{minutes}", String(durationMin))}
+          </span>
         </div>
         {mode === "presencial" ? (
           <p className="typo-tech mt-2 text-xs text-zinc-500">{getStudioFullAddress()}</p>
@@ -236,7 +272,7 @@ export function QuoteAdvisoryBookingStep({
                 {t("quoteAdvisoryBookingDayLabel")}
               </h3>
             </div>
-            <div className="flex gap-2 overflow-x-auto pb-1">
+            <div className="flex gap-2 overflow-x-auto overscroll-x-contain pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
               {days.map((day) => {
                 const selected = selectedDate === day.date;
                 return (
@@ -248,7 +284,7 @@ export function QuoteAdvisoryBookingStep({
                       setSelectedSlot(null);
                     }}
                     className={[
-                      "shrink-0 rounded-xl border px-4 py-3 text-left transition",
+                      "shrink-0 rounded-xl border px-4 py-3.5 text-left transition min-h-[44px]",
                       selected
                         ? "border-amber-500/35 bg-amber-600/15 text-amber-50"
                         : "border-white/10 bg-white/5 text-zinc-200 hover:bg-white/8",
@@ -276,7 +312,7 @@ export function QuoteAdvisoryBookingStep({
                     type="button"
                     onClick={() => setSelectedSlot(slot)}
                     className={[
-                      "rounded-xl border px-3 py-3 text-sm font-semibold transition",
+                      "rounded-xl border px-3 py-3.5 text-sm font-semibold transition min-h-[44px]",
                       selected
                         ? "border-amber-500/35 bg-amber-600/15 text-amber-50"
                         : "border-white/10 bg-white/5 text-zinc-100 hover:bg-white/8",
@@ -296,20 +332,21 @@ export function QuoteAdvisoryBookingStep({
               </p>
               <p className="typo-subtitle mt-2 text-lg text-zinc-50">{selectedSlot.label}</p>
               <p className="typo-body mt-2 text-sm text-zinc-300">
-                {profile?.name} · {modeTitle}
+                {profile?.name} · {modeTitle} ·{" "}
+                {t("quoteAdvisoryBookingDuration").replace("{minutes}", String(durationMin))}
               </p>
             </section>
           ) : null}
         </>
       ) : null}
 
-      <div className="mt-6 flex items-center justify-between gap-3">
+      <div className="quote-step-footer mt-6">
         <button
           type="button"
           onClick={() =>
             router.push(`/cotizacion/asesoria?size=${encodeURIComponent(size)}`)
           }
-          className="rounded-xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold text-zinc-100 transition hover:bg-white/8"
+          className="quote-step-footer-back rounded-xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold text-zinc-100 transition hover:bg-white/8"
         >
           {t("commonBack")}
         </button>
@@ -317,7 +354,7 @@ export function QuoteAdvisoryBookingStep({
           type="button"
           disabled={!selectedSlot || submitting}
           onClick={() => void confirmBooking()}
-          className="inline-flex items-center gap-2 rounded-xl border border-amber-500/35 bg-gradient-to-r from-amber-700 to-orange-600 px-6 py-3 text-sm font-bold uppercase tracking-[0.2em] text-white transition hover:-translate-y-0.5 hover:shadow-[0_0_20px_rgba(245,158,11,0.35)] disabled:cursor-not-allowed disabled:opacity-50"
+          className="quote-step-footer-next btn-accent focus-ring typo-cta inline-flex items-center justify-center gap-2 rounded-xl px-6 py-3 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
         >
           {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
           {t("quoteAdvisoryBookingConfirm")}

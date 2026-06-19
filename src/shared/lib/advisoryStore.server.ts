@@ -1,113 +1,61 @@
-import { readFile, writeFile, mkdir } from "node:fs/promises";
-import path from "node:path";
 import type { AdvisoryBooking, AdvisoryStore } from "@/shared/lib/advisoryTypes";
-
-const STORE_KEY = "neutrott:advisory-store";
+import { advisoryBookingBlocksSlot } from "@/shared/lib/advisoryBookingLifecycle";
+import { resolveAdvisoryStorage } from "@/shared/lib/storage/resolveAdvisoryStorage.server";
+import { readSeedStore } from "@/shared/lib/storage/fileAdvisoryStorage.server";
 
 let memoryStore: AdvisoryStore | null = null;
 
-function getFilePath() {
-  if (process.env.VERCEL) {
-    return path.join("/tmp", "advisory-store.json");
-  }
-  return path.join(process.cwd(), "data", "advisory-store.json");
+function normalizeBooking(raw: AdvisoryBooking): AdvisoryBooking {
+  const status = raw.status ?? "confirmed";
+  return {
+    ...raw,
+    status,
+    confirmationToken: raw.confirmationToken ?? `legacy-${raw.id}`,
+  };
 }
 
-function getSeedPath() {
-  return path.join(process.cwd(), "data", "advisory-store.json");
-}
-
-async function upstashCommand<T = unknown>(command: (string | number)[]) {
-  const baseUrl = process.env.UPSTASH_REDIS_REST_URL;
-  const token = process.env.UPSTASH_REDIS_REST_TOKEN;
-  if (!baseUrl || !token) return null;
-
-  const response = await fetch(baseUrl, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(command),
-    cache: "no-store",
-  });
-  if (!response.ok) return null;
-  const payload = (await response.json()) as { result?: T };
-  return payload.result ?? null;
-}
-
-async function readFromUpstash(): Promise<AdvisoryStore | null> {
-  const raw = await upstashCommand<string>(["GET", STORE_KEY]);
-  if (!raw) return null;
-  try {
-    return JSON.parse(raw) as AdvisoryStore;
-  } catch {
-    return null;
-  }
-}
-
-async function writeToUpstash(store: AdvisoryStore) {
-  const result = await upstashCommand(["SET", STORE_KEY, JSON.stringify(store)]);
-  return result === "OK";
-}
-
-async function readFromFile(): Promise<AdvisoryStore | null> {
-  const filePath = getFilePath();
-  try {
-    const raw = await readFile(filePath, "utf8");
-    return JSON.parse(raw) as AdvisoryStore;
-  } catch {
-    try {
-      const seed = await readFile(getSeedPath(), "utf8");
-      const parsed = JSON.parse(seed) as AdvisoryStore;
-      await writeToFile(parsed);
-      return parsed;
-    } catch {
-      return null;
-    }
-  }
-}
-
-async function writeToFile(store: AdvisoryStore) {
-  const filePath = getFilePath();
-  if (!process.env.VERCEL) {
-    await mkdir(path.dirname(filePath), { recursive: true });
-  }
-  await writeFile(filePath, JSON.stringify(store, null, 2), "utf8");
+function normalizeStore(store: AdvisoryStore): AdvisoryStore {
+  return {
+    ...store,
+    bookings: store.bookings.map(normalizeBooking),
+  };
 }
 
 export async function loadAdvisoryStore(): Promise<AdvisoryStore> {
-  const hasRedis = Boolean(
-    process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN,
-  );
+  const adapter = resolveAdvisoryStorage();
 
-  if (!hasRedis && memoryStore) return memoryStore;
-
-  const fromRedis = hasRedis ? await readFromUpstash() : null;
-  if (fromRedis) {
-    memoryStore = fromRedis;
-    return fromRedis;
+  if (adapter.name === "file") {
+    if (memoryStore) return memoryStore;
+    const fromFile = await adapter.read();
+    if (!fromFile) {
+      throw new Error("No se pudo cargar la agenda de asesorías.");
+    }
+    memoryStore = normalizeStore(fromFile);
+    return memoryStore;
   }
 
-  const fromFile = await readFromFile();
-  if (fromFile) {
-    memoryStore = fromFile;
-    return fromFile;
+  // Adapter remoto (Redis): siempre leemos fresco para evitar datos obsoletos.
+  const fromRemote = await adapter.read();
+  if (fromRemote) {
+    memoryStore = normalizeStore(fromRemote);
+    return memoryStore;
   }
 
-  throw new Error("No se pudo cargar la agenda de asesorías.");
+  // Primer arranque: sembramos el medio remoto con el archivo versionado.
+  const seed = await readSeedStore();
+  if (!seed) {
+    throw new Error("No se pudo cargar la agenda de asesorías.");
+  }
+  const normalized = normalizeStore(seed);
+  await adapter.write(normalized);
+  memoryStore = normalized;
+  return normalized;
 }
 
 export async function saveAdvisoryStore(store: AdvisoryStore) {
+  const adapter = resolveAdvisoryStorage();
+  await adapter.write(store);
   memoryStore = store;
-  const savedRedis = await writeToUpstash(store);
-  if (savedRedis) return;
-
-  try {
-    await writeToFile(store);
-  } catch {
-    if (!memoryStore) throw new Error("No se pudo guardar la reserva.");
-  }
 }
 
 export async function addAdvisoryBooking(booking: AdvisoryBooking) {
@@ -117,9 +65,41 @@ export async function addAdvisoryBooking(booking: AdvisoryBooking) {
   return booking;
 }
 
+export async function updateAdvisoryBooking(
+  bookingId: string,
+  patch: Partial<AdvisoryBooking>,
+  options?: { unset?: (keyof AdvisoryBooking)[] },
+) {
+  const store = await loadAdvisoryStore();
+  const index = store.bookings.findIndex((item) => item.id === bookingId);
+  if (index === -1) return null;
+  const updated = { ...store.bookings[index], ...patch } as AdvisoryBooking;
+  for (const key of options?.unset ?? []) {
+    delete updated[key];
+  }
+  store.bookings[index] = updated;
+  await saveAdvisoryStore(store);
+  return updated;
+}
+
+export async function getAdvisoryBookingByToken(token: string) {
+  const store = await loadAdvisoryStore();
+  return store.bookings.find((booking) => booking.confirmationToken === token) ?? null;
+}
+
+export async function getAdvisoryBookingById(id: string) {
+  const store = await loadAdvisoryStore();
+  return store.bookings.find((booking) => booking.id === id) ?? null;
+}
+
 export async function listAdvisoryBookings() {
   const store = await loadAdvisoryStore();
   return store.bookings
-    .filter((booking) => booking.status === "confirmed")
+    .filter((booking) => advisoryBookingBlocksSlot(booking.status))
     .sort((a, b) => a.startsAt.localeCompare(b.startsAt));
+}
+
+export async function listAllAdvisoryBookings() {
+  const store = await loadAdvisoryStore();
+  return [...store.bookings].sort((a, b) => a.startsAt.localeCompare(b.startsAt));
 }

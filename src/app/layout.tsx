@@ -1,20 +1,22 @@
 import type { Metadata } from "next";
-import { Inter, Space_Mono, Syncopate, UnifrakturMaguntia } from "next/font/google";
+import { Bebas_Neue, Montserrat, Space_Mono, UnifrakturMaguntia } from "next/font/google";
 import "./globals.css";
 import { LanguageProvider } from "@/shared/i18n/LanguageProvider";
 import { LanguagePrompt } from "@/widgets/i18n/LanguagePrompt";
 import { NavigationScrollManager } from "@/widgets/navigation/NavigationScrollManager";
+import { QuickActionDock } from "@/widgets/navigation/QuickActionDock";
 
-const fontInter = Inter({
-  variable: "--font-inter",
+const fontSans = Montserrat({
+  variable: "--font-sans",
   subsets: ["latin"],
-  weight: ["400", "600", "700"],
+  weight: ["400", "500", "600", "700"],
 });
 
-const fontDisplay = Syncopate({
+/** Integral CF EB no está en Google Fonts; Bebas Neue es el sustituto más cercano para títulos. */
+const fontDisplay = Bebas_Neue({
   variable: "--font-display",
   subsets: ["latin"],
-  weight: ["700"],
+  weight: ["400"],
 });
 
 const fontMono = Space_Mono({
@@ -43,9 +45,9 @@ export default function RootLayout({
     <html
       lang="es"
       suppressHydrationWarning
-      className={`${fontInter.variable} ${fontDisplay.variable} ${fontMono.variable} ${fontGothic.variable} h-full antialiased`}
+      className={`${fontSans.variable} ${fontDisplay.variable} ${fontMono.variable} ${fontGothic.variable} h-full antialiased`}
     >
-      <body suppressHydrationWarning className="min-h-full flex flex-col bg-[#050403] text-zinc-50">
+      <body suppressHydrationWarning className="min-h-full flex flex-col bg-background text-ivory">
         <LanguageProvider>
           <NavigationScrollManager />
           <div aria-hidden className="amber-storm">
@@ -54,6 +56,7 @@ export default function RootLayout({
             <span className="amber-storm__flash amber-storm__flash--c" />
           </div>
           <div className="relative z-10">{children}</div>
+          <QuickActionDock />
           <LanguagePrompt />
         </LanguageProvider>
       </body>

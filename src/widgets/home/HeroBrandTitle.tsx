@@ -52,10 +52,11 @@ export function HeroBrandTitle({
       <h1
         className={cn(
           "hero-brand-name leading-[0.9]",
+          variant === "hero" && "hero-brand-name--banner",
           textAlign,
           isWatermark
             ? "text-[3rem] md:text-[5.5rem]"
-            : "text-[2.75rem] sm:text-[3.75rem] md:text-[5.25rem] lg:text-[6rem]",
+            : "text-[clamp(2.25rem,10vw,6rem)]",
         )}
       >
         {name}
@@ -67,7 +68,7 @@ export function HeroBrandTitle({
 
       {!isWatermark ? (
         <span
-          className="mt-1 h-[2px] w-20 rounded-full bg-gradient-to-r from-transparent via-amber-400 to-transparent md:w-28"
+          className="mt-1 h-[2px] w-20 rounded-full bg-gradient-to-r from-transparent via-honey to-transparent md:w-28"
           aria-hidden
         />
       ) : null}

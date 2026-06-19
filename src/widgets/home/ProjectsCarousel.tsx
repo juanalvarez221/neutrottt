@@ -3,7 +3,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
-import { Layers } from "lucide-react";
 import { useSiteLanguage } from "@/shared/i18n/LanguageProvider";
 import type { SiteCopyKey } from "@/shared/i18n/siteLanguage";
 import { scrollRevealViewport } from "@/shared/motion/scrollReveal";
@@ -12,60 +11,48 @@ const STAGGER_S = 0.58;
 
 const PORTFOLIO_PIECES: {
   src: string;
-  titleKey: SiteCopyKey;
   altKey: SiteCopyKey;
-  categoryKey: SiteCopyKey;
   rotate: number;
   className: string;
 }[] = [
   {
     src: "/portfolio/piece-lettering-1.png",
-    titleKey: "portfolioPiece1Title",
     altKey: "portfolioPiece1Alt",
-    categoryKey: "portfolioCatLettering",
     rotate: -5.5,
     className:
       "left-[4%] top-[1%] z-[11] w-[min(52vw,200px)] md:left-[5%] md:top-[4%] md:w-[240px]",
   },
   {
     src: "/portfolio/piece-realism-1.png",
-    titleKey: "portfolioPiece2Title",
     altKey: "portfolioPiece2Alt",
-    categoryKey: "portfolioCatShadows",
     rotate: 4,
     className:
       "right-[3%] top-[18%] z-[12] w-[min(50vw,190px)] md:left-[32%] md:right-auto md:top-[1%] md:w-[230px]",
   },
   {
     src: "/portfolio/piece-lettering-2.png",
-    titleKey: "portfolioPiece3Title",
     altKey: "portfolioPiece3Alt",
-    categoryKey: "portfolioCatLettering",
     rotate: -2.5,
     className:
       "left-[6%] top-[36%] z-[13] w-[min(48vw,185px)] md:left-auto md:right-[4%] md:top-[16%] md:w-[220px]",
   },
   {
     src: "/portfolio/piece-realism-2.png",
-    titleKey: "portfolioPiece4Title",
     altKey: "portfolioPiece4Alt",
-    categoryKey: "portfolioCatShadows",
     rotate: 5,
     className:
       "right-[5%] top-[52%] z-[14] w-[min(50vw,190px)] md:left-[10%] md:right-auto md:top-auto md:bottom-[8%] md:w-[225px]",
   },
   {
     src: "/portfolio/piece-realism-3.png",
-    titleKey: "portfolioPiece5Title",
     altKey: "portfolioPiece5Alt",
-    categoryKey: "portfolioCatShadows",
     rotate: -4,
     className:
       "left-[8%] top-[68%] z-[15] w-[min(52vw,200px)] md:left-auto md:right-[8%] md:top-auto md:bottom-[4%] md:w-[235px]",
   },
 ];
 
-function PortfolioPolaroid({
+function PortfolioFramedPhoto({
   piece,
   index,
   t,
@@ -119,28 +106,22 @@ function PortfolioPolaroid({
       />
 
       <motion.div
-        className="portfolio-polaroid relative overflow-hidden rounded-[3px] p-2 pb-3 sm:p-2.5 sm:pb-3.5"
+        className="portfolio-frame relative"
         whileHover={{ y: -4, transition: { duration: 0.25 } }}
       >
-        <span
-          aria-hidden
-          className="portfolio-polaroid-tape absolute -top-2 left-1/2 z-30 h-5 w-14 -translate-x-1/2 rotate-[-2deg] rounded-[2px] opacity-90"
-        />
-        <div className="relative flex aspect-[4/5] items-center justify-center overflow-hidden bg-zinc-950">
-          <Image
-            src={piece.src}
-            alt={t(piece.altKey)}
-            fill
-            quality={92}
-            sizes="240px"
-            className="object-contain"
-            priority={index < 2}
-          />
+        <div className="portfolio-frame__mat">
+          <div className="portfolio-frame__opening">
+            <Image
+              src={piece.src}
+              alt={t(piece.altKey)}
+              fill
+              quality={92}
+              sizes="240px"
+              className="object-contain"
+              priority={index < 2}
+            />
+          </div>
         </div>
-        <figcaption className="mt-2 px-0.5">
-          <p className="typo-polaroid-tag">{t(piece.categoryKey)}</p>
-          <p className="typo-polaroid-title mt-0.5">{t(piece.titleKey)}</p>
-        </figcaption>
       </motion.div>
     </motion.figure>
   );
@@ -151,14 +132,14 @@ function PortfolioPhotoWall({ t }: { t: (key: SiteCopyKey) => string }) {
 
   return (
     <motion.div
-      className="portfolio-photo-wall page-bleed-x relative mt-8 min-h-[44rem] w-full overflow-hidden border-y border-white/[0.08] sm:mt-10 md:min-h-[38rem] lg:min-h-[40rem]"
+      className="portfolio-photo-wall page-bleed-x relative mt-8 min-h-[clamp(26rem,128vw,34rem)] w-full overflow-hidden border-y border-white/[0.08] sm:mt-10 md:min-h-[34rem] lg:min-h-[36rem]"
       initial={{ opacity: 0 }}
       whileInView={{ opacity: 1 }}
       viewport={scrollRevealViewport}
       transition={{ duration: 0.5 }}
     >
       {PORTFOLIO_PIECES.map((piece, i) => (
-        <PortfolioPolaroid
+        <PortfolioFramedPhoto
           key={piece.src}
           piece={piece}
           index={i}
@@ -174,10 +155,9 @@ export function ProjectsCarousel() {
   const { t } = useSiteLanguage();
 
   return (
-    <section className="page-section relative w-full overflow-hidden border-t border-white/[0.06] bg-black/80">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(500px_220px_at_15%_0%,rgba(251,191,36,0.28),transparent_58%),radial-gradient(700px_280px_at_95%_100%,rgba(217,119,6,0.2),transparent_60%)]" />
+    <section className="page-section section-surface section-surface--portfolio section-divider relative w-full overflow-hidden">
 
-      <div className="page-section-pad relative z-10 py-10 sm:py-12 md:py-16">
+      <div className="page-section-pad relative z-10 page-section-y">
         <p className="typo-eyebrow">{t("projectsTag")}</p>
 
         <div className="mt-4 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between sm:gap-8">
@@ -196,15 +176,9 @@ export function ProjectsCarousel() {
         </div>
 
         <PortfolioPhotoWall t={t} />
-
-        <p className="typo-micro typo-eyebrow-muted mt-5 flex items-center justify-center gap-2 px-2 text-center font-medium">
-          <Layers className="h-3.5 w-3.5 shrink-0 text-amber-500/70" strokeWidth={2} />
-          {t("projectsFootnote")}
-        </p>
       </div>
 
-      <div className="relative border-t border-amber-400/20 bg-[radial-gradient(560px_220px_at_8%_0%,rgba(251,191,36,0.24),transparent_62%),linear-gradient(180deg,rgba(255,255,255,0.06),transparent_30%),#0d0d10]">
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(420px_180px_at_100%_100%,rgba(217,119,6,0.18),transparent_64%)]" />
+      <div className="section-surface section-surface--portfolio-cta section-divider relative border-t border-honey/15">
         <div className="page-section-pad relative z-10 py-10 sm:py-12 md:py-14">
           <p className="typo-eyebrow">{t("projectsCtaTag")}</p>
           <h4 className="typo-section-md mt-2">{t("projectsCtaTitle")}</h4>
@@ -213,7 +187,7 @@ export function ProjectsCarousel() {
           <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
             <Link
               href="/cotizacion"
-              className="typo-cta inline-flex w-full items-center justify-center rounded-xl border border-amber-500/35 bg-gradient-to-r from-amber-700 to-orange-600 px-5 py-3.5 text-white transition hover:-translate-y-0.5 hover:shadow-[0_0_22px_rgba(245,158,11,0.35)] sm:w-auto"
+              className="typo-cta inline-flex w-full items-center justify-center rounded-xl px-5 py-3.5 sm:w-auto btn-accent focus-ring active:scale-[0.98]"
             >
               {t("projectsCta1")}
             </Link>

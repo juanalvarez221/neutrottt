@@ -1,10 +1,15 @@
 import { NextResponse } from "next/server";
+import { createConfirmationToken } from "@/shared/lib/advisoryBookingLifecycle";
+import { sendAdvisoryBookingConfirmationEmail } from "@/shared/lib/advisoryNotifications.server";
+import { sendNewAdvisoryInternalEmail } from "@/shared/lib/notifications/internalArtistNotifications.server";
+import { syncOnReserved } from "@/shared/lib/googleCalendar/advisoryCalendarSync.server";
 import {
   addAdvisoryBooking,
   loadAdvisoryStore,
+  updateAdvisoryBooking,
 } from "@/shared/lib/advisoryStore.server";
 import { formatSlotLabel, isSlotTaken } from "@/shared/lib/advisorySlots";
-import type { AdvisoryBooking, AdvisoryMode } from "@/shared/lib/advisoryTypes";
+import type { AdvisoryBooking, AdvisoryClientBrief, AdvisoryMode } from "@/shared/lib/advisoryTypes";
 
 export const dynamic = "force-dynamic";
 
@@ -16,7 +21,19 @@ type BookBody = {
   email?: string;
   projectNotes?: string;
   size?: string;
+  brief?: AdvisoryClientBrief;
 };
+
+function sanitizeBrief(brief?: AdvisoryClientBrief): AdvisoryClientBrief | undefined {
+  if (!brief) return undefined;
+  const clean: AdvisoryClientBrief = {};
+  if (brief.bodyZone?.trim()) clean.bodyZone = brief.bodyZone.trim();
+  if (brief.referral?.trim()) clean.referral = brief.referral.trim();
+  if (brief.personalValues?.trim()) clean.personalValues = brief.personalValues.trim();
+  if (brief.collaborationMode?.trim()) clean.collaborationMode = brief.collaborationMode.trim();
+  if (brief.openNote?.trim()) clean.openNote = brief.openNote.trim();
+  return Object.keys(clean).length ? clean : undefined;
+}
 
 export async function POST(request: Request) {
   try {
@@ -54,11 +71,28 @@ export async function POST(request: Request) {
       email,
       projectNotes: body.projectNotes?.trim() || undefined,
       size: body.size?.trim() || undefined,
+      brief: sanitizeBrief(body.brief),
       createdAt: new Date().toISOString(),
-      status: "confirmed",
+      status: "reserved",
+      confirmationToken: createConfirmationToken(),
     };
 
     await addAdvisoryBooking(booking);
+
+    const googleCalendarEventId = await syncOnReserved(booking);
+    if (googleCalendarEventId) {
+      booking.googleCalendarEventId = googleCalendarEventId;
+      await updateAdvisoryBooking(booking.id, { googleCalendarEventId });
+    }
+
+    await sendNewAdvisoryInternalEmail(booking);
+
+    const emailResult = await sendAdvisoryBookingConfirmationEmail(booking);
+    if (emailResult.ok) {
+      await updateAdvisoryBooking(booking.id, {
+        bookingEmailSentAt: new Date().toISOString(),
+      });
+    }
 
     return NextResponse.json({
       ok: true,

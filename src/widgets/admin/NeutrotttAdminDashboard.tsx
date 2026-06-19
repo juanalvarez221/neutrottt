@@ -1,12 +1,14 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   CalendarDays,
   CircleDollarSign,
   Clock3,
   FileSignature,
   ImagePlus,
+  LogOut,
   MessageSquareShare,
   Plus,
   Send,
@@ -18,6 +20,8 @@ import { cn } from "@/shared/lib/cn";
 import {
   addSmartQuoteRequest,
   getSmartQuoteRequests,
+  patchQuoteRequestStatusBackend,
+  persistQuoteRequestToBackend,
   type SmartQuoteRequest,
   type SmartQuoteStatus,
   updateSmartQuoteRequest,
@@ -51,7 +55,80 @@ const STATUS_STYLES: Record<SmartQuoteStatus, string> = {
     "border-sky-500/30 bg-sky-500/10 text-sky-200",
   Enviada: "border-amber-500/30 bg-amber-600/15 text-amber-100",
   "Pagada/Agendada": "border-emerald-500/30 bg-emerald-500/10 text-emerald-200",
+  Descartada: "border-zinc-500/30 bg-zinc-500/10 text-zinc-300",
 };
+
+type QuoteRequestRecordLite = {
+  id: string;
+  createdAt: string;
+  clientName: string;
+  whatsapp: string;
+  email: string;
+  projectSize: string;
+  bodyPlacement: string;
+  referenceNotes?: string;
+  style?: string;
+  connectionAnswers?: {
+    referral?: string;
+    values?: string;
+    collaboration?: string;
+    purpose?: string;
+  };
+  advisoryMode?: "presencial" | "virtual";
+  advisoryScheduledAt?: string;
+  advisoryBookingId?: string;
+  estimateSessions?: string;
+  estimatePerSession?: string;
+  estimateTotal?: string;
+  statusLabel: string;
+};
+
+/** Mapea un registro persistido del backend al shape que usa el admin. */
+function backendToSmartQuote(record: QuoteRequestRecordLite): SmartQuoteRequest {
+  return {
+    id: record.id,
+    createdAt: record.createdAt,
+    clientName: record.clientName,
+    phone: record.whatsapp,
+    email: record.email,
+    size: record.projectSize,
+    zone: record.bodyPlacement,
+    style: record.style ?? "",
+    notes: record.referenceNotes ?? "",
+    connectionValues: record.connectionAnswers?.values,
+    connectionCollaboration: record.connectionAnswers?.collaboration,
+    connectionPurpose: record.connectionAnswers?.purpose,
+    connectionAftercare: record.connectionAnswers?.referral,
+    requiresAdvisory: Boolean(record.advisoryMode),
+    advisoryMode: record.advisoryMode,
+    advisoryScheduledAt: record.advisoryScheduledAt,
+    advisoryBookingId: record.advisoryBookingId,
+    estimateSessions: record.estimateSessions ?? "",
+    estimatePerSession: record.estimatePerSession ?? "",
+    estimateTotal: record.estimateTotal ?? "",
+    status: (record.statusLabel as SmartQuoteStatus) ?? "Pendiente de Ajuste",
+  };
+}
+
+/** Backend como fuente prioritaria; conserva solicitudes solo-locales sin duplicar por id. */
+function mergeQuotes(
+  backend: SmartQuoteRequest[],
+  local: SmartQuoteRequest[],
+): SmartQuoteRequest[] {
+  const localById = new Map(local.map((quote) => [quote.id, quote]));
+  const merged = backend.map((quote) => {
+    const localQuote = localById.get(quote.id);
+    if (!localQuote) return quote;
+    return {
+      ...quote,
+      adminSessionPrice: localQuote.adminSessionPrice ?? quote.adminSessionPrice,
+      adminSessionCount: localQuote.adminSessionCount ?? quote.adminSessionCount,
+    };
+  });
+  const backendIds = new Set(backend.map((quote) => quote.id));
+  const localOnly = local.filter((quote) => !backendIds.has(quote.id));
+  return [...merged, ...localOnly].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+}
 
 const CLIENT_CRM = [
   {
@@ -111,11 +188,11 @@ function estimateImageCard(
   ctx.fill();
 
   ctx.fillStyle = "#ffffff";
-  ctx.font = "700 58px Inter, sans-serif";
+  ctx.font = "700 58px Montserrat, sans-serif";
   ctx.fillText("NEUTROTTT", 70, 120);
 
   ctx.fillStyle = "#c4b5fd";
-  ctx.font = "600 36px Inter, sans-serif";
+  ctx.font = "600 36px Montserrat, sans-serif";
   ctx.fillText("Cotizacion Profesional", 70, 180);
 
   ctx.strokeStyle = "rgba(255,255,255,0.16)";
@@ -136,13 +213,13 @@ function estimateImageCard(
   let y = 320;
   ctx.fillStyle = "#e5e7eb";
   rows.forEach((line, index) => {
-    ctx.font = index === 7 ? "700 40px Inter, sans-serif" : "500 34px Inter, sans-serif";
+    ctx.font = index === 7 ? "700 40px Montserrat, sans-serif" : "500 34px Montserrat, sans-serif";
     ctx.fillText(line, 95, y);
     y += 118;
   });
 
   ctx.fillStyle = "rgba(255,255,255,0.65)";
-  ctx.font = "500 28px Inter, sans-serif";
+  ctx.font = "500 28px Montserrat, sans-serif";
   ctx.fillText(
     `Generada: ${new Date().toLocaleString("es-CO", {
       dateStyle: "short",
@@ -182,9 +259,23 @@ async function shareImageIfPossible(dataUrl: string, filename: string, text: str
 }
 
 export function NeutrotttAdminDashboard() {
+  const router = useRouter();
   const [quotes, setQuotes] = useState<SmartQuoteRequest[]>(() =>
     getSmartQuoteRequests(),
   );
+  const [loggingOut, setLoggingOut] = useState(false);
+
+  const handleLogout = async () => {
+    if (loggingOut) return;
+    setLoggingOut(true);
+    try {
+      await fetch("/api/admin/auth/logout", { method: "POST" });
+    } catch {
+      // Aun si falla la red, llevamos al usuario al login.
+    }
+    router.replace("/admin/login");
+    router.refresh();
+  };
   const [adjustments, setAdjustments] = useState<
     Record<string, { sessionPrice: number; sessionsCount: number }>
   >({});
@@ -253,9 +344,24 @@ export function NeutrotttAdminDashboard() {
   const netProfit = quoteValue - totalSupplies;
   const margin = quoteValue > 0 ? (netProfit / quoteValue) * 100 : 0;
 
-  const persistAndSetQuotes = (next: SmartQuoteRequest[]) => {
-    setQuotes(next);
-  };
+  useEffect(() => {
+    let active = true;
+    void (async () => {
+      try {
+        const response = await fetch("/api/admin/quote-requests", { cache: "no-store" });
+        if (!response.ok) return;
+        const data = (await response.json()) as { requests?: QuoteRequestRecordLite[] };
+        if (!active || !Array.isArray(data.requests)) return;
+        const backendQuotes = data.requests.map(backendToSmartQuote);
+        setQuotes((prev) => mergeQuotes(backendQuotes, prev));
+      } catch {
+        // Backend opcional: si falla, el admin mantiene lo que haya en localStorage.
+      }
+    })();
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const updateAdjustment = (
     id: string,
@@ -276,8 +382,9 @@ export function NeutrotttAdminDashboard() {
   };
 
   const updateQuoteStatus = (id: string, status: SmartQuoteStatus) => {
-    const next = updateSmartQuoteRequest(id, { status });
-    persistAndSetQuotes(next);
+    setQuotes((prev) => prev.map((quote) => (quote.id === id ? { ...quote, status } : quote)));
+    updateSmartQuoteRequest(id, { status });
+    void patchQuoteRequestStatusBackend(id, status);
   };
 
   const adjustAndSendWhatsApp = async (quote: SmartQuoteRequest) => {
@@ -289,12 +396,24 @@ export function NeutrotttAdminDashboard() {
       extractClosestSessions(quote.estimateSessions);
     const total = sessionPrice * sessionsCount;
 
-    const next = updateSmartQuoteRequest(quote.id, {
+    setQuotes((prev) =>
+      prev.map((item) =>
+        item.id === quote.id
+          ? {
+              ...item,
+              adminSessionPrice: sessionPrice,
+              adminSessionCount: sessionsCount,
+              status: "Enviada",
+            }
+          : item,
+      ),
+    );
+    updateSmartQuoteRequest(quote.id, {
       adminSessionPrice: sessionPrice,
       adminSessionCount: sessionsCount,
       status: "Enviada",
     });
-    persistAndSetQuotes(next);
+    void patchQuoteRequestStatusBackend(quote.id, "Enviada");
 
     const shortMessage = `Hola ${quote.clientName}, espero que estes muy bien. Te comparto tu cotizacion profesional de Neutrottt: ${sessionsCount} sesiones aprox con un valor de ${money.format(sessionPrice)} por sesion (total ${money.format(total)}). Quedo atento para agendarte con toda la energia.`;
 
@@ -366,7 +485,8 @@ export function NeutrotttAdminDashboard() {
       status: "Pendiente de Ajuste",
     };
     addSmartQuoteRequest(manual);
-    setQuotes(getSmartQuoteRequests());
+    setQuotes((prev) => mergeQuotes([], [manual, ...prev]));
+    void persistQuoteRequestToBackend(manual);
   };
 
   const addFlashFromQuickAction = () => {
@@ -413,17 +533,28 @@ export function NeutrotttAdminDashboard() {
     <AppShell>
       <div className="space-y-4 pb-2">
         <Card>
-          <div className="p-4 sm:p-5">
-            <p className="text-[11px] font-semibold tracking-[0.18em] text-amber-200/80 uppercase">
-              Vista Admin
-            </p>
-            <h1 className="mt-1 text-2xl font-semibold text-zinc-50 sm:text-3xl">
-              Neutrottt Dash
-            </h1>
-            <p className="mt-2 text-sm text-zinc-300">
-              Gestiona cotizaciones, flujo creativo del iPad y operación diaria
-              desde una vista unificada y profesional.
-            </p>
+          <div className="flex items-start justify-between gap-3 p-4 sm:p-5">
+            <div>
+              <p className="text-[11px] font-semibold tracking-[0.18em] text-amber-200/80 uppercase">
+                Vista Admin
+              </p>
+              <h1 className="mt-1 text-2xl font-semibold text-zinc-50 sm:text-3xl">
+                Neutrottt Dash
+              </h1>
+              <p className="mt-2 text-sm text-zinc-300">
+                Gestiona cotizaciones, flujo creativo del iPad y operación diaria
+                desde una vista unificada y profesional.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => void handleLogout()}
+              disabled={loggingOut}
+              className="inline-flex shrink-0 items-center gap-1.5 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs font-semibold text-zinc-200 transition hover:bg-white/10 active:scale-[0.98] disabled:opacity-50"
+            >
+              <LogOut className="h-3.5 w-3.5" strokeWidth={1.5} />
+              Cerrar sesión
+            </button>
           </div>
         </Card>
 

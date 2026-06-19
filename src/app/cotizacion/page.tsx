@@ -5,6 +5,11 @@ import { useRouter } from "next/navigation";
 import { QuoteShell } from "@/widgets/quote/QuoteShell";
 import { ArrowRight, UserRound, Mail, Phone } from "lucide-react";
 import { getQuoteProfile, saveQuoteProfile } from "@/shared/lib/quoteProfile";
+import {
+  QUOTE_FLOW_PATHS,
+  resolveQuoteEntryPath,
+  startNewQuoteSession,
+} from "@/shared/lib/quoteFlow";
 import { useSiteLanguage } from "@/shared/i18n/LanguageProvider";
 
 const COUNTRY_OPTIONS = [
@@ -26,11 +31,24 @@ export default function CotizacionPage() {
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
+    const entry = resolveQuoteEntryPath();
+    if (entry !== QUOTE_FLOW_PATHS.profile) {
+      if (entry === QUOTE_FLOW_PATHS.quoteStart) {
+        startNewQuoteSession();
+      }
+      router.replace(entry);
+      return;
+    }
+
     const frame = window.requestAnimationFrame(() => {
       const profile = getQuoteProfile();
-      if (!profile) return;
+      if (!profile) {
+        setReady(true);
+        return;
+      }
       setName(profile.name);
       const rawPhone = profile.phone.trim();
       const matchedCountry = COUNTRY_OPTIONS.find((option) => rawPhone.startsWith(option.code));
@@ -41,9 +59,10 @@ export default function CotizacionPage() {
         setPhone(rawPhone);
       }
       setEmail(profile.email);
+      setReady(true);
     });
     return () => window.cancelAnimationFrame(frame);
-  }, []);
+  }, [router]);
 
   const onNext = () => {
     const cleanName = name.trim();
@@ -59,8 +78,20 @@ export default function CotizacionPage() {
     }
     const fullPhone = `${countryCode} ${cleanPhone}`.replace(/\s+/g, " ").trim();
     saveQuoteProfile({ name: cleanName, phone: fullPhone, email: cleanEmail });
-    router.push("/cotizacion/conexion");
+    router.push(QUOTE_FLOW_PATHS.connection);
   };
+
+  if (!ready) {
+    return (
+      <QuoteShell showGreeting={false}>
+        <div className="flex min-h-[40dvh] items-center justify-center">
+          <p className="typo-tech text-sm uppercase tracking-[0.18em] text-stone-400">
+            {language === "en" ? "Loading…" : "Cargando…"}
+          </p>
+        </div>
+      </QuoteShell>
+    );
+  }
 
   return (
     <QuoteShell>
@@ -69,7 +100,7 @@ export default function CotizacionPage() {
         <p className="typo-tech mb-2 uppercase tracking-[0.16em] text-amber-200/85">
           {t("quoteContactStep")}
         </p>
-        <h2 className="typo-section text-[2.2rem] leading-[1.05] md:text-[3.2rem]">
+        <h2 className="typo-section quote-step-title">
           {t("quoteContactTitle")}
           <br />
           <span className="bg-gradient-to-r from-white to-zinc-400 bg-clip-text text-transparent">
@@ -111,7 +142,7 @@ export default function CotizacionPage() {
                 <Phone className="h-4 w-4 text-amber-300" />
                 {language === "en" ? "Phone" : "Celular"}
               </span>
-              <div className="grid grid-cols-[142px_1fr] gap-2">
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-[minmax(0,38%)_1fr]">
                 <label className="sr-only" htmlFor="quote-country-code">
                   {language === "en" ? "Country code" : "Indicativo"}
                 </label>
@@ -121,7 +152,7 @@ export default function CotizacionPage() {
                   onChange={(e) =>
                     setCountryCode(e.target.value as (typeof COUNTRY_OPTIONS)[number]["code"])
                   }
-                  className="w-full rounded-xl border border-white/10 bg-black/35 px-3 py-3 text-sm text-zinc-100 outline-none transition focus:border-amber-500/50"
+                  className="min-w-0 w-full truncate rounded-xl border border-white/10 bg-black/35 px-3 py-3 text-sm text-zinc-100 outline-none transition focus:border-amber-500/50"
                 >
                   {COUNTRY_OPTIONS.map((option) => (
                     <option key={option.code} value={option.code}>
@@ -174,7 +205,7 @@ export default function CotizacionPage() {
         <button
           type="button"
           onClick={onNext}
-          className="typo-cta group inline-flex w-full items-center justify-center gap-2 rounded-lg border border-amber-500/35 bg-gradient-to-r from-amber-700 to-orange-600 py-5 text-white transition hover:-translate-y-0.5 hover:shadow-[0_0_20px_rgba(245,158,11,0.35)] active:translate-y-0"
+          className="btn-accent focus-ring typo-cta group inline-flex w-full items-center justify-center gap-2 rounded-lg py-5 active:scale-[0.98]"
         >
           {t("quoteContinue")}
           <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />

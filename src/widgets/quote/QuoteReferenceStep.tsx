@@ -9,18 +9,28 @@ import { QuoteShell } from "@/widgets/quote/QuoteShell";
 import { useSiteLanguage } from "@/shared/i18n/LanguageProvider";
 import {
   getQuoteDraft,
-  isLargeQuoteSize,
+  requiresProjectAdvisory,
   saveQuoteDraft,
 } from "@/shared/lib/quoteDraft";
 import { getQuoteConnection } from "@/shared/lib/quoteConnection";
 
-export function QuoteReferenceStep({ size, zone }: { size: string; zone: string }) {
+import { formatZoneDisplay } from "@/shared/lib/quoteZones";
+
+export function QuoteReferenceStep({
+  size,
+  zone,
+  zoneOther = "",
+}: {
+  size: string;
+  zone: string;
+  zoneOther?: string;
+}) {
   const router = useRouter();
   const { language, t } = useSiteLanguage();
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [referenceFile, setReferenceFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const isLarge = isLargeQuoteSize(size);
+  const isLarge = requiresProjectAdvisory(size);
 
   useEffect(() => {
     if (!getQuoteConnection()) {
@@ -75,26 +85,31 @@ export function QuoteReferenceStep({ size, zone }: { size: string; zone: string 
   }, [previewUrl]);
 
   const onContinue = () => {
-    saveQuoteDraft({ size, zone, notes: "" });
+    saveQuoteDraft({
+      size,
+      zone,
+      zoneOther: zoneOther.trim() || undefined,
+      notes: "",
+    });
     if (isLarge) {
       router.push(`/cotizacion/asesoria?size=${encodeURIComponent(size)}`);
       return;
     }
-    router.push(
-      `/cotizacion/confirmacion?size=${encodeURIComponent(size)}&zone=${encodeURIComponent(zone)}`,
-    );
+    const params = new URLSearchParams({ size, zone });
+    if (zoneOther.trim()) params.set("zoneOther", zoneOther.trim());
+    router.push(`/cotizacion/confirmacion?${params.toString()}`);
   };
 
   const backHref = `/cotizacion/ubicacion?size=${encodeURIComponent(size)}`;
 
   return (
-    <QuoteShell>
+    <QuoteShell greetingKey="quoteGreetReference">
       <section className="relative mb-8">
         <div className="pointer-events-none absolute -left-10 -top-10 h-40 w-40 rounded-full bg-amber-600/15 blur-[60px]" />
         <p className="typo-tech mb-2 uppercase tracking-[0.16em] text-amber-200/85">
           {t("quoteReferenceStep")}
         </p>
-        <h2 className="typo-section text-[2.2rem] leading-[1.05] md:text-[3.2rem]">
+        <h2 className="typo-section quote-step-title">
           {t("quoteReferenceTitle")}
           <br />
           <span className="bg-gradient-to-r from-white to-zinc-400 bg-clip-text text-transparent">
@@ -199,17 +214,17 @@ export function QuoteReferenceStep({ size, zone }: { size: string; zone: string 
         </div>
       </section>
 
-      <div className="mt-6 flex items-center justify-between gap-3">
+      <div className="quote-step-footer mt-6">
         <Link
           href={backHref}
-          className="rounded-xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold text-zinc-100 transition hover:bg-white/8"
+          className="quote-step-footer-back rounded-xl border border-white/10 bg-white/5 px-5 py-3 text-center text-sm font-semibold text-zinc-100 transition hover:bg-white/8"
         >
           {t("commonBack")}
         </Link>
         <button
           type="button"
           onClick={onContinue}
-          className="rounded-xl border border-amber-500/35 bg-gradient-to-r from-amber-700 to-orange-600 px-6 py-3 text-sm font-bold uppercase tracking-[0.2em] text-white transition hover:-translate-y-0.5 hover:shadow-[0_0_20px_rgba(245,158,11,0.35)]"
+          className="quote-step-footer-next btn-accent focus-ring typo-cta rounded-xl px-6 py-3 active:scale-[0.98]"
         >
           {isLarge ? t("quoteReferenceNextLarge") : t("quoteReferenceNextSmall")}
         </button>

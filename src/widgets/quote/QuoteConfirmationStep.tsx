@@ -7,18 +7,25 @@ import { BadgeDollarSign, CheckCircle2, Sparkles } from "lucide-react";
 import { useSiteLanguage } from "@/shared/i18n/LanguageProvider";
 import { getQuoteProfile } from "@/shared/lib/quoteProfile";
 import { getQuoteConnection, mapConnectionToSmartQuote } from "@/shared/lib/quoteConnection";
-import { addSmartQuoteRequest } from "@/shared/lib/smartQuotes";
-import { isLargeQuoteSize, setQuoteCompletionType } from "@/shared/lib/quoteDraft";
+import {
+  addSmartQuoteRequest,
+  persistQuoteRequestToBackend,
+  type SmartQuoteRequest,
+} from "@/shared/lib/smartQuotes";
+import { receivesOnlinePricing, setQuoteCompletionType } from "@/shared/lib/quoteDraft";
+import { formatZoneDisplay } from "@/shared/lib/quoteZones";
 
 const DEFAULT_QUOTE_STYLE = "Neutrottt Style";
 
 export function QuoteConfirmationStep({
   size,
   zone,
+  zoneOther,
   estimate,
 }: {
   size: string;
   zone: string;
+  zoneOther?: string;
   estimate: {
     sessions: string;
     perSession: string;
@@ -27,9 +34,10 @@ export function QuoteConfirmationStep({
 }) {
   const router = useRouter();
   const { language, t } = useSiteLanguage();
+  const zoneLabel = formatZoneDisplay(zone, zoneOther, t);
 
   useEffect(() => {
-    if (isLargeQuoteSize(size)) {
+    if (!receivesOnlinePricing(size)) {
       router.replace(`/cotizacion/asesoria?size=${encodeURIComponent(size.toLowerCase())}`);
     }
   }, [router, size]);
@@ -39,14 +47,14 @@ export function QuoteConfirmationStep({
     const connection = getQuoteConnection();
     if (profile) {
       const connectionFields = connection ? mapConnectionToSmartQuote(connection, t) : {};
-      addSmartQuoteRequest({
+      const request: SmartQuoteRequest = {
         id: `SQ-${Date.now()}`,
         createdAt: new Date().toISOString(),
         clientName: profile.name,
         phone: profile.phone,
         email: profile.email,
         size,
-        zone,
+        zone: zoneLabel,
         style: DEFAULT_QUOTE_STYLE,
         notes: "",
         ...connectionFields,
@@ -54,14 +62,16 @@ export function QuoteConfirmationStep({
         estimatePerSession: estimate.perSession,
         estimateTotal: estimate.total,
         status: "Pendiente de Ajuste",
-      });
+      };
+      addSmartQuoteRequest(request);
+      void persistQuoteRequestToBackend(request);
     }
     setQuoteCompletionType("cotizacion");
     router.push("/cotizacion/gracias");
   };
 
   return (
-    <QuoteShell>
+    <QuoteShell greetingKey="quoteGreetConfirm">
       <section className="relative overflow-hidden rounded-3xl border border-white/10 bg-[radial-gradient(560px_260px_at_15%_0%,rgba(251,191,36,0.26),transparent_60%),linear-gradient(180deg,rgba(255,255,255,0.05),transparent_35%),#0d0d0e] p-5 md:p-8">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(560px_280px_at_90%_100%,rgba(217,119,6,0.14),transparent_62%)]" />
 
@@ -69,10 +79,13 @@ export function QuoteConfirmationStep({
           <p className="typo-tech uppercase tracking-[0.16em] text-amber-200/85">
             {t("quoteSummaryTag")}
           </p>
-          <h1 className="typo-section mt-2 text-[2rem] md:text-[2.6rem]">
+          <h1 className="typo-section quote-step-title mt-2">
             {t("quoteSummaryTitle")}
           </h1>
           <p className="typo-body mt-3 max-w-2xl leading-relaxed">{t("quoteSummaryBody")}</p>
+          <p className="typo-tech mt-3 text-xs uppercase tracking-[0.14em] text-stone-400">
+            {t("quoteSummaryMediumOnly")}
+          </p>
         </div>
       </section>
 
@@ -95,11 +108,11 @@ export function QuoteConfirmationStep({
             </p>
             <p className="inline-flex items-center gap-2 text-zinc-200">
               <CheckCircle2 className="h-4 w-4 text-amber-300" />
-              {language === "en" ? "Area" : "Zona"}: {zone}
+              {language === "en" ? "Area" : "Zona"}: {zoneLabel}
             </p>
           </div>
 
-          <div className="mt-4 grid gap-3 sm:grid-cols-3">
+          <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
             <div className="rounded-xl border border-white/10 bg-white/5 p-3">
               <p className="typo-tech text-zinc-400">{language === "en" ? "Sessions" : "Sesiones"}</p>
               <p className="typo-subtitle mt-1 text-sm text-zinc-100">{estimate.sessions}</p>
@@ -123,7 +136,7 @@ export function QuoteConfirmationStep({
           <button
             type="button"
             onClick={registerQuoteAndContinue}
-            className="typo-cta inline-flex w-full items-center justify-center gap-2 rounded-xl border border-amber-500/35 bg-gradient-to-r from-amber-700 to-orange-600 px-5 py-4 text-white transition hover:-translate-y-0.5 hover:shadow-[0_0_24px_rgba(245,158,11,0.35)] active:translate-y-0"
+            className="btn-accent focus-ring typo-cta inline-flex w-full items-center justify-center gap-2 rounded-xl px-5 py-4 active:scale-[0.98]"
           >
             {t("quoteActionCta")}
           </button>

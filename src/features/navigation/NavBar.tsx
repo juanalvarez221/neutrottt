@@ -24,7 +24,7 @@ export function NavBar() {
 
   return (
     <nav className="fixed inset-x-0 bottom-0 z-50">
-      <div className="mx-auto w-full max-w-md px-4 pb-4">
+      <div className="mx-auto w-full max-w-md px-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
         <div className="rounded-2xl border border-white/10 bg-black/70 backdrop-blur-xl shadow-[0_20px_50px_-35px_rgba(0,0,0,0.9)]">
           <div className="grid grid-cols-5">
             {items.map((it) => {
@@ -35,15 +35,15 @@ export function NavBar() {
                   key={it.href}
                   href={it.href}
                   className={cn(
-                    "flex flex-col items-center justify-center gap-1 px-2 py-3 text-[11px] font-semibold tracking-wide transition",
-                    active ? "text-amber-200" : "text-zinc-300 hover:text-zinc-50",
+                    "flex min-h-[52px] flex-col items-center justify-center gap-1 px-1.5 py-2.5 text-[0.6875rem] font-semibold tracking-wide transition sm:min-h-[56px] sm:px-2 sm:py-3 sm:text-xs",
+                    active ? "text-stone-200" : "text-zinc-400 hover:text-zinc-100",
                   )}
                 >
                   <span
                     className={cn(
-                      "relative flex h-9 w-9 items-center justify-center rounded-xl border transition",
+                      "relative flex h-10 w-10 items-center justify-center rounded-xl border transition",
                       active
-                        ? "border-amber-500/30 bg-amber-600/15"
+                        ? "border-stone-500/25 bg-stone-600/12"
                         : "border-white/10 bg-white/5",
                     )}
                   >
