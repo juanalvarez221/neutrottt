@@ -17,11 +17,13 @@ export type DesignHistoryEntry = {
   notes: string;
 };
 
+import { safeLocalStorageSet, safeStorageGet } from "@/shared/lib/safeStorage";
+
 const DESIGN_HISTORY_KEY = "design_history_entries";
 
 export function getDesignHistoryEntries(): DesignHistoryEntry[] {
   if (typeof window === "undefined") return [];
-  const raw = window.localStorage.getItem(DESIGN_HISTORY_KEY);
+  const raw = safeStorageGet(window.localStorage, DESIGN_HISTORY_KEY);
   if (!raw) return [];
   try {
     const parsed = JSON.parse(raw) as DesignHistoryEntry[];
@@ -32,9 +34,9 @@ export function getDesignHistoryEntries(): DesignHistoryEntry[] {
   }
 }
 
-export function saveDesignHistoryEntries(entries: DesignHistoryEntry[]) {
-  if (typeof window === "undefined") return;
-  window.localStorage.setItem(DESIGN_HISTORY_KEY, JSON.stringify(entries));
+export function saveDesignHistoryEntries(entries: DesignHistoryEntry[]): boolean {
+  if (typeof window === "undefined") return false;
+  return safeLocalStorageSet(DESIGN_HISTORY_KEY, JSON.stringify(entries));
 }
 
 export function addDesignHistoryEntries(entries: DesignHistoryEntry[]) {

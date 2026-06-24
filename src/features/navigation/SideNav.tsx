@@ -2,22 +2,9 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  Home,
-  Image as ImageIcon,
-  Sparkles,
-  MessageCircle,
-  LayoutDashboard,
-} from "lucide-react";
+import { isNavItemActive, PUBLIC_NAV_ITEMS } from "@/features/navigation/navConfig";
+import { LanguageToggle } from "@/features/navigation/LanguageToggle";
 import { cn } from "@/shared/lib/cn";
-
-const items = [
-  { href: "/", label: "Inicio", icon: Home },
-  { href: "/admin", label: "Dash", icon: LayoutDashboard },
-  { href: "/proyectos", label: "Proyectos", icon: ImageIcon },
-  { href: "/cotizacion", label: "Cotización", icon: Sparkles },
-  { href: "/contacto", label: "Contacto", icon: MessageCircle },
-];
 
 export function SideNav() {
   const pathname = usePathname();
@@ -25,8 +12,8 @@ export function SideNav() {
   return (
     <aside className="hidden lg:block lg:sticky lg:top-0 lg:h-dvh">
       <div className="h-full w-[280px] p-6">
-        <div className="app-surface noise h-full rounded-3xl p-5">
-          <div className="flex items-center justify-between">
+        <div className="app-surface noise flex h-full flex-col rounded-3xl p-5">
+          <div className="flex items-center justify-between gap-3">
             <div className="leading-none">
               <p className="hero-brand-name text-[2.1rem] leading-[0.9] sm:text-[2.5rem]">
                 Neutrottt
@@ -35,17 +22,18 @@ export function SideNav() {
                 Tattoo Artist
               </p>
             </div>
-            <div className="h-11 w-11 rounded-full border border-white/10 bg-white/5" />
+            <LanguageToggle />
           </div>
 
           <div className="mt-8 grid gap-1">
-            {items.map((it) => {
-              const active = pathname === it.href;
+            {PUBLIC_NAV_ITEMS.map((it) => {
+              const active = isNavItemActive(pathname, it);
               const Icon = it.icon;
               return (
                 <Link
                   key={it.href}
                   href={it.href}
+                  aria-current={active ? "page" : undefined}
                   className={cn(
                     "group flex items-center gap-3 rounded-2xl border px-3 py-2.5 text-sm font-semibold transition",
                     active
@@ -70,16 +58,15 @@ export function SideNav() {
           </div>
 
           <div className="mt-auto pt-6">
-            <div className="mt-8 rounded-2xl border border-white/10 bg-white/5 p-4">
+            <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
               <p className="text-xs font-semibold tracking-[0.18em] text-stone-400/80 uppercase">
                 Estilo
               </p>
               <p className="mt-1 text-sm font-semibold text-zinc-50">
-                Realismo oscuro & blackwork
+                Realismo oscuro y blackwork
               </p>
               <p className="mt-2 text-xs leading-5 text-zinc-400">
-                Prototipo UI premium. Listo para integrar imágenes reales del
-                portafolio.
+                Sombras y lettering · Emerald Tattoo Studio, Medellín
               </p>
             </div>
           </div>
@@ -88,4 +75,3 @@ export function SideNav() {
     </aside>
   );
 }
-

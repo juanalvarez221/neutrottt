@@ -65,10 +65,14 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "No se pudo reagendar." }, { status: 500 });
     }
 
-    const newEventId = await syncOnRescheduled(updated);
-    if (newEventId && newEventId !== updated.googleCalendarEventId) {
-      updated.googleCalendarEventId = newEventId;
-      await updateAdvisoryBooking(updated.id, { googleCalendarEventId: newEventId });
+    const googleSync = await syncOnRescheduled(updated);
+    if (googleSync) {
+      updated.googleCalendarEventId = googleSync.eventId;
+      updated.meetingLink = googleSync.meetingLink;
+      await updateAdvisoryBooking(updated.id, {
+        googleCalendarEventId: googleSync.eventId,
+        ...(googleSync.meetingLink ? { meetingLink: googleSync.meetingLink } : {}),
+      });
     }
 
     await sendAdvisoryChangeInternalEmail(updated, "rescheduled");

@@ -36,10 +36,13 @@ export function getGoogleCalendarConfig(): GoogleCalendarConfig | null {
   // Admite saltos de línea escapados (\n) o reales.
   const privateKey = rawKey.includes("\\n") ? rawKey.replace(/\\n/g, "\n") : rawKey;
 
+  const createMeetSetting = process.env.GOOGLE_CALENDAR_CREATE_MEET?.trim().toLowerCase();
+  const createMeet = createMeetSetting === undefined ? true : createMeetSetting === "true";
+
   return {
     calendarId,
     clientEmail,
     privateKey,
-    createMeet: process.env.GOOGLE_CALENDAR_CREATE_MEET?.trim().toLowerCase() === "true",
+    createMeet,
   };
 }

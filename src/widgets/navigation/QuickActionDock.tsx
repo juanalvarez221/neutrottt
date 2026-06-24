@@ -11,7 +11,7 @@ import type { SiteCopyKey } from "@/shared/i18n/siteLanguage";
 import { SocialBrandIcon } from "@/shared/ui/SocialBrandIcon";
 import { cn } from "@/shared/lib/cn";
 
-const APP_SHELL_ROUTES = ["/contacto", "/proyectos", "/perfil", "/citas"] as const;
+const APP_SHELL_ROUTES = ["/contacto", "/proyectos"] as const;
 const QUOTE_ROUTE_PREFIX = "/cotizacion";
 
 type DockAction = {
@@ -55,14 +55,9 @@ const DOCK_ACTIONS: DockAction[] = [
 ];
 
 function resolveDockPlacement(pathname: string) {
-  const isQuoteFlow = pathname.startsWith(QUOTE_ROUTE_PREFIX);
   const hasMobileNav = APP_SHELL_ROUTES.some(
     (route) => pathname === route || pathname.startsWith(`${route}/`),
   );
-
-  if (isQuoteFlow) {
-    return "quick-action-dock--quote";
-  }
 
   if (hasMobileNav) {
     return "quick-action-dock--nav";
@@ -75,8 +70,7 @@ function ActionIcon({ icon }: { icon: DockAction["icon"] }) {
   return <SocialBrandIcon network={icon} framed={false} className="text-sand" />;
 }
 
-export function QuickActionDock() {
-  const pathname = usePathname();
+function QuickActionDockPanel({ pathname }: { pathname: string }) {
   const { t } = useSiteLanguage();
   const reduceMotion = useReducedMotion();
   const dockRef = useRef<HTMLDivElement>(null);
@@ -87,7 +81,6 @@ export function QuickActionDock() {
   const [isScrolling, setIsScrolling] = useState(false);
   const [isIdle, setIsIdle] = useState(false);
 
-  const isQuoteFlow = pathname.startsWith(QUOTE_ROUTE_PREFIX);
   const placement = resolveDockPlacement(pathname);
 
   const resetIdleTimer = useCallback(() => {
@@ -99,16 +92,13 @@ export function QuickActionDock() {
   const closeDock = useCallback(() => setOpen(false), []);
 
   useEffect(() => {
-    closeDock();
-    resetIdleTimer();
-  }, [pathname, closeDock, resetIdleTimer]);
-
-  useEffect(() => {
-    resetIdleTimer();
+    const timer = setTimeout(() => setIsIdle(true), 4200);
     return () => {
+      clearTimeout(timer);
       if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
+      if (scrollTimerRef.current) clearTimeout(scrollTimerRef.current);
     };
-  }, [resetIdleTimer]);
+  }, []);
 
   useEffect(() => {
     if (!open) return;
@@ -156,10 +146,6 @@ export function QuickActionDock() {
   }, [open, closeDock]);
 
   const dockOpacity = open ? 1 : isScrolling ? 0.72 : isIdle ? 0.58 : 0.92;
-
-  if (isQuoteFlow) {
-    return null;
-  }
 
   return (
     <div
@@ -274,4 +260,14 @@ export function QuickActionDock() {
       </motion.div>
     </div>
   );
+}
+
+export function QuickActionDock() {
+  const pathname = usePathname();
+
+  if (pathname.startsWith(QUOTE_ROUTE_PREFIX)) {
+    return null;
+  }
+
+  return <QuickActionDockPanel key={pathname} pathname={pathname} />;
 }

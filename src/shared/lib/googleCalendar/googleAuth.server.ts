@@ -1,4 +1,5 @@
 import type { GoogleCalendarConfig } from "@/shared/lib/googleCalendar/googleCalendarConfig";
+import { googleFetch } from "@/shared/lib/googleCalendar/googleFetch.server";
 
 /**
  * Autenticación de Service Account sin dependencias:
@@ -72,11 +73,10 @@ export async function getGoogleAccessToken(config: GoogleCalendarConfig): Promis
     assertion,
   });
 
-  const response = await fetch(TOKEN_URL, {
+  const response = await googleFetch(TOKEN_URL, {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body,
-    cache: "no-store",
   });
 
   if (!response.ok) {

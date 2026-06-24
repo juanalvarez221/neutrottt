@@ -38,44 +38,51 @@ function eventEndsAt(booking: AdvisoryBooking): string {
 
 function eventContent(booking: AdvisoryBooking, confirmed: boolean) {
   const tag = confirmed ? "[CONFIRMADA]" : "[PENDIENTE]";
-  const summary = `${tag} Asesoría Neutrottt — ${booking.clientName}`;
   const modeLabel =
     booking.mode === "presencial" ? `Presencial (${ADVISORY_STUDIO_NAME})` : "Virtual";
+  const summary = `${tag} ${modeLabel} · ${booking.clientName}`;
   const brief = booking.brief ?? {};
 
-  // Descripción útil para operar desde Google Calendar (sin imágenes ni base64).
-  const rows: Array<[string, string | undefined]> = [
-    ["Cliente", booking.clientName],
-    ["WhatsApp", booking.phone],
-    ["Email", booking.email],
-    ["Modalidad", modeLabel],
-    ["Duración", `${booking.durationMin} min`],
-    ["Fecha y hora", formatSlotLabel(booking.startsAt, "es-CO")],
-    ["Estado", confirmed ? "Confirmada" : "Pendiente de confirmar"],
-    ["Tamaño", booking.size || "Proyecto grande"],
-    ["Zona corporal", brief.bodyZone],
-    ["Idea / notas", booking.projectNotes || brief.openNote],
-    ["Cómo llegó", brief.referral],
-    ["Valores personales", brief.personalValues],
-    ["Modo de colaboración", brief.collaborationMode],
-    ["Nota abierta", brief.openNote],
-    ["Origen", "Cotizador Neutrottt"],
-  ];
-
-  const description = rows
-    .filter(([, value]) => value && value.trim())
-    .map(([label, value]) => `${label}: ${value!.trim()}`)
+  const description = [
+    "Asesoría Neutrottt",
+    "",
+    "Resumen de la sesión",
+    `• Cliente: ${booking.clientName}`,
+    `• Modalidad: ${modeLabel}`,
+    `• Horario: ${formatSlotLabel(booking.startsAt, "es-CO")}`,
+    `• Duración: ${booking.durationMin} min`,
+    `• Estado: ${confirmed ? "Confirmada" : "Pendiente de confirmar"}`,
+    `• WhatsApp: ${booking.phone}`,
+    `• Email: ${booking.email}`,
+    booking.size ? `• Tamaño del proyecto: ${booking.size}` : undefined,
+    brief.bodyZone ? `• Zona corporal: ${brief.bodyZone}` : undefined,
+    booking.projectNotes || brief.openNote
+      ? `• Notas: ${[booking.projectNotes, brief.openNote].filter(Boolean).join(" — ")}`
+      : undefined,
+    brief.referral ? `• Cómo llegó: ${brief.referral}` : undefined,
+    brief.personalValues ? `• Valores: ${brief.personalValues}` : undefined,
+    brief.collaborationMode ? `• Colaboración: ${brief.collaborationMode}` : undefined,
+    "",
+    "Próximos pasos",
+    "• Confirma tu asistencia si aplica.",
+    booking.mode === "virtual"
+      ? "• El enlace de Google Meet se genera automáticamente para esta sesión."
+      : undefined,
+  ]
+    .filter((line): line is string => Boolean(line))
     .join("\n");
 
   return {
     summary,
     description,
-    location: booking.mode === "presencial" ? getStudioFullAddress() : undefined,
+    location: booking.mode === "presencial" ? getStudioFullAddress() : "Google Meet",
+    attendees: booking.email ? [{ email: booking.email }] : undefined,
+    colorId: booking.mode === "virtual" ? "8" : "5",
   };
 }
 
 /** Crea evento provisional al reservar. Devuelve el eventId a persistir, o undefined. */
-export async function syncOnReserved(booking: AdvisoryBooking): Promise<string | undefined> {
+export async function syncOnReserved(booking: AdvisoryBooking): Promise<{ eventId: string; meetingLink?: string } | undefined> {
   const config = resolveConfig();
   if (!config) return undefined;
   try {
@@ -86,7 +93,7 @@ export async function syncOnReserved(booking: AdvisoryBooking): Promise<string |
       endsAt: eventEndsAt(booking),
       createMeet: booking.mode === "virtual" && config.createMeet,
     });
-    return result.id;
+    return { eventId: result.id, meetingLink: result.hangoutLink };
   } catch (error) {
     console.warn(
       "[google-calendar:reserved]",
@@ -97,7 +104,7 @@ export async function syncOnReserved(booking: AdvisoryBooking): Promise<string |
 }
 
 /** Marca el evento como confirmado. Devuelve un nuevo eventId solo si tuvo que crearlo. */
-export async function syncOnConfirmed(booking: AdvisoryBooking): Promise<string | undefined> {
+export async function syncOnConfirmed(booking: AdvisoryBooking): Promise<{ eventId: string; meetingLink?: string } | undefined> {
   const config = resolveConfig();
   if (!config) return undefined;
   try {
@@ -116,7 +123,7 @@ export async function syncOnConfirmed(booking: AdvisoryBooking): Promise<string 
       endsAt: eventEndsAt(booking),
       createMeet: booking.mode === "virtual" && config.createMeet,
     });
-    return result.id;
+    return { eventId: result.id, meetingLink: result.hangoutLink };
   } catch (error) {
     console.warn(
       "[google-calendar:confirmed]",
@@ -131,7 +138,7 @@ export async function syncOnConfirmed(booking: AdvisoryBooking): Promise<string 
  * Si el patch falla, intenta borrar el anterior y crear uno nuevo.
  * Devuelve un nuevo eventId solo si cambió.
  */
-export async function syncOnRescheduled(booking: AdvisoryBooking): Promise<string | undefined> {
+export async function syncOnRescheduled(booking: AdvisoryBooking): Promise<{ eventId: string; meetingLink?: string } | undefined> {
   const config = resolveConfig();
   if (!config) return undefined;
 
@@ -164,7 +171,7 @@ export async function syncOnRescheduled(booking: AdvisoryBooking): Promise<strin
       ...payload,
       createMeet: booking.mode === "virtual" && config.createMeet,
     });
-    return result.id;
+    return { eventId: result.id, meetingLink: result.hangoutLink };
   } catch (error) {
     console.warn(
       "[google-calendar:reschedule-create]",

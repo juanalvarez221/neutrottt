@@ -1,4 +1,9 @@
 import type { SiteCopyKey } from "@/shared/i18n/siteLanguage";
+import { markQuoteOnboardingComplete } from "@/shared/lib/quoteFlow";
+import {
+  safeLocalStorageGet,
+  safeLocalStorageSet,
+} from "@/shared/lib/safeStorage";
 
 export type ReferralSource = "instagram" | "tiktok" | "acquaintance" | "other";
 export type PersonalValue =
@@ -122,12 +127,15 @@ function isValidConnection(parsed: unknown): parsed is QuoteConnection {
 
 export function saveQuoteConnection(connection: QuoteConnection) {
   if (typeof window === "undefined") return;
-  window.localStorage.setItem(QUOTE_CONNECTION_KEY, JSON.stringify(connection));
+  safeLocalStorageSet(QUOTE_CONNECTION_KEY, JSON.stringify(connection));
+  if (!isRejectedCollaboration(connection.adjustments)) {
+    markQuoteOnboardingComplete();
+  }
 }
 
 export function getQuoteConnection(): QuoteConnection | null {
   if (typeof window === "undefined") return null;
-  const raw = window.localStorage.getItem(QUOTE_CONNECTION_KEY);
+  const raw = safeLocalStorageGet(QUOTE_CONNECTION_KEY);
   if (!raw) return null;
   try {
     const parsed = JSON.parse(raw) as unknown;

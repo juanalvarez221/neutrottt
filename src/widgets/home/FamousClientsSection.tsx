@@ -19,6 +19,7 @@ import {
 import { useSiteLanguage } from "@/shared/i18n/LanguageProvider";
 import type { SiteCopyKey } from "@/shared/i18n/siteLanguage";
 import { useHorizontalDragScroll } from "@/shared/hooks/useHorizontalDragScroll";
+import { LazyVideo } from "@/shared/ui/LazyVideo";
 import { scrollRevealViewport } from "@/shared/motion/scrollReveal";
 
 type ClientMedia =
@@ -126,18 +127,26 @@ const FEATURED_CLIENTS: FeaturedClient[] = [
   },
 ];
 
-function ClientMediaFrame({ item, alt }: { item: ClientMedia; alt: string }) {
+function ClientMediaFrame({
+  item,
+  alt,
+  isActive = true,
+}: {
+  item: ClientMedia;
+  alt: string;
+  isActive?: boolean;
+}) {
   if (item.type === "video") {
     return (
-      <video
+      <LazyVideo
         src={item.src}
         poster={item.poster}
         className="h-full w-full object-contain"
+        playWhenVisible={isActive}
         autoPlay
         muted
         loop
         playsInline
-        preload="metadata"
         aria-label={alt}
       />
     );
@@ -252,10 +261,12 @@ function GalleryPostCard({
   const username = client.handle.replace("@", "");
 
   const slides: { key: string; content: ReactNode; isVideo?: boolean }[] = tattoo.media.map(
-    (item) => ({
+    (item, mediaIndex) => ({
       key: item.src,
       isVideo: item.type === "video",
-      content: <ClientMediaFrame item={item} alt={t(item.altKey)} />,
+      content: (
+        <ClientMediaFrame item={item} alt={t(item.altKey)} isActive={slide === mediaIndex} />
+      ),
     }),
   );
 
@@ -468,7 +479,7 @@ function ClientGalleryModal({
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: 20 }}
         transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
-        className="featured-client-modal__panel relative z-10 w-full max-w-[430px] sm:max-w-[480px]"
+        className="featured-client-modal__panel relative z-10 w-full max-w-md sm:max-w-lg"
       >
         <div className="featured-client-modal__toolbar">
           <button

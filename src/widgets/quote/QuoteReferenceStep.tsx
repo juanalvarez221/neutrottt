@@ -12,8 +12,7 @@ import {
   requiresProjectAdvisory,
   saveQuoteDraft,
 } from "@/shared/lib/quoteDraft";
-import { getQuoteConnection } from "@/shared/lib/quoteConnection";
-
+import { useQuoteOnboardingGate } from "@/widgets/quote/useQuoteOnboardingGate";
 import { formatZoneDisplay } from "@/shared/lib/quoteZones";
 
 export function QuoteReferenceStep({
@@ -31,16 +30,14 @@ export function QuoteReferenceStep({
   const [referenceFile, setReferenceFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const isLarge = requiresProjectAdvisory(size);
+  const gateReady = useQuoteOnboardingGate();
 
   useEffect(() => {
-    if (!getQuoteConnection()) {
-      router.replace("/cotizacion/conexion");
-      return;
-    }
+    if (!gateReady) return;
     if (!zone.trim()) {
       router.replace(`/cotizacion/ubicacion?size=${encodeURIComponent(size)}`);
     }
-  }, [router, size, zone]);
+  }, [gateReady, router, size, zone]);
 
   const pickFile = (file: File | null) => {
     if (!file || !file.type.startsWith("image/")) return;
@@ -119,11 +116,6 @@ export function QuoteReferenceStep({
         <p className="typo-body mt-4 max-w-2xl leading-relaxed">
           {isLarge ? t("quoteReferenceBodyLarge") : t("quoteReferenceBody")}
         </p>
-        {isLarge ? (
-          <p className="typo-tech mt-3 text-xs uppercase tracking-[0.14em] text-amber-200/75">
-            {t("quoteReferenceLargeNotice")}
-          </p>
-        ) : null}
       </section>
 
       <section className="mb-8">

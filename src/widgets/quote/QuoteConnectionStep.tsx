@@ -32,7 +32,7 @@ import {
 } from "@/shared/lib/quoteConnection";
 import { getFirstName, getQuoteProfile } from "@/shared/lib/quoteProfile";
 import {
-  hasApprovedQuoteConnection,
+  hasCompletedQuoteOnboarding,
   QUOTE_FLOW_PATHS,
   startNewQuoteSession,
 } from "@/shared/lib/quoteFlow";
@@ -135,7 +135,7 @@ export function QuoteConnectionStep() {
       router.replace(QUOTE_FLOW_PATHS.profile);
       return;
     }
-    if (hasApprovedQuoteConnection()) {
+    if (hasCompletedQuoteOnboarding()) {
       startNewQuoteSession();
       router.replace(QUOTE_FLOW_PATHS.quoteStart);
       return;

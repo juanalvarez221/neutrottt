@@ -1,5 +1,6 @@
 import type { GoogleCalendarConfig } from "@/shared/lib/googleCalendar/googleCalendarConfig";
 import { getGoogleAccessToken } from "@/shared/lib/googleCalendar/googleAuth.server";
+import { googleFetch } from "@/shared/lib/googleCalendar/googleFetch.server";
 
 const CALENDAR_BASE = "https://www.googleapis.com/calendar/v3";
 const TIME_ZONE = "America/Bogota";
@@ -13,6 +14,8 @@ export type CalendarEventInput = {
   startsAt: string;
   endsAt: string;
   createMeet?: boolean;
+  attendees?: Array<{ email: string }>;
+  colorId?: string;
 };
 
 export type CalendarEventResult = {
@@ -31,7 +34,7 @@ export async function queryBusyIntervals(
   timeMax: string,
 ): Promise<BusyInterval[]> {
   const token = await getGoogleAccessToken(config);
-  const response = await fetch(`${CALENDAR_BASE}/freeBusy`, {
+  const response = await googleFetch(`${CALENDAR_BASE}/freeBusy`, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -43,7 +46,6 @@ export async function queryBusyIntervals(
       timeZone: TIME_ZONE,
       items: [{ id: config.calendarId }],
     }),
-    cache: "no-store",
   });
 
   if (!response.ok) {
@@ -62,9 +64,25 @@ function buildEventBody(input: CalendarEventInput) {
     summary: input.summary,
     description: input.description,
     location: input.location,
+    colorId: input.colorId ?? (input.createMeet ? "8" : "5"),
     start: { dateTime: input.startsAt, timeZone: TIME_ZONE },
     end: { dateTime: input.endsAt, timeZone: TIME_ZONE },
+    guestsCanModify: false,
+    guestsCanInviteOthers: false,
+    guestsCanSeeOtherGuests: false,
+    reminders: {
+      useDefault: false,
+      overrides: [
+        { method: "email", minutes: 24 * 60 },
+        { method: "popup", minutes: 30 },
+      ],
+    },
   };
+
+  if (input.attendees?.length) {
+    body.attendees = input.attendees;
+  }
+
   if (input.createMeet) {
     body.conferenceData = {
       createRequest: {
@@ -82,7 +100,7 @@ export async function insertCalendarEvent(
 ): Promise<CalendarEventResult> {
   const token = await getGoogleAccessToken(config);
   const conferenceParam = input.createMeet ? "?conferenceDataVersion=1" : "";
-  const response = await fetch(
+  const response = await googleFetch(
     `${CALENDAR_BASE}/calendars/${encodeCalendarId(config)}/events${conferenceParam}`,
     {
       method: "POST",
@@ -91,7 +109,6 @@ export async function insertCalendarEvent(
         "Content-Type": "application/json",
       },
       body: JSON.stringify(buildEventBody(input)),
-      cache: "no-store",
     },
   );
 
@@ -117,7 +134,7 @@ export async function patchCalendarEvent(
   if (patch.startsAt) body.start = { dateTime: patch.startsAt, timeZone: TIME_ZONE };
   if (patch.endsAt) body.end = { dateTime: patch.endsAt, timeZone: TIME_ZONE };
 
-  const response = await fetch(
+  const response = await googleFetch(
     `${CALENDAR_BASE}/calendars/${encodeCalendarId(config)}/events/${encodeURIComponent(eventId)}`,
     {
       method: "PATCH",
@@ -126,7 +143,6 @@ export async function patchCalendarEvent(
         "Content-Type": "application/json",
       },
       body: JSON.stringify(body),
-      cache: "no-store",
     },
   );
 
@@ -144,12 +160,11 @@ export async function deleteCalendarEvent(
   eventId: string,
 ): Promise<void> {
   const token = await getGoogleAccessToken(config);
-  const response = await fetch(
+  const response = await googleFetch(
     `${CALENDAR_BASE}/calendars/${encodeCalendarId(config)}/events/${encodeURIComponent(eventId)}`,
     {
       method: "DELETE",
       headers: { Authorization: `Bearer ${token}` },
-      cache: "no-store",
     },
   );
 

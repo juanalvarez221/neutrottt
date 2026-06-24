@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useCallback, useContext, useMemo, useState } from "react";
 import {
   detectLanguage,
   LANGUAGE_STORAGE_KEY,
@@ -8,6 +8,7 @@ import {
   type SiteCopyKey,
   type SiteLanguage,
 } from "@/shared/i18n/siteLanguage";
+import { safeLocalStorageSet, safeStorageGet } from "@/shared/lib/safeStorage";
 
 type LanguageContextValue = {
   language: SiteLanguage;
@@ -19,42 +20,55 @@ type LanguageContextValue = {
 
 const LanguageContext = createContext<LanguageContextValue | null>(null);
 
-export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  const [language, setLanguageState] = useState<SiteLanguage>("es");
-  const [isReady, setIsReady] = useState(false);
-  const [needsSelection, setNeedsSelection] = useState(false);
+type LanguageState = {
+  language: SiteLanguage;
+  needsSelection: boolean;
+  isReady: boolean;
+};
 
-  useEffect(() => {
-    const frame = window.requestAnimationFrame(() => {
-      const saved = window.localStorage.getItem(LANGUAGE_STORAGE_KEY);
-      if (saved === "es" || saved === "en") {
-        setLanguageState(saved);
-        setNeedsSelection(false);
-      } else {
-        setLanguageState(detectLanguage());
-        setNeedsSelection(true);
-      }
-      setIsReady(true);
-    });
-    return () => window.cancelAnimationFrame(frame);
+function readLanguageState(): LanguageState {
+  if (typeof window === "undefined") {
+    return { language: "es", needsSelection: false, isReady: false };
+  }
+
+  const saved = safeStorageGet(window.localStorage, LANGUAGE_STORAGE_KEY);
+  if (saved === "es" || saved === "en") {
+    return { language: saved, needsSelection: false, isReady: true };
+  }
+
+  return { language: detectLanguage(), needsSelection: true, isReady: true };
+}
+
+export function LanguageProvider({ children }: { children: React.ReactNode }) {
+  const [langState, setLangState] = useState<LanguageState>(readLanguageState);
+
+  const setLanguage = useCallback((lang: SiteLanguage) => {
+    setLangState({ language: lang, needsSelection: false, isReady: true });
+    safeLocalStorageSet(LANGUAGE_STORAGE_KEY, lang);
   }, []);
 
-  const setLanguage = (lang: SiteLanguage) => {
-    setLanguageState(lang);
-    setNeedsSelection(false);
-    window.localStorage.setItem(LANGUAGE_STORAGE_KEY, lang);
-  };
+  const t = useCallback(
+    (key: SiteCopyKey, vars?: Record<string, string>) => {
+      const raw: string = SITE_COPY[langState.language][key];
+      if (!vars) return raw;
+      return Object.entries(vars).reduce(
+        (acc, [varKey, varValue]) => acc.replaceAll(`{${varKey}}`, varValue),
+        raw,
+      );
+    },
+    [langState.language],
+  );
 
-  const t = (key: SiteCopyKey, vars?: Record<string, string>) => {
-    const raw: string = SITE_COPY[language][key];
-    if (!vars) return raw;
-    return Object.entries(vars).reduce(
-      (acc, [varKey, varValue]) => acc.replaceAll(`{${varKey}}`, varValue),
-      raw,
-    );
-  };
-
-  const value = { language, isReady, needsSelection, setLanguage, t };
+  const value = useMemo(
+    () => ({
+      language: langState.language,
+      isReady: langState.isReady,
+      needsSelection: langState.needsSelection,
+      setLanguage,
+      t,
+    }),
+    [langState, setLanguage, t],
+  );
 
   return <LanguageContext.Provider value={value}>{children}</LanguageContext.Provider>;
 }

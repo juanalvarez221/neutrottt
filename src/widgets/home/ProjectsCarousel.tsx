@@ -2,78 +2,129 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { motion, useReducedMotion } from "framer-motion";
+import { useCallback, useEffect, useState } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import { useSiteLanguage } from "@/shared/i18n/LanguageProvider";
 import type { SiteCopyKey } from "@/shared/i18n/siteLanguage";
 import { scrollRevealViewport } from "@/shared/motion/scrollReveal";
 
-const STAGGER_S = 0.58;
+const STAGGER_S = 0.14;
 
-const PORTFOLIO_PIECES: {
+type PortfolioPiece = {
   src: string;
   altKey: SiteCopyKey;
+  titleKey: SiteCopyKey;
+  categoryKey: SiteCopyKey;
   rotate: number;
-  className: string;
-}[] = [
+  graffitiId: 1 | 2 | 3 | 4 | 5 | 6;
+};
+
+const PORTFOLIO_PIECES: PortfolioPiece[] = [
   {
     src: "/portfolio/piece-lettering-1.png",
     altKey: "portfolioPiece1Alt",
-    rotate: -5.5,
-    className:
-      "left-[4%] top-[1%] z-[11] w-[min(52vw,200px)] md:left-[5%] md:top-[4%] md:w-[240px]",
+    titleKey: "portfolioPiece1Title",
+    categoryKey: "portfolioCatLettering",
+    rotate: -7,
+    graffitiId: 1,
   },
   {
     src: "/portfolio/piece-realism-1.png",
     altKey: "portfolioPiece2Alt",
-    rotate: 4,
-    className:
-      "right-[3%] top-[18%] z-[12] w-[min(50vw,190px)] md:left-[32%] md:right-auto md:top-[1%] md:w-[230px]",
+    titleKey: "portfolioPiece2Title",
+    categoryKey: "portfolioCatRealism",
+    rotate: 5.5,
+    graffitiId: 2,
   },
   {
     src: "/portfolio/piece-lettering-2.png",
     altKey: "portfolioPiece3Alt",
-    rotate: -2.5,
-    className:
-      "left-[6%] top-[36%] z-[13] w-[min(48vw,185px)] md:left-auto md:right-[4%] md:top-[16%] md:w-[220px]",
+    titleKey: "portfolioPiece3Title",
+    categoryKey: "portfolioCatLettering",
+    rotate: -3.5,
+    graffitiId: 3,
   },
   {
     src: "/portfolio/piece-realism-2.png",
     altKey: "portfolioPiece4Alt",
-    rotate: 5,
-    className:
-      "right-[5%] top-[52%] z-[14] w-[min(50vw,190px)] md:left-[10%] md:right-auto md:top-auto md:bottom-[8%] md:w-[225px]",
+    titleKey: "portfolioPiece4Title",
+    categoryKey: "portfolioCatShadows",
+    rotate: 6,
+    graffitiId: 4,
   },
   {
     src: "/portfolio/piece-realism-3.png",
     altKey: "portfolioPiece5Alt",
-    rotate: -4,
-    className:
-      "left-[8%] top-[68%] z-[15] w-[min(52vw,200px)] md:left-auto md:right-[8%] md:top-auto md:bottom-[4%] md:w-[235px]",
+    titleKey: "portfolioPiece5Title",
+    categoryKey: "portfolioCatRealism",
+    rotate: -5,
+    graffitiId: 5,
+  },
+  {
+    src: "/portfolio/piece-peru-hannya.png",
+    altKey: "portfolioPiece6Alt",
+    titleKey: "portfolioPiece6Title",
+    categoryKey: "portfolioCatShadows",
+    rotate: 4,
+    graffitiId: 6,
   },
 ];
+
+function PortfolioFramedImage({
+  piece,
+  sizes,
+  priority = false,
+}: {
+  piece: PortfolioPiece;
+  sizes: string;
+  priority?: boolean;
+}) {
+  const { t } = useSiteLanguage();
+
+  return (
+    <div className="portfolio-frame relative w-full">
+      <div className="portfolio-frame__mat">
+        <div className="portfolio-frame__opening">
+          <Image
+            src={piece.src}
+            alt={t(piece.altKey)}
+            fill
+            quality={92}
+            sizes={sizes}
+            className="object-contain"
+            priority={priority}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function PortfolioFramedPhoto({
   piece,
   index,
   t,
   reducedMotion,
+  onOpen,
 }: {
-  piece: (typeof PORTFOLIO_PIECES)[number];
+  piece: PortfolioPiece;
   index: number;
-  t: (key: SiteCopyKey) => string;
+  t: (key: SiteCopyKey, vars?: Record<string, string>) => string;
   reducedMotion: boolean;
+  onOpen: (index: number) => void;
 }) {
   const delay = index * STAGGER_S;
   const flashDelay = delay;
-  const stickDelay = delay + (reducedMotion ? 0 : 0.12);
+  const stickDelay = delay + (reducedMotion ? 0 : 0.08);
 
   return (
     <motion.figure
-      className={`absolute ${piece.className}`}
+      className={`portfolio-wall-cell portfolio-graffiti portfolio-graffiti--${piece.graffitiId}`}
       initial={
         reducedMotion
           ? { opacity: 1, rotate: piece.rotate, y: 0, scale: 1 }
-          : { opacity: 0, rotate: piece.rotate + 12, y: -42, scale: 1.2 }
+          : { opacity: 0, rotate: piece.rotate + 11, y: -36, scale: 1.1 }
       }
       whileInView={
         reducedMotion
@@ -87,67 +138,218 @@ function PortfolioFramedPhoto({
         duration: reducedMotion ? 0.35 : undefined,
         stiffness: 380,
         damping: 24,
-        mass: 0.85,
+        mass: 0.82,
       }}
-      style={{ transformOrigin: "50% 115%" }}
+      style={{ transformOrigin: "50% 88%" }}
+      whileHover={
+        reducedMotion
+          ? undefined
+          : { y: -6, scale: 1.03, transition: { type: "spring", stiffness: 420, damping: 22 } }
+      }
     >
       <motion.span
         aria-hidden
-        className="portfolio-photo-flash pointer-events-none absolute -inset-[18%] z-20 rounded-sm"
+        className="portfolio-photo-flash pointer-events-none absolute -inset-[14%] z-20 rounded-sm"
         initial={{ opacity: 0 }}
         whileInView={{ opacity: [0, 1, 0] }}
         viewport={scrollRevealViewport}
         transition={{
           delay: flashDelay,
-          duration: reducedMotion ? 0.2 : 0.4,
+          duration: reducedMotion ? 0.2 : 0.38,
           times: [0, 0.15, 1],
           ease: "easeOut",
         }}
       />
 
-      <motion.div
-        className="portfolio-frame relative"
-        whileHover={{ y: -4, transition: { duration: 0.25 } }}
+      <button
+        type="button"
+        className="portfolio-wall-cell__trigger focus-ring"
+        onClick={() => onOpen(index)}
+        aria-label={`${t("portfolioViewDetail")}: ${t(piece.titleKey)}`}
       >
-        <div className="portfolio-frame__mat">
-          <div className="portfolio-frame__opening">
-            <Image
-              src={piece.src}
-              alt={t(piece.altKey)}
-              fill
-              quality={92}
-              sizes="240px"
-              className="object-contain"
-              priority={index < 2}
-            />
-          </div>
-        </div>
-      </motion.div>
+        <PortfolioFramedImage
+          piece={piece}
+          sizes="(max-width: 767px) 48vw, 240px"
+          priority={index < 2}
+        />
+        <span className="portfolio-wall-cell__hint">{t("portfolioViewDetail")}</span>
+      </button>
     </motion.figure>
   );
 }
 
-function PortfolioPhotoWall({ t }: { t: (key: SiteCopyKey) => string }) {
-  const reducedMotion = useReducedMotion();
+function PortfolioPieceLightbox({
+  index,
+  t,
+  onClose,
+  onPrev,
+  onNext,
+}: {
+  index: number;
+  t: (key: SiteCopyKey, vars?: Record<string, string>) => string;
+  onClose: () => void;
+  onPrev: () => void;
+  onNext: () => void;
+}) {
+  const piece = PORTFOLIO_PIECES[index];
+  const total = PORTFOLIO_PIECES.length;
+
+  useEffect(() => {
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previous;
+    };
+  }, []);
+
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose();
+      if (event.key === "ArrowLeft") onPrev();
+      if (event.key === "ArrowRight") onNext();
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [onClose, onNext, onPrev]);
 
   return (
     <motion.div
-      className="portfolio-photo-wall page-bleed-x relative mt-8 min-h-[clamp(26rem,128vw,34rem)] w-full overflow-hidden border-y border-white/[0.08] sm:mt-10 md:min-h-[34rem] lg:min-h-[36rem]"
+      className="portfolio-lightbox fixed inset-0 z-[75] flex items-center justify-center"
       initial={{ opacity: 0 }}
-      whileInView={{ opacity: 1 }}
-      viewport={scrollRevealViewport}
-      transition={{ duration: 0.5 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      role="dialog"
+      aria-modal="true"
+      aria-label={t(piece.titleKey)}
     >
-      {PORTFOLIO_PIECES.map((piece, i) => (
-        <PortfolioFramedPhoto
-          key={piece.src}
-          piece={piece}
-          index={i}
-          t={t}
-          reducedMotion={!!reducedMotion}
-        />
-      ))}
+      <button
+        type="button"
+        className="absolute inset-0 bg-background/90 backdrop-blur-sm"
+        aria-label={t("portfolioDetailClose")}
+        onClick={onClose}
+      />
+
+      <motion.div
+        key={piece.src}
+        initial={{ opacity: 0, y: 20, scale: 0.98 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        exit={{ opacity: 0, y: 14, scale: 0.98 }}
+        transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
+        className="portfolio-lightbox__panel relative z-10"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <div className="portfolio-lightbox__toolbar">
+          <button
+            type="button"
+            onClick={onClose}
+            className="focus-ring inline-flex h-10 w-10 items-center justify-center rounded-full text-zinc-100 transition hover:bg-white/8 active:scale-[0.98]"
+            aria-label={t("portfolioDetailClose")}
+          >
+            <X className="h-5 w-5" strokeWidth={1.75} />
+          </button>
+
+          <div className="portfolio-lightbox__title">
+            <p className="portfolio-lightbox__eyebrow">{t(piece.categoryKey)}</p>
+            <p className="portfolio-lightbox__heading">{t(piece.titleKey)}</p>
+            <p className="portfolio-lightbox__counter">
+              {t("portfolioDetailCounter", {
+                current: String(index + 1),
+                total: String(total),
+              })}
+            </p>
+          </div>
+
+          <span aria-hidden className="h-10 w-10" />
+        </div>
+
+        <div className="portfolio-lightbox__stage">
+          {total > 1 ? (
+            <button
+              type="button"
+              className="portfolio-lightbox__nav portfolio-lightbox__nav--prev focus-ring"
+              onClick={onPrev}
+              aria-label={t("portfolioDetailPrev")}
+            >
+              <ChevronLeft className="h-5 w-5" strokeWidth={1.75} />
+            </button>
+          ) : null}
+
+          <div className="portfolio-lightbox__frame-wrap">
+            <PortfolioFramedImage piece={piece} sizes="(max-width: 768px) 92vw, 52rem" priority />
+          </div>
+
+          {total > 1 ? (
+            <button
+              type="button"
+              className="portfolio-lightbox__nav portfolio-lightbox__nav--next focus-ring"
+              onClick={onNext}
+              aria-label={t("portfolioDetailNext")}
+            >
+              <ChevronRight className="h-5 w-5" strokeWidth={1.75} />
+            </button>
+          ) : null}
+        </div>
+
+        <p className="portfolio-lightbox__caption">{t(piece.altKey)}</p>
+      </motion.div>
     </motion.div>
+  );
+}
+
+function PortfolioPhotoWall({ t }: { t: (key: SiteCopyKey, vars?: Record<string, string>) => string }) {
+  const reducedMotion = useReducedMotion();
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+
+  const closeLightbox = useCallback(() => setSelectedIndex(null), []);
+
+  const goPrev = useCallback(() => {
+    setSelectedIndex((current) => {
+      if (current === null) return null;
+      return (current - 1 + PORTFOLIO_PIECES.length) % PORTFOLIO_PIECES.length;
+    });
+  }, []);
+
+  const goNext = useCallback(() => {
+    setSelectedIndex((current) => {
+      if (current === null) return null;
+      return (current + 1) % PORTFOLIO_PIECES.length;
+    });
+  }, []);
+
+  return (
+    <>
+      <motion.div
+        className="portfolio-photo-wall portfolio-photo-wall--graffiti page-bleed-x relative mt-8 w-full border-y border-white/[0.08] sm:mt-10"
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        viewport={scrollRevealViewport}
+        transition={{ duration: 0.5 }}
+      >
+        {PORTFOLIO_PIECES.map((piece, i) => (
+          <PortfolioFramedPhoto
+            key={piece.src}
+            piece={piece}
+            index={i}
+            t={t}
+            reducedMotion={!!reducedMotion}
+            onOpen={setSelectedIndex}
+          />
+        ))}
+      </motion.div>
+
+      <AnimatePresence>
+        {selectedIndex !== null ? (
+          <PortfolioPieceLightbox
+            key="portfolio-lightbox"
+            index={selectedIndex}
+            t={t}
+            onClose={closeLightbox}
+            onPrev={goPrev}
+            onNext={goNext}
+          />
+        ) : null}
+      </AnimatePresence>
+    </>
   );
 }
 
@@ -156,7 +358,6 @@ export function ProjectsCarousel() {
 
   return (
     <section className="page-section section-surface section-surface--portfolio section-divider relative w-full overflow-hidden">
-
       <div className="page-section-pad relative z-10 page-section-y">
         <p className="typo-eyebrow">{t("projectsTag")}</p>
 

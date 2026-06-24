@@ -27,7 +27,7 @@ export function HeroPortraitBanner({
           alt={alt}
           fill
           priority
-          quality={100}
+          quality={88}
           sizes="100vw"
           className="hero-photo-image"
         />

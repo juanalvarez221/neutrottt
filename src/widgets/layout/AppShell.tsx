@@ -14,7 +14,7 @@ export function AppShell({
 }) {
   return (
     <div className="min-h-dvh bg-background">
-      <div className="mx-auto flex w-full max-w-[1200px] gap-0 lg:gap-6">
+      <div className="mx-auto flex w-full max-w-7xl gap-0 lg:gap-6">
         <SideNav />
 
         <div className="w-full pl-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))] pb-[max(5.75rem,calc(4.5rem+env(safe-area-inset-bottom)))] pt-5 sm:pt-6 lg:px-6 lg:pb-10 lg:pt-10">

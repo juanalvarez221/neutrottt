@@ -1,7 +1,30 @@
+import {
+  safeLocalStorageGet,
+  safeLocalStorageRemove,
+  safeLocalStorageSet,
+  safeSessionStorageSet,
+  safeStorageGet,
+  safeStorageRemove,
+} from "@/shared/lib/safeStorage";
+
 export type QuoteDraft = {
   size: string;
   zone?: string;
   zoneOther?: string;
+  headPart?: string;
+  backPart?: string;
+  armLaterality?: string;
+  armFaceScope?: string;
+  armPart?: string;
+  legLaterality?: string;
+  legFaceScope?: string;
+  legExtent?: string;
+  /** @deprecated */
+  armSide?: string;
+  /** @deprecated */
+  legSide?: string;
+  /** @deprecated */
+  legPart?: string;
   notes?: string;
 };
 
@@ -38,12 +61,12 @@ export function resolveQuoteSizeParam(size: string): "mediano" | "grande" {
 
 export function saveQuoteDraft(draft: QuoteDraft) {
   if (typeof window === "undefined") return;
-  window.localStorage.setItem(QUOTE_DRAFT_KEY, JSON.stringify(draft));
+  safeLocalStorageSet(QUOTE_DRAFT_KEY, JSON.stringify(draft));
 }
 
 export function getQuoteDraft(): QuoteDraft | null {
   if (typeof window === "undefined") return null;
-  const raw = window.localStorage.getItem(QUOTE_DRAFT_KEY);
+  const raw = safeLocalStorageGet(QUOTE_DRAFT_KEY);
   if (!raw) return null;
   try {
     const parsed = JSON.parse(raw) as QuoteDraft;
@@ -56,7 +79,7 @@ export function getQuoteDraft(): QuoteDraft | null {
 
 export function clearQuoteDraft() {
   if (typeof window === "undefined") return;
-  window.localStorage.removeItem(QUOTE_DRAFT_KEY);
+  safeLocalStorageRemove(QUOTE_DRAFT_KEY);
 }
 
 export const QUOTE_COMPLETION_KEY = "quote_completion_type";
@@ -65,17 +88,17 @@ export type QuoteCompletionType = "asesoria" | "cotizacion";
 
 export function setQuoteCompletionType(type: QuoteCompletionType) {
   if (typeof window === "undefined") return;
-  window.sessionStorage.setItem(QUOTE_COMPLETION_KEY, type);
+  safeSessionStorageSet(QUOTE_COMPLETION_KEY, type);
 }
 
 export function getQuoteCompletionType(): QuoteCompletionType | null {
   if (typeof window === "undefined") return null;
-  const value = window.sessionStorage.getItem(QUOTE_COMPLETION_KEY);
+  const value = safeStorageGet(window.sessionStorage, QUOTE_COMPLETION_KEY);
   if (value === "asesoria" || value === "cotizacion") return value;
   return null;
 }
 
 export function clearQuoteCompletionType() {
   if (typeof window === "undefined") return;
-  window.sessionStorage.removeItem(QUOTE_COMPLETION_KEY);
+  safeStorageRemove(window.sessionStorage, QUOTE_COMPLETION_KEY);
 }

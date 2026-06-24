@@ -1,17 +1,16 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { QuoteShell } from "@/widgets/quote/QuoteShell";
 import { Check, ArrowRight } from "lucide-react";
-import { getQuoteConnection } from "@/shared/lib/quoteConnection";
 import { saveQuoteDraft, getQuoteDraft } from "@/shared/lib/quoteDraft";
 import {
-  hasCompleteQuoteProfile,
   QUOTE_FLOW_PATHS,
   shouldSkipToQuote,
 } from "@/shared/lib/quoteFlow";
+import { useQuoteOnboardingGate } from "@/widgets/quote/useQuoteOnboardingGate";
 import { useSiteLanguage } from "@/shared/i18n/LanguageProvider";
 
 type SizeOption = "mediano" | "grande";
@@ -20,16 +19,7 @@ export default function CotizacionTamanoPage() {
   const router = useRouter();
   const { t } = useSiteLanguage();
   const [size, setSize] = useState<SizeOption>("mediano");
-
-  useEffect(() => {
-    if (!hasCompleteQuoteProfile()) {
-      router.replace(QUOTE_FLOW_PATHS.profile);
-      return;
-    }
-    if (!getQuoteConnection()) {
-      router.replace(QUOTE_FLOW_PATHS.connection);
-    }
-  }, [router]);
+  const gateReady = useQuoteOnboardingGate();
 
   const options = useMemo(
     () =>
@@ -54,6 +44,18 @@ export default function CotizacionTamanoPage() {
       }>,
     [t],
   );
+
+  if (!gateReady) {
+    return (
+      <QuoteShell showGreeting={false}>
+        <div className="flex min-h-[40dvh] items-center justify-center">
+          <p className="typo-tech text-sm uppercase tracking-[0.18em] text-stone-400">
+            Cargando…
+          </p>
+        </div>
+      </QuoteShell>
+    );
+  }
 
   return (
     <QuoteShell greetingKey={shouldSkipToQuote() ? "quoteGreetResume" : "quoteGreetSize"}>
@@ -143,13 +145,15 @@ export default function CotizacionTamanoPage() {
       </section>
 
       <div className="quote-step-footer mt-auto pt-6">
-        <button
-          type="button"
-          onClick={() => router.push(QUOTE_FLOW_PATHS.connection)}
-          className="quote-step-footer-back rounded-xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold text-zinc-100 transition hover:bg-white/8"
-        >
-          {t("commonBack")}
-        </button>
+        {!shouldSkipToQuote() ? (
+          <button
+            type="button"
+            onClick={() => router.push(QUOTE_FLOW_PATHS.connection)}
+            className="quote-step-footer-back rounded-xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold text-zinc-100 transition hover:bg-white/8"
+          >
+            {t("commonBack")}
+          </button>
+        ) : null}
         <button
           type="button"
           onClick={() => {

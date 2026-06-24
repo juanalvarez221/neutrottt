@@ -10,12 +10,12 @@ export function LanguagePrompt() {
   if (!isReady || !needsSelection) return null;
 
   return (
-    <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/72 px-4 backdrop-blur-md">
+    <div className="fixed inset-0 z-[110] flex items-end justify-center overflow-y-auto bg-black/72 p-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-[max(1rem,env(safe-area-inset-top))] backdrop-blur-md sm:items-center">
       <motion.div
         initial={{ opacity: 0, y: 18, scale: 0.97 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 0.4, ease: "easeOut" }}
-        className="relative w-full max-w-lg overflow-hidden rounded-3xl border border-white/15 bg-zinc-950/95 p-6 shadow-[0_28px_70px_-28px_rgba(0,0,0,0.95)]"
+        className="relative my-auto w-full max-w-lg max-h-[min(92dvh,720px)] overflow-y-auto overscroll-contain rounded-3xl border border-white/15 bg-zinc-950/95 p-5 shadow-[0_28px_70px_-28px_rgba(0,0,0,0.95)] sm:p-6"
       >
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(500px_220px_at_12%_0%,rgba(251,191,36,0.3),transparent_62%),radial-gradient(420px_220px_at_100%_100%,rgba(249,115,22,0.22),transparent_65%)]" />
 
@@ -27,7 +27,7 @@ export function LanguagePrompt() {
             </p>
           </div>
 
-          <h2 className="typo-section mt-4 text-[1.95rem] leading-[1.06]">
+          <h2 className="typo-section mt-4 text-[clamp(1.55rem,7vw,1.95rem)] leading-[1.08] sm:text-[1.95rem] sm:leading-[1.06]">
             {t("languageTitle")}
           </h2>
           <p className="typo-body mt-3 max-w-md text-zinc-300">{t("languageSubtitle")}</p>
@@ -62,7 +62,7 @@ export function LanguagePrompt() {
 
           <div className="mt-4 inline-flex items-center gap-2 text-xs text-zinc-400">
             <Sparkles className="h-3.5 w-3.5 text-amber-300/90" />
-            You can change this anytime later.
+            {t("languageFooterHint")}
           </div>
         </div>
       </motion.div>

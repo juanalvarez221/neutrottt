@@ -9,7 +9,7 @@ function modeLabel(mode: AdvisoryBooking["mode"]) {
   return mode === "presencial" ? "Presencial (Estudio Emerald)" : "Virtual";
 }
 
-function bookingDetailsText(booking: AdvisoryBooking) {
+export function buildAdvisoryBookingDetailsText(booking: AdvisoryBooking) {
   const slotLabel = formatSlotLabel(booking.startsAt, "es-CO");
   const lines = [
     `Modalidad: ${modeLabel(booking.mode)}`,
@@ -17,9 +17,14 @@ function bookingDetailsText(booking: AdvisoryBooking) {
     `Duración: ${booking.durationMin} min`,
     `Nombre: ${booking.clientName}`,
     `Teléfono: ${booking.phone}`,
+    `Correo: ${booking.email}`,
+    `Detalles también enviados por correo y WhatsApp.`,
   ];
   if (booking.mode === "presencial") {
     lines.push(`Dirección: ${getStudioFullAddress()}`);
+  }
+  if (booking.meetingLink?.trim()) {
+    lines.push(`Reunión: ${booking.meetingLink.trim()}`);
   }
   if (booking.projectNotes) {
     lines.push(`Notas: ${booking.projectNotes}`);
@@ -87,7 +92,7 @@ export async function sendAdvisoryBookingConfirmationEmail(booking: AdvisoryBook
     "",
     "Tu asesoría quedó reservada. Estos son los datos:",
     "",
-    bookingDetailsText(booking),
+    buildAdvisoryBookingDetailsText(booking),
     "",
     "Un día antes te escribiremos por correo o WhatsApp para confirmar tu asistencia.",
     "Si confirmas, el cupo queda fijo en la agenda. Si no respondes a tiempo, liberamos el horario para otra persona y te ayudamos a reagendar.",
@@ -101,7 +106,7 @@ export async function sendAdvisoryBookingConfirmationEmail(booking: AdvisoryBook
         <p style="margin:0 0 8px;font-size:12px;letter-spacing:0.14em;text-transform:uppercase;color:#d6d3d1">Asesoría reservada</p>
         <h1 style="margin:0 0 16px;font-size:24px;color:#fafaf9">Hola ${booking.clientName}</h1>
         <p style="margin:0 0 20px;color:#d6d3d1">Tu cupo quedó apartado. Revisa los detalles:</p>
-        <pre style="white-space:pre-wrap;background:#0c0a09;border:1px solid #292524;border-radius:12px;padding:16px;color:#f5f5f4;font-size:14px">${bookingDetailsText(booking)}</pre>
+        <pre style="white-space:pre-wrap;background:#0c0a09;border:1px solid #292524;border-radius:12px;padding:16px;color:#f5f5f4;font-size:14px">${buildAdvisoryBookingDetailsText(booking)}</pre>
         <p style="margin:20px 0 0;color:#a8a29e;font-size:14px">Un día antes te contactaremos para confirmar asistencia. Si no confirmas a tiempo, liberamos el horario y podrás reagendar.</p>
       </div>
     </div>
@@ -206,7 +211,7 @@ export async function sendAdvisoryAttendanceConfirmedEmail(booking: AdvisoryBook
     "",
     `Listo: tu asistencia quedó confirmada para ${slotLabel}.`,
     "",
-    bookingDetailsText(booking),
+    buildAdvisoryBookingDetailsText(booking),
     "",
     "Nos vemos pronto.",
     "",
@@ -219,7 +224,7 @@ export async function sendAdvisoryAttendanceConfirmedEmail(booking: AdvisoryBook
         <p style="margin:0 0 8px;font-size:12px;letter-spacing:0.14em;text-transform:uppercase;color:#34d399">Asistencia confirmada</p>
         <h1 style="margin:0 0 12px;font-size:24px;color:#fafaf9">Te esperamos</h1>
         <p style="margin:0 0 16px;color:#d6d3d1">Tu cupo quedó fijo en la agenda para <strong>${slotLabel}</strong>.</p>
-        <pre style="white-space:pre-wrap;background:#0c0a09;border:1px solid #292524;border-radius:12px;padding:16px;color:#f5f5f4;font-size:14px">${bookingDetailsText(booking)}</pre>
+        <pre style="white-space:pre-wrap;background:#0c0a09;border:1px solid #292524;border-radius:12px;padding:16px;color:#f5f5f4;font-size:14px">${buildAdvisoryBookingDetailsText(booking)}</pre>
       </div>
     </div>
   `;
@@ -235,7 +240,7 @@ export async function sendAdvisoryRescheduledEmail(booking: AdvisoryBooking) {
     "",
     "Tu asesoría quedó reagendada:",
     "",
-    bookingDetailsText(booking),
+    buildAdvisoryBookingDetailsText(booking),
     "",
     "Un día antes te pediremos confirmar asistencia de nuevo.",
     "",
@@ -247,7 +252,7 @@ export async function sendAdvisoryRescheduledEmail(booking: AdvisoryBooking) {
       <div style="max-width:560px;margin:0 auto;background:#1c1917;border:1px solid #44403c;border-radius:16px;padding:28px">
         <p style="margin:0 0 8px;font-size:12px;letter-spacing:0.14em;text-transform:uppercase;color:#fbbf24">Reagendado</p>
         <h1 style="margin:0 0 12px;font-size:24px;color:#fafaf9">Nuevo horario</h1>
-        <pre style="white-space:pre-wrap;background:#0c0a09;border:1px solid #292524;border-radius:12px;padding:16px;color:#f5f5f4;font-size:14px">${bookingDetailsText(booking)}</pre>
+        <pre style="white-space:pre-wrap;background:#0c0a09;border:1px solid #292524;border-radius:12px;padding:16px;color:#f5f5f4;font-size:14px">${buildAdvisoryBookingDetailsText(booking)}</pre>
         <p style="margin:16px 0 0;color:#a8a29e;font-size:14px">Te recordaremos confirmar asistencia un día antes.</p>
       </div>
     </div>

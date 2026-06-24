@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { CalendarDays, Check, Loader2, MapPin, Monitor } from "lucide-react";
 import { QuoteShell } from "@/widgets/quote/QuoteShell";
@@ -12,6 +12,7 @@ import {
   setQuoteCompletionType,
 } from "@/shared/lib/quoteDraft";
 import { getQuoteProfile } from "@/shared/lib/quoteProfile";
+import { useQuoteOnboardingGate } from "@/widgets/quote/useQuoteOnboardingGate";
 import {
   addSmartQuoteRequest,
   persistQuoteRequestToBackend,
@@ -20,7 +21,7 @@ import {
 import { getAdvisoryDurationMin } from "@/shared/lib/advisoryConfig";
 import type { AdvisoryMode, AdvisorySlot } from "@/shared/lib/advisoryTypes";
 import { formatDayLabel } from "@/shared/lib/advisorySlots";
-import { formatZoneDisplay } from "@/shared/lib/quoteZones";
+import { formatZoneDisplay, getZoneRefinementFromDraft } from "@/shared/lib/quoteZones";
 import { buildAdvisoryWhatsAppMessage, whatsappUrl } from "@/shared/config/brand";
 import { getStudioFullAddress } from "@/shared/config/studio";
 
@@ -42,17 +43,17 @@ export function QuoteAdvisoryBookingStep({
   const profile = getQuoteProfile();
   const [days, setDays] = useState<DaySlots[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingSlots, setLoadingSlots] = useState(false);
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedSlot, setSelectedSlot] = useState<AdvisorySlot | null>(null);
+  const [slotsForSelectedDay, setSlotsForSelectedDay] = useState<AdvisorySlot[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [durationMin, setDurationMin] = useState(getAdvisoryDurationMin(mode));
+  const gateReady = useQuoteOnboardingGate();
 
   useEffect(() => {
-    if (!profile || !getQuoteConnection()) {
-      router.replace("/cotizacion");
-      return;
-    }
+    if (!gateReady) return;
     if (!isLargeQuoteSize(size)) {
       router.replace(`/cotizacion/ubicacion?size=${encodeURIComponent(size)}`);
       return;
@@ -61,7 +62,44 @@ export function QuoteAdvisoryBookingStep({
     if (!draft?.zone) {
       router.replace(`/cotizacion/ubicacion?size=${encodeURIComponent(size)}`);
     }
-  }, [profile, router, size]);
+  }, [gateReady, router, size]);
+
+  const loadSlotsForDate = useCallback(
+    async (dateKey: string) => {
+      if (!dateKey) return;
+      setSelectedDate(dateKey);
+      setLoadingSlots(true);
+      setError("");
+      setSelectedSlot(null);
+      try {
+        const response = await fetch(`/api/advisory/slots?mode=${mode}&date=${encodeURIComponent(dateKey)}`, {
+          cache: "no-store",
+        });
+        const payload = (await response.json()) as {
+          slots?: AdvisorySlot[];
+          error?: string;
+        };
+        if (!response.ok) {
+          throw new Error(payload.error ?? t("quoteAdvisoryBookingLoadError"));
+        }
+        const nextSlots = payload.slots ?? [];
+        setSlotsForSelectedDay(nextSlots);
+        setDays((current) =>
+          current.map((day) => (day.date === dateKey ? { ...day, slots: nextSlots } : day)),
+        );
+      } catch (loadError) {
+        setError(
+          loadError instanceof Error
+            ? loadError.message
+            : t("quoteAdvisoryBookingLoadError"),
+        );
+        setSlotsForSelectedDay([]);
+      } finally {
+        setLoadingSlots(false);
+      }
+    },
+    [mode, t],
+  );
 
   useEffect(() => {
     let cancelled = false;
@@ -80,11 +118,12 @@ export function QuoteAdvisoryBookingStep({
         if (!response.ok) {
           throw new Error(payload.error ?? t("quoteAdvisoryBookingLoadError"));
         }
-        const nextDays = (payload.days ?? []).filter((day) => day.slots.length > 0);
+        const nextDays = (payload.days ?? []).filter((day) => Boolean(day.date));
         if (!cancelled) {
           setDurationMin(payload.durationMin ?? getAdvisoryDurationMin(mode));
           setDays(nextDays);
-          setSelectedDate(nextDays[0]?.date ?? "");
+          setSelectedDate("");
+          setSlotsForSelectedDay([]);
           setSelectedSlot(null);
         }
       } catch (loadError) {
@@ -103,12 +142,7 @@ export function QuoteAdvisoryBookingStep({
     return () => {
       cancelled = true;
     };
-  }, [mode, t]);
-
-  const slotsForSelectedDay = useMemo(
-    () => days.find((day) => day.date === selectedDate)?.slots ?? [],
-    [days, selectedDate],
-  );
+  }, [loadSlotsForDate, mode, t]);
 
   const confirmBooking = async () => {
     if (!profile || !selectedSlot) return;
@@ -126,9 +160,10 @@ export function QuoteAdvisoryBookingStep({
             connectionPurpose: undefined,
           };
       const zoneDisplay = formatZoneDisplay(
-        draft?.zone ?? "brazo_completo",
+        draft?.zone ?? "brazo",
         draft?.zoneOther,
         t,
+        getZoneRefinementFromDraft(draft),
       );
 
       const response = await fetch("/api/advisory/book", {
@@ -153,7 +188,7 @@ export function QuoteAdvisoryBookingStep({
       });
       const payload = (await response.json()) as {
         ok?: boolean;
-        booking?: { id: string; label: string; startsAt: string };
+        booking?: { id: string; label: string; startsAt: string; meetingLink?: string };
         error?: string;
       };
 
@@ -196,6 +231,7 @@ export function QuoteAdvisoryBookingStep({
               clientName: profile.name,
             }),
           ),
+          meetingLink: payload.booking.meetingLink,
         }),
       );
 
@@ -214,6 +250,7 @@ export function QuoteAdvisoryBookingStep({
 
   const modeTitle =
     mode === "presencial" ? t("quoteAdvisoryPresencialTitle") : t("quoteAdvisoryVirtualTitle");
+  const hasSelectedDate = Boolean(selectedDate);
 
   return (
     <QuoteShell greetingKey="quoteGreetAdvisoryBook">
@@ -281,7 +318,7 @@ export function QuoteAdvisoryBookingStep({
                     type="button"
                     onClick={() => {
                       setSelectedDate(day.date);
-                      setSelectedSlot(null);
+                      void loadSlotsForDate(day.date);
                     }}
                     className={[
                       "shrink-0 rounded-xl border px-4 py-3.5 text-left transition min-h-[44px]",
@@ -303,26 +340,44 @@ export function QuoteAdvisoryBookingStep({
             <h3 className="typo-subtitle mb-3 text-sm uppercase tracking-[0.14em] text-zinc-200">
               {t("quoteAdvisoryBookingTimeLabel")}
             </h3>
-            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-              {slotsForSelectedDay.map((slot) => {
-                const selected = selectedSlot?.startsAt === slot.startsAt;
-                return (
-                  <button
-                    key={slot.startsAt}
-                    type="button"
-                    onClick={() => setSelectedSlot(slot)}
-                    className={[
-                      "rounded-xl border px-3 py-3.5 text-sm font-semibold transition min-h-[44px]",
-                      selected
-                        ? "border-amber-500/35 bg-amber-600/15 text-amber-50"
-                        : "border-white/10 bg-white/5 text-zinc-100 hover:bg-white/8",
-                    ].join(" ")}
-                  >
-                    {slot.time}
-                  </button>
-                );
-              })}
-            </div>
+            <p className="mb-3 text-sm text-zinc-400">
+              Primero elige un día. Después aparecerán las horas disponibles para esa fecha.
+            </p>
+            {!hasSelectedDate ? (
+              <div className="rounded-2xl border border-dashed border-white/10 bg-white/5 p-4 text-sm text-zinc-300">
+                Selecciona un día arriba para ver los horarios disponibles.
+              </div>
+            ) : loadingSlots ? (
+              <div className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-zinc-300">
+                <Loader2 className="h-4 w-4 animate-spin text-amber-300" />
+                Cargando horarios...
+              </div>
+            ) : slotsForSelectedDay.length > 0 ? (
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                {slotsForSelectedDay.map((slot) => {
+                  const selected = selectedSlot?.startsAt === slot.startsAt;
+                  return (
+                    <button
+                      key={slot.startsAt}
+                      type="button"
+                      onClick={() => setSelectedSlot(slot)}
+                      className={[
+                        "rounded-xl border px-3 py-3.5 text-sm font-semibold transition min-h-[44px]",
+                        selected
+                          ? "border-amber-500/35 bg-amber-600/15 text-amber-50"
+                          : "border-white/10 bg-white/5 text-zinc-100 hover:bg-white/8",
+                      ].join(" ")}
+                    >
+                      {slot.time}
+                    </button>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="rounded-2xl border border-amber-500/20 bg-amber-600/10 p-4 text-sm text-amber-100">
+                No hay horarios disponibles para este día. Elige otro día para seguir con la reserva.
+              </div>
+            )}
           </section>
 
           {selectedSlot ? (

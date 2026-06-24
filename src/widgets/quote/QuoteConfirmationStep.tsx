@@ -12,8 +12,8 @@ import {
   persistQuoteRequestToBackend,
   type SmartQuoteRequest,
 } from "@/shared/lib/smartQuotes";
-import { receivesOnlinePricing, setQuoteCompletionType } from "@/shared/lib/quoteDraft";
-import { formatZoneDisplay } from "@/shared/lib/quoteZones";
+import { receivesOnlinePricing, getQuoteDraft, setQuoteCompletionType } from "@/shared/lib/quoteDraft";
+import { formatZoneDisplay, getZoneRefinementFromDraft } from "@/shared/lib/quoteZones";
 
 const DEFAULT_QUOTE_STYLE = "Neutrottt Style";
 
@@ -34,7 +34,12 @@ export function QuoteConfirmationStep({
 }) {
   const router = useRouter();
   const { language, t } = useSiteLanguage();
-  const zoneLabel = formatZoneDisplay(zone, zoneOther, t);
+  const zoneLabel = formatZoneDisplay(
+    zone,
+    zoneOther,
+    t,
+    getZoneRefinementFromDraft(getQuoteDraft()),
+  );
 
   useEffect(() => {
     if (!receivesOnlinePricing(size)) {
@@ -83,9 +88,6 @@ export function QuoteConfirmationStep({
             {t("quoteSummaryTitle")}
           </h1>
           <p className="typo-body mt-3 max-w-2xl leading-relaxed">{t("quoteSummaryBody")}</p>
-          <p className="typo-tech mt-3 text-xs uppercase tracking-[0.14em] text-stone-400">
-            {t("quoteSummaryMediumOnly")}
-          </p>
         </div>
       </section>
 

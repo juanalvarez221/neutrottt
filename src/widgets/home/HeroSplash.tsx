@@ -1,24 +1,38 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import {
   AnimatePresence,
   motion,
-  useMotionTemplate,
   useScroll,
   useTransform,
 } from "framer-motion";
 import Link from "next/link";
 import { ChevronDown } from "lucide-react";
+import { LazyMount } from "@/shared/ui/LazyMount";
 import { StudioLocationTrigger } from "@/shared/ui/StudioLocationTrigger";
-import { ProjectsCarousel } from "@/widgets/home/ProjectsCarousel";
 import { HeroBrandTitle } from "@/widgets/home/HeroBrandTitle";
 import { HeroPortraitBanner } from "@/widgets/home/HeroPortraitBanner";
-import { AboutIntroSection } from "@/widgets/home/AboutIntroSection";
-import { FamousClientsSection } from "@/widgets/home/FamousClientsSection";
-import { CollaborationsSection } from "@/widgets/home/CollaborationsSection";
 import { useSiteLanguage } from "@/shared/i18n/LanguageProvider";
+
+const AboutIntroSection = dynamic(
+  () => import("@/widgets/home/AboutIntroSection").then((mod) => mod.AboutIntroSection),
+  { ssr: false },
+);
+const FamousClientsSection = dynamic(
+  () => import("@/widgets/home/FamousClientsSection").then((mod) => mod.FamousClientsSection),
+  { ssr: false },
+);
+const CollaborationsSection = dynamic(
+  () => import("@/widgets/home/CollaborationsSection").then((mod) => mod.CollaborationsSection),
+  { ssr: false },
+);
+const ProjectsCarousel = dynamic(
+  () => import("@/widgets/home/ProjectsCarousel").then((mod) => mod.ProjectsCarousel),
+  { ssr: false },
+);
 
 type HeroSplashProps = {
   backgroundImageUrl?: string;
@@ -64,8 +78,6 @@ export function HeroSplash({
   const portraitBgScale = useTransform(scrollYProgress, [0, 1], [1, 1.05]);
   const imageScale = useTransform(scrollYProgress, [0, 1], [1, 1.06]);
   const heroOpacity = useTransform(scrollYProgress, [0, 0.78, 1], [1, 0.94, 0.72]);
-  const heroBlur = useTransform(scrollYProgress, [0, 1], [0, 2.4]);
-  const heroFilter = useMotionTemplate`blur(${heroBlur}px)`;
 
   const markY = useTransform(scrollYProgress, [0, 1], [0, 18]);
   useEffect(() => {
@@ -88,7 +100,7 @@ export function HeroSplash({
       >
         <motion.div
           className="sticky top-0 h-[100dvh] overflow-hidden"
-          style={{ y: imageY, scale: imageScale, opacity: heroOpacity, filter: heroFilter }}
+          style={{ y: imageY, scale: imageScale, opacity: heroOpacity }}
           animate={{ rotateZ: 0 }}
           transition={{ duration: 0.45, ease: "easeOut" }}
         >
@@ -126,7 +138,7 @@ export function HeroSplash({
                   alt={`${artistName} Tattoo Artist`}
                   fill
                   priority
-                  quality={100}
+                  quality={88}
                   sizes="100vw"
                   className="object-cover object-center"
                 />
@@ -255,11 +267,18 @@ export function HeroSplash({
         <div className="absolute bottom-0 z-20 h-1 w-full bg-gradient-to-r from-transparent via-white/10 to-transparent" />
       </section>
 
-      <AboutIntroSection />
-      <FamousClientsSection />
-      <CollaborationsSection />
-
-      <ProjectsCarousel />
+      <LazyMount minHeight="28rem">
+        <AboutIntroSection />
+      </LazyMount>
+      <LazyMount minHeight="36rem">
+        <FamousClientsSection />
+      </LazyMount>
+      <LazyMount minHeight="32rem">
+        <CollaborationsSection />
+      </LazyMount>
+      <LazyMount minHeight="34rem">
+        <ProjectsCarousel />
+      </LazyMount>
     </main>
   );
 }

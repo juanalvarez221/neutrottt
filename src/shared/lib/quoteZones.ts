@@ -1,6 +1,25 @@
 import type { SiteCopyKey } from "@/shared/i18n/siteLanguage";
+import { HEAD_PART_LABEL_KEYS, isHeadPartId, type HeadPartId } from "@/shared/lib/headZoneParts";
+import { BACK_PART_LABEL_KEYS, isBackPartId, type BackPartId } from "@/shared/lib/backZoneParts";
+import {
+  ARM_FACE_SCOPE_LABEL_KEYS,
+  ARM_PART_LABEL_KEYS,
+  isArmFaceScopeId,
+  isArmPartId,
+  migrateArmSelectionFromDraft,
+  type ArmPartId,
+} from "@/shared/lib/armZoneParts";
+import {
+  LEG_EXTENT_LABEL_KEYS,
+  LEG_FACE_SCOPE_LABEL_KEYS,
+  isLegExtentId,
+  isLegFaceScopeId,
+  migrateLegSelectionFromDraft,
+} from "@/shared/lib/legZoneParts";
+import { isLimbLateralityId, LIMB_LATERALITY_LABEL_KEYS } from "@/shared/lib/limbLaterality";
 
 export type ZoneId =
+  | "brazo"
   | "brazo_completo"
   | "manga_externa"
   | "manga_interna"
@@ -16,25 +35,34 @@ export type ZoneId =
   | "gluteo"
   | "otro";
 
-export const ARM_ZONES = ["brazo_completo", "manga_externa", "manga_interna"] as const;
+export const ARM_ZONES = ["brazo"] as const;
 export type ArmZoneId = (typeof ARM_ZONES)[number];
 
 export const POPULAR_ZONES: ZoneId[] = [
+  "brazo",
   "cabeza",
-  "hombro",
   "espalda",
   "pecho",
   "abdomen",
-  "bicep",
-  "tricep",
-  "antebrazo",
   "pierna",
   "gluteo",
 ];
 
-export const ALL_ZONES: ZoneId[] = [...ARM_ZONES, ...POPULAR_ZONES, "otro"];
+export const ALL_ZONES: ZoneId[] = [
+  ...ARM_ZONES,
+  "brazo_completo",
+  "manga_externa",
+  "manga_interna",
+  "bicep",
+  "tricep",
+  "antebrazo",
+  "hombro",
+  ...POPULAR_ZONES.filter((z) => z !== "brazo"),
+  "otro",
+];
 
 export const ZONE_LABEL_KEYS: Record<ZoneId, SiteCopyKey> = {
+  brazo: "quoteZoneArm",
   brazo_completo: "quoteZoneFullArm",
   manga_externa: "quoteZoneOuterSleeve",
   manga_interna: "quoteZoneInnerSleeve",
@@ -52,13 +80,22 @@ export const ZONE_LABEL_KEYS: Record<ZoneId, SiteCopyKey> = {
 };
 
 export const ARM_ZONE_DESC_KEYS = {
-  brazo_completo: "quoteZoneFullArmDesc",
-  manga_externa: "quoteZoneOuterSleeveDesc",
-  manga_interna: "quoteZoneInnerSleeveDesc",
+  brazo: "quoteZoneArmDesc",
 } as const satisfies Record<ArmZoneId, SiteCopyKey>;
 
+export type ZoneRefinement = {
+  headPart?: string;
+  backPart?: string;
+  armLaterality?: string;
+  armFaceScope?: string;
+  armPart?: string;
+  legLaterality?: string;
+  legFaceScope?: string;
+  legExtent?: string;
+};
+
 const LEGACY_ZONE_MAP: Record<string, ZoneId> = {
-  brazo: "brazo_completo",
+  brazo: "brazo",
 };
 
 export function normalizeZoneId(value: string): ZoneId {
@@ -70,7 +107,7 @@ export function normalizeZoneId(value: string): ZoneId {
 
   if (LEGACY_ZONE_MAP[normalized]) return LEGACY_ZONE_MAP[normalized];
   if (ALL_ZONES.includes(normalized as ZoneId)) return normalized as ZoneId;
-  return "brazo_completo";
+  return "brazo";
 }
 
 export function isSpotHighlighted(selected: ZoneId, spotId: ZoneId): boolean {
@@ -91,11 +128,86 @@ export function formatZoneDisplay(
   zone: string,
   zoneOther: string | undefined,
   t: (key: SiteCopyKey) => string,
+  refinement: ZoneRefinement = {},
 ): string {
   const id = normalizeZoneId(zone);
   if (id === "otro") {
     const custom = zoneOther?.trim();
     return custom || t("quoteZoneOther");
   }
-  return t(ZONE_LABEL_KEYS[id]);
+  const base = t(ZONE_LABEL_KEYS[id]);
+  const {
+    headPart,
+    backPart,
+    armLaterality,
+    armFaceScope,
+    armPart,
+    legLaterality,
+    legFaceScope,
+    legExtent,
+  } = refinement;
+
+  if (id === "cabeza" && headPart && isHeadPartId(headPart)) {
+    return `${base} — ${t(HEAD_PART_LABEL_KEYS[headPart as HeadPartId])}`;
+  }
+  if (id === "espalda" && backPart && isBackPartId(backPart)) {
+    return `${base} — ${t(BACK_PART_LABEL_KEYS[backPart as BackPartId])}`;
+  }
+  if (id === "brazo") {
+    const parts: string[] = [base];
+    if (armLaterality && isLimbLateralityId(armLaterality)) {
+      parts.push(t(LIMB_LATERALITY_LABEL_KEYS[armLaterality]));
+    }
+    if (armFaceScope && isArmFaceScopeId(armFaceScope)) {
+      parts.push(t(ARM_FACE_SCOPE_LABEL_KEYS[armFaceScope]));
+    }
+    if (armPart && isArmPartId(armPart)) {
+      parts.push(t(ARM_PART_LABEL_KEYS[armPart as ArmPartId]));
+    }
+    return parts.length > 1 ? parts.join(" — ") : base;
+  }
+  if (id === "pierna") {
+    const parts: string[] = [base];
+    if (legLaterality && isLimbLateralityId(legLaterality)) {
+      parts.push(t(LIMB_LATERALITY_LABEL_KEYS[legLaterality]));
+    }
+    if (legFaceScope && isLegFaceScopeId(legFaceScope)) {
+      parts.push(t(LEG_FACE_SCOPE_LABEL_KEYS[legFaceScope]));
+    }
+    if (legExtent && isLegExtentId(legExtent)) {
+      parts.push(t(LEG_EXTENT_LABEL_KEYS[legExtent]));
+    }
+    return parts.length > 1 ? parts.join(" — ") : base;
+  }
+  return base;
+}
+
+export function getZoneRefinementFromDraft(draft: {
+  headPart?: string;
+  backPart?: string;
+  armLaterality?: string;
+  armFaceScope?: string;
+  armPart?: string;
+  legLaterality?: string;
+  legFaceScope?: string;
+  legExtent?: string;
+  armSide?: string;
+  legSide?: string;
+  legPart?: string;
+} | null | undefined): ZoneRefinement {
+  if (!draft) return {};
+
+  const arm = migrateArmSelectionFromDraft(draft);
+  const leg = migrateLegSelectionFromDraft(draft);
+
+  return {
+    headPart: draft.headPart,
+    backPart: draft.backPart,
+    armLaterality: arm?.laterality ?? draft.armLaterality,
+    armFaceScope: arm?.faceScope ?? draft.armFaceScope ?? draft.armSide,
+    armPart: arm?.part ?? draft.armPart ?? undefined,
+    legLaterality: leg?.laterality ?? draft.legLaterality,
+    legFaceScope: leg?.faceScope ?? draft.legFaceScope ?? draft.legSide,
+    legExtent: leg?.extent ?? draft.legExtent,
+  };
 }

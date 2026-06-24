@@ -9,7 +9,6 @@ import {
   FileSignature,
   ImagePlus,
   LogOut,
-  MessageSquareShare,
   Plus,
   Send,
   UserRound,
@@ -304,7 +303,6 @@ export function NeutrotttAdminDashboard() {
   const [selectedClient, setSelectedClient] = useState(CLIENT_CRM[0].name);
   const [lastConsentSent, setLastConsentSent] = useState<string>("");
   const [agendaVisible, setAgendaVisible] = useState(false);
-  const [remindersSent, setRemindersSent] = useState(0);
   const [designHistory, setDesignHistory] = useState<DesignHistoryEntry[]>(() =>
     getDesignHistoryEntries(),
   );
@@ -611,16 +609,7 @@ export function NeutrotttAdminDashboard() {
               >
                 <CalendarDays className="h-4 w-4" /> Asesorías
               </button>
-              <button
-                onClick={() => setRemindersSent((n) => n + 1)}
-                className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm font-semibold text-zinc-200 transition hover:bg-white/10"
-              >
-                <MessageSquareShare className="h-4 w-4" /> Enviar Recordatorio
-              </button>
             </div>
-            <p className="mt-2 text-xs text-zinc-400">
-              Recordatorios enviados hoy: {remindersSent}
-            </p>
           </div>
         </Card>
 

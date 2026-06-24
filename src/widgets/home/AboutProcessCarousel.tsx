@@ -3,6 +3,7 @@
 import {
   useCallback,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from "react";
@@ -11,12 +12,14 @@ import { useReducedMotion } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useSiteLanguage } from "@/shared/i18n/LanguageProvider";
 import type { SiteCopyKey } from "@/shared/i18n/siteLanguage";
+import { LazyVideo } from "@/shared/ui/LazyVideo";
 import { useHorizontalDragScroll } from "@/shared/hooks/useHorizontalDragScroll";
 
 type ProcessSlide =
   | { type: "image"; src: string; altKey: SiteCopyKey; captionKey: SiteCopyKey }
   | { type: "video"; src: string; altKey: SiteCopyKey; captionKey: SiteCopyKey };
 
+/** video → foto → video → foto */
 const PROCESS_SLIDES: ProcessSlide[] = [
   {
     type: "video",
@@ -31,6 +34,18 @@ const PROCESS_SLIDES: ProcessSlide[] = [
     captionKey: "aboutProcessCaption1",
   },
   {
+    type: "video",
+    src: "/brand/neutro-peru.mp4",
+    altKey: "aboutProcessPeruVideoAlt",
+    captionKey: "aboutProcessCaption3",
+  },
+  {
+    type: "image",
+    src: "/brand/about-peru-first.png",
+    altKey: "aboutImgPeruAlt",
+    captionKey: "aboutProcessCaption4",
+  },
+  {
     type: "image",
     src: "/brand/about-studio.png",
     altKey: "aboutImgStudioAlt",
@@ -38,8 +53,49 @@ const PROCESS_SLIDES: ProcessSlide[] = [
   },
 ];
 
-const AUTO_ADVANCE_MS = 5200;
-const RESUME_AUTO_MS = 7000;
+const LOOP_SETS = 3;
+const RESUME_AUTO_MS = 4200;
+const IMAGE_AUTO_MS = 5800;
+const VIDEO_AUTO_MS = 6800;
+const SCROLL_SETTLE_MS = 120;
+const PROGRAMMATIC_SCROLL_MS = 920;
+
+function getScrollLeftForPhysical(scroller: HTMLElement, physicalIndex: number) {
+  const slideEl = scroller.children[physicalIndex] as HTMLElement | undefined;
+  if (!slideEl) return null;
+  return slideEl.offsetLeft - (scroller.clientWidth - slideEl.offsetWidth) / 2;
+}
+
+function getAdvanceMs(logicalIndex: number) {
+  return PROCESS_SLIDES[logicalIndex]?.type === "video"
+    ? VIDEO_AUTO_MS
+    : IMAGE_AUTO_MS;
+}
+
+function getSetWidth(scroller: HTMLElement, slideCount: number) {
+  const first = scroller.children[0] as HTMLElement | undefined;
+  const nextSet = scroller.children[slideCount] as HTMLElement | undefined;
+  if (!first || !nextSet) return 0;
+  return nextSet.offsetLeft - first.offsetLeft;
+}
+
+function getClosestPhysicalIndex(scroller: HTMLElement) {
+  const center = scroller.scrollLeft + scroller.clientWidth / 2;
+  let closest = 0;
+  let minDistance = Number.POSITIVE_INFINITY;
+
+  Array.from(scroller.children).forEach((child, index) => {
+    const el = child as HTMLElement;
+    const childCenter = el.offsetLeft + el.offsetWidth / 2;
+    const distance = Math.abs(center - childCenter);
+    if (distance < minDistance) {
+      minDistance = distance;
+      closest = index;
+    }
+  });
+
+  return closest;
+}
 
 function ProcessSlideMedia({
   slide,
@@ -49,31 +105,17 @@ function ProcessSlideMedia({
   isActive: boolean;
 }) {
   const { t } = useSiteLanguage();
-  const videoRef = useRef<HTMLVideoElement>(null);
-
-  useEffect(() => {
-    if (slide.type !== "video") return;
-    const video = videoRef.current;
-    if (!video) return;
-
-    if (isActive) {
-      video.play().catch(() => {});
-    } else {
-      video.pause();
-    }
-  }, [isActive, slide.type]);
 
   if (slide.type === "video") {
     return (
       <div className="about-process-media about-process-media--video">
-        <video
-          ref={videoRef}
+        <LazyVideo
           src={slide.src}
           className="about-process-video"
+          playWhenVisible={isActive}
           muted
           loop
           playsInline
-          preload="metadata"
           aria-label={t(slide.altKey)}
         />
         <span className="about-process-video__warm-filter" aria-hidden />
@@ -103,92 +145,189 @@ export function AboutProcessCarousel() {
   const reduceMotion = useReducedMotion();
   const scrollerRef = useRef<HTMLDivElement>(null);
   const viewportRef = useRef<HTMLDivElement>(null);
-  const activeIndexRef = useRef(0);
-  const pausedRef = useRef(false);
+  const logicalIndexRef = useRef(0);
+  const physicalIndexRef = useRef(PROCESS_SLIDES.length);
+  const hoverPausedRef = useRef(false);
+  const interactionPausedRef = useRef(false);
+  const isProgrammaticScrollRef = useRef(false);
   const inViewRef = useRef(true);
+  const loopJumpRef = useRef(false);
   const resumeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const programmaticTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const scrollSettleRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const initializedRef = useRef(false);
 
-  const [activeIndex, setActiveIndex] = useState(0);
+  const [activeLogicalIndex, setActiveLogicalIndex] = useState(0);
+  const [activePhysicalIndex, setActivePhysicalIndex] = useState(
+    PROCESS_SLIDES.length,
+  );
+
+  const slideCount = PROCESS_SLIDES.length;
+
+  const loopSlides = useMemo(
+    () =>
+      Array.from({ length: LOOP_SETS * slideCount }, (_, index) => {
+        const slide = PROCESS_SLIDES[index % slideCount];
+        return { slide, physicalIndex: index, logicalIndex: index % slideCount };
+      }),
+    [slideCount],
+  );
 
   useHorizontalDragScroll(scrollerRef);
+
+  const correctInfiniteLoop = useCallback(() => {
+    const scroller = scrollerRef.current;
+    if (!scroller || loopJumpRef.current) return;
+
+    const count = slideCount;
+    const setWidth = getSetWidth(scroller, count);
+    if (setWidth <= 0) return;
+
+    const closest = getClosestPhysicalIndex(scroller);
+
+    if (closest < count) {
+      loopJumpRef.current = true;
+      scroller.style.scrollBehavior = "auto";
+      scroller.scrollLeft += setWidth;
+      scroller.style.scrollBehavior = "";
+      physicalIndexRef.current = closest + count;
+      requestAnimationFrame(() => {
+        loopJumpRef.current = false;
+      });
+    } else if (closest >= count * 2) {
+      loopJumpRef.current = true;
+      scroller.style.scrollBehavior = "auto";
+      scroller.scrollLeft -= setWidth;
+      scroller.style.scrollBehavior = "";
+      physicalIndexRef.current = closest - count;
+      requestAnimationFrame(() => {
+        loopJumpRef.current = false;
+      });
+    }
+  }, [slideCount]);
 
   const syncActiveIndex = useCallback(() => {
     const scroller = scrollerRef.current;
     if (!scroller || scroller.children.length === 0) return;
 
-    const center = scroller.scrollLeft + scroller.clientWidth / 2;
-    let closest = 0;
-    let minDistance = Number.POSITIVE_INFINITY;
+    const closest = getClosestPhysicalIndex(scroller);
+    const logical = ((closest % slideCount) + slideCount) % slideCount;
 
-    Array.from(scroller.children).forEach((child, index) => {
-      const el = child as HTMLElement;
-      const childCenter = el.offsetLeft + el.offsetWidth / 2;
-      const distance = Math.abs(center - childCenter);
-      if (distance < minDistance) {
-        minDistance = distance;
-        closest = index;
-      }
-    });
+    physicalIndexRef.current = closest;
+    logicalIndexRef.current = logical;
+    setActivePhysicalIndex(closest);
+    setActiveLogicalIndex(logical);
+  }, [slideCount]);
 
-    activeIndexRef.current = closest;
-    setActiveIndex(closest);
-  }, []);
-
-  const goToSlide = useCallback(
-    (index: number, behavior: ScrollBehavior = "smooth") => {
+  const scrollToPhysical = useCallback(
+    (physicalIndex: number, behavior: ScrollBehavior = "smooth") => {
       const scroller = scrollerRef.current;
       if (!scroller) return;
 
-      const count = PROCESS_SLIDES.length;
-      const target = ((index % count) + count) % count;
-      const slideEl = scroller.children[target] as HTMLElement | undefined;
+      const slideEl = scroller.children[physicalIndex] as HTMLElement | undefined;
       if (!slideEl) return;
 
-      slideEl.scrollIntoView({
+      const targetLeft = getScrollLeftForPhysical(scroller, physicalIndex);
+      if (targetLeft === null) return;
+
+      scroller.scrollTo({
+        left: targetLeft,
         behavior: reduceMotion ? "auto" : behavior,
-        inline: "center",
-        block: "nearest",
       });
 
-      activeIndexRef.current = target;
-      setActiveIndex(target);
+      const logical = ((physicalIndex % slideCount) + slideCount) % slideCount;
+      physicalIndexRef.current = physicalIndex;
+      logicalIndexRef.current = logical;
+      setActivePhysicalIndex(physicalIndex);
+      setActiveLogicalIndex(logical);
     },
-    [reduceMotion],
+    [reduceMotion, slideCount],
   );
 
-  const pauseAuto = useCallback(() => {
-    pausedRef.current = true;
+  const goToLogical = useCallback(
+    (logicalIndex: number, behavior: ScrollBehavior = "smooth") => {
+      const normalized =
+        ((logicalIndex % slideCount) + slideCount) % slideCount;
+      scrollToPhysical(slideCount + normalized, behavior);
+    },
+    [scrollToPhysical, slideCount],
+  );
+
+  const goNext = useCallback(
+    (behavior: ScrollBehavior = "smooth") => {
+      scrollToPhysical(physicalIndexRef.current + 1, behavior);
+    },
+    [scrollToPhysical],
+  );
+
+  const goPrev = useCallback(
+    (behavior: ScrollBehavior = "smooth") => {
+      scrollToPhysical(physicalIndexRef.current - 1, behavior);
+    },
+    [scrollToPhysical],
+  );
+
+  const pauseFromInteraction = useCallback(() => {
+    interactionPausedRef.current = true;
     if (resumeTimerRef.current) clearTimeout(resumeTimerRef.current);
     resumeTimerRef.current = setTimeout(() => {
-      pausedRef.current = false;
+      interactionPausedRef.current = false;
     }, RESUME_AUTO_MS);
   }, []);
 
-  const goNext = useCallback(() => {
-    goToSlide(activeIndexRef.current + 1);
-  }, [goToSlide]);
+  const markProgrammaticScroll = useCallback(() => {
+    const scroller = scrollerRef.current;
+    scroller?.classList.add("is-auto-advancing");
+    isProgrammaticScrollRef.current = true;
+    if (programmaticTimerRef.current) clearTimeout(programmaticTimerRef.current);
+    programmaticTimerRef.current = setTimeout(() => {
+      isProgrammaticScrollRef.current = false;
+      scroller?.classList.remove("is-auto-advancing");
+    }, PROGRAMMATIC_SCROLL_MS);
+  }, []);
 
-  const goPrev = useCallback(() => {
-    goToSlide(activeIndexRef.current - 1);
-  }, [goToSlide]);
+  const handleScroll = useCallback(() => {
+    if (loopJumpRef.current) return;
+
+    if (!isProgrammaticScrollRef.current) {
+      pauseFromInteraction();
+    }
+
+    syncActiveIndex();
+
+    if (scrollSettleRef.current) clearTimeout(scrollSettleRef.current);
+    scrollSettleRef.current = setTimeout(() => {
+      correctInfiniteLoop();
+      syncActiveIndex();
+    }, SCROLL_SETTLE_MS);
+  }, [correctInfiniteLoop, pauseFromInteraction, syncActiveIndex]);
 
   useEffect(() => {
+    const scroller = scrollerRef.current;
+    if (!scroller || initializedRef.current) return;
+
+    const middleStart = scroller.children[slideCount] as HTMLElement | undefined;
+    if (!middleStart) return;
+
+    const targetLeft = getScrollLeftForPhysical(scroller, slideCount);
+    scroller.style.scrollBehavior = "auto";
+    if (targetLeft !== null) scroller.scrollLeft = targetLeft;
+    scroller.style.scrollBehavior = "";
+    initializedRef.current = true;
     syncActiveIndex();
+  }, [slideCount, syncActiveIndex]);
+
+  useEffect(() => {
     const scroller = scrollerRef.current;
     if (!scroller) return;
 
     const ro = new ResizeObserver(() => {
-      goToSlide(activeIndexRef.current, "auto");
+      goToLogical(logicalIndexRef.current, "auto");
     });
 
     ro.observe(scroller);
-    window.addEventListener("resize", syncActiveIndex);
-
-    return () => {
-      ro.disconnect();
-      window.removeEventListener("resize", syncActiveIndex);
-    };
-  }, [goToSlide, syncActiveIndex]);
+    return () => ro.disconnect();
+  }, [goToLogical]);
 
   useEffect(() => {
     const viewport = viewportRef.current;
@@ -208,17 +347,38 @@ export function AboutProcessCarousel() {
   useEffect(() => {
     if (reduceMotion) return;
 
-    const timer = window.setInterval(() => {
-      if (pausedRef.current || !inViewRef.current) return;
-      goToSlide(activeIndexRef.current + 1);
-    }, AUTO_ADVANCE_MS);
+    let cancelled = false;
+    let timeoutId: ReturnType<typeof setTimeout>;
 
-    return () => window.clearInterval(timer);
-  }, [goToSlide, reduceMotion]);
+    const schedule = () => {
+      if (cancelled) return;
+      const delay = getAdvanceMs(logicalIndexRef.current);
+      timeoutId = setTimeout(() => {
+        if (cancelled) return;
+        if (
+          inViewRef.current &&
+          !hoverPausedRef.current &&
+          !interactionPausedRef.current
+        ) {
+          markProgrammaticScroll();
+          goNext();
+        }
+        schedule();
+      }, delay);
+    };
+
+    schedule();
+    return () => {
+      cancelled = true;
+      clearTimeout(timeoutId);
+    };
+  }, [goNext, markProgrammaticScroll, reduceMotion]);
 
   useEffect(() => {
     return () => {
       if (resumeTimerRef.current) clearTimeout(resumeTimerRef.current);
+      if (programmaticTimerRef.current) clearTimeout(programmaticTimerRef.current);
+      if (scrollSettleRef.current) clearTimeout(scrollSettleRef.current);
     };
   }, []);
 
@@ -230,22 +390,28 @@ export function AboutProcessCarousel() {
         aria-roledescription="carrusel"
         aria-label={t("aboutProcessLabel")}
         onMouseEnter={() => {
-          pausedRef.current = true;
+          hoverPausedRef.current = true;
         }}
         onMouseLeave={() => {
-          pausedRef.current = false;
+          hoverPausedRef.current = false;
         }}
-        onFocusCapture={pauseAuto}
-        onTouchStart={pauseAuto}
+        onFocusCapture={pauseFromInteraction}
+        onTouchStart={pauseFromInteraction}
       >
-        <div className="about-process-carousel-fade about-process-carousel-fade--left" aria-hidden />
-        <div className="about-process-carousel-fade about-process-carousel-fade--right" aria-hidden />
+        <div
+          className="about-process-carousel-fade about-process-carousel-fade--left"
+          aria-hidden
+        />
+        <div
+          className="about-process-carousel-fade about-process-carousel-fade--right"
+          aria-hidden
+        />
 
         <button
           type="button"
           className="about-process-carousel-nav about-process-carousel-nav--prev"
           onClick={() => {
-            pauseAuto();
+            pauseFromInteraction();
             goPrev();
           }}
           aria-label={t("famousGalleryPrev")}
@@ -257,7 +423,7 @@ export function AboutProcessCarousel() {
           type="button"
           className="about-process-carousel-nav about-process-carousel-nav--next"
           onClick={() => {
-            pauseAuto();
+            pauseFromInteraction();
             goNext();
           }}
           aria-label={t("famousGalleryNext")}
@@ -268,25 +434,30 @@ export function AboutProcessCarousel() {
         <div
           ref={scrollerRef}
           className="about-process-carousel-track"
-          onScroll={() => {
-            pauseAuto();
-            syncActiveIndex();
-          }}
+          onScroll={handleScroll}
         >
-          {PROCESS_SLIDES.map((slide, index) => (
-            <figure
-              key={`${slide.type}-${slide.src}`}
-              className="about-process-slide about-process-frame"
-              draggable={false}
-            >
-              <div className="about-process-frame__media">
-                <ProcessSlideMedia slide={slide} isActive={index === activeIndex} />
-              </div>
-              <figcaption className="about-process-frame__caption">
-                <p>{t(slide.captionKey)}</p>
-              </figcaption>
-            </figure>
-          ))}
+          {loopSlides.map(({ slide, physicalIndex }) => {
+            const isActive = physicalIndex === activePhysicalIndex;
+
+            return (
+              <figure
+                key={`${physicalIndex}-${slide.src}`}
+                className={[
+                  "about-process-slide about-process-frame",
+                  isActive ? "about-process-slide--active" : "",
+                ].join(" ")}
+                draggable={false}
+                aria-hidden={!isActive}
+              >
+                <div className="about-process-frame__media">
+                  <ProcessSlideMedia slide={slide} isActive={isActive} />
+                </div>
+                <figcaption className="about-process-frame__caption">
+                  <p>{t(slide.captionKey)}</p>
+                </figcaption>
+              </figure>
+            );
+          })}
         </div>
       </div>
 
@@ -300,15 +471,17 @@ export function AboutProcessCarousel() {
             key={`${slide.type}-${slide.src}-dot`}
             type="button"
             role="tab"
-            aria-selected={index === activeIndex}
+            aria-selected={index === activeLogicalIndex}
             aria-label={t("famousGallerySlide", { index: String(index + 1) })}
             onClick={() => {
-              pauseAuto();
-              goToSlide(index);
+              pauseFromInteraction();
+              goToLogical(index);
             }}
             className={[
               "about-process-carousel-dot focus-ring",
-              index === activeIndex ? "about-process-carousel-dot--active" : "",
+              index === activeLogicalIndex
+                ? "about-process-carousel-dot--active"
+                : "",
             ].join(" ")}
           />
         ))}

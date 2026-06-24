@@ -14,6 +14,7 @@ type AdvisoryConfirmation = {
   label: string;
   mode: "presencial" | "virtual";
   whatsappUrl: string;
+  meetingLink?: string;
 };
 
 export function QuoteThanksStep() {
@@ -68,13 +69,30 @@ export function QuoteThanksStep() {
             </p>
 
             {isAdvisory && advisoryConfirmation ? (
-              <div className="mx-auto mt-4 max-w-xl rounded-2xl border border-stone-500/20 bg-stone-600/10 px-4 py-3 text-left">
+              <div className="mx-auto mt-4 max-w-xl rounded-2xl border border-stone-500/20 bg-stone-600/10 px-4 py-4 text-left">
                 <p className="typo-tech text-xs uppercase tracking-[0.14em] text-stone-400">
                   {t("quoteThanksAdvisorySlot")}
                 </p>
                 <p className="typo-subtitle mt-1 text-base text-zinc-50">
                   {advisoryConfirmation.label}
                 </p>
+                <div className="mt-3 space-y-2 text-sm text-zinc-300">
+                  <p>Te enviamos los detalles por correo y WhatsApp.</p>
+                  <p>Si la asesoría es virtual, recibirás el enlace de reunión en ambos canales.</p>
+                  {advisoryConfirmation.meetingLink ? (
+                    <div className="rounded-xl border border-amber-500/20 bg-amber-500/10 p-3">
+                      <p className="font-semibold text-amber-100">Enlace de reunión</p>
+                      <a
+                        href={advisoryConfirmation.meetingLink}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="mt-1 inline-flex break-all text-amber-200 underline underline-offset-4"
+                      >
+                        {advisoryConfirmation.meetingLink}
+                      </a>
+                    </div>
+                  ) : null}
+                </div>
               </div>
             ) : null}
 

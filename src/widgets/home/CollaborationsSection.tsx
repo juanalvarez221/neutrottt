@@ -7,6 +7,7 @@ import { BRAND } from "@/shared/config/brand";
 import { useSiteLanguage } from "@/shared/i18n/LanguageProvider";
 import type { SiteCopyKey } from "@/shared/i18n/siteLanguage";
 import { scrollRevealViewport } from "@/shared/motion/scrollReveal";
+import { LazyVideo } from "@/shared/ui/LazyVideo";
 
 const DANNIEL_ARTIST = {
   handle: "@dannielcuervo",
@@ -145,7 +146,7 @@ function CollabMediaPair({
       <div className="collab-compact__frame">
         <span className="collab-compact__label">{t("collabProcessLabel")}</span>
         <div className="relative aspect-[4/5] w-full">
-          <video
+          <LazyVideo
             src={project.video}
             poster={project.poster}
             className="absolute inset-0 h-full w-full object-cover object-center"
@@ -153,7 +154,6 @@ function CollabMediaPair({
             muted
             loop
             playsInline
-            preload="metadata"
             aria-label={t(project.videoAltKey)}
           />
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-black/15" />
@@ -171,7 +171,7 @@ function CollabMediaPair({
             alt={t(project.resultAltKey)}
             width={800}
             height={1000}
-            quality={90}
+            quality={88}
             priority={project.indexLabel === "01"}
             className="h-full w-full object-contain object-center"
             sizes="(max-width: 640px) 42vw, 200px"

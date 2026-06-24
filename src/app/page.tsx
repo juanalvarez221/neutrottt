@@ -1,5 +1,3 @@
-"use client";
-
 import { HeroSplash } from "@/widgets/home/HeroSplash";
 
 export default function Home() {

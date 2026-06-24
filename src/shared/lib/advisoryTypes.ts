@@ -35,6 +35,7 @@ export type AdvisoryBooking = {
   previousStartsAt?: string;
   googleCalendarEventId?: string;
   brief?: AdvisoryClientBrief;
+  meetingLink?: string;
 };
 
 export type ModeAvailability = {

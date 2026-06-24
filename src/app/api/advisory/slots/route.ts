@@ -44,13 +44,9 @@ export async function GET(request: Request) {
       return NextResponse.json({ date: dateKey, mode, slots });
     }
 
-    const timeMin = new Date().toISOString();
-    const timeMax = new Date(Date.now() + store.horizonDays * 86_400_000).toISOString();
-    const busy = await getExternalBusyIntervals(timeMin, timeMax);
-
     const days = listUpcomingDays(store.horizonDays).map((day) => ({
       date: day,
-      slots: filterSlotsByBusy(getSlotsForDay(store, mode as AdvisoryMode, day), durationMin, busy),
+      slots: [],
     }));
 
     return NextResponse.json({
@@ -59,7 +55,8 @@ export async function GET(request: Request) {
       studioName: mode === "presencial" ? "Estudio Emerald" : undefined,
       days,
     });
-  } catch {
+  } catch (error) {
+    console.error("[advisory:slots]", error instanceof Error ? error.message : error);
     return NextResponse.json({ error: "No se pudo cargar la agenda." }, { status: 500 });
   }
 }

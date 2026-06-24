@@ -81,6 +81,204 @@
   "blockedDates": [],
   "bookings": [
     {
+      "id": "AS-1782321771288",
+      "mode": "virtual",
+      "startsAt": "2026-06-26T20:30:00.000Z",
+      "durationMin": 15,
+      "clientName": "Juan",
+      "phone": "+57 3156841671",
+      "email": "jdhdhdhd",
+      "size": "grande",
+      "brief": {
+        "bodyZone": "Pierna",
+        "referral": "Otro: pene",
+        "personalValues": "Silencio, Trascendencia, Dualidad",
+        "collaborationMode": "Confío en tu criterio — guíame"
+      },
+      "createdAt": "2026-06-24T17:22:51.288Z",
+      "status": "reserved",
+      "confirmationToken": "c7ca003f42104e7abbbc144e1e71b437",
+      "bookingEmailSentAt": "2026-06-24T17:22:52.090Z"
+    },
+    {
+      "id": "AS-1782321307900",
+      "mode": "virtual",
+      "startsAt": "2026-06-25T20:30:00.000Z",
+      "durationMin": 15,
+      "clientName": "Juan",
+      "phone": "+57 3156841671",
+      "email": "jdhdhdhd",
+      "size": "grande",
+      "brief": {
+        "bodyZone": "Pierna",
+        "referral": "Otro: pene",
+        "personalValues": "Silencio, Trascendencia, Dualidad",
+        "collaborationMode": "Confío en tu criterio — guíame"
+      },
+      "createdAt": "2026-06-24T17:15:07.900Z",
+      "status": "reserved",
+      "confirmationToken": "2ae757fdb379456d8dd9efdfa2d25d46",
+      "bookingEmailSentAt": "2026-06-24T17:15:09.171Z"
+    },
+    {
+      "id": "AS-1782320928028",
+      "mode": "virtual",
+      "startsAt": "2026-07-02T22:00:00.000Z",
+      "durationMin": 15,
+      "clientName": "Juan",
+      "phone": "+57 3156841671",
+      "email": "jdhdhdhd",
+      "size": "grande",
+      "brief": {
+        "bodyZone": "Pierna",
+        "referral": "Otro: pene",
+        "personalValues": "Silencio, Trascendencia, Dualidad",
+        "collaborationMode": "Confío en tu criterio — guíame"
+      },
+      "createdAt": "2026-06-24T17:08:48.028Z",
+      "status": "reserved",
+      "confirmationToken": "13c2f0f12f5645db9ba5ced81ec6e5c2",
+      "bookingEmailSentAt": "2026-06-24T17:08:48.690Z"
+    },
+    {
+      "id": "AS-1782320859670",
+      "mode": "virtual",
+      "startsAt": "2026-06-25T22:00:00.000Z",
+      "durationMin": 15,
+      "clientName": "Juan",
+      "phone": "+57 3156841671",
+      "email": "jdhdhdhd",
+      "size": "grande",
+      "brief": {
+        "bodyZone": "Pierna",
+        "referral": "Otro: pene",
+        "personalValues": "Silencio, Trascendencia, Dualidad",
+        "collaborationMode": "Confío en tu criterio — guíame"
+      },
+      "createdAt": "2026-06-24T17:07:39.670Z",
+      "status": "reserved",
+      "confirmationToken": "2281781679354a5084ba7bc07edd6595",
+      "bookingEmailSentAt": "2026-06-24T17:07:39.911Z"
+    },
+    {
+      "id": "AS-1782320672559",
+      "mode": "virtual",
+      "startsAt": "2030-01-01T10:00:00.000Z",
+      "durationMin": 15,
+      "clientName": "Diagnóstico",
+      "phone": "3000000000",
+      "email": "diag@example.com",
+      "projectNotes": "Prueba de integración",
+      "size": "Mediano",
+      "createdAt": "2026-06-24T17:04:32.559Z",
+      "status": "reserved",
+      "confirmationToken": "24de3ab56eea4c60ba7d7a101d99d1f1",
+      "bookingEmailSentAt": "2026-06-24T17:04:33.607Z"
+    },
+    {
+      "id": "AS-1782320467071",
+      "mode": "virtual",
+      "startsAt": "2026-06-25T16:30:00.000Z",
+      "durationMin": 15,
+      "clientName": "Juan",
+      "phone": "+57 3156841671",
+      "email": "jdhdhdhd",
+      "size": "grande",
+      "brief": {
+        "bodyZone": "Brazo",
+        "referral": "Otro: pene",
+        "personalValues": "Silencio, Trascendencia, Dualidad",
+        "collaborationMode": "Confío en tu criterio — guíame"
+      },
+      "createdAt": "2026-06-24T17:01:07.072Z",
+      "status": "reserved",
+      "confirmationToken": "a0f0d20299b64e328d708ae825624d3e",
+      "bookingEmailSentAt": "2026-06-24T17:01:12.195Z"
+    },
+    {
+      "id": "AS-1782320352171",
+      "mode": "virtual",
+      "startsAt": "2026-06-27T16:00:00.000Z",
+      "durationMin": 15,
+      "clientName": "Juan",
+      "phone": "+57 3156841671",
+      "email": "jdhdhdhd",
+      "size": "grande",
+      "brief": {
+        "bodyZone": "Cabeza",
+        "referral": "Otro: pene",
+        "personalValues": "Silencio, Trascendencia, Dualidad",
+        "collaborationMode": "Confío en tu criterio — guíame"
+      },
+      "createdAt": "2026-06-24T16:59:12.171Z",
+      "status": "reserved",
+      "confirmationToken": "13d933240fda4a6a833981bf1d4d5525",
+      "bookingEmailSentAt": "2026-06-24T16:59:13.716Z"
+    },
+    {
+      "id": "AS-1782319151609",
+      "mode": "virtual",
+      "startsAt": "2026-06-24T22:00:00.000Z",
+      "durationMin": 15,
+      "clientName": "Juan",
+      "phone": "+57 3156841671",
+      "email": "jdhdhdhd",
+      "size": "grande",
+      "brief": {
+        "bodyZone": "Brazo",
+        "referral": "Otro: pene",
+        "personalValues": "Silencio, Trascendencia, Dualidad",
+        "collaborationMode": "Confío en tu criterio — guíame"
+      },
+      "createdAt": "2026-06-24T16:39:11.609Z",
+      "status": "reserved",
+      "confirmationToken": "b27fbb27b9534cc488515dbb409dfd7b",
+      "googleCalendarEventId": "kbi40nns7dup1esepvhlarogr0",
+      "bookingEmailSentAt": "2026-06-24T16:39:12.002Z"
+    },
+    {
+      "id": "AS-1782319095353",
+      "mode": "virtual",
+      "startsAt": "2026-06-24T20:30:00.000Z",
+      "durationMin": 15,
+      "clientName": "Juan",
+      "phone": "+57 3156841671",
+      "email": "jdhdhdhd",
+      "size": "grande",
+      "brief": {
+        "bodyZone": "Brazo",
+        "referral": "Otro: pene",
+        "personalValues": "Silencio, Trascendencia, Dualidad",
+        "collaborationMode": "Confío en tu criterio — guíame"
+      },
+      "createdAt": "2026-06-24T16:38:15.353Z",
+      "status": "reserved",
+      "confirmationToken": "e7b060b287244574aab634c7d8041d7a",
+      "googleCalendarEventId": "nuj4gf6ad1phb6ja0euu2ml6l4",
+      "bookingEmailSentAt": "2026-06-24T16:38:16.636Z"
+    },
+    {
+      "id": "AS-1782318624278",
+      "mode": "presencial",
+      "startsAt": "2026-06-25T15:00:00.000Z",
+      "durationMin": 30,
+      "clientName": "Juan",
+      "phone": "+57 3156841671",
+      "email": "jdhdhdhd",
+      "size": "grande",
+      "brief": {
+        "bodyZone": "Brazo",
+        "referral": "Otro: pene",
+        "personalValues": "Silencio, Trascendencia, Dualidad",
+        "collaborationMode": "Confío en tu criterio — guíame"
+      },
+      "createdAt": "2026-06-24T16:30:24.278Z",
+      "status": "reserved",
+      "confirmationToken": "6e5c1b40dbb24959844205af6919d9be",
+      "googleCalendarEventId": "oiu6tvqrivu7pmerb7v7gj9nkc",
+      "bookingEmailSentAt": "2026-06-24T16:30:25.413Z"
+    },
+    {
       "id": "AS-1781897918119",
       "mode": "virtual",
       "startsAt": "2026-06-30T22:00:00.000Z",

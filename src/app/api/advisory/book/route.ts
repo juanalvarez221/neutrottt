@@ -79,10 +79,14 @@ export async function POST(request: Request) {
 
     await addAdvisoryBooking(booking);
 
-    const googleCalendarEventId = await syncOnReserved(booking);
-    if (googleCalendarEventId) {
-      booking.googleCalendarEventId = googleCalendarEventId;
-      await updateAdvisoryBooking(booking.id, { googleCalendarEventId });
+    const googleSync = await syncOnReserved(booking);
+    if (googleSync) {
+      booking.googleCalendarEventId = googleSync.eventId;
+      booking.meetingLink = googleSync.meetingLink;
+      await updateAdvisoryBooking(booking.id, {
+        googleCalendarEventId: googleSync.eventId,
+        ...(googleSync.meetingLink ? { meetingLink: googleSync.meetingLink } : {}),
+      });
     }
 
     await sendNewAdvisoryInternalEmail(booking);
@@ -99,9 +103,11 @@ export async function POST(request: Request) {
       booking: {
         ...booking,
         label: formatSlotLabel(booking.startsAt, "es-CO"),
+        meetingLink: booking.meetingLink,
       },
     });
-  } catch {
+  } catch (error) {
+    console.error("[advisory:book]", error instanceof Error ? error.message : error);
     return NextResponse.json({ error: "No se pudo completar la reserva." }, { status: 500 });
   }
 }

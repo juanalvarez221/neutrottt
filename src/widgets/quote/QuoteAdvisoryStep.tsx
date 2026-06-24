@@ -3,22 +3,25 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { ExternalLink, MapPin, Video } from "lucide-react";
+import { motion, useReducedMotion } from "framer-motion";
+import { AdvisoryModalityCard } from "@/widgets/quote/AdvisoryModalityCard";
 import { QuoteShell } from "@/widgets/quote/QuoteShell";
 import { useSiteLanguage } from "@/shared/i18n/LanguageProvider";
-import { getQuoteConnection } from "@/shared/lib/quoteConnection";
+import { getAdvisoryDurationMin } from "@/shared/lib/advisoryConfig";
 import { getQuoteDraft, isLargeQuoteSize } from "@/shared/lib/quoteDraft";
-import { getQuoteProfile } from "@/shared/lib/quoteProfile";
+import { useQuoteOnboardingGate } from "@/widgets/quote/useQuoteOnboardingGate";
 import { getStudioFullAddress, STUDIO } from "@/shared/config/studio";
+
+const easeOut = [0.22, 1, 0.36, 1] as const;
 
 export function QuoteAdvisoryStep({ size }: { size: string }) {
   const router = useRouter();
   const { t } = useSiteLanguage();
+  const reduceMotion = useReducedMotion();
+  const gateReady = useQuoteOnboardingGate();
 
   useEffect(() => {
-    if (!getQuoteProfile() || !getQuoteConnection()) {
-      router.replace("/cotizacion");
-      return;
-    }
+    if (!gateReady) return;
     if (!isLargeQuoteSize(size)) {
       router.replace(`/cotizacion/ubicacion?size=${encodeURIComponent(size)}`);
       return;
@@ -27,7 +30,7 @@ export function QuoteAdvisoryStep({ size }: { size: string }) {
     if (!draft?.zone) {
       router.replace(`/cotizacion/ubicacion?size=${encodeURIComponent(size)}`);
     }
-  }, [router, size]);
+  }, [gateReady, router, size]);
 
   const goToBooking = (mode: "presencial" | "virtual") => {
     router.push(
@@ -37,80 +40,76 @@ export function QuoteAdvisoryStep({ size }: { size: string }) {
 
   return (
     <QuoteShell greetingKey="quoteGreetAdvisory">
-      <section className="relative mb-8">
-        <div className="pointer-events-none absolute -left-10 -top-10 h-40 w-40 rounded-full bg-amber-600/15 blur-[60px]" />
-        <p className="typo-tech mb-2 uppercase tracking-[0.16em] text-amber-200/85">
-          {t("quoteAdvisoryStep")}
-        </p>
-        <h2 className="typo-section quote-step-title">
-          {t("quoteAdvisoryTitle")}
-          <br />
-          <span className="bg-gradient-to-r from-white to-zinc-400 bg-clip-text text-transparent">
-            {t("quoteAdvisoryTitle2")}
-          </span>
-        </h2>
-        <p className="typo-body mt-3 max-w-lg text-sm text-zinc-300">{t("quoteAdvisoryBody")}</p>
-        <p className="typo-tech mt-3 text-xs uppercase tracking-[0.14em] text-stone-400">
-          {t("quoteAdvisoryProjectSaved")}
-        </p>
-      </section>
+      <motion.section
+        initial={reduceMotion ? false : { opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, ease: easeOut }}
+        className="mb-9 border-b border-white/[0.07] pb-8 md:mb-11 md:pb-10"
+      >
+        <div className="flex flex-col gap-7 lg:flex-row lg:items-end lg:justify-between">
+          <div className="max-w-2xl">
+            <p className="typo-eyebrow typo-eyebrow-muted mb-4">{t("quoteAdvisoryStep")}</p>
+            <h2 className="typo-section quote-step-title">
+              {t("quoteAdvisoryTitle")}{" "}
+              <span className="text-zinc-400">{t("quoteAdvisoryTitle2")}</span>
+            </h2>
+            <p className="typo-body mt-4 max-w-lg leading-relaxed text-zinc-400">
+              {t("quoteAdvisoryBody")}
+            </p>
+          </div>
 
-      <section className="grid gap-4 md:grid-cols-2">
-        <button
-          type="button"
+          <div className="flex shrink-0 items-center gap-3 self-start rounded-xl border border-white/[0.06] bg-white/[0.025] px-4 py-3 lg:self-auto">
+            <span className="relative flex h-2 w-2">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[rgba(var(--rgb-camel),0.35)] opacity-60" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-[rgba(var(--rgb-camel),0.85)]" />
+            </span>
+            <span className="typo-tech text-[11px] tracking-[0.16em] text-zinc-300">
+              {t("quoteAdvisorySavedBadge")}
+            </span>
+          </div>
+        </div>
+      </motion.section>
+
+      <section className="grid gap-4 md:grid-cols-2 md:gap-5">
+        <AdvisoryModalityCard
+          icon={MapPin}
+          title={t("quoteAdvisoryPresencialTitle")}
+          eyebrow={t("quoteAdvisoryPresencialStudio")}
+          body={t("quoteAdvisoryPresencialBody")}
+          cta={t("quoteAdvisoryPresencialCta")}
+          durationMin={getAdvisoryDurationMin("presencial")}
           onClick={() => goToBooking("presencial")}
-          className="glass-card group rounded-2xl p-5 text-left transition hover:-translate-y-1 hover:border-amber-500/30"
-        >
-          <div className="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-amber-500/30 bg-amber-600/15">
-            <MapPin className="h-5 w-5 text-amber-200" />
-          </div>
-          <h3 className="typo-subtitle text-base text-zinc-50">
-            {t("quoteAdvisoryPresencialTitle")}
-          </h3>
-          <p className="mt-2 text-sm font-semibold text-amber-100/90">
-            {t("quoteAdvisoryPresencialStudio")}
-          </p>
-          <a
-            href={STUDIO.mapsUrl}
-            target="_blank"
-            rel="noreferrer"
-            onClick={(event) => event.stopPropagation()}
-            className="typo-tech mt-1 inline-flex items-center gap-1 text-xs text-zinc-400 transition hover:text-amber-200/90"
-          >
-            {getStudioFullAddress()}
-            <ExternalLink className="h-3 w-3" />
-          </a>
-          <p className="typo-body mt-3 text-sm text-zinc-300">{t("quoteAdvisoryPresencialBody")}</p>
-          <span className="typo-cta mt-5 inline-flex items-center gap-2 text-sm font-bold uppercase tracking-[0.14em] text-amber-200 transition group-hover:text-amber-100">
-            {t("quoteAdvisoryPresencialCta")}
-          </span>
-        </button>
+          detailLink={
+            <a
+              href={STUDIO.mapsUrl}
+              target="_blank"
+              rel="noreferrer"
+              onClick={(event) => event.stopPropagation()}
+              className="typo-ui-meta inline-flex items-center gap-1 text-zinc-500 transition hover:text-[rgba(var(--rgb-ivory),0.8)]"
+            >
+              {getStudioFullAddress()}
+              <ExternalLink className="h-3 w-3 opacity-70" />
+            </a>
+          }
+        />
 
-        <button
-          type="button"
+        <AdvisoryModalityCard
+          icon={Video}
+          title={t("quoteAdvisoryVirtualTitle")}
+          eyebrow={t("quoteAdvisoryVirtualPlatform")}
+          detail={t("quoteAdvisoryVirtualDetail")}
+          body={t("quoteAdvisoryVirtualBody")}
+          cta={t("quoteAdvisoryVirtualCta")}
+          durationMin={getAdvisoryDurationMin("virtual")}
           onClick={() => goToBooking("virtual")}
-          className="glass-card group rounded-2xl p-5 text-left transition hover:-translate-y-1 hover:border-amber-500/30"
-        >
-          <div className="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-amber-500/30 bg-amber-600/15">
-            <Video className="h-5 w-5 text-amber-200" />
-          </div>
-          <h3 className="typo-subtitle text-base text-zinc-50">{t("quoteAdvisoryVirtualTitle")}</h3>
-          <p className="mt-2 text-sm font-semibold text-amber-100/90">
-            {t("quoteAdvisoryVirtualPlatform")}
-          </p>
-          <p className="typo-tech mt-1 text-xs text-zinc-400">{t("quoteAdvisoryVirtualDetail")}</p>
-          <p className="typo-body mt-3 text-sm text-zinc-300">{t("quoteAdvisoryVirtualBody")}</p>
-          <span className="typo-cta mt-5 inline-flex items-center gap-2 text-sm font-bold uppercase tracking-[0.14em] text-amber-200 transition group-hover:text-amber-100">
-            {t("quoteAdvisoryVirtualCta")}
-          </span>
-        </button>
+        />
       </section>
 
-      <p className="typo-tech mt-5 text-xs uppercase tracking-[0.14em] text-zinc-500">
-        {t("quoteAdvisoryNote")}
+      <p className="typo-ui-meta mt-5 text-center text-zinc-500 md:text-left">
+        {t("quoteAdvisoryProjectSaved")}
       </p>
 
-      <div className="mt-8">
+      <div className="quote-step-footer mt-8 md:mt-10">
         <button
           type="button"
           onClick={() => {
@@ -120,7 +119,7 @@ export function QuoteAdvisoryStep({ size }: { size: string }) {
               `/cotizacion/referencia?size=${encodeURIComponent(size)}&zone=${encodeURIComponent(zone)}`,
             );
           }}
-          className="rounded-xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold text-zinc-100 transition hover:bg-white/8"
+          className="quote-step-footer-back rounded-xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold text-zinc-100 transition hover:bg-white/8 active:scale-[0.98]"
         >
           {t("commonBack")}
         </button>
