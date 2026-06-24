@@ -254,21 +254,57 @@ export function HeroSplash({
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 6 }}
-              transition={{ duration: reduceMotion ? 0.12 : 0.32, ease: [0.22, 1, 0.36, 1] }}
+              transition={{ duration: reduceMotion ? 0.12 : 0.45, ease: "easeOut" }}
               aria-label={t("heroScrollAria")}
               onClick={scrollToAbout}
-              className="hero-scroll-cue focus-ring"
+              className="hero-scroll-cue"
             >
-              <span className="hero-scroll-cue__icon" aria-hidden>
+              <motion.span
+                aria-hidden
+                className="hero-scroll-cue__inner"
+                animate={reduceMotion ? undefined : { y: [0, 5, 0] }}
+                transition={{
+                  duration: 2.35,
+                  repeat: Infinity,
+                  ease: [0.45, 0, 0.55, 1],
+                }}
+              >
+                <span className="hero-scroll-cue__stack">
+                  {[0, 1].map((index) => (
+                    <motion.span
+                      key={index}
+                      className="hero-scroll-cue__chevron"
+                      animate={
+                        reduceMotion
+                          ? undefined
+                          : { y: [0, 7, 0], opacity: [0.28, 1, 0.28] }
+                      }
+                      transition={{
+                        duration: 1.55,
+                        repeat: Infinity,
+                        ease: [0.45, 0, 0.55, 1],
+                        delay: index * 0.28,
+                      }}
+                    >
+                      <ChevronDown className="h-4 w-4" strokeWidth={1.75} />
+                    </motion.span>
+                  ))}
+                </span>
                 <motion.span
-                  animate={reduceMotion ? undefined : { y: [0, 3, 0] }}
-                  transition={{ duration: 1.35, repeat: Infinity, ease: "easeInOut" }}
-                  className="inline-flex"
+                  className="hero-scroll-cue__label"
+                  animate={
+                    reduceMotion ? undefined : { opacity: [0.42, 0.78, 0.42] }
+                  }
+                  transition={{
+                    duration: 2.1,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                    delay: 0.35,
+                  }}
                 >
-                  <ChevronDown className="h-[1.05rem] w-[1.05rem]" strokeWidth={2.25} />
+                  {t("heroScroll")}
                 </motion.span>
-              </span>
-              <span className="hero-scroll-cue__label">{t("heroScroll")}</span>
+              </motion.span>
             </motion.button>
           ) : null}
         </AnimatePresence>
