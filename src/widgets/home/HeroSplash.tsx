@@ -1,11 +1,13 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import {
   AnimatePresence,
   motion,
+  useMotionValueEvent,
+  useReducedMotion,
   useScroll,
   useTransform,
 } from "framer-motion";
@@ -53,8 +55,10 @@ export function HeroSplash({
   subtitle,
 }: HeroSplashProps) {
   const { t } = useSiteLanguage();
+  const reduceMotion = useReducedMotion();
   const sectionRef = useRef<HTMLElement>(null);
   const [heroIndex, setHeroIndex] = useState(0);
+  const [showScrollCue, setShowScrollCue] = useState(true);
   const heroImages =
     backgroundImageUrls && backgroundImageUrls.length > 0
       ? backgroundImageUrls
@@ -80,6 +84,20 @@ export function HeroSplash({
   const heroOpacity = useTransform(scrollYProgress, [0, 0.78, 1], [1, 0.94, 0.72]);
 
   const markY = useTransform(scrollYProgress, [0, 1], [0, 18]);
+
+  useMotionValueEvent(scrollYProgress, "change", (value) => {
+    setShowScrollCue(value < 0.14);
+  });
+
+  const scrollToAbout = useCallback(() => {
+    const target = document.getElementById("about-intro");
+    if (!target) return;
+    target.scrollIntoView({
+      behavior: reduceMotion ? "auto" : "smooth",
+      block: "start",
+    });
+  }, [reduceMotion]);
+
   useEffect(() => {
     if (!useHeroCarousel) return;
     const id = window.setInterval(() => {
@@ -225,51 +243,44 @@ export function HeroSplash({
               </span>
             </Link>
           </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.2, duration: 0.45 }}
-            className={
-              usePortraitPhoto
-                ? "mt-3 flex flex-col items-start gap-1 sm:mt-3.5"
-                : "mt-3.5 flex flex-col items-center gap-1"
-            }
-          >
-            <motion.span
-              animate={{ y: [0, 4, 0] }}
-              transition={{ duration: 1.2, repeat: Infinity, ease: "easeInOut" }}
-              className={
-                usePortraitPhoto
-                  ? "inline-flex h-8 w-8 items-center justify-center rounded-full border border-amber-500/30 bg-black/45 backdrop-blur-sm"
-                  : "inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/20 bg-black/35"
-              }
-            >
-              <ChevronDown
-                className={
-                  usePortraitPhoto ? "h-4 w-4 text-amber-100/90" : "h-4 w-4 text-zinc-200"
-                }
-              />
-            </motion.span>
-            <p
-              className={
-                usePortraitPhoto
-                  ? "typo-micro text-amber-100/75"
-                  : "typo-micro text-zinc-300/90"
-              }
-            >
-              {t("heroScroll")}
-            </p>
-          </motion.div>
           </div>
         </div>
+
+        <AnimatePresence>
+          {showScrollCue ? (
+            <motion.button
+              key="hero-scroll-cue"
+              type="button"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 6 }}
+              transition={{ duration: reduceMotion ? 0.12 : 0.32, ease: [0.22, 1, 0.36, 1] }}
+              aria-label={t("heroScrollAria")}
+              onClick={scrollToAbout}
+              className="hero-scroll-cue focus-ring"
+            >
+              <span className="hero-scroll-cue__icon" aria-hidden>
+                <motion.span
+                  animate={reduceMotion ? undefined : { y: [0, 3, 0] }}
+                  transition={{ duration: 1.35, repeat: Infinity, ease: "easeInOut" }}
+                  className="inline-flex"
+                >
+                  <ChevronDown className="h-[1.05rem] w-[1.05rem]" strokeWidth={2.25} />
+                </motion.span>
+              </span>
+              <span className="hero-scroll-cue__label">{t("heroScroll")}</span>
+            </motion.button>
+          ) : null}
+        </AnimatePresence>
 
         <div className="absolute bottom-0 z-20 h-1 w-full bg-gradient-to-r from-transparent via-white/10 to-transparent" />
       </section>
 
-      <LazyMount minHeight="28rem">
-        <AboutIntroSection />
-      </LazyMount>
+      <div id="about-intro" className="scroll-mt-0">
+        <LazyMount minHeight="28rem">
+          <AboutIntroSection />
+        </LazyMount>
+      </div>
       <LazyMount minHeight="36rem">
         <FamousClientsSection />
       </LazyMount>
