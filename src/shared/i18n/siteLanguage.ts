@@ -38,6 +38,9 @@ export const SITE_COPY = {
     aboutImgStudioAlt: "Emerald Tattoo Studio · Medellín",
     aboutImgPeruAlt: "Neutro con trofeo — 1.er lugar internacional en Lima, Perú, categoría Sombras",
     aboutProcessPeruVideoAlt: "Neutro en Lima, Perú — 1.er lugar internacional en sombras",
+    aboutProcessOpenMoment: "Ver momento",
+    aboutProcessCarouselHint: "Arrastra para explorar · Toca para ampliar",
+    aboutProcessLightboxSwipeHint: "Desliza para ver el siguiente momento",
     studioInfoEyebrow: "Estudio",
     studioInfoIntro: "Neutrottt forma parte de este equipo.",
     studioTagline: "Artista especializado",
@@ -109,6 +112,10 @@ export const SITE_COPY = {
       "Video del proceso del tatuaje con Malianteo Ink y Neutrottt",
     collabMalianteoFeaturedResultAlt:
       "Resultado final — espalda con Malianteo Ink y Neutrottt en estudio",
+    collabOpenProject: "Ver colaboración",
+    collabOpenProcess: "Ver proceso",
+    collabOpenResult: "Ver resultado",
+    collabSectionHint: "Toca proceso o resultado para ampliar",
     identityTag: "Identidad",
     identityTitle: "Arte con carácter",
     identityP1:
@@ -175,7 +182,7 @@ export const SITE_COPY = {
     quoteConnectionTitle: "No cualquiera",
     quoteConnectionTitle2: "es mi cliente",
     quoteConnectionManifest:
-      "No busco clientes, busco ecos:\nsolo transformo en tinta aquello que resuena\nen el mismo idioma que mi arte.",
+      "No busco clientes, busco ecos:solo transformo en tinta aquello que resuena\nen el mismo idioma que mi arte.",
     quoteConnectionHook: "No es arrogancia. Tatuar es confiar. Busco conexión real.",
     quoteConnectionPace: "Una pregunta a la vez. Sin apuro.",
     quoteConnectionProgress: "{current} de {total}",
@@ -599,6 +606,9 @@ export const SITE_COPY = {
     aboutImgStudioAlt: "Emerald Tattoo Studio in Medellin",
     aboutImgPeruAlt: "Neutro with trophy — 1st international place in Lima, Peru, Shadows category",
     aboutProcessPeruVideoAlt: "Neutro in Lima, Peru — 1st international place in shadows",
+    aboutProcessOpenMoment: "View moment",
+    aboutProcessCarouselHint: "Drag to explore · Tap to enlarge",
+    aboutProcessLightboxSwipeHint: "Swipe to see the next moment",
     studioInfoEyebrow: "Studio",
     studioInfoIntro: "Neutrottt is part of this team.",
     studioTagline: "Specialized tattoo artist",
@@ -670,6 +680,10 @@ export const SITE_COPY = {
       "Tattoo process video with Malianteo Ink and Neutrottt",
     collabMalianteoFeaturedResultAlt:
       "Final result — back piece with Malianteo Ink and Neutrottt in studio",
+    collabOpenProject: "View collaboration",
+    collabOpenProcess: "View process",
+    collabOpenResult: "View result",
+    collabSectionHint: "Tap process or result to enlarge",
     identityTag: "Identity",
     identityTitle: "Art with character",
     identityP1:
