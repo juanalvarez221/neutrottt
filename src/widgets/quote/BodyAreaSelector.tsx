@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Image from "next/image";
 import type { CSSProperties } from "react";
@@ -56,6 +56,8 @@ import type { HeadPartId } from "@/shared/lib/headZoneParts";
 import type { BackPartId } from "@/shared/lib/backZoneParts";
 import { HeadZoneRefinement } from "@/widgets/quote/HeadZoneRefinement";
 import { BackZoneRefinement } from "@/widgets/quote/BackZoneRefinement";
+import { ArmZoneRefinement } from "@/widgets/quote/ArmZoneRefinement";
+import { LegZoneRefinement } from "@/widgets/quote/LegZoneRefinement";
 import { DetailHotspot } from "@/widgets/quote/DetailHotspot";
 import { RefinementPanel } from "@/widgets/quote/ZoneFlowHelpers";
 import {
@@ -78,7 +80,7 @@ type BodyHotspot = {
 };
 
 type Props = {
-  zone: ZoneId;
+  zone: ZoneId | null;
   onZoneChange: (zone: ZoneId) => void;
   zoneOther: string;
   onZoneOtherChange: (value: string) => void;
@@ -298,7 +300,7 @@ function BodyMapImage({
   onSpotClick,
 }: {
   side: BodyMapSide;
-  zone: ZoneId;
+  zone: ZoneId | null;
   armSelection: ArmSelection | null;
   legSelection: LegSelection | null;
   onSpotClick: (spot: BodyHotspot, side: BodyMapSide) => void;
@@ -306,6 +308,8 @@ function BodyMapImage({
   const { t, language } = useSiteLanguage();
 
   function isSpotActive(spot: BodyHotspot) {
+    if (!zone) return false;
+
     if (zone === "brazo") {
       if (
         isArmBodyMapSpotActive(
@@ -318,9 +322,7 @@ function BodyMapImage({
         return true;
       }
 
-      if (!armSelection?.part && isArmBodyZone(spot.id)) {
-        return true;
-      }
+      return false;
     }
 
     if (zone === "pierna") {
@@ -335,9 +337,7 @@ function BodyMapImage({
         return true;
       }
 
-      if (!legSelection && spot.id === "pierna") {
-        return true;
-      }
+      return false;
     }
 
     return zone === spot.id;
@@ -396,391 +396,6 @@ function BodyMapImage({
   );
 }
 
-function ArmZoneRefinement({
-  selection,
-  onSelectionChange,
-}: {
-  selection: ArmSelection | null;
-  onSelectionChange: (selection: ArmSelection) => void;
-}) {
-  const { t, language } = useSiteLanguage();
-
-  const safeSelection: ArmSelection = selection ?? {
-    laterality: "ambas",
-    faceScope: "externa",
-    part: null,
-  };
-
-  const visibleFaces = getArmVisibleFaces(safeSelection.faceScope);
-  const complete = isArmSelectionComplete(selection);
-
-  function updateSelection(patch: Partial<ArmSelection>) {
-    onSelectionChange({
-      ...safeSelection,
-      ...patch,
-    });
-  }
-
-  return (
-    <RefinementPanel titleKey="quoteZoneArm" hintKey="quoteZoneArmDesc">
-      <RefinementStepHeader
-        step={1}
-        total={3}
-        title={language === "en" ? "Choose the arm" : "Elige el brazo"}
-        hint={
-          language === "en"
-            ? "Select left, right or both arms."
-            : "Selecciona brazo izquierdo, derecho o ambos."
-        }
-        done={Boolean(selection?.laterality)}
-      />
-
-      <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
-        {LIMB_LATERALITY_IDS.map((id) => {
-          const active = safeSelection.laterality === id;
-
-          return (
-            <button
-              key={id}
-              type="button"
-              onClick={() => updateSelection({ laterality: id })}
-              aria-pressed={active}
-              className={optionButtonClass(active)}
-            >
-              <CircleDot className="h-4 w-4 shrink-0 opacity-70" />
-              {t(LIMB_LATERALITY_LABEL_KEYS[id])}
-            </button>
-          );
-        })}
-      </div>
-
-      <RefinementStepHeader
-        step={2}
-        total={3}
-        title={language === "en" ? "Choose the visible face" : "Elige la cara del brazo"}
-        hint={language === "en" ? "Outer, inner or both faces." : "Cara externa, interna o ambas."}
-        done={Boolean(selection?.faceScope)}
-      />
-
-      <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
-        {ARM_FACE_SCOPE_IDS.map((id: ArmFaceScopeId) => {
-          const active = safeSelection.faceScope === id;
-
-          return (
-            <button
-              key={id}
-              type="button"
-              onClick={() => updateSelection({ faceScope: id })}
-              aria-pressed={active}
-              className={optionButtonClass(active)}
-            >
-              <CircleDot className="h-4 w-4 shrink-0 opacity-70" />
-              <span>
-                <span className="block">{t(ARM_FACE_SCOPE_LABEL_KEYS[id])}</span>
-                <span className="mt-0.5 block text-[11px] font-medium text-zinc-400">
-                  {t(ARM_FACE_SCOPE_DESC_KEYS[id])}
-                </span>
-              </span>
-            </button>
-          );
-        })}
-      </div>
-
-      <RefinementStepHeader
-        step={3}
-        total={3}
-        title={language === "en" ? "Choose the exact arm area" : "Elige la zona exacta del brazo"}
-        hint={
-          language === "en"
-            ? "Shoulder, biceps, triceps, forearm, hand or sleeve coverage."
-            : "Hombro, bíceps, tríceps, antebrazo, mano o extensión tipo manga."
-        }
-        done={Boolean(selection?.part)}
-      />
-
-      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-        {ARM_PART_IDS.map((id: ArmPartId) => {
-          const active = safeSelection.part === id;
-
-          return (
-            <button
-              key={id}
-              type="button"
-              onClick={() => updateSelection({ part: id })}
-              aria-pressed={active}
-              className={optionButtonClass(active)}
-            >
-              <CircleDot className="h-4 w-4 shrink-0 opacity-70" />
-              {t(ARM_PART_LABEL_KEYS[id])}
-            </button>
-          );
-        })}
-      </div>
-
-      <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
-        {visibleFaces.map((face) => (
-          <div key={face} className="rounded-xl border border-white/10 bg-stone-600/8 p-3">
-            <div
-              className={[
-                "relative mx-auto w-full overflow-hidden",
-                face === "externa" ? "aspect-[16/9] max-w-[420px]" : "aspect-[4/5] max-w-[280px]",
-                BODY_REFERENCE_IMAGE_FRAME,
-              ].join(" ")}
-            >
-              <Image
-                src={ARM_DETAIL_IMAGE[face]}
-                alt={
-                  face === "externa"
-                    ? language === "en"
-                      ? "Outer arm detail"
-                      : "Detalle de brazo externo"
-                    : language === "en"
-                      ? "Inner arm detail"
-                      : "Detalle de brazo interno"
-                }
-                fill
-                quality={95}
-                sizes="(max-width: 640px) 300px, 420px"
-                className="object-contain"
-              />
-
-              {getArmDetailHotspots(face).map((spot) => (
-                <DetailHotspot
-                  key={`${face}-${spot.id}`}
-                  className={spot.className}
-                  active={isArmDetailHotspotActive(spot.id, safeSelection.part)}
-                  label={t(ARM_PART_LABEL_KEYS[spot.id])}
-                  onClick={() => updateSelection({ part: spot.id })}
-                  showInactive
-                />
-              ))}
-            </div>
-
-            <p className="mt-2 text-center text-xs font-semibold uppercase tracking-[0.14em] text-zinc-500">
-              {t(ARM_FACE_SCOPE_LABEL_KEYS[face])}
-            </p>
-          </div>
-        ))}
-      </div>
-
-      {complete ? (
-        <SelectionSummary
-          label={t("quoteSelectionSummary")}
-          value={formatZoneDisplay("brazo", undefined, t, {
-            armLaterality: safeSelection.laterality,
-            armFaceScope: safeSelection.faceScope,
-            armPart: safeSelection.part ?? undefined,
-          })}
-        />
-      ) : (
-        <SelectionSummary
-          label={t("quoteSelectionSummary")}
-          value="—"
-          incomplete
-          incompleteHint={t("quoteRefinementIncomplete")}
-        />
-      )}
-    </RefinementPanel>
-  );
-}
-
-function LegZoneRefinement({
-  selection,
-  onSelectionChange,
-}: {
-  selection: LegSelection | null;
-  onSelectionChange: (selection: LegSelection) => void;
-}) {
-  const { t, language } = useSiteLanguage();
-
-  const safeSelection: LegSelection = selection ?? {
-    laterality: "ambas",
-    faceScope: "anterior",
-    extent: "muslo",
-  };
-
-  const visibleFaces = getLegVisibleFaces(safeSelection.faceScope);
-  const complete = isLegSelectionComplete(selection);
-
-  function updateSelection(patch: Partial<LegSelection>) {
-    onSelectionChange({
-      ...safeSelection,
-      ...patch,
-    });
-  }
-
-  return (
-    <RefinementPanel titleKey="quoteZoneLeg" hintKey="quoteLegExtentFullDesc">
-      <RefinementStepHeader
-        step={1}
-        total={3}
-        title={language === "en" ? "Choose the leg" : "Elige la pierna"}
-        hint={
-          language === "en"
-            ? "Select left, right or both legs."
-            : "Selecciona pierna izquierda, derecha o ambas."
-        }
-        done={Boolean(selection?.laterality)}
-      />
-
-      <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
-        {LIMB_LATERALITY_IDS.map((id) => {
-          const active = safeSelection.laterality === id;
-
-          return (
-            <button
-              key={id}
-              type="button"
-              onClick={() => updateSelection({ laterality: id })}
-              aria-pressed={active}
-              className={optionButtonClass(active)}
-            >
-              <CircleDot className="h-4 w-4 shrink-0 opacity-70" />
-              {t(LIMB_LATERALITY_LABEL_KEYS[id])}
-            </button>
-          );
-        })}
-      </div>
-
-      <RefinementStepHeader
-        step={2}
-        total={3}
-        title={language === "en" ? "Choose the leg face" : "Elige la cara de la pierna"}
-        hint={language === "en" ? "Anterior, posterior or both." : "Cara anterior, posterior o ambas."}
-        done={Boolean(selection?.faceScope)}
-      />
-
-      <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
-        {LEG_FACE_SCOPE_IDS.map((id: LegFaceScopeId) => {
-          const active = safeSelection.faceScope === id;
-
-          return (
-            <button
-              key={id}
-              type="button"
-              onClick={() => updateSelection({ faceScope: id })}
-              aria-pressed={active}
-              className={optionButtonClass(active)}
-            >
-              <CircleDot className="h-4 w-4 shrink-0 opacity-70" />
-              <span>
-                <span className="block">{t(LEG_FACE_SCOPE_LABEL_KEYS[id])}</span>
-                <span className="mt-0.5 block text-[11px] font-medium text-zinc-400">
-                  {t(LEG_FACE_SCOPE_DESC_KEYS[id])}
-                </span>
-              </span>
-            </button>
-          );
-        })}
-      </div>
-
-      <RefinementStepHeader
-        step={3}
-        total={3}
-        title={language === "en" ? "Choose the leg coverage" : "Elige la extensión"}
-        hint={language === "en" ? "Thigh, lower leg or full leg." : "Muslo, pierna baja o pierna completa."}
-        done={Boolean(selection?.extent)}
-      />
-
-      <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
-        {LEG_EXTENT_IDS.map((id: LegExtentId) => {
-          const active = safeSelection.extent === id;
-
-          return (
-            <button
-              key={id}
-              type="button"
-              onClick={() => updateSelection({ extent: id })}
-              aria-pressed={active}
-              className={optionButtonClass(active)}
-            >
-              <CircleDot className="h-4 w-4 shrink-0 opacity-70" />
-              <span>
-                <span className="block">{t(LEG_EXTENT_LABEL_KEYS[id])}</span>
-                <span className="mt-0.5 block text-[11px] font-medium text-zinc-400">
-                  {t(LEG_EXTENT_DESC_KEYS[id])}
-                </span>
-              </span>
-            </button>
-          );
-        })}
-      </div>
-
-      <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
-        {visibleFaces.map((face) => (
-          <div key={face} className="rounded-xl border border-white/10 bg-stone-600/8 p-3">
-            <div
-              className={[
-                "relative mx-auto aspect-[3/4] w-full max-w-[300px] overflow-hidden",
-                BODY_REFERENCE_IMAGE_FRAME,
-              ].join(" ")}
-            >
-              <Image
-                src={LEG_DETAIL_IMAGE[face]}
-                alt={
-                  face === "anterior"
-                    ? language === "en"
-                      ? "Anterior leg detail"
-                      : "Detalle anterior de pierna"
-                    : language === "en"
-                      ? "Posterior leg detail"
-                      : "Detalle posterior de pierna"
-                }
-                fill
-                quality={95}
-                sizes="(max-width: 640px) 280px, 300px"
-                className="object-contain"
-              />
-
-              {getLegDetailHotspots(face)
-                .filter((spot) => shouldShowLegDetailHotspot(spot, safeSelection))
-                .map((spot) => (
-                  <DetailHotspot
-                    key={`${face}-${spot.laterality}-${spot.id}`}
-                    className={spot.className}
-                    active={isLegDetailHotspotActive(spot, safeSelection)}
-                    label={t(LEG_EXTENT_LABEL_KEYS[safeSelection.extent])}
-                    onClick={() => {
-                      const inferred = inferLegSelectionFromPartClick(spot.id, safeSelection);
-
-                      onSelectionChange({
-                        ...inferred,
-                        laterality: spot.laterality,
-                      });
-                    }}
-                    showInactive
-                  />
-                ))}
-            </div>
-
-            <p className="mt-2 text-center text-xs font-semibold uppercase tracking-[0.14em] text-zinc-500">
-              {t(LEG_FACE_SCOPE_LABEL_KEYS[face])}
-            </p>
-          </div>
-        ))}
-      </div>
-
-      {complete ? (
-        <SelectionSummary
-          label={t("quoteSelectionSummary")}
-          value={formatZoneDisplay("pierna", undefined, t, {
-            legLaterality: safeSelection.laterality,
-            legFaceScope: safeSelection.faceScope,
-            legExtent: safeSelection.extent,
-          })}
-        />
-      ) : (
-        <SelectionSummary
-          label={t("quoteSelectionSummary")}
-          value="—"
-          incomplete
-          incompleteHint={t("quoteRefinementIncomplete")}
-        />
-      )}
-    </RefinementPanel>
-  );
-}
-
 export function BodyAreaSelector({
   zone,
   onZoneChange,
@@ -799,16 +414,20 @@ export function BodyAreaSelector({
 
   const progress = 50;
 
-  const selectionLabel = formatZoneDisplay(zone, zoneOther, t, {
-    headPart: headPart ?? undefined,
-    backPart: backPart ?? undefined,
-    armLaterality: armSelection?.laterality,
-    armFaceScope: armSelection?.faceScope,
-    armPart: armSelection?.part ?? undefined,
-    legLaterality: legSelection?.laterality,
-    legFaceScope: legSelection?.faceScope,
-    legExtent: legSelection?.extent,
-  });
+  const selectionLabel = zone
+    ? formatZoneDisplay(zone, zoneOther, t, {
+        headPart: headPart ?? undefined,
+        backPart: backPart ?? undefined,
+        armLaterality: armSelection?.laterality,
+        armFaceScope: armSelection?.faceScope,
+        armPart: armSelection?.part ?? undefined,
+        legLaterality: legSelection?.laterality,
+        legFaceScope: legSelection?.faceScope,
+        legExtent: legSelection?.extent,
+      })
+    : language === "en"
+      ? "No area selected"
+      : "Sin zona seleccionada";
 
   function handleBodySpotClick(spot: BodyHotspot, side: BodyMapSide) {
     if (isArmBodyZone(spot.id) && spot.laterality) {

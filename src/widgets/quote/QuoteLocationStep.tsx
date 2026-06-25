@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowRight } from "lucide-react";
 import { QuoteShell } from "@/widgets/quote/QuoteShell";
@@ -24,7 +24,7 @@ export function QuoteLocationStep({ size }: { size: string }) {
   const { t, language } = useSiteLanguage();
   const gateReady = useQuoteOnboardingGate();
 
-  const [zone, setZone] = useState<ZoneId>("brazo");
+  const [zone, setZone] = useState<ZoneId | null>(null);
   const [zoneOther, setZoneOther] = useState("");
 
   const [headPart, setHeadPart] = useState<HeadPartId | null>(null);
@@ -33,7 +33,17 @@ export function QuoteLocationStep({ size }: { size: string }) {
   const [armSelection, setArmSelection] = useState<ArmSelection | null>(null);
   const [legSelection, setLegSelection] = useState<LegSelection | null>(null);
 
+  const handleZoneChange = useCallback((next: ZoneId) => {
+    setZone(next);
+    if (next !== "cabeza") setHeadPart(null);
+    if (next !== "espalda") setBackPart(null);
+    if (next !== "brazo") setArmSelection(null);
+    if (next !== "pierna") setLegSelection(null);
+    if (next !== "otro") setZoneOther("");
+  }, []);
+
   const isLocationComplete = useMemo(() => {
+    if (!zone) return false;
     if (zone === "cabeza") return Boolean(headPart);
     if (zone === "espalda") return Boolean(backPart);
     if (zone === "brazo") return isArmSelectionComplete(armSelection);
@@ -44,6 +54,8 @@ export function QuoteLocationStep({ size }: { size: string }) {
   }, [armSelection, backPart, headPart, legSelection, zone, zoneOther]);
 
   const nextHref = useMemo(() => {
+    if (!zone) return "";
+
     const params = new URLSearchParams();
 
     params.set("size", size);
@@ -97,7 +109,7 @@ export function QuoteLocationStep({ size }: { size: string }) {
   ]);
 
   function handleContinue() {
-    if (!isLocationComplete) return;
+    if (!isLocationComplete || !nextHref) return;
     router.push(nextHref);
   }
 
@@ -116,9 +128,9 @@ export function QuoteLocationStep({ size }: { size: string }) {
   return (
     <QuoteShell brand="MALIANTEO">
       <section className="relative mb-8">
-        <div className="pointer-events-none absolute -left-10 -top-10 h-40 w-40 rounded-full bg-violet-600/15 blur-[60px]" />
+        <div className="pointer-events-none absolute -left-10 -top-10 h-40 w-40 rounded-full bg-amber-600/15 blur-[60px]" />
 
-        <p className="typo-tech mb-2 uppercase tracking-[0.16em] text-violet-200/85">
+        <p className="typo-tech mb-2 uppercase tracking-[0.16em] text-amber-200/85">
           {t("quoteLocationStep")}
         </p>
 
@@ -138,7 +150,7 @@ export function QuoteLocationStep({ size }: { size: string }) {
       <section className="mb-8">
         <div className="glass-card rounded-2xl p-5">
           <div className="mb-4 flex items-center gap-3">
-            <div className="flex h-6 w-6 items-center justify-center rounded-full border border-violet-500/30 bg-violet-600/10">
+            <div className="flex h-6 w-6 items-center justify-center rounded-full border border-amber-500/30 bg-amber-600/10">
               <span className="text-[10px] font-bold text-white">2</span>
             </div>
 
@@ -149,7 +161,7 @@ export function QuoteLocationStep({ size }: { size: string }) {
 
           <BodyAreaSelector
             zone={zone}
-            onZoneChange={setZone}
+            onZoneChange={handleZoneChange}
             zoneOther={zoneOther}
             onZoneOtherChange={setZoneOther}
             headPart={headPart}
@@ -167,16 +179,16 @@ export function QuoteLocationStep({ size }: { size: string }) {
       {!isLocationComplete ? (
         <div className="mb-4 rounded-xl border border-amber-300/20 bg-amber-500/10 px-4 py-3 text-sm font-medium text-amber-100">
           {language === "en"
-            ? "Complete the body location before continuing."
-            : "Completa la ubicación del cuerpo antes de continuar."}
+            ? "Choose a body area and complete the detail before continuing."
+            : "Elige una zona del cuerpo y completa el detalle antes de continuar."}
         </div>
       ) : null}
 
-      <div className="mt-6 flex items-center justify-between gap-3">
+      <div className="quote-step-footer mt-6">
         <button
           type="button"
           onClick={() => router.push("/cotizacion/tamano")}
-          className="rounded-xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold text-zinc-100 transition hover:bg-white/8"
+          className="quote-step-footer-back rounded-xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold text-zinc-100 transition hover:bg-white/8"
         >
           {t("commonBack")}
         </button>
@@ -187,10 +199,8 @@ export function QuoteLocationStep({ size }: { size: string }) {
           disabled={!isLocationComplete}
           aria-disabled={!isLocationComplete}
           className={[
-            "group inline-flex items-center justify-center gap-2 rounded-xl border px-6 py-3 text-sm font-bold uppercase tracking-[0.2em] text-white transition",
-            isLocationComplete
-              ? "border-violet-500/35 bg-gradient-to-r from-violet-700 to-fuchsia-600 hover:-translate-y-0.5 hover:shadow-[0_0_20px_rgba(139,92,246,0.35)]"
-              : "cursor-not-allowed border-white/10 bg-white/10 text-zinc-500",
+            "quote-step-footer-next btn-accent focus-ring typo-cta group inline-flex items-center justify-center gap-2 rounded-xl px-6 py-3 active:scale-[0.98]",
+            !isLocationComplete ? "cursor-not-allowed opacity-45" : "",
           ].join(" ")}
         >
           {t("quoteContinue")}

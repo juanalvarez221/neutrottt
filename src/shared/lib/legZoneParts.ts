@@ -22,9 +22,9 @@ export const LEG_PART_IDS = [
 export type LegPartId = (typeof LEG_PART_IDS)[number];
 
 export type LegSelection = {
-  laterality: LimbLateralityId;
-  faceScope: LegFaceScopeId;
-  extent: LegExtentId;
+  laterality?: LimbLateralityId;
+  faceScope?: LegFaceScopeId;
+  extent?: LegExtentId;
 };
 
 export type LegDetailHotspot = {
@@ -135,7 +135,7 @@ export function getLegVisibleFaces(faceScope: LegFaceScopeId): ("anterior" | "po
 }
 
 export function getActiveLegParts(selection: LegSelection | null): LegPartId[] {
-  if (!selection) return [];
+  if (!selection?.faceScope || !selection.extent) return [];
 
   const faces = getLegVisibleFaces(selection.faceScope);
   const parts: LegPartId[] = [];
@@ -169,7 +169,7 @@ export function isLegDetailHotspotActive(
   hotspot: LegDetailHotspot,
   selection: LegSelection | null,
 ): boolean {
-  if (!selection) return false;
+  if (!selection?.laterality) return false;
   if (!isLateralitySpotActive(hotspot.laterality, selection.laterality)) return false;
 
   return getActiveLegParts(selection).includes(hotspot.id);
@@ -179,6 +179,7 @@ export function shouldShowLegDetailHotspot(
   hotspot: LegDetailHotspot,
   selection: LegSelection,
 ): boolean {
+  if (!selection.laterality) return false;
   if (selection.laterality === "ambas") return hotspot.laterality === "derecha";
   return isLateralitySpotActive(hotspot.laterality, selection.laterality);
 }
@@ -197,11 +198,11 @@ export function isLegBodyMapSpotActive(
   if (isAnterior && mapSide !== "front") return false;
   if (!isAnterior && mapSide !== "back") return false;
 
-  if (spotLaterality) {
+  if (spotLaterality && selection.laterality) {
     return isLateralitySpotActive(spotLaterality, selection.laterality);
   }
 
-  return true;
+  return Boolean(selection.laterality);
 }
 
 export function inferLegSelectionFromBodySpot(
@@ -240,7 +241,7 @@ export function inferLegSelectionFromPartClick(
       : "pierna_baja";
 
   return {
-    laterality: current?.laterality ?? "ambas",
+    laterality: current?.laterality,
     faceScope,
     extent,
   };

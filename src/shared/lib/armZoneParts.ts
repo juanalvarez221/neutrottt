@@ -14,9 +14,9 @@ export const ARM_SIDE_IDS = ["externa", "interna"] as const;
 export type ArmSideId = (typeof ARM_SIDE_IDS)[number];
 
 export type ArmSelection = {
-  laterality: LimbLateralityId;
-  faceScope: ArmFaceScopeId;
-  part: ArmPartId | null;
+  laterality?: LimbLateralityId;
+  faceScope?: ArmFaceScopeId;
+  part?: ArmPartId | null;
 };
 
 export const ARM_PIECE_PART_IDS = [
@@ -197,7 +197,7 @@ export function isArmBodyMapSpotActive(
     return false;
   }
 
-  if (spotLaterality) {
+  if (spotLaterality && selection.laterality) {
     return isLateralitySpotActive(spotLaterality, selection.laterality);
   }
 

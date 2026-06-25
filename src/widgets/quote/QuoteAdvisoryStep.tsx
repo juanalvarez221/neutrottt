@@ -73,6 +73,7 @@ export function QuoteAdvisoryStep({ size }: { size: string }) {
       <section className="grid gap-4 md:grid-cols-2 md:gap-5">
         <AdvisoryModalityCard
           icon={MapPin}
+          variant="presencial"
           title={t("quoteAdvisoryPresencialTitle")}
           eyebrow={t("quoteAdvisoryPresencialStudio")}
           body={t("quoteAdvisoryPresencialBody")}
@@ -85,7 +86,7 @@ export function QuoteAdvisoryStep({ size }: { size: string }) {
               target="_blank"
               rel="noreferrer"
               onClick={(event) => event.stopPropagation()}
-              className="typo-ui-meta inline-flex items-center gap-1 text-zinc-500 transition hover:text-[rgba(var(--rgb-ivory),0.8)]"
+              className="typo-ui-meta inline-flex items-center gap-1 text-[rgba(var(--rgb-sand),0.78)] transition hover:text-[rgba(var(--rgb-honey),0.95)]"
             >
               {getStudioFullAddress()}
               <ExternalLink className="h-3 w-3 opacity-70" />
@@ -95,6 +96,7 @@ export function QuoteAdvisoryStep({ size }: { size: string }) {
 
         <AdvisoryModalityCard
           icon={Video}
+          variant="virtual"
           title={t("quoteAdvisoryVirtualTitle")}
           eyebrow={t("quoteAdvisoryVirtualPlatform")}
           detail={t("quoteAdvisoryVirtualDetail")}

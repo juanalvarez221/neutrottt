@@ -160,7 +160,7 @@ export function QuoteAdvisoryBookingStep({
             connectionPurpose: undefined,
           };
       const zoneDisplay = formatZoneDisplay(
-        draft?.zone ?? "brazo",
+        draft?.zone ?? "",
         draft?.zoneOther,
         t,
         getZoneRefinementFromDraft(draft),

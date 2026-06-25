@@ -75,13 +75,20 @@ function patchSelection(
   patch: Partial<LegSelection>,
 ): LegSelection {
   return {
-    laterality: patch.laterality ?? current?.laterality ?? "ambas",
-    faceScope: patch.faceScope ?? current?.faceScope ?? "anterior",
-    extent: patch.extent ?? current?.extent ?? "completa",
+    laterality: patch.laterality ?? current?.laterality,
+    faceScope: patch.faceScope ?? current?.faceScope,
+    extent: patch.extent ?? current?.extent,
   };
 }
 
-function buildSummary(t: (key: SiteCopyKey) => string, selection: LegSelection): string {
+function buildSummary(
+  t: (key: SiteCopyKey) => string,
+  selection: LegSelection & {
+    laterality: LimbLateralityId;
+    faceScope: LegFaceScopeId;
+    extent: LegExtentId;
+  },
+): string {
   return [
     t(LIMB_LATERALITY_LABEL_KEYS[selection.laterality]),
     t(LEG_FACE_SCOPE_LABEL_KEYS[selection.faceScope]),
@@ -93,7 +100,7 @@ export function LegZoneRefinement({ selection, onSelectionChange }: Props) {
   const { t } = useSiteLanguage();
   const hasLaterality = Boolean(selection?.laterality);
   const complete = isLegSelectionComplete(selection);
-  const visibleFaces = selection ? getLegVisibleFaces(selection.faceScope) : [];
+  const visibleFaces = selection?.faceScope ? getLegVisibleFaces(selection.faceScope) : [];
 
   const handleLaterality = (laterality: LimbLateralityId) => {
     onSelectionChange(patchSelection(selection, { laterality }));
@@ -229,8 +236,15 @@ export function LegZoneRefinement({ selection, onSelectionChange }: Props) {
         </div>
       ) : null}
 
-      {complete && selection ? (
-        <SelectionSummary label={t("quoteSelectionSummary")} value={buildSummary(t, selection)} />
+      {complete && selection?.laterality && selection.faceScope && selection.extent ? (
+        <SelectionSummary
+          label={t("quoteSelectionSummary")}
+          value={buildSummary(t, selection as LegSelection & {
+            laterality: LimbLateralityId;
+            faceScope: LegFaceScopeId;
+            extent: LegExtentId;
+          })}
+        />
       ) : (
         <SelectionSummary
           label={t("quoteSelectionSummary")}

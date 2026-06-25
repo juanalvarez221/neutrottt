@@ -6,6 +6,7 @@ import {
   useMemo,
   useRef,
   useState,
+  type PointerEvent as ReactPointerEvent,
 } from "react";
 import Image from "next/image";
 import { useReducedMotion } from "framer-motion";
@@ -13,7 +14,6 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useSiteLanguage } from "@/shared/i18n/LanguageProvider";
 import type { SiteCopyKey } from "@/shared/i18n/siteLanguage";
 import { LazyVideo } from "@/shared/ui/LazyVideo";
-import { useHorizontalDragScroll } from "@/shared/hooks/useHorizontalDragScroll";
 
 type ProcessSlide =
   | { type: "image"; src: string; altKey: SiteCopyKey; captionKey: SiteCopyKey }
@@ -53,49 +53,11 @@ const PROCESS_SLIDES: ProcessSlide[] = [
   },
 ];
 
-const LOOP_SETS = 3;
-const RESUME_AUTO_MS = 4200;
-const IMAGE_AUTO_MS = 5800;
-const VIDEO_AUTO_MS = 6800;
-const SCROLL_SETTLE_MS = 120;
-const PROGRAMMATIC_SCROLL_MS = 920;
-
-function getScrollLeftForPhysical(scroller: HTMLElement, physicalIndex: number) {
-  const slideEl = scroller.children[physicalIndex] as HTMLElement | undefined;
-  if (!slideEl) return null;
-  return slideEl.offsetLeft - (scroller.clientWidth - slideEl.offsetWidth) / 2;
-}
-
-function getAdvanceMs(logicalIndex: number) {
-  return PROCESS_SLIDES[logicalIndex]?.type === "video"
-    ? VIDEO_AUTO_MS
-    : IMAGE_AUTO_MS;
-}
-
-function getSetWidth(scroller: HTMLElement, slideCount: number) {
-  const first = scroller.children[0] as HTMLElement | undefined;
-  const nextSet = scroller.children[slideCount] as HTMLElement | undefined;
-  if (!first || !nextSet) return 0;
-  return nextSet.offsetLeft - first.offsetLeft;
-}
-
-function getClosestPhysicalIndex(scroller: HTMLElement) {
-  const center = scroller.scrollLeft + scroller.clientWidth / 2;
-  let closest = 0;
-  let minDistance = Number.POSITIVE_INFINITY;
-
-  Array.from(scroller.children).forEach((child, index) => {
-    const el = child as HTMLElement;
-    const childCenter = el.offsetLeft + el.offsetWidth / 2;
-    const distance = Math.abs(center - childCenter);
-    if (distance < minDistance) {
-      minDistance = distance;
-      closest = index;
-    }
-  });
-
-  return closest;
-}
+const LOOP_SETS = 2;
+const MARQUEE_SPEED_PX_S = 54;
+const RESUME_AUTO_MS = 3600;
+const INERTIA_FRICTION = 0.91;
+const INERTIA_MIN_VELOCITY = 0.35;
 
 function ProcessSlideMedia({
   slide,
@@ -132,7 +94,7 @@ function ProcessSlideMedia({
         alt={t(slide.altKey)}
         fill
         quality={92}
-        sizes="(max-width: 639px) 88vw, 420px"
+        sizes="(max-width: 639px) 72vw, 340px"
         className="pointer-events-none object-contain object-center"
         draggable={false}
       />
@@ -143,24 +105,27 @@ function ProcessSlideMedia({
 export function AboutProcessCarousel() {
   const { t } = useSiteLanguage();
   const reduceMotion = useReducedMotion();
-  const scrollerRef = useRef<HTMLDivElement>(null);
   const viewportRef = useRef<HTMLDivElement>(null);
-  const logicalIndexRef = useRef(0);
-  const physicalIndexRef = useRef(PROCESS_SLIDES.length);
+  const trackRef = useRef<HTMLDivElement>(null);
+  const positionRef = useRef(0);
+  const setWidthRef = useRef(0);
   const hoverPausedRef = useRef(false);
   const interactionPausedRef = useRef(false);
-  const isProgrammaticScrollRef = useRef(false);
+  const draggingRef = useRef(false);
   const inViewRef = useRef(true);
-  const loopJumpRef = useRef(false);
+  const dragStartXRef = useRef(0);
+  const dragStartPosRef = useRef(0);
+  const lastMoveXRef = useRef(0);
+  const lastMoveTimeRef = useRef(0);
+  const dragVelocityRef = useRef(0);
   const resumeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const programmaticTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const scrollSettleRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const initializedRef = useRef(false);
+  const marqueeRafRef = useRef<number | null>(null);
+  const inertiaRafRef = useRef<number | null>(null);
+  const lastTickRef = useRef(0);
 
   const [activeLogicalIndex, setActiveLogicalIndex] = useState(0);
-  const [activePhysicalIndex, setActivePhysicalIndex] = useState(
-    PROCESS_SLIDES.length,
-  );
+  const [isPaused, setIsPaused] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
 
   const slideCount = PROCESS_SLIDES.length;
 
@@ -173,161 +138,217 @@ export function AboutProcessCarousel() {
     [slideCount],
   );
 
-  useHorizontalDragScroll(scrollerRef);
-
-  const correctInfiniteLoop = useCallback(() => {
-    const scroller = scrollerRef.current;
-    if (!scroller || loopJumpRef.current) return;
-
-    const count = slideCount;
-    const setWidth = getSetWidth(scroller, count);
+  const normalizePosition = useCallback(() => {
+    const setWidth = setWidthRef.current;
     if (setWidth <= 0) return;
+    while (positionRef.current < 0) positionRef.current += setWidth;
+    while (positionRef.current >= setWidth) positionRef.current -= setWidth;
+  }, []);
 
-    const closest = getClosestPhysicalIndex(scroller);
+  const applyTransform = useCallback(() => {
+    const track = trackRef.current;
+    if (!track) return;
+    track.style.transform = `translate3d(${-positionRef.current}px, 0, 0)`;
+  }, []);
 
-    if (closest < count) {
-      loopJumpRef.current = true;
-      scroller.style.scrollBehavior = "auto";
-      scroller.scrollLeft += setWidth;
-      scroller.style.scrollBehavior = "";
-      physicalIndexRef.current = closest + count;
-      requestAnimationFrame(() => {
-        loopJumpRef.current = false;
-      });
-    } else if (closest >= count * 2) {
-      loopJumpRef.current = true;
-      scroller.style.scrollBehavior = "auto";
-      scroller.scrollLeft -= setWidth;
-      scroller.style.scrollBehavior = "";
-      physicalIndexRef.current = closest - count;
-      requestAnimationFrame(() => {
-        loopJumpRef.current = false;
-      });
-    }
-  }, [slideCount]);
+  const measureSetWidth = useCallback(() => {
+    const track = trackRef.current;
+    if (!track || track.children.length < slideCount + 1) return;
+    const first = track.children[0] as HTMLElement;
+    const secondSet = track.children[slideCount] as HTMLElement;
+    setWidthRef.current = secondSet.offsetLeft - first.offsetLeft;
+    normalizePosition();
+    applyTransform();
+  }, [applyTransform, normalizePosition, slideCount]);
 
   const syncActiveIndex = useCallback(() => {
-    const scroller = scrollerRef.current;
-    if (!scroller || scroller.children.length === 0) return;
+    const viewport = viewportRef.current;
+    const track = trackRef.current;
+    if (!viewport || !track || track.children.length === 0) return;
 
-    const closest = getClosestPhysicalIndex(scroller);
-    const logical = ((closest % slideCount) + slideCount) % slideCount;
+    const viewportCenter = viewport.offsetWidth / 2;
+    let closestLogical = 0;
+    let minDistance = Number.POSITIVE_INFINITY;
 
-    physicalIndexRef.current = closest;
-    logicalIndexRef.current = logical;
-    setActivePhysicalIndex(closest);
-    setActiveLogicalIndex(logical);
+    Array.from(track.children).forEach((child, index) => {
+      const el = child as HTMLElement;
+      const childCenter =
+        el.offsetLeft - positionRef.current + el.offsetWidth / 2;
+      const distance = Math.abs(childCenter - viewportCenter);
+      if (distance < minDistance) {
+        minDistance = distance;
+        closestLogical = index % slideCount;
+      }
+    });
+
+    setActiveLogicalIndex(closestLogical);
   }, [slideCount]);
 
-  const scrollToPhysical = useCallback(
-    (physicalIndex: number, behavior: ScrollBehavior = "smooth") => {
-      const scroller = scrollerRef.current;
-      if (!scroller) return;
+  const isSlideActive = useCallback(
+    (physicalIndex: number) => {
+      const viewport = viewportRef.current;
+      const track = trackRef.current;
+      if (!viewport || !track) return false;
 
-      const slideEl = scroller.children[physicalIndex] as HTMLElement | undefined;
-      if (!slideEl) return;
+      const el = track.children[physicalIndex] as HTMLElement | undefined;
+      if (!el) return false;
 
-      const targetLeft = getScrollLeftForPhysical(scroller, physicalIndex);
-      if (targetLeft === null) return;
+      const childCenter =
+        el.offsetLeft - positionRef.current + el.offsetWidth / 2;
+      const viewportCenter = viewport.offsetWidth / 2;
+      const threshold = el.offsetWidth * 0.42;
 
-      scroller.scrollTo({
-        left: targetLeft,
-        behavior: reduceMotion ? "auto" : behavior,
-      });
-
-      const logical = ((physicalIndex % slideCount) + slideCount) % slideCount;
-      physicalIndexRef.current = physicalIndex;
-      logicalIndexRef.current = logical;
-      setActivePhysicalIndex(physicalIndex);
-      setActiveLogicalIndex(logical);
+      return Math.abs(childCenter - viewportCenter) < threshold;
     },
-    [reduceMotion, slideCount],
-  );
-
-  const goToLogical = useCallback(
-    (logicalIndex: number, behavior: ScrollBehavior = "smooth") => {
-      const normalized =
-        ((logicalIndex % slideCount) + slideCount) % slideCount;
-      scrollToPhysical(slideCount + normalized, behavior);
-    },
-    [scrollToPhysical, slideCount],
-  );
-
-  const goNext = useCallback(
-    (behavior: ScrollBehavior = "smooth") => {
-      scrollToPhysical(physicalIndexRef.current + 1, behavior);
-    },
-    [scrollToPhysical],
-  );
-
-  const goPrev = useCallback(
-    (behavior: ScrollBehavior = "smooth") => {
-      scrollToPhysical(physicalIndexRef.current - 1, behavior);
-    },
-    [scrollToPhysical],
+    [],
   );
 
   const pauseFromInteraction = useCallback(() => {
     interactionPausedRef.current = true;
+    setIsPaused(true);
     if (resumeTimerRef.current) clearTimeout(resumeTimerRef.current);
     resumeTimerRef.current = setTimeout(() => {
       interactionPausedRef.current = false;
+      if (!hoverPausedRef.current && !draggingRef.current) {
+        setIsPaused(false);
+      }
     }, RESUME_AUTO_MS);
   }, []);
 
-  const markProgrammaticScroll = useCallback(() => {
-    const scroller = scrollerRef.current;
-    scroller?.classList.add("is-auto-advancing");
-    isProgrammaticScrollRef.current = true;
-    if (programmaticTimerRef.current) clearTimeout(programmaticTimerRef.current);
-    programmaticTimerRef.current = setTimeout(() => {
-      isProgrammaticScrollRef.current = false;
-      scroller?.classList.remove("is-auto-advancing");
-    }, PROGRAMMATIC_SCROLL_MS);
+  const stopInertia = useCallback(() => {
+    if (inertiaRafRef.current !== null) {
+      cancelAnimationFrame(inertiaRafRef.current);
+      inertiaRafRef.current = null;
+    }
   }, []);
 
-  const handleScroll = useCallback(() => {
-    if (loopJumpRef.current) return;
+  const startInertia = useCallback(
+    (velocityPxPerMs: number) => {
+      stopInertia();
+      let velocity = -velocityPxPerMs * 1000;
+      if (Math.abs(velocity) < INERTIA_MIN_VELOCITY * 60) return;
 
-    if (!isProgrammaticScrollRef.current) {
+      const step = () => {
+        if (Math.abs(velocity) < INERTIA_MIN_VELOCITY) {
+          inertiaRafRef.current = null;
+          return;
+        }
+
+        positionRef.current -= velocity / 60;
+        velocity *= INERTIA_FRICTION;
+        normalizePosition();
+        applyTransform();
+        syncActiveIndex();
+        inertiaRafRef.current = requestAnimationFrame(step);
+      };
+
+      inertiaRafRef.current = requestAnimationFrame(step);
+    },
+    [applyTransform, normalizePosition, stopInertia, syncActiveIndex],
+  );
+
+  const nudgeBySlide = useCallback(
+    (direction: -1 | 1) => {
+      const track = trackRef.current;
+      if (!track) return;
+
+      const activeEl = track.children[activeLogicalIndex] as
+        | HTMLElement
+        | undefined;
+      const step = activeEl?.offsetWidth ?? 320;
       pauseFromInteraction();
-    }
-
-    syncActiveIndex();
-
-    if (scrollSettleRef.current) clearTimeout(scrollSettleRef.current);
-    scrollSettleRef.current = setTimeout(() => {
-      correctInfiniteLoop();
+      stopInertia();
+      positionRef.current += direction * step * 0.92;
+      normalizePosition();
+      applyTransform();
       syncActiveIndex();
-    }, SCROLL_SETTLE_MS);
-  }, [correctInfiniteLoop, pauseFromInteraction, syncActiveIndex]);
+    },
+    [
+      activeLogicalIndex,
+      applyTransform,
+      normalizePosition,
+      pauseFromInteraction,
+      stopInertia,
+      syncActiveIndex,
+    ],
+  );
+
+  const handlePointerDown = useCallback(
+    (event: ReactPointerEvent<HTMLDivElement>) => {
+      if (event.button !== 0) return;
+
+      stopInertia();
+      pauseFromInteraction();
+      draggingRef.current = true;
+      setIsDragging(true);
+      event.currentTarget.classList.add("is-dragging");
+      dragStartXRef.current = event.clientX;
+      dragStartPosRef.current = positionRef.current;
+      lastMoveXRef.current = event.clientX;
+      lastMoveTimeRef.current = performance.now();
+      dragVelocityRef.current = 0;
+
+      event.currentTarget.setPointerCapture(event.pointerId);
+    },
+    [pauseFromInteraction, stopInertia],
+  );
+
+  const handlePointerMove = useCallback(
+    (event: ReactPointerEvent<HTMLDivElement>) => {
+      if (!draggingRef.current) return;
+
+      const delta = event.clientX - dragStartXRef.current;
+      positionRef.current = dragStartPosRef.current - delta;
+      normalizePosition();
+      applyTransform();
+
+      const now = performance.now();
+      const dt = now - lastMoveTimeRef.current;
+      if (dt > 0) {
+        dragVelocityRef.current = (event.clientX - lastMoveXRef.current) / dt;
+      }
+      lastMoveXRef.current = event.clientX;
+      lastMoveTimeRef.current = now;
+      syncActiveIndex();
+    },
+    [applyTransform, normalizePosition, syncActiveIndex],
+  );
+
+  const handlePointerEnd = useCallback(
+    (event: ReactPointerEvent<HTMLDivElement>) => {
+      if (!draggingRef.current) return;
+
+      draggingRef.current = false;
+      setIsDragging(false);
+      event.currentTarget.classList.remove("is-dragging");
+
+      try {
+        event.currentTarget.releasePointerCapture(event.pointerId);
+      } catch {
+        /* ignore */
+      }
+
+      startInertia(dragVelocityRef.current);
+      pauseFromInteraction();
+    },
+    [pauseFromInteraction, startInertia],
+  );
 
   useEffect(() => {
-    const scroller = scrollerRef.current;
-    if (!scroller || initializedRef.current) return;
-
-    const middleStart = scroller.children[slideCount] as HTMLElement | undefined;
-    if (!middleStart) return;
-
-    const targetLeft = getScrollLeftForPhysical(scroller, slideCount);
-    scroller.style.scrollBehavior = "auto";
-    if (targetLeft !== null) scroller.scrollLeft = targetLeft;
-    scroller.style.scrollBehavior = "";
-    initializedRef.current = true;
+    measureSetWidth();
     syncActiveIndex();
-  }, [slideCount, syncActiveIndex]);
 
-  useEffect(() => {
-    const scroller = scrollerRef.current;
-    if (!scroller) return;
+    const track = trackRef.current;
+    if (!track) return;
 
     const ro = new ResizeObserver(() => {
-      goToLogical(logicalIndexRef.current, "auto");
+      measureSetWidth();
+      syncActiveIndex();
     });
 
-    ro.observe(scroller);
+    ro.observe(track);
     return () => ro.disconnect();
-  }, [goToLogical]);
+  }, [measureSetWidth, syncActiveIndex]);
 
   useEffect(() => {
     const viewport = viewportRef.current;
@@ -337,7 +358,7 @@ export function AboutProcessCarousel() {
       ([entry]) => {
         inViewRef.current = entry.isIntersecting;
       },
-      { threshold: 0.35 },
+      { threshold: 0.2 },
     );
 
     observer.observe(viewport);
@@ -347,56 +368,73 @@ export function AboutProcessCarousel() {
   useEffect(() => {
     if (reduceMotion) return;
 
-    let cancelled = false;
-    let timeoutId: ReturnType<typeof setTimeout>;
+    const tick = (timestamp: number) => {
+      if (!lastTickRef.current) lastTickRef.current = timestamp;
+      const dt = (timestamp - lastTickRef.current) / 1000;
+      lastTickRef.current = timestamp;
 
-    const schedule = () => {
-      if (cancelled) return;
-      const delay = getAdvanceMs(logicalIndexRef.current);
-      timeoutId = setTimeout(() => {
-        if (cancelled) return;
-        if (
-          inViewRef.current &&
-          !hoverPausedRef.current &&
-          !interactionPausedRef.current
-        ) {
-          markProgrammaticScroll();
-          goNext();
-        }
-        schedule();
-      }, delay);
+      const paused =
+        hoverPausedRef.current ||
+        interactionPausedRef.current ||
+        draggingRef.current ||
+        inertiaRafRef.current !== null;
+
+      if (
+        !paused &&
+        inViewRef.current &&
+        setWidthRef.current > 0
+      ) {
+        const wave = 1 + Math.sin(timestamp * 0.0014) * 0.06;
+        positionRef.current -= MARQUEE_SPEED_PX_S * dt * wave;
+        normalizePosition();
+        applyTransform();
+        syncActiveIndex();
+      }
+
+      marqueeRafRef.current = requestAnimationFrame(tick);
     };
 
-    schedule();
+    marqueeRafRef.current = requestAnimationFrame(tick);
     return () => {
-      cancelled = true;
-      clearTimeout(timeoutId);
+      if (marqueeRafRef.current !== null) {
+        cancelAnimationFrame(marqueeRafRef.current);
+      }
     };
-  }, [goNext, markProgrammaticScroll, reduceMotion]);
+  }, [
+    applyTransform,
+    normalizePosition,
+    reduceMotion,
+    syncActiveIndex,
+  ]);
 
   useEffect(() => {
     return () => {
       if (resumeTimerRef.current) clearTimeout(resumeTimerRef.current);
-      if (programmaticTimerRef.current) clearTimeout(programmaticTimerRef.current);
-      if (scrollSettleRef.current) clearTimeout(scrollSettleRef.current);
+      stopInertia();
     };
-  }, []);
+  }, [stopInertia]);
 
   return (
     <div className="about-process-carousel mt-6 sm:mt-7">
       <div
         ref={viewportRef}
-        className="about-process-carousel-viewport page-bleed-x relative"
+        className={[
+          "about-process-carousel-viewport about-process-carousel-viewport--marquee page-bleed-x relative",
+          isPaused ? "about-process-carousel-viewport--paused" : "",
+          isDragging ? "about-process-carousel-viewport--dragging" : "",
+        ].join(" ")}
         aria-roledescription="carrusel"
         aria-label={t("aboutProcessLabel")}
         onMouseEnter={() => {
           hoverPausedRef.current = true;
+          setIsPaused(true);
         }}
         onMouseLeave={() => {
           hoverPausedRef.current = false;
+          if (!interactionPausedRef.current && !draggingRef.current) {
+            setIsPaused(false);
+          }
         }}
-        onFocusCapture={pauseFromInteraction}
-        onTouchStart={pauseFromInteraction}
       >
         <div
           className="about-process-carousel-fade about-process-carousel-fade--left"
@@ -410,10 +448,7 @@ export function AboutProcessCarousel() {
         <button
           type="button"
           className="about-process-carousel-nav about-process-carousel-nav--prev"
-          onClick={() => {
-            pauseFromInteraction();
-            goPrev();
-          }}
+          onClick={() => nudgeBySlide(-1)}
           aria-label={t("famousGalleryPrev")}
         >
           <ChevronLeft className="h-5 w-5" strokeWidth={2} />
@@ -422,22 +457,27 @@ export function AboutProcessCarousel() {
         <button
           type="button"
           className="about-process-carousel-nav about-process-carousel-nav--next"
-          onClick={() => {
-            pauseFromInteraction();
-            goNext();
-          }}
+          onClick={() => nudgeBySlide(1)}
           aria-label={t("famousGalleryNext")}
         >
           <ChevronRight className="h-5 w-5" strokeWidth={2} />
         </button>
 
         <div
-          ref={scrollerRef}
-          className="about-process-carousel-track"
-          onScroll={handleScroll}
+          ref={trackRef}
+          className="about-process-carousel-track about-process-carousel-track--marquee"
+          onPointerDown={handlePointerDown}
+          onPointerMove={handlePointerMove}
+          onPointerUp={handlePointerEnd}
+          onPointerCancel={handlePointerEnd}
+          onLostPointerCapture={(event) => {
+            draggingRef.current = false;
+            setIsDragging(false);
+            event.currentTarget.classList.remove("is-dragging");
+          }}
         >
-          {loopSlides.map(({ slide, physicalIndex }) => {
-            const isActive = physicalIndex === activePhysicalIndex;
+          {loopSlides.map(({ slide, physicalIndex, logicalIndex }) => {
+            const isActive = isSlideActive(physicalIndex);
 
             return (
               <figure
@@ -447,7 +487,7 @@ export function AboutProcessCarousel() {
                   isActive ? "about-process-slide--active" : "",
                 ].join(" ")}
                 draggable={false}
-                aria-hidden={!isActive}
+                aria-hidden={logicalIndex !== activeLogicalIndex}
               >
                 <div className="about-process-frame__media">
                   <ProcessSlideMedia slide={slide} isActive={isActive} />
@@ -474,8 +514,23 @@ export function AboutProcessCarousel() {
             aria-selected={index === activeLogicalIndex}
             aria-label={t("famousGallerySlide", { index: String(index + 1) })}
             onClick={() => {
+              const track = trackRef.current;
+              if (!track) return;
+
               pauseFromInteraction();
-              goToLogical(index);
+              stopInertia();
+
+              const target = track.children[index] as HTMLElement | undefined;
+              const viewport = viewportRef.current;
+              if (!target || !viewport) return;
+
+              positionRef.current =
+                target.offsetLeft +
+                target.offsetWidth / 2 -
+                viewport.offsetWidth / 2;
+              normalizePosition();
+              applyTransform();
+              syncActiveIndex();
             }}
             className={[
               "about-process-carousel-dot focus-ring",

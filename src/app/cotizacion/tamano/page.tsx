@@ -18,7 +18,7 @@ type SizeOption = "mediano" | "grande";
 export default function CotizacionTamanoPage() {
   const router = useRouter();
   const { t } = useSiteLanguage();
-  const [size, setSize] = useState<SizeOption>("mediano");
+  const [size, setSize] = useState<SizeOption | null>(null);
   const gateReady = useQuoteOnboardingGate();
 
   const options = useMemo(
@@ -157,6 +157,7 @@ export default function CotizacionTamanoPage() {
         <button
           type="button"
           onClick={() => {
+            if (!size) return;
             saveQuoteDraft({
               size,
               zone: getQuoteDraft()?.zone,
@@ -165,7 +166,12 @@ export default function CotizacionTamanoPage() {
             });
             router.push(`/cotizacion/ubicacion?size=${size}`);
           }}
-          className="quote-step-footer-next btn-accent focus-ring typo-cta group inline-flex items-center justify-center gap-2 rounded-lg px-6 py-3 active:scale-[0.98]"
+          disabled={!size}
+          aria-disabled={!size}
+          className={[
+            "quote-step-footer-next btn-accent focus-ring typo-cta group inline-flex items-center justify-center gap-2 rounded-lg px-6 py-3 active:scale-[0.98]",
+            !size ? "cursor-not-allowed opacity-45" : "",
+          ].join(" ")}
         >
           {t("quoteContinue")}
           <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />

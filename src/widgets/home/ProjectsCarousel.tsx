@@ -17,7 +17,6 @@ type PortfolioPiece = {
   titleKey: SiteCopyKey;
   categoryKey: SiteCopyKey;
   rotate: number;
-  graffitiId: 1 | 2 | 3 | 4 | 5 | 6;
 };
 
 const PORTFOLIO_PIECES: PortfolioPiece[] = [
@@ -26,48 +25,42 @@ const PORTFOLIO_PIECES: PortfolioPiece[] = [
     altKey: "portfolioPiece1Alt",
     titleKey: "portfolioPiece1Title",
     categoryKey: "portfolioCatLettering",
-    rotate: -7,
-    graffitiId: 1,
+    rotate: -2.5,
   },
   {
     src: "/portfolio/piece-realism-1.png",
     altKey: "portfolioPiece2Alt",
     titleKey: "portfolioPiece2Title",
     categoryKey: "portfolioCatRealism",
-    rotate: 5.5,
-    graffitiId: 2,
+    rotate: 2,
   },
   {
     src: "/portfolio/piece-lettering-2.png",
     altKey: "portfolioPiece3Alt",
     titleKey: "portfolioPiece3Title",
     categoryKey: "portfolioCatLettering",
-    rotate: -3.5,
-    graffitiId: 3,
+    rotate: -1.5,
   },
   {
     src: "/portfolio/piece-realism-2.png",
     altKey: "portfolioPiece4Alt",
     titleKey: "portfolioPiece4Title",
     categoryKey: "portfolioCatShadows",
-    rotate: 6,
-    graffitiId: 4,
+    rotate: 2.5,
   },
   {
     src: "/portfolio/piece-realism-3.png",
     altKey: "portfolioPiece5Alt",
     titleKey: "portfolioPiece5Title",
     categoryKey: "portfolioCatRealism",
-    rotate: -5,
-    graffitiId: 5,
+    rotate: -2,
   },
   {
     src: "/portfolio/piece-peru-hannya.png",
     altKey: "portfolioPiece6Alt",
     titleKey: "portfolioPiece6Title",
     categoryKey: "portfolioCatShadows",
-    rotate: 4,
-    graffitiId: 6,
+    rotate: 1.5,
   },
 ];
 
@@ -120,11 +113,11 @@ function PortfolioFramedPhoto({
 
   return (
     <motion.figure
-      className={`portfolio-wall-cell portfolio-graffiti portfolio-graffiti--${piece.graffitiId}`}
+      className={`portfolio-wall-cell portfolio-wall-cell--${index + 1}`}
       initial={
         reducedMotion
           ? { opacity: 1, rotate: piece.rotate, y: 0, scale: 1 }
-          : { opacity: 0, rotate: piece.rotate + 11, y: -36, scale: 1.1 }
+          : { opacity: 0, rotate: piece.rotate + 4, y: -18, scale: 1.03 }
       }
       whileInView={
         reducedMotion
@@ -169,7 +162,7 @@ function PortfolioFramedPhoto({
       >
         <PortfolioFramedImage
           piece={piece}
-          sizes="(max-width: 767px) 48vw, 240px"
+          sizes="(max-width: 639px) 44vw, (max-width: 1023px) 30vw, 280px"
           priority={index < 2}
         />
         <span className="portfolio-wall-cell__hint">{t("portfolioViewDetail")}</span>
@@ -319,7 +312,7 @@ function PortfolioPhotoWall({ t }: { t: (key: SiteCopyKey, vars?: Record<string,
   return (
     <>
       <motion.div
-        className="portfolio-photo-wall portfolio-photo-wall--graffiti page-bleed-x relative mt-8 w-full border-y border-white/[0.08] sm:mt-10"
+        className="portfolio-photo-wall portfolio-photo-wall--gallery page-bleed-x relative mt-8 w-full border-y border-white/[0.08] sm:mt-10"
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
         viewport={scrollRevealViewport}
@@ -357,7 +350,7 @@ export function ProjectsCarousel() {
   const { t } = useSiteLanguage();
 
   return (
-    <section className="page-section section-surface section-surface--portfolio section-divider relative w-full overflow-hidden">
+    <section className="page-section section-surface section-surface--portfolio section-divider relative w-full overflow-x-clip">
       <div className="page-section-pad relative z-10 page-section-y">
         <p className="typo-eyebrow">{t("projectsTag")}</p>
 

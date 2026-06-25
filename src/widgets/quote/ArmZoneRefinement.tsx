@@ -97,13 +97,20 @@ function FaceScopeChip({
 
 function patchSelection(current: ArmSelection | null, patch: Partial<ArmSelection>): ArmSelection {
   return {
-    laterality: patch.laterality ?? current?.laterality ?? "ambas",
-    faceScope: patch.faceScope ?? current?.faceScope ?? "externa",
-    part: patch.part !== undefined ? patch.part : (current?.part ?? null),
+    laterality: patch.laterality ?? current?.laterality,
+    faceScope: patch.faceScope ?? current?.faceScope,
+    part: patch.part !== undefined ? patch.part : current?.part ?? null,
   };
 }
 
-function buildSummary(t: (key: SiteCopyKey) => string, selection: ArmSelection & { part: ArmPartId }): string {
+function buildSummary(
+  t: (key: SiteCopyKey) => string,
+  selection: ArmSelection & {
+    laterality: LimbLateralityId;
+    faceScope: ArmFaceScopeId;
+    part: ArmPartId;
+  },
+): string {
   return [
     t(LIMB_LATERALITY_LABEL_KEYS[selection.laterality]),
     t(ARM_FACE_SCOPE_LABEL_KEYS[selection.faceScope]),
@@ -116,7 +123,7 @@ export function ArmZoneRefinement({ selection, onSelectionChange }: Props) {
   const hasLaterality = Boolean(selection?.laterality);
   const hasFace = Boolean(selection?.faceScope);
   const complete = isArmSelectionComplete(selection);
-  const visibleFaces = selection ? getArmVisibleFaces(selection.faceScope) : [];
+  const visibleFaces = selection?.faceScope ? getArmVisibleFaces(selection.faceScope) : [];
 
   const handleLaterality = (laterality: LimbLateralityId) => {
     onSelectionChange(patchSelection(selection, { laterality }));
@@ -207,7 +214,7 @@ export function ArmZoneRefinement({ selection, onSelectionChange }: Props) {
                       className="object-contain"
                     />
                     {detailHotspots.map((spot) => {
-                      const active = isArmDetailHotspotActive(spot.id, selection.part);
+                      const active = isArmDetailHotspotActive(spot.id, selection.part ?? null);
                       return (
                         <DetailHotspot
                           key={`${face}-${spot.id}`}
@@ -269,8 +276,15 @@ export function ArmZoneRefinement({ selection, onSelectionChange }: Props) {
         </div>
       ) : null}
 
-      {complete && selection ? (
-        <SelectionSummary label={t("quoteSelectionSummary")} value={buildSummary(t, selection)} />
+      {complete && selection?.laterality && selection.faceScope && selection.part ? (
+        <SelectionSummary
+          label={t("quoteSelectionSummary")}
+          value={buildSummary(t, selection as ArmSelection & {
+            laterality: LimbLateralityId;
+            faceScope: ArmFaceScopeId;
+            part: ArmPartId;
+          })}
+        />
       ) : (
         <SelectionSummary
           label={t("quoteSelectionSummary")}
