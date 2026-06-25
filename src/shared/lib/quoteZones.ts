@@ -1,6 +1,6 @@
 import type { SiteCopyKey } from "@/shared/i18n/siteLanguage";
 import { HEAD_PART_LABEL_KEYS, isHeadPartId, type HeadPartId } from "@/shared/lib/headZoneParts";
-import { BACK_PART_LABEL_KEYS, isBackPartId, type BackPartId } from "@/shared/lib/backZoneParts";
+import { BACK_PART_LABEL_KEYS, normalizeBackPartId } from "@/shared/lib/backZoneParts";
 import {
   ARM_FACE_SCOPE_LABEL_KEYS,
   ARM_PART_LABEL_KEYS,
@@ -150,8 +150,11 @@ export function formatZoneDisplay(
   if (id === "cabeza" && headPart && isHeadPartId(headPart)) {
     return `${base} — ${t(HEAD_PART_LABEL_KEYS[headPart as HeadPartId])}`;
   }
-  if (id === "espalda" && backPart && isBackPartId(backPart)) {
-    return `${base} — ${t(BACK_PART_LABEL_KEYS[backPart as BackPartId])}`;
+  if (id === "espalda" && backPart) {
+    const normalized = normalizeBackPartId(backPart);
+    if (normalized) {
+      return `${base} — ${t(BACK_PART_LABEL_KEYS[normalized])}`;
+    }
   }
   if (id === "brazo") {
     const parts: string[] = [base];

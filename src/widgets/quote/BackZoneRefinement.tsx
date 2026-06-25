@@ -1,7 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import { CircleDot } from "lucide-react";
 import { useSiteLanguage } from "@/shared/i18n/LanguageProvider";
 import {
   BACK_DETAIL_HOTSPOTS,
@@ -12,7 +11,7 @@ import {
 } from "@/shared/lib/backZoneParts";
 import { DetailHotspot } from "@/widgets/quote/DetailHotspot";
 import { RefinementPanel } from "@/widgets/quote/ZoneFlowHelpers";
-import { RefinementStepHeader, SelectionSummary, BODY_REFERENCE_IMAGE_FRAME } from "@/widgets/quote/quoteRefinementUi";
+import { SelectionSummary, BODY_REFERENCE_IMAGE_FRAME } from "@/widgets/quote/quoteRefinementUi";
 
 type Props = {
   backPart: BackPartId | null;
@@ -24,17 +23,10 @@ export function BackZoneRefinement({ backPart, onBackPartChange }: Props) {
 
   return (
     <RefinementPanel titleKey="quoteBackPartTitle" hintKey="quoteBackPartHint">
-      <RefinementStepHeader
-        step={1}
-        total={1}
-        title={t("quoteBackPartTitle")}
-        hint={t("quoteBackPartHint")}
-        done={Boolean(backPart)}
-      />
-
-      <div className="grid grid-cols-2 gap-2">
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
         {BACK_PART_IDS.map((id) => {
           const active = backPart === id;
+          const label = t(BACK_PART_LABEL_KEYS[id]);
           return (
             <button
               key={id}
@@ -42,14 +34,20 @@ export function BackZoneRefinement({ backPart, onBackPartChange }: Props) {
               onClick={() => onBackPartChange(id)}
               aria-pressed={active}
               className={[
-                "inline-flex min-h-[44px] items-center gap-2 rounded-xl border px-3 py-2.5 text-left text-sm font-semibold transition active:scale-[0.98]",
-                active
-                  ? "border-stone-400/35 bg-stone-600/14 text-stone-100"
-                  : "border-white/10 bg-white/5 text-zinc-200 hover:border-stone-500/22 hover:bg-stone-600/8",
+                "connection-choice focus-ring min-h-[3.25rem]",
+                active ? "connection-choice--selected" : "",
               ].join(" ")}
             >
-              <CircleDot className="h-4 w-4 shrink-0 opacity-70" strokeWidth={1.75} />
-              {t(BACK_PART_LABEL_KEYS[id])}
+              <span className="connection-choice__label">{label}</span>
+              <span
+                className={[
+                  "connection-choice__indicator connection-choice__indicator--radio",
+                  active ? "connection-choice__indicator--on" : "",
+                ].join(" ")}
+                aria-hidden
+              >
+                {active ? <span className="connection-choice__radio-dot" /> : null}
+              </span>
             </button>
           );
         })}
@@ -86,7 +84,9 @@ export function BackZoneRefinement({ backPart, onBackPartChange }: Props) {
           {t("quoteBackPartDetailLabel")}
         </p>
         {backPart ? (
-          <p className="mt-1 text-center text-[11px] text-zinc-500">{t("quoteDetailViewHighlightHint")}</p>
+          <p className="mt-1 text-center text-[11px] text-zinc-500">
+            {t("quoteDetailViewHighlightHint")}
+          </p>
         ) : null}
       </div>
 

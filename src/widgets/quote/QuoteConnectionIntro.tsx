@@ -14,6 +14,7 @@ type QuoteConnectionIntroProps = {
   title: string;
   title2: string;
   manifest: string;
+  hook?: string;
   eyebrow?: string;
   onComplete: () => void;
 };
@@ -22,6 +23,7 @@ export function QuoteConnectionIntro({
   title,
   title2,
   manifest,
+  hook,
   eyebrow,
   onComplete,
 }: QuoteConnectionIntroProps) {
@@ -68,6 +70,17 @@ export function QuoteConnectionIntro({
         />
 
         <ConnectionManifestoStatement text={manifest} />
+
+        {hook ? (
+          <motion.p
+            className="connection-intro__hook"
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 2.85, ease: easeOut }}
+          >
+            {hook}
+          </motion.p>
+        ) : null}
 
         <motion.div
           className="connection-intro__progress"

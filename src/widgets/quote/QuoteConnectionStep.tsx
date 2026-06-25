@@ -10,7 +10,8 @@ import {
 } from "@/widgets/quote/QuoteConnectionIntro";
 import { QuoteConnectionDecline } from "@/widgets/quote/QuoteConnectionDecline";
 import { QuoteConnectionReward } from "@/widgets/quote/QuoteConnectionReward";
-import { ArrowRight, Check } from "lucide-react";
+import { ConnectionChoiceOption } from "@/widgets/quote/ConnectionChoiceOption";
+import { ArrowRight } from "lucide-react";
 import { useSiteLanguage } from "@/shared/i18n/LanguageProvider";
 import { buildConnectionPraise } from "@/shared/lib/connectionPraise";
 import {
@@ -41,55 +42,6 @@ const TOTAL_QUESTIONS = 4;
 
 function scrollStepToTop() {
   window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
-}
-function ChoiceOption({
-  selected,
-  label,
-  mode,
-  onClick,
-}: {
-  selected: boolean;
-  label: string;
-  mode: ConnectionSelectionMode;
-  onClick: () => void;
-}) {
-  const isSingle = mode === "single";
-
-  return (
-    <button
-      type="button"
-      role={isSingle ? "radio" : "checkbox"}
-      aria-checked={selected}
-      onClick={onClick}
-      className={[
-        "flex items-center justify-between gap-3 rounded-xl border px-4 py-3.5 text-left text-sm transition",
-        selected
-          ? "border-stone-500/30 bg-stone-600/10 text-stone-100"
-          : "border-white/10 bg-black/30 text-zinc-200 hover:border-stone-500/22 hover:bg-stone-600/8",
-      ].join(" ")}
-    >
-      <span>{label}</span>
-      <span
-        className={[
-          "inline-flex h-5 w-5 shrink-0 items-center justify-center border transition",
-          isSingle ? "rounded-full" : "rounded-md",
-          selected
-            ? isSingle
-              ? "border-stone-400/45 bg-stone-500/15"
-              : "border-stone-400/40 bg-stone-500/20"
-            : "border-white/15 bg-black/40",
-        ].join(" ")}
-      >
-        {selected ? (
-          isSingle ? (
-            <span className="h-2.5 w-2.5 rounded-full bg-stone-300 shadow-[0_0_6px_rgba(168,156,144,0.35)]" />
-          ) : (
-            <Check className="h-3 w-3 text-stone-200" strokeWidth={3} />
-          )
-        ) : null}
-      </span>
-    </button>
-  );
 }
 
 function pickOption<T extends string>(
@@ -279,46 +231,62 @@ export function QuoteConnectionStep() {
             title={t("quoteConnectionTitle")}
             title2={t("quoteConnectionTitle2")}
             manifest={t("quoteConnectionManifest")}
+            hook={t("quoteConnectionHook")}
             eyebrow={t("quoteConnectionStep")}
             onComplete={handleIntroComplete}
           />
         }
       >
-        <div className="relative flex min-h-0 flex-1 flex-col">
+        <div className="connection-step relative flex min-h-0 flex-1 flex-col">
           <AnimatePresence>
             {showForm ? (
-              <motion.div
+              <motion.header
                 key="connection-form-header"
                 initial={{ opacity: 0, y: 14, filter: "blur(6px)" }}
                 animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
                 transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
-                className="relative mb-6"
+                className="connection-step__header"
               >
-                {step === 0 ? (
-                  <p className="typo-body max-w-lg text-sm leading-relaxed text-zinc-400">
-                    {t("quoteConnectionPace")}
+                <div className="connection-step__context">
+                  <p className="connection-step__meta">
+                    <span className="connection-step__meta-step">{t("quoteConnectionStep")}</span>
+                    <span className="connection-step__meta-dot" aria-hidden>
+                      ·
+                    </span>
+                    <span className="connection-step__meta-progress">{progressLabel}</span>
                   </p>
-                ) : null}
-                <p
-                  className={[
-                    "typo-tech mb-2 uppercase tracking-[0.16em] text-stone-400",
-                    step === 0 ? "mt-6" : "mt-0",
-                  ].join(" ")}
+                  <h2 className="connection-step__title" aria-hidden>
+                    <span className="connection-step__title-line">{t("quoteConnectionTitle")}</span>
+                    <span className="connection-step__title-line connection-step__title-line--accent">
+                      {t("quoteConnectionTitle2")}
+                    </span>
+                  </h2>
+                </div>
+
+                <div
+                  className="connection-step__progress"
+                  role="progressbar"
+                  aria-valuenow={step + 1}
+                  aria-valuemin={1}
+                  aria-valuemax={TOTAL_QUESTIONS}
+                  aria-label={progressLabel}
                 >
-                  {t("quoteConnectionStep")} · {progressLabel}
-                </p>
-                <div className="flex gap-1.5">
                   {Array.from({ length: TOTAL_QUESTIONS }).map((_, index) => (
                     <span
                       key={index}
                       className={[
-                        "h-1 flex-1 rounded-full transition",
-                        index <= step ? "bg-stone-500/55" : "bg-white/10",
+                        "connection-step__progress-segment",
+                        index <= step ? "connection-step__progress-segment--filled" : "",
+                        index === step ? "connection-step__progress-segment--current" : "",
                       ].join(" ")}
                     />
                   ))}
                 </div>
-              </motion.div>
+
+                {step === 0 ? (
+                  <p className="connection-step__pace">{t("quoteConnectionPace")}</p>
+                ) : null}
+              </motion.header>
             ) : null}
           </AnimatePresence>
 
@@ -329,137 +297,145 @@ export function QuoteConnectionStep() {
                 initial={{ opacity: 0, y: 20, filter: "blur(8px)" }}
                 animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
                 transition={{ duration: 0.55, delay: 0.08, ease: [0.22, 1, 0.36, 1] }}
-                className="flex flex-1 flex-col"
+                className="connection-step__body flex flex-1 flex-col"
               >
-                <section className="mb-8">
-                  <div className="glass-card rounded-2xl p-5 md:p-6">
-                    {step === 0 ? (
-                      <fieldset className="space-y-3">
-                        <legend className="typo-subtitle mb-1 block text-lg leading-snug text-zinc-50 md:text-xl">
-                          {t("quoteConnectionReferralLabel")}
-                        </legend>
-                        <p className="text-xs text-zinc-400">{t("quoteConnectionSingleHint")}</p>
-                        <div
-                          className="grid gap-2 sm:grid-cols-2"
-                          role="radiogroup"
-                          aria-label={t("quoteConnectionReferralLabel")}
-                        >
-                          {REFERRAL_SOURCES.map((source) => (
-                            <ChoiceOption
-                              key={source}
-                              mode={CONNECTION_SELECTION_MODES.referral}
-                              selected={referralSources.includes(source)}
-                              label={t(REFERRAL_LABEL_KEYS[source])}
-                              onClick={() =>
-                                setReferralSources((current) =>
-                                  pickOption(current, source, CONNECTION_SELECTION_MODES.referral),
-                                )
-                              }
-                            />
-                          ))}
-                        </div>
-                        {showOtherReferral ? (
-                          <label className="mt-2 block space-y-2">
-                            <span className="text-xs font-semibold uppercase tracking-[0.14em] text-zinc-400">
-                              {t("quoteConnectionReferralOtherLabel")}
-                            </span>
-                            <input
-                              type="text"
-                              value={referralOther}
-                              onChange={(event) => setReferralOther(event.target.value)}
-                              maxLength={80}
-                              autoFocus
-                              placeholder={t("quoteConnectionReferralOtherPlaceholder")}
-                              className="w-full rounded-xl border border-white/10 bg-black/35 px-4 py-3 text-sm text-zinc-100 outline-none transition placeholder:text-zinc-500 focus:border-amber-500/50"
-                            />
-                          </label>
-                        ) : null}
-                      </fieldset>
-                    ) : null}
+                <section className="connection-step__panel">
+                  <AnimatePresence mode="wait">
+                    <motion.div
+                      key={step}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -8 }}
+                      transition={{ duration: 0.38, ease: [0.22, 1, 0.36, 1] }}
+                    >
+                  {step === 0 ? (
+                    <fieldset className="connection-step__fieldset">
+                      <legend className="connection-step__question">
+                        {t("quoteConnectionReferralLabel")}
+                      </legend>
+                      <p className="connection-step__hint">{t("quoteConnectionSingleHint")}</p>
+                      <div
+                        className="connection-step__options connection-step__options--grid"
+                        role="radiogroup"
+                        aria-label={t("quoteConnectionReferralLabel")}
+                      >
+                        {REFERRAL_SOURCES.map((source) => (
+                          <ConnectionChoiceOption
+                            key={source}
+                            mode={CONNECTION_SELECTION_MODES.referral}
+                            selected={referralSources.includes(source)}
+                            label={t(REFERRAL_LABEL_KEYS[source])}
+                            onClick={() =>
+                              setReferralSources((current) =>
+                                pickOption(current, source, CONNECTION_SELECTION_MODES.referral),
+                              )
+                            }
+                          />
+                        ))}
+                      </div>
+                      {showOtherReferral ? (
+                        <label className="connection-step__field">
+                          <span className="connection-step__field-label">
+                            {t("quoteConnectionReferralOtherLabel")}
+                          </span>
+                          <input
+                            type="text"
+                            value={referralOther}
+                            onChange={(event) => setReferralOther(event.target.value)}
+                            maxLength={80}
+                            autoFocus
+                            placeholder={t("quoteConnectionReferralOtherPlaceholder")}
+                            className="connection-step__input"
+                          />
+                        </label>
+                      ) : null}
+                    </fieldset>
+                  ) : null}
 
-                    {step === 1 ? (
-                      <fieldset className="space-y-3">
-                        <legend className="typo-subtitle mb-1 block text-lg leading-snug text-zinc-50 md:text-xl">
-                          {t("quoteConnectionValuesLabel")}
-                        </legend>
-                        <p className="text-xs leading-relaxed text-zinc-400">
-                          {t("quoteConnectionValuesHint")}
-                        </p>
-                        <div className="grid gap-2 sm:grid-cols-2">
-                          {PERSONAL_VALUES.map((value) => (
-                            <ChoiceOption
-                              key={value}
-                              mode={CONNECTION_SELECTION_MODES.values}
-                              selected={personalValues.includes(value)}
-                              label={t(VALUE_LABEL_KEYS[value])}
-                              onClick={() =>
-                                setPersonalValues((current) =>
-                                  pickOption(current, value, CONNECTION_SELECTION_MODES.values),
-                                )
-                              }
-                            />
-                          ))}
-                        </div>
-                      </fieldset>
-                    ) : null}
+                  {step === 1 ? (
+                    <fieldset className="connection-step__fieldset">
+                      <legend className="connection-step__question">
+                        {t("quoteConnectionValuesLabel")}
+                      </legend>
+                      <p className="connection-step__hint">{t("quoteConnectionValuesHint")}</p>
+                      <div className="connection-step__options connection-step__options--grid">
+                        {PERSONAL_VALUES.map((value) => (
+                          <ConnectionChoiceOption
+                            key={value}
+                            mode={CONNECTION_SELECTION_MODES.values}
+                            selected={personalValues.includes(value)}
+                            label={t(VALUE_LABEL_KEYS[value])}
+                            onClick={() =>
+                              setPersonalValues((current) =>
+                                pickOption(current, value, CONNECTION_SELECTION_MODES.values),
+                              )
+                            }
+                          />
+                        ))}
+                      </div>
+                    </fieldset>
+                  ) : null}
 
-                    {step === 2 ? (
-                      <fieldset className="space-y-3">
-                        <legend className="typo-subtitle mb-1 block text-lg leading-snug text-zinc-50 md:text-xl">
-                          {t("quoteConnectionAdjustLabel")}
-                        </legend>
-                        <p className="text-xs leading-relaxed text-zinc-400">
-                          {t("quoteConnectionAdjustHint")}
-                        </p>
-                        <div
-                          className="grid gap-2"
-                          role="radiogroup"
-                          aria-label={t("quoteConnectionAdjustLabel")}
-                        >
-                          {ADJUSTMENT_OPTIONS.map((option) => (
-                            <ChoiceOption
-                              key={option}
-                              mode={CONNECTION_SELECTION_MODES.adjustments}
-                              selected={adjustments.includes(option)}
-                              label={t(ADJUSTMENT_LABEL_KEYS[option])}
-                              onClick={() =>
-                                setAdjustments((current) =>
-                                  pickOption(current, option, CONNECTION_SELECTION_MODES.adjustments),
-                                )
-                              }
-                            />
-                          ))}
-                        </div>
-                      </fieldset>
-                    ) : null}
+                  {step === 2 ? (
+                    <fieldset className="connection-step__fieldset">
+                      <legend className="connection-step__question">
+                        {t("quoteConnectionAdjustLabel")}
+                      </legend>
+                      <p className="connection-step__hint">{t("quoteConnectionAdjustHint")}</p>
+                      <div
+                        className="connection-step__options connection-step__options--stack"
+                        role="radiogroup"
+                        aria-label={t("quoteConnectionAdjustLabel")}
+                      >
+                        {ADJUSTMENT_OPTIONS.map((option) => (
+                          <ConnectionChoiceOption
+                            key={option}
+                            mode={CONNECTION_SELECTION_MODES.adjustments}
+                            selected={adjustments.includes(option)}
+                            label={t(ADJUSTMENT_LABEL_KEYS[option])}
+                            onClick={() =>
+                              setAdjustments((current) =>
+                                pickOption(
+                                  current,
+                                  option,
+                                  CONNECTION_SELECTION_MODES.adjustments,
+                                ),
+                              )
+                            }
+                          />
+                        ))}
+                      </div>
+                    </fieldset>
+                  ) : null}
 
-                    {step === 3 ? (
-                      <label className="block space-y-3">
-                        <span className="typo-subtitle block text-lg leading-snug text-zinc-50 md:text-xl">
-                          {t("quoteConnectionOpenLabel")}
-                        </span>
-                        <p className="text-xs text-zinc-400">{t("quoteConnectionOpenHint")}</p>
-                        <textarea
-                          value={openNote}
-                          onChange={(event) => setOpenNote(event.target.value)}
-                          rows={3}
-                          maxLength={200}
-                          autoFocus
-                          placeholder={t("quoteConnectionOpenPlaceholder")}
-                          className="w-full resize-none rounded-xl border border-white/10 bg-black/35 px-4 py-3 text-sm text-zinc-100 outline-none transition placeholder:text-zinc-500 focus:border-amber-500/50"
-                        />
-                      </label>
-                    ) : null}
+                  {step === 3 ? (
+                    <label className="connection-step__fieldset connection-step__fieldset--open">
+                      <span className="connection-step__question">
+                        {t("quoteConnectionOpenLabel")}
+                      </span>
+                      <p className="connection-step__hint">{t("quoteConnectionOpenHint")}</p>
+                      <textarea
+                        value={openNote}
+                        onChange={(event) => setOpenNote(event.target.value)}
+                        rows={4}
+                        maxLength={200}
+                        autoFocus
+                        placeholder={t("quoteConnectionOpenPlaceholder")}
+                        className="connection-step__textarea"
+                      />
+                    </label>
+                  ) : null}
 
-                    {error ? <p className="mt-4 text-sm text-amber-200/90">{error}</p> : null}
-                  </div>
+                  {error ? <p className="connection-step__error">{error}</p> : null}
+                    </motion.div>
+                  </AnimatePresence>
                 </section>
 
-                <div className="quote-step-footer mt-auto pt-2">
+                <div className="quote-step-footer connection-step__footer mt-auto pt-2">
                   <button
                     type="button"
                     onClick={goBack}
-                    className="quote-step-footer-back rounded-xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold text-zinc-100 transition hover:bg-white/8"
+                    className="quote-step-footer-back connection-step__back rounded-xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold text-zinc-100 transition hover:bg-white/8 active:scale-[0.98]"
                   >
                     {t("commonBack")}
                   </button>
@@ -468,7 +444,9 @@ export function QuoteConnectionStep() {
                     onClick={goNext}
                     className="quote-step-footer-next btn-accent focus-ring typo-cta group inline-flex items-center justify-center gap-2 rounded-lg px-6 py-3 active:scale-[0.98]"
                   >
-                    {step === TOTAL_QUESTIONS - 1 ? t("quoteConnectionContinue") : t("quoteConnectionNext")}
+                    {step === TOTAL_QUESTIONS - 1
+                      ? t("quoteConnectionContinue")
+                      : t("quoteConnectionNext")}
                     <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                   </button>
                 </div>

@@ -17,11 +17,16 @@ export function LazyMount({
   className,
 }: LazyMountProps) {
   const ref = useRef<HTMLDivElement>(null);
-  const [mounted, setMounted] = useState(() => typeof IntersectionObserver === "undefined");
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     const node = ref.current;
-    if (!node || mounted) return;
+    if (!node) return;
+
+    if (typeof IntersectionObserver === "undefined") {
+      setMounted(true);
+      return;
+    }
 
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -34,7 +39,7 @@ export function LazyMount({
 
     observer.observe(node);
     return () => observer.disconnect();
-  }, [mounted, rootMargin]);
+  }, [rootMargin]);
 
   return (
     <div

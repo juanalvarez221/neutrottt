@@ -61,7 +61,7 @@ export function QuoteConfirmationStep({
         size,
         zone: zoneLabel,
         style: DEFAULT_QUOTE_STYLE,
-        notes: "",
+        notes: getQuoteDraft()?.notes?.trim() ?? "",
         ...connectionFields,
         estimateSessions: estimate.sessions,
         estimatePerSession: estimate.perSession,

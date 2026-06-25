@@ -303,6 +303,12 @@ export const SITE_COPY = {
     quoteReferenceBodyLarge: "Referencias opcionales. Luego eliges horario de asesoría.",
     quoteReferenceEncouragement:
       "Un buen tatuaje empieza con una historia honesta — y eso ya suma.",
+    quoteReferenceNoteLabel: "Nota o comentario",
+    quoteReferenceNoteHint:
+      "Opcional · unas líneas para describir la idea, el significado o aclarar algo.",
+    quoteReferenceNotePlaceholder:
+      "Ej: prefiero líneas finas; debe leerse bien en la escala elegida…",
+    quoteReferenceNoteCounter: "{current} / {max}",
     quoteReferenceProjectLabel: "¿Qué quieres tatuar y por qué?",
     quoteReferenceProjectPlaceholder:
       "Cuéntame la idea, el significado, lo que quieres sentir al verla en tu piel…",
@@ -390,8 +396,8 @@ export const SITE_COPY = {
     quoteBodyMapGuideHeadTitle: "Guía de cabeza",
     quoteBodyMapGuideHeadHint: "Selecciona la región exacta de la cabeza para que la referencia sea más útil.",
     quoteBodyMapGuideBackTitle: "Guía de espalda",
-    quoteBodyMapGuideBackFrontHint: "Elige la zona superior, media o lumbar según la ubicación que describas.",
-    quoteBodyMapGuideBackBackHint: "La vista posterior ayuda a diferenciar hombros, omóplatos y la zona lumbar.",
+    quoteBodyMapGuideBackFrontHint: "Elige espalda alta o espalda baja según la ubicación que describas.",
+    quoteBodyMapGuideBackBackHint: "Toca la zona en la imagen o elige una de las dos opciones.",
     quoteBodyMapGuideLegTitle: "Guía de pierna",
     quoteBodyMapGuideLegFrontHint: "Marca la parte delantera del muslo o la pierna baja si la molestia está en esa región.",
     quoteBodyMapGuideLegBackHint: "En la vista posterior, verifica si corresponde al muslo o a la parte posterior de la pierna.",
@@ -858,6 +864,12 @@ export const SITE_COPY = {
     quoteReferenceBodyLarge: "Optional references. Then pick an advisory slot.",
     quoteReferenceEncouragement:
       "A strong tattoo starts with an honest story — and that already counts.",
+    quoteReferenceNoteLabel: "Note or comment",
+    quoteReferenceNoteHint:
+      "Optional · a few lines to describe the idea, meaning, or clarify something.",
+    quoteReferenceNotePlaceholder:
+      "E.g. I prefer fine lines; it should read well at the chosen scale…",
+    quoteReferenceNoteCounter: "{current} / {max}",
     quoteReferenceProjectLabel: "What do you want tattooed, and why?",
     quoteReferenceProjectPlaceholder:
       "Tell me the idea, the meaning, what you want to feel when you see it on your skin…",
@@ -945,8 +957,8 @@ export const SITE_COPY = {
     quoteBodyMapGuideHeadTitle: "Head guide",
     quoteBodyMapGuideHeadHint: "Select the exact head region so the reference is more useful.",
     quoteBodyMapGuideBackTitle: "Back guide",
-    quoteBodyMapGuideBackFrontHint: "Choose the upper, mid, or lumbar area based on the location you describe.",
-    quoteBodyMapGuideBackBackHint: "The back view helps distinguish shoulders, scapulae, and the lumbar zone.",
+    quoteBodyMapGuideBackFrontHint: "Choose upper back or lower back based on the location you describe.",
+    quoteBodyMapGuideBackBackHint: "Tap a zone on the image or pick one of the two options.",
     quoteBodyMapGuideLegTitle: "Leg guide",
     quoteBodyMapGuideLegFrontHint: "Mark the front of the thigh or lower leg if the issue is in that region.",
     quoteBodyMapGuideLegBackHint: "In the back view, check whether it belongs to the thigh or the back of the lower leg.",

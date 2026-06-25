@@ -13,7 +13,8 @@ import {
   saveQuoteDraft,
 } from "@/shared/lib/quoteDraft";
 import { useQuoteOnboardingGate } from "@/widgets/quote/useQuoteOnboardingGate";
-import { formatZoneDisplay } from "@/shared/lib/quoteZones";
+
+const REFERENCE_NOTE_MAX = 320;
 
 export function QuoteReferenceStep({
   size,
@@ -29,8 +30,16 @@ export function QuoteReferenceStep({
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [referenceFile, setReferenceFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [note, setNote] = useState("");
   const isLarge = requiresProjectAdvisory(size);
   const gateReady = useQuoteOnboardingGate();
+
+  useEffect(() => {
+    const draft = getQuoteDraft();
+    if (draft?.notes) {
+      setNote(draft.notes);
+    }
+  }, []);
 
   useEffect(() => {
     if (!gateReady) return;
@@ -82,11 +91,13 @@ export function QuoteReferenceStep({
   }, [previewUrl]);
 
   const onContinue = () => {
+    const trimmedNote = note.trim().slice(0, REFERENCE_NOTE_MAX);
     saveQuoteDraft({
+      ...(getQuoteDraft() ?? {}),
       size,
       zone,
       zoneOther: zoneOther.trim() || undefined,
-      notes: "",
+      notes: trimmedNote,
     });
     if (isLarge) {
       router.push(`/cotizacion/asesoria?size=${encodeURIComponent(size)}`);
@@ -116,6 +127,29 @@ export function QuoteReferenceStep({
         <p className="typo-body mt-4 max-w-2xl leading-relaxed">
           {isLarge ? t("quoteReferenceBodyLarge") : t("quoteReferenceBody")}
         </p>
+      </section>
+
+      <section className="mb-6">
+        <div className="glass-card rounded-2xl p-5 md:p-6">
+          <label className="block" htmlFor="quote-reference-note">
+            <span className="connection-step__question">{t("quoteReferenceNoteLabel")}</span>
+            <p className="connection-step__hint mt-1">{t("quoteReferenceNoteHint")}</p>
+            <textarea
+              id="quote-reference-note"
+              value={note}
+              onChange={(event) => setNote(event.target.value.slice(0, REFERENCE_NOTE_MAX))}
+              rows={4}
+              maxLength={REFERENCE_NOTE_MAX}
+              placeholder={t("quoteReferenceNotePlaceholder")}
+              className="connection-step__textarea mt-3"
+            />
+            <p className="mt-2 text-right font-mono text-[0.68rem] tracking-[0.12em] text-zinc-500">
+              {t("quoteReferenceNoteCounter")
+                .replace("{current}", String(note.length))
+                .replace("{max}", String(REFERENCE_NOTE_MAX))}
+            </p>
+          </label>
+        </div>
       </section>
 
       <section className="mb-8">

@@ -205,7 +205,7 @@ export function QuoteAdvisoryBookingStep({
         size,
         zone: zoneDisplay,
         style: "Por definir en asesoría",
-        notes: "",
+        notes: draft?.notes?.trim() ?? "",
         ...connectionFields,
         requiresAdvisory: true,
         advisoryMode: mode,
