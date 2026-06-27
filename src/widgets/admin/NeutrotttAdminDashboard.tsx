@@ -33,6 +33,9 @@ import {
   type DesignTargetType,
 } from "@/shared/lib/designHistory";
 import { AdvisoryAgendaPanel } from "@/widgets/admin/AdvisoryAgendaPanel";
+import {
+  SESSION_PRICE_SEPARATE_DAYS,
+} from "@/shared/lib/quoteSessionPricing";
 
 type ExternalProject = {
   id: string;
@@ -372,7 +375,7 @@ export function NeutrotttAdminDashboard() {
     setAdjustments((prev) => ({
       ...prev,
       [id]: {
-        sessionPrice: prev[id]?.sessionPrice ?? quote.adminSessionPrice ?? 1_500_000,
+        sessionPrice: prev[id]?.sessionPrice ?? quote.adminSessionPrice ?? SESSION_PRICE_SEPARATE_DAYS,
         sessionsCount: prev[id]?.sessionsCount ?? quote.adminSessionCount ?? defaultSessions,
         [key]: value,
       },
@@ -387,7 +390,7 @@ export function NeutrotttAdminDashboard() {
 
   const adjustAndSendWhatsApp = async (quote: SmartQuoteRequest) => {
     const adjusted = adjustments[quote.id];
-    const sessionPrice = adjusted?.sessionPrice ?? quote.adminSessionPrice ?? 1_500_000;
+    const sessionPrice = adjusted?.sessionPrice ?? quote.adminSessionPrice ?? SESSION_PRICE_SEPARATE_DAYS;
     const sessionsCount =
       adjusted?.sessionsCount ??
       quote.adminSessionCount ??
@@ -640,7 +643,7 @@ export function NeutrotttAdminDashboard() {
                       const priceDefault =
                         quote.adminSessionPrice ??
                         adjustments[quote.id]?.sessionPrice ??
-                        1_500_000;
+                        SESSION_PRICE_SEPARATE_DAYS;
 
                       return (
                         <div

@@ -4,7 +4,6 @@ import { useCallback, useEffect, useRef, useState, type ReactNode } from "react"
 import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
 import {
-  ArrowLeft,
   ArrowUpRight,
   Bookmark,
   ChevronLeft,
@@ -15,6 +14,7 @@ import {
   MoreHorizontal,
   Play,
   Send,
+  X,
 } from "lucide-react";
 import { useSiteLanguage } from "@/shared/i18n/LanguageProvider";
 import type { SiteCopyKey } from "@/shared/i18n/siteLanguage";
@@ -125,7 +125,118 @@ const FEATURED_CLIENTS: FeaturedClient[] = [
       },
     ],
   },
+  {
+    id: "camilog-12",
+    handle: "@camilog_12",
+    instagramUrl: "https://www.instagram.com/camilog_12/",
+    avatar: "/brand/client-camilog-12.png",
+    avatarAltKey: "famousClientCamilog12AvatarAlt",
+    avatarPosition: "center 35%",
+    tattoos: [
+      {
+        id: "camilog-arms",
+        captionKey: "famousPostCaptionCamilog",
+        media: [
+          { type: "image", src: "/brand/client-camilog-12-1.png", altKey: "famousClientCamilog12Alt" },
+          { type: "image", src: "/brand/client-camilog-12-2.png", altKey: "famousClientCamilog12DetailAlt" },
+        ],
+      },
+    ],
+  },
 ];
+
+function InstagramPostActions({
+  liked,
+  saved,
+  shareToast,
+  commentHint,
+  t,
+  onToggleLike,
+  onToggleSave,
+  onShare,
+  onComment,
+}: {
+  liked: boolean;
+  saved: boolean;
+  shareToast: boolean;
+  commentHint: boolean;
+  t: (key: SiteCopyKey, vars?: Record<string, string>) => string;
+  onToggleLike: () => void;
+  onToggleSave: () => void;
+  onShare: () => void;
+  onComment: () => void;
+}) {
+  return (
+    <div className="relative">
+      <div className="ig-post-actions">
+        <div className="ig-post-actions__left">
+          <motion.button
+            type="button"
+            onClick={onToggleLike}
+            className="ig-action-btn inline-flex min-h-[44px] min-w-[44px] items-center justify-center"
+            aria-label={liked ? t("famousPostUnlike") : t("famousPostLike")}
+            whileTap={{ scale: 0.88 }}
+            transition={{ type: "spring", stiffness: 520, damping: 28 }}
+          >
+            <Heart
+              className={`h-[1.625rem] w-[1.625rem] transition-colors duration-200 ${
+                liked ? "fill-[#ff3040] text-[#ff3040]" : "text-white"
+              }`}
+              strokeWidth={liked ? 0 : 1.75}
+            />
+          </motion.button>
+          <motion.button
+            type="button"
+            onClick={onComment}
+            className="ig-action-btn inline-flex min-h-[44px] min-w-[44px] items-center justify-center"
+            aria-label={t("famousPostComment")}
+            whileTap={{ scale: 0.88 }}
+            transition={{ type: "spring", stiffness: 520, damping: 28 }}
+          >
+            <MessageCircle className="h-[1.625rem] w-[1.625rem] text-white" strokeWidth={1.75} />
+          </motion.button>
+          <motion.button
+            type="button"
+            onClick={onShare}
+            className="ig-action-btn inline-flex min-h-[44px] min-w-[44px] items-center justify-center"
+            aria-label={t("famousPostShare")}
+            whileTap={{ scale: 0.88 }}
+            transition={{ type: "spring", stiffness: 520, damping: 28 }}
+          >
+            <Send className="h-[1.625rem] w-[1.625rem] text-white" strokeWidth={1.75} />
+          </motion.button>
+        </div>
+        <motion.button
+          type="button"
+          onClick={onToggleSave}
+          className="ig-action-btn inline-flex min-h-[44px] min-w-[44px] items-center justify-center"
+          aria-label={saved ? t("famousPostUnsave") : t("famousPostSave")}
+          whileTap={{ scale: 0.88 }}
+          transition={{ type: "spring", stiffness: 520, damping: 28 }}
+        >
+          <Bookmark
+            className={`h-[1.625rem] w-[1.625rem] transition-colors duration-200 ${
+              saved ? "fill-white text-white" : "text-white"
+            }`}
+            strokeWidth={1.75}
+          />
+        </motion.button>
+      </div>
+
+      {shareToast ? (
+        <span className="ig-share-toast pointer-events-none absolute left-1/2 top-0 z-20 -translate-x-1/2 rounded-full bg-zinc-800/95 px-3 py-1.5 text-[0.75rem] font-medium text-white shadow-lg ring-1 ring-white/10">
+          {t("famousPostShareCopied")}
+        </span>
+      ) : null}
+
+      {commentHint ? (
+        <span className="ig-share-toast pointer-events-none absolute left-1/2 top-0 z-20 -translate-x-1/2 rounded-full bg-zinc-800/95 px-3 py-1.5 text-[0.75rem] font-medium text-white shadow-lg ring-1 ring-white/10">
+          {t("famousPostCommentHint")}
+        </span>
+      ) : null}
+    </div>
+  );
+}
 
 function ClientMediaFrame({
   item,
@@ -255,8 +366,16 @@ function GalleryPostCard({
   t: (key: SiteCopyKey, vars?: Record<string, string>) => string;
 }) {
   const [slide, setSlide] = useState(0);
+  const [liked, setLiked] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [heartBurst, setHeartBurst] = useState<number | null>(null);
+  const [shareToast, setShareToast] = useState(false);
+  const [commentHint, setCommentHint] = useState(false);
   const scrollerRef = useRef<HTMLDivElement>(null);
-  useHorizontalDragScroll(scrollerRef);
+  const lastTapRef = useRef(0);
+  const shareTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const commentTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const { wasDragged } = useHorizontalDragScroll(scrollerRef);
 
   const username = client.handle.replace("@", "");
 
@@ -286,15 +405,82 @@ function GalleryPostCard({
     setSlide(index);
   };
 
+  const triggerHeartBurst = useCallback(() => {
+    setLiked(true);
+    const burstId = Date.now();
+    setHeartBurst(burstId);
+    window.setTimeout(() => {
+      setHeartBurst((current) => (current === burstId ? null : current));
+    }, 900);
+  }, []);
+
+  const toggleLike = useCallback(() => {
+    setLiked((current) => !current);
+  }, []);
+
+  const handleMediaTap = useCallback(() => {
+    if (wasDragged()) return;
+    const now = Date.now();
+    if (now - lastTapRef.current < 300) {
+      triggerHeartBurst();
+      lastTapRef.current = 0;
+      return;
+    }
+    lastTapRef.current = now;
+  }, [triggerHeartBurst, wasDragged]);
+
+  const showTransientToast = useCallback(
+    (setter: (value: boolean) => void, timerRef: React.MutableRefObject<ReturnType<typeof setTimeout> | null>) => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+      setter(true);
+      timerRef.current = setTimeout(() => {
+        setter(false);
+        timerRef.current = null;
+      }, 2200);
+    },
+    [],
+  );
+
+  const handleShare = useCallback(async () => {
+    const shareUrl = client.instagramUrl;
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: client.handle, url: shareUrl });
+        return;
+      }
+      await navigator.clipboard.writeText(shareUrl);
+      showTransientToast(setShareToast, shareTimerRef);
+    } catch {
+      showTransientToast(setShareToast, shareTimerRef);
+    }
+  }, [client.handle, client.instagramUrl, showTransientToast]);
+
+  const handleComment = useCallback(() => {
+    showTransientToast(setCommentHint, commentTimerRef);
+    window.open(client.instagramUrl, "_blank", "noopener,noreferrer");
+  }, [client.instagramUrl, showTransientToast]);
+
+  useEffect(() => {
+    return () => {
+      if (shareTimerRef.current) clearTimeout(shareTimerRef.current);
+      if (commentTimerRef.current) clearTimeout(commentTimerRef.current);
+    };
+  }, []);
+
   return (
     <motion.article
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, ease: "easeOut" }}
-      className="ig-post-card relative w-full overflow-hidden rounded-none border-x-0 sm:rounded-xl sm:border-x"
+      className="ig-post-card relative w-full overflow-hidden"
     >
       <header className="ig-post-header flex items-center gap-3 px-3 py-2.5 sm:px-4 sm:py-3">
-        <div className="ig-post-avatar-ring shrink-0 rounded-full">
+        <a
+          href={client.instagramUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="ig-post-avatar-ring shrink-0 rounded-full transition active:scale-[0.97]"
+        >
           <div className="relative h-9 w-9 overflow-hidden rounded-full bg-zinc-900 sm:h-10 sm:w-10">
             <Image
               src={client.avatar}
@@ -305,9 +491,14 @@ function GalleryPostCard({
               sizes="40px"
             />
           </div>
-        </div>
+        </a>
         <div className="min-w-0 flex-1">
-          <p className="typo-ui flex items-center gap-1.5 text-white">
+          <a
+            href={client.instagramUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="typo-ui flex items-center gap-1.5 text-white transition hover:opacity-80"
+          >
             <span className="truncate">{username}</span>
             <span className="famous-badge-wrap relative inline-flex shrink-0">
               <span className="famous-badge-glow" aria-hidden />
@@ -319,7 +510,7 @@ function GalleryPostCard({
                 className="relative z-10 h-4 w-4 object-contain"
               />
             </span>
-          </p>
+          </a>
           <p className="typo-ui-meta mt-0.5 flex items-center gap-1 truncate">
             <MapPin className="h-3 w-3 shrink-0" strokeWidth={2} />
             {t("famousPostLocation")}
@@ -330,7 +521,7 @@ function GalleryPostCard({
         </span>
       </header>
 
-      <div className="relative bg-black">
+      <div className="relative bg-zinc-950">
         <div
           ref={scrollerRef}
           onScroll={syncSlide}
@@ -345,7 +536,21 @@ function GalleryPostCard({
               key={s.key}
               className={multi ? "relative min-w-full shrink-0 snap-center" : "relative w-full"}
             >
-              <div className="ig-post-media-frame w-full">{s.content}</div>
+              <div
+                role="button"
+                tabIndex={0}
+                className="ig-post-media-frame ig-post-media-frame--interactive w-full"
+                onClick={handleMediaTap}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    toggleLike();
+                  }
+                }}
+                aria-label={liked ? t("famousPostUnlike") : t("famousPostLike")}
+              >
+                {s.content}
+              </div>
               {s.isVideo ? (
                 <span className="pointer-events-none absolute right-3 top-3 flex h-7 w-7 items-center justify-center rounded-full bg-black/55 text-white backdrop-blur-sm">
                   <Play className="h-3.5 w-3.5 fill-current" strokeWidth={0} />
@@ -354,6 +559,21 @@ function GalleryPostCard({
             </div>
           ))}
         </div>
+
+        <AnimatePresence>
+          {heartBurst !== null ? (
+            <motion.div
+              key={heartBurst}
+              className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center"
+              initial={{ opacity: 0, scale: 0.4 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 1.25 }}
+              transition={{ type: "spring", stiffness: 420, damping: 22 }}
+            >
+              <Heart className="ig-heart-burst h-[5.5rem] w-[5.5rem] fill-[#ff3040] text-[#ff3040] sm:h-24 sm:w-24" strokeWidth={0} />
+            </motion.div>
+          ) : null}
+        </AnimatePresence>
 
         {multi ? (
           <>
@@ -364,7 +584,7 @@ function GalleryPostCard({
               <button
                 type="button"
                 onClick={() => goToSlide(slide - 1)}
-                className="absolute left-1 top-1/2 z-10 flex min-h-[44px] min-w-[44px] -translate-y-1/2 items-center justify-center rounded-full bg-black/50 p-2.5 text-white backdrop-blur-sm transition hover:bg-black/70"
+                className="absolute left-1 top-1/2 z-10 flex min-h-[44px] min-w-[44px] -translate-y-1/2 items-center justify-center rounded-full bg-black/50 p-2.5 text-white backdrop-blur-sm transition hover:bg-black/70 active:scale-[0.96]"
                 aria-label={t("famousGalleryPrev")}
               >
                 <ChevronLeft className="h-5 w-5" strokeWidth={2} />
@@ -374,7 +594,7 @@ function GalleryPostCard({
               <button
                 type="button"
                 onClick={() => goToSlide(slide + 1)}
-                className="absolute right-1 top-1/2 z-10 flex min-h-[44px] min-w-[44px] -translate-y-1/2 items-center justify-center rounded-full bg-black/50 p-2.5 text-white backdrop-blur-sm transition hover:bg-black/70"
+                className="absolute right-1 top-1/2 z-10 flex min-h-[44px] min-w-[44px] -translate-y-1/2 items-center justify-center rounded-full bg-black/50 p-2.5 text-white backdrop-blur-sm transition hover:bg-black/70 active:scale-[0.96]"
                 aria-label={t("famousGalleryNext")}
               >
                 <ChevronRight className="h-5 w-5" strokeWidth={2} />
@@ -402,25 +622,27 @@ function GalleryPostCard({
       </div>
 
       <div className="ig-post-body px-3 pb-3 pt-2.5 sm:px-4 sm:pb-4 sm:pt-3">
-        <div className="ig-post-actions" aria-hidden>
-          <div className="ig-post-actions__left">
-            <span className="ig-action-btn inline-flex">
-              <Heart className="h-6 w-6 text-white" strokeWidth={1.75} />
-            </span>
-            <span className="ig-action-btn inline-flex">
-              <MessageCircle className="h-6 w-6 text-white" strokeWidth={1.75} />
-            </span>
-            <span className="ig-action-btn inline-flex">
-              <Send className="h-6 w-6 text-white" strokeWidth={1.75} />
-            </span>
-          </div>
-          <span className="ig-action-btn inline-flex">
-            <Bookmark className="h-6 w-6 text-white" strokeWidth={1.75} />
-          </span>
-        </div>
+        <InstagramPostActions
+          liked={liked}
+          saved={saved}
+          shareToast={shareToast}
+          commentHint={commentHint}
+          t={t}
+          onToggleLike={toggleLike}
+          onToggleSave={() => setSaved((current) => !current)}
+          onShare={handleShare}
+          onComment={handleComment}
+        />
 
         <p className="typo-body typo-body-emphasis mt-2 text-[0.8125rem] leading-snug sm:text-[0.875rem]">
-          <span className="typo-ui text-white">{username}</span>{" "}
+          <a
+            href={client.instagramUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="typo-ui text-white transition hover:opacity-80"
+          >
+            {username}
+          </a>{" "}
           <span className="text-zinc-200">{t(tattoo.captionKey)}</span>
         </p>
       </div>
@@ -459,7 +681,7 @@ function ClientGalleryModal({
 
   return (
     <motion.div
-      className="featured-client-modal fixed inset-0 z-[75] flex items-end justify-center sm:items-center"
+      className="featured-client-modal fixed inset-0 z-[75] flex items-stretch justify-center sm:items-center sm:p-3"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -469,34 +691,33 @@ function ClientGalleryModal({
     >
       <button
         type="button"
-        className="absolute inset-0 bg-background/88 backdrop-blur-sm"
-        aria-label={t("famousDetailClose")}
+        className="absolute inset-0 bg-zinc-950/90 backdrop-blur-md"
+        aria-label={t("famousModalClose")}
         onClick={onClose}
       />
 
       <motion.div
-        initial={{ opacity: 0, y: 28 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: 20 }}
-        transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
-        className="featured-client-modal__panel relative z-10 w-full max-w-md sm:max-w-lg"
+        initial={{ opacity: 0, y: 24, scale: 0.985 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        exit={{ opacity: 0, y: 16, scale: 0.99 }}
+        transition={{ duration: 0.34, ease: [0.22, 1, 0.36, 1] }}
+        className="featured-client-modal__panel relative z-10 flex w-full flex-col overflow-hidden"
+        onClick={(event) => event.stopPropagation()}
       >
-        <div className="featured-client-modal__toolbar">
-          <button
-            type="button"
-            onClick={onClose}
-            className="featured-client-modal__back focus-ring inline-flex items-center justify-center rounded-full p-2 text-zinc-100 transition hover:bg-white/8 active:scale-[0.98]"
-            aria-label={t("famousDetailClose")}
-          >
-            <ArrowLeft className="h-5 w-5" strokeWidth={2} />
-          </button>
+        <button
+          type="button"
+          onClick={onClose}
+          className="featured-client-modal__close focus-ring inline-flex items-center justify-center rounded-full text-zinc-100 transition hover:bg-white/10 active:scale-[0.96]"
+          aria-label={t("famousModalClose")}
+        >
+          <X className="h-5 w-5" strokeWidth={2} />
+        </button>
 
+        <div className="featured-client-modal__toolbar">
           <div className="featured-client-modal__title-wrap min-w-0 text-center">
             <p className="featured-client-modal__title truncate">{username}</p>
             <p className="featured-client-modal__subtitle typo-ui-meta truncate">{t("famousPostLocation")}</p>
           </div>
-
-          <span className="featured-client-modal__toolbar-spacer" aria-hidden />
         </div>
 
         <div className="featured-client-modal__content">
@@ -516,6 +737,18 @@ function ClientGalleryModal({
               </p>
             ) : null}
           </div>
+        </div>
+
+        <div className="featured-client-modal__footer">
+          <a
+            href={client.instagramUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="featured-client-modal__instagram-cta focus-ring inline-flex w-full items-center justify-center gap-2 rounded-full px-4 py-2.5 text-[0.8125rem] font-semibold text-ivory transition active:scale-[0.98]"
+          >
+            {t("famousOpenInstagram")}
+            <ArrowUpRight className="h-4 w-4 shrink-0" strokeWidth={2} />
+          </a>
         </div>
       </motion.div>
     </motion.div>

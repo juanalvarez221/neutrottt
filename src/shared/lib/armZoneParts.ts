@@ -243,6 +243,20 @@ export function inferArmSelectionFromBodySpot(
   };
 }
 
+/** Sugiere parte y cara del brazo desde el mapa, sin fijar lateralidad (el usuario la confirma). */
+export function inferArmSelectionHintFromBodySpot(
+  spotId: ZoneId,
+  mapSide: "front" | "back",
+): ArmSelection | null {
+  const part = inferArmPartFromBodySpot(spotId);
+  if (!part) return null;
+
+  return {
+    faceScope: inferArmSideFromBodySpot(spotId, mapSide),
+    part,
+  };
+}
+
 export function migrateArmSelectionFromDraft(draft: {
   armLaterality?: string;
   armFaceScope?: string;

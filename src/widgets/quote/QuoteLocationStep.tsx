@@ -142,7 +142,7 @@ export function QuoteLocationStep({ size }: { size: string }) {
           </span>
         </h2>
 
-        <p className="typo-body mt-4 max-w-2xl leading-relaxed">
+        <p className="typo-body mt-3 max-w-xl leading-relaxed">
           {t("quoteLocationBody")}
         </p>
       </section>
@@ -178,9 +178,7 @@ export function QuoteLocationStep({ size }: { size: string }) {
 
       {!isLocationComplete ? (
         <div className="mb-4 rounded-xl border border-amber-300/20 bg-amber-500/10 px-4 py-3 text-sm font-medium text-amber-100">
-          {language === "en"
-            ? "Choose a body area and complete the detail before continuing."
-            : "Elige una zona del cuerpo y completa el detalle antes de continuar."}
+          {t("quoteRefinementIncomplete")}
         </div>
       ) : null}
 

@@ -1,8 +1,8 @@
 ﻿"use client";
 
 import Image from "next/image";
-import type { CSSProperties } from "react";
-import { Bone, CircleDot, MapPin, PersonStanding, Sparkles } from "lucide-react";
+import { useState, type CSSProperties } from "react";
+import { Bone, CircleDot, MapPin, PersonStanding } from "lucide-react";
 import { useSiteLanguage } from "@/shared/i18n/LanguageProvider";
 import {
   formatZoneDisplay,
@@ -10,62 +10,25 @@ import {
   type ZoneId,
 } from "@/shared/lib/quoteZones";
 import {
-  ARM_DETAIL_IMAGE,
-  ARM_FACE_SCOPE_DESC_KEYS,
-  ARM_FACE_SCOPE_IDS,
-  ARM_FACE_SCOPE_LABEL_KEYS,
-  ARM_PART_IDS,
-  ARM_PART_LABEL_KEYS,
-  getArmDetailHotspots,
-  getArmVisibleFaces,
-  inferArmSelectionFromBodySpot,
+  inferArmSelectionHintFromBodySpot,
   isArmBodyMapSpotActive,
-  isArmDetailHotspotActive,
-  isArmSelectionComplete,
-  type ArmFaceScopeId,
-  type ArmPartId,
   type ArmSelection,
 } from "@/shared/lib/armZoneParts";
 import {
-  LEG_DETAIL_IMAGE,
-  LEG_EXTENT_DESC_KEYS,
-  LEG_EXTENT_IDS,
-  LEG_EXTENT_LABEL_KEYS,
-  LEG_FACE_SCOPE_DESC_KEYS,
-  LEG_FACE_SCOPE_IDS,
-  LEG_FACE_SCOPE_LABEL_KEYS,
-  getLegDetailHotspots,
-  getLegVisibleFaces,
   inferLegSelectionFromBodySpot,
-  inferLegSelectionFromPartClick,
   isLegBodyMapSpotActive,
-  isLegDetailHotspotActive,
-  isLegSelectionComplete,
-  shouldShowLegDetailHotspot,
-  type LegExtentId,
-  type LegFaceScopeId,
-  type LegPartId,
   type LegSelection,
 } from "@/shared/lib/legZoneParts";
-import {
-  LIMB_LATERALITY_LABEL_KEYS,
-  type BodyMapLaterality,
-  type LimbLateralityId,
-} from "@/shared/lib/limbLaterality";
+import type { BodyMapLaterality } from "@/shared/lib/limbLaterality";
 import type { HeadPartId } from "@/shared/lib/headZoneParts";
 import type { BackPartId } from "@/shared/lib/backZoneParts";
-import { HeadZoneRefinement } from "@/widgets/quote/HeadZoneRefinement";
-import { BackZoneRefinement } from "@/widgets/quote/BackZoneRefinement";
-import { ArmZoneRefinement } from "@/widgets/quote/ArmZoneRefinement";
-import { LegZoneRefinement } from "@/widgets/quote/LegZoneRefinement";
-import { DetailHotspot } from "@/widgets/quote/DetailHotspot";
-import { RefinementPanel } from "@/widgets/quote/ZoneFlowHelpers";
-import {
-  BODY_REFERENCE_IMAGE_FRAME,
-  RefinementStepHeader,
-  SelectionSummary,
-} from "@/widgets/quote/quoteRefinementUi";
+import type { LegPartId } from "@/shared/lib/legZoneParts";
 import { getBodyMapViewLabel } from "@/widgets/quote/bodyMapViewLabels";
+import { needsZoneRefinement } from "@/widgets/quote/ZoneFlowHelpers";
+import {
+  isZoneRefinementComplete,
+  ZoneRefinementFlow,
+} from "@/widgets/quote/ZoneRefinementFlow";
 
 export type { ZoneId };
 
@@ -89,7 +52,7 @@ type Props = {
   backPart: BackPartId | null;
   onBackPartChange: (part: BackPartId) => void;
   armSelection: ArmSelection | null;
-  onArmSelectionChange: (selection: ArmSelection) => void;
+  onArmSelectionChange: (selection: ArmSelection | null) => void;
   legSelection: LegSelection | null;
   onLegSelectionChange: (selection: LegSelection) => void;
 };
@@ -107,8 +70,6 @@ const GENERAL_ZONE_IDS: ZoneId[] = [
 ];
 
 const ARM_BODY_ZONE_IDS: ZoneId[] = ["hombro", "bicep", "tricep", "antebrazo"];
-
-const LIMB_LATERALITY_IDS: LimbLateralityId[] = ["izquierda", "derecha", "ambas"];
 
 const FRONT_HOTSPOTS: BodyHotspot[] = [
   {
@@ -411,8 +372,15 @@ export function BodyAreaSelector({
   onLegSelectionChange,
 }: Props) {
   const { t, language } = useSiteLanguage();
+  const [flowOpen, setFlowOpen] = useState(false);
 
-  const progress = 50;
+  const refinementComplete = isZoneRefinementComplete(
+    zone,
+    headPart,
+    backPart,
+    armSelection,
+    legSelection,
+  );
 
   const selectionLabel = zone
     ? formatZoneDisplay(zone, zoneOther, t, {
@@ -426,73 +394,83 @@ export function BodyAreaSelector({
         legExtent: legSelection?.extent,
       })
     : language === "en"
-      ? "No area selected"
-      : "Sin zona seleccionada";
+      ? "Pick an area"
+      : "Elige una zona";
 
   function handleBodySpotClick(spot: BodyHotspot, side: BodyMapSide) {
-    if (isArmBodyZone(spot.id) && spot.laterality) {
-      const inferred = inferArmSelectionFromBodySpot(spot.id, side, spot.laterality);
-
+    if (isArmBodyZone(spot.id)) {
+      const hint = inferArmSelectionHintFromBodySpot(spot.id, side);
       onZoneChange("brazo");
-
-      if (inferred) {
-        onArmSelectionChange(inferred);
-      }
-
+      onArmSelectionChange(hint ?? {});
+      setFlowOpen(true);
       return;
     }
 
     if (spot.id === "pierna" && spot.legPart && spot.laterality) {
       onZoneChange("pierna");
       onLegSelectionChange(inferLegSelectionFromBodySpot(spot.legPart, spot.laterality));
+      setFlowOpen(true);
       return;
     }
 
     onZoneChange(spot.id);
+    if (needsZoneRefinement(spot.id)) {
+      setFlowOpen(true);
+    }
+  }
+
+  function handleZoneButtonClick(id: ZoneId) {
+    if (id === "hombro") {
+      onZoneChange("brazo");
+      onArmSelectionChange({ part: "hombro" });
+      setFlowOpen(true);
+      return;
+    }
+
+    if (id === "brazo") {
+      onZoneChange("brazo");
+      onArmSelectionChange(null);
+      setFlowOpen(true);
+      return;
+    }
+
+    onZoneChange(id);
+    if (needsZoneRefinement(id)) {
+      setFlowOpen(true);
+    }
+  }
+
+  function isZoneChipActive(id: ZoneId): boolean {
+    if (id === "hombro") {
+      return zone === "brazo" && armSelection?.part === "hombro";
+    }
+    if (id === "brazo") {
+      return zone === "brazo" && armSelection?.part !== "hombro";
+    }
+    return zone === id;
   }
 
   return (
-    <div className="space-y-6">
-      <div>
-        <p className="typo-tech text-center uppercase tracking-[0.14em] text-zinc-300">
-          {language === "en" ? "Step 2 of 4" : "Paso 2 de 4"}
-        </p>
-
-        <div className="mt-2 h-2 w-full overflow-hidden rounded-full border border-white/10 bg-white/5">
-          <div
-            className="h-full rounded-full bg-gradient-to-r from-stone-500/90 via-stone-400/80 to-zinc-300/90"
-            style={{ width: `${progress}%` }}
-          />
-        </div>
-      </div>
-
-      <div className="space-y-2">
-        <h3 className="typo-section text-center text-[2rem] leading-tight md:text-[2.5rem]">
-          {language === "en" ? "Where is the tattoo going?" : "¿Dónde va el tatuaje?"}
+    <div className="space-y-5">
+      <div className="space-y-1 text-center">
+        <h3 className="typo-section text-[1.75rem] leading-tight md:text-[2.1rem]">
+          {t("quoteZonePickTitle")}
         </h3>
-
-        <p className="typo-body mx-auto max-w-2xl text-center">
-          {language === "en"
-            ? "Choose the body area, then refine it if needed. This helps create a clearer and more accurate quote."
-            : "Elige la zona del cuerpo y luego afínala si hace falta. Esto ayuda a crear una cotización más clara y precisa."}
+        <p className="typo-body mx-auto max-w-md text-sm text-zinc-400">
+          {t("quoteZonePickHint")}
         </p>
       </div>
 
-      <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
-        <p className="mb-3 inline-flex items-center gap-2 text-sm font-bold uppercase tracking-[0.14em] text-zinc-200">
-          <Sparkles className="h-4 w-4 text-stone-300" />
-          {language === "en" ? "General area" : "Zona general"}
-        </p>
-
+      <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-3 sm:p-4">
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
           {GENERAL_ZONE_IDS.map((id) => {
-            const active = zone === id;
+            const active = isZoneChipActive(id);
 
             return (
               <button
                 key={id}
                 type="button"
-                onClick={() => onZoneChange(id)}
+                onClick={() => handleZoneButtonClick(id)}
                 aria-pressed={active}
                 className={optionButtonClass(active)}
               >
@@ -504,19 +482,14 @@ export function BodyAreaSelector({
         </div>
 
         {zone === "otro" ? (
-          <div className="mt-4">
-            <label className="mb-2 block text-xs font-semibold uppercase tracking-[0.14em] text-zinc-400">
-              {language === "en" ? "Describe the area" : "Describe la zona"}
+          <div className="mt-3">
+            <label className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.12em] text-zinc-500">
+              {t("quoteZoneOtherLabel")}
             </label>
-
             <input
               value={zoneOther}
               onChange={(event) => onZoneOtherChange(event.target.value)}
-              placeholder={
-                language === "en"
-                  ? "Example: ribs, ankle, neck side..."
-                  : "Ejemplo: costillas, tobillo, lateral del cuello..."
-              }
+              placeholder={t("quoteZoneOtherPlaceholder")}
               className="w-full rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-sm font-semibold text-zinc-100 outline-none transition placeholder:text-zinc-600 focus:border-stone-400/50"
             />
           </div>
@@ -531,7 +504,6 @@ export function BodyAreaSelector({
           legSelection={legSelection}
           onSpotClick={handleBodySpotClick}
         />
-
         <BodyMapImage
           side="back"
           zone={zone}
@@ -541,34 +513,45 @@ export function BodyAreaSelector({
         />
       </div>
 
-      <div className="rounded-2xl border border-stone-500/20 bg-stone-600/8 p-4">
-        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-zinc-400">
-          {language === "en" ? "Current selection" : "Selección actual"}
+      <div
+        className={[
+          "rounded-xl border px-4 py-3",
+          refinementComplete || !zone
+            ? "border-stone-500/20 bg-stone-600/8"
+            : "border-amber-400/25 bg-amber-950/20",
+        ].join(" ")}
+      >
+        <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
+          {t("quoteSelectionSummary")}
         </p>
+        <p className="mt-0.5 text-base font-bold text-zinc-100">{selectionLabel}</p>
 
-        <p className="mt-1 text-lg font-bold text-zinc-100">{selectionLabel}</p>
-
-        <p className="mt-1 text-sm text-zinc-400">
-          {language === "en"
-            ? "Use the map or the detail controls below to make the location more precise."
-            : "Usa el mapa o los controles de detalle para hacer la ubicación más precisa."}
-        </p>
+        {zone && needsZoneRefinement(zone) && !refinementComplete ? (
+          <button
+            type="button"
+            onClick={() => setFlowOpen(true)}
+            className="focus-ring mt-3 inline-flex min-h-[44px] items-center rounded-xl border border-amber-300/30 bg-amber-500/12 px-4 py-2 text-sm font-semibold text-amber-100 transition hover:bg-amber-500/18 active:scale-[0.98]"
+          >
+            {t("quoteZoneResumeDetail")}
+          </button>
+        ) : null}
       </div>
 
-      {zone === "cabeza" ? (
-        <HeadZoneRefinement headPart={headPart} onHeadPartChange={onHeadPartChange} />
-      ) : null}
-
-      {zone === "espalda" ? (
-        <BackZoneRefinement backPart={backPart} onBackPartChange={onBackPartChange} />
-      ) : null}
-
-      {zone === "brazo" ? (
-        <ArmZoneRefinement selection={armSelection} onSelectionChange={onArmSelectionChange} />
-      ) : null}
-
-      {zone === "pierna" ? (
-        <LegZoneRefinement selection={legSelection} onSelectionChange={onLegSelectionChange} />
+      {zone && needsZoneRefinement(zone) ? (
+        <ZoneRefinementFlow
+          open={flowOpen}
+          zone={zone}
+          headPart={headPart}
+          onHeadPartChange={onHeadPartChange}
+          backPart={backPart}
+          onBackPartChange={onBackPartChange}
+          armSelection={armSelection}
+          onArmSelectionChange={onArmSelectionChange}
+          legSelection={legSelection}
+          onLegSelectionChange={onLegSelectionChange}
+          onClose={() => setFlowOpen(false)}
+          onComplete={() => setFlowOpen(false)}
+        />
       ) : null}
     </div>
   );
