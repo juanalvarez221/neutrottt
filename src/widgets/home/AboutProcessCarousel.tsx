@@ -146,7 +146,8 @@ export function AboutProcessCarousel() {
   const trackRef = useRef<HTMLDivElement>(null);
   const positionRef = useRef(0);
   const setWidthRef = useRef(0);
-  const hoverPausedRef = useRef(false);
+  /** Pausa temporal por wheel/gesto; el hover nunca pausa el marquee. */
+  const gesturePausedRef = useRef(false);
   const draggingRef = useRef(false);
   const inViewRef = useRef(true);
   const dragStartXRef = useRef(0);
@@ -386,13 +387,13 @@ export function AboutProcessCarousel() {
   );
 
   const pauseMarqueeForDrag = useCallback(() => {
-    setIsPaused(hoverPausedRef.current || true);
+    setIsPaused(true);
   }, []);
 
   const syncPausedUi = useCallback(() => {
     setIsPaused(
       lightboxOpenRef.current ||
-        hoverPausedRef.current ||
+        gesturePausedRef.current ||
         draggingRef.current ||
         inertiaRafRef.current !== null ||
         scrollAnimRafRef.current !== null,
@@ -613,7 +614,7 @@ export function AboutProcessCarousel() {
       draggingRef.current = false;
       setIsPressing(true);
       setIsDragging(false);
-      pauseMarqueeForDrag();
+      syncPausedUi();
 
       dragStartXRef.current = event.clientX;
       dragStartYRef.current = event.clientY;
@@ -632,7 +633,7 @@ export function AboutProcessCarousel() {
         }
       }
     },
-    [pauseMarqueeForDrag, recordVelocitySample, stopInertia, stopScrollAnim],
+    [recordVelocitySample, stopInertia, stopScrollAnim, syncPausedUi],
   );
 
   const handlePointerMove = useCallback(
@@ -735,7 +736,7 @@ export function AboutProcessCarousel() {
 
       const paused =
         lightboxOpenRef.current ||
-        hoverPausedRef.current ||
+        gesturePausedRef.current ||
         draggingRef.current ||
         inertiaRafRef.current !== null ||
         scrollAnimRafRef.current !== null;
@@ -784,7 +785,7 @@ export function AboutProcessCarousel() {
       event.preventDefault();
       stopInertia();
       stopScrollAnim();
-      hoverPausedRef.current = true;
+      gesturePausedRef.current = true;
       setIsPaused(true);
 
       updateFlowFromGesture(event.deltaX, event.deltaX * 0.018);
@@ -798,7 +799,7 @@ export function AboutProcessCarousel() {
       }
       wheelSnapTimerRef.current = setTimeout(() => {
         wheelSnapTimerRef.current = null;
-        hoverPausedRef.current = false;
+        gesturePausedRef.current = false;
         snapToNearestSlide();
         syncPausedUi();
       }, 200);
@@ -844,14 +845,6 @@ export function AboutProcessCarousel() {
         ].join(" ")}
         aria-roledescription="carrusel"
         aria-label={t("aboutProcessLabel")}
-        onMouseEnter={() => {
-          hoverPausedRef.current = true;
-          setIsPaused(true);
-        }}
-        onMouseLeave={() => {
-          hoverPausedRef.current = false;
-          syncPausedUi();
-        }}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerEnd}

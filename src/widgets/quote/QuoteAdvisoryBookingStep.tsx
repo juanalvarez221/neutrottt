@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { CalendarDays, Check, Loader2, MapPin, Monitor } from "lucide-react";
+import { CalendarDays, Check, Loader2, MapPin, Monitor, ShieldCheck } from "lucide-react";
 import { QuoteShell } from "@/widgets/quote/QuoteShell";
 import { useSiteLanguage } from "@/shared/i18n/LanguageProvider";
 import { getQuoteConnection, mapConnectionToSmartQuote } from "@/shared/lib/quoteConnection";
@@ -263,6 +263,19 @@ export function QuoteAdvisoryBookingStep({
           {t("quoteAdvisoryBookingTitle")}
         </h2>
         <p className="typo-body mt-4 max-w-2xl leading-relaxed">{t("quoteAdvisoryBookingBody")}</p>
+
+        <aside
+          className="mt-5 max-w-2xl border-l border-amber-500/35 bg-amber-600/[0.07] px-4 py-3.5 sm:px-5"
+          aria-label={t("quoteAdvisoryBookingAssuranceTitle")}
+        >
+          <p className="typo-tech flex items-center gap-2 text-[11px] uppercase tracking-[0.16em] text-amber-200/90">
+            <ShieldCheck className="h-3.5 w-3.5 shrink-0" strokeWidth={1.75} />
+            {t("quoteAdvisoryBookingAssuranceTitle")}
+          </p>
+          <p className="typo-body mt-2 text-sm leading-relaxed text-zinc-300">
+            {t("quoteAdvisoryBookingAssurance")}
+          </p>
+        </aside>
 
         <div className="mt-4 flex flex-wrap items-center gap-2">
           <span className="inline-flex items-center gap-2 rounded-full border border-stone-500/30 bg-stone-600/10 px-4 py-2 text-sm text-stone-100">

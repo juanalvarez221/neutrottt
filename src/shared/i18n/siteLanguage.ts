@@ -348,14 +348,15 @@ export const SITE_COPY = {
     quoteAdvisoryStep: "Paso 6 · Asesoría",
     quoteAdvisoryTitle: "Elige",
     quoteAdvisoryTitle2: "modalidad",
-    quoteAdvisoryBody: "Selecciona cómo quieres conversar sobre tu pieza. A continuación verás los horarios disponibles.",
+    quoteAdvisoryBody:
+      "Selecciona cómo quieres conversar sobre tu pieza. La asesoría no tiene ningún costo; a continuación verás los horarios disponibles.",
     quoteAdvisoryPresencialTitle: "Presencial · 30 min",
     quoteAdvisoryPresencialStudio: "Estudio Emerald · Medellín",
     quoteAdvisoryPresencialBody:
-      "Asesoría en Estudio Emerald: zona, referencias y propuesta personalizada.",
+      "Asesoría gratuita en Estudio Emerald: zona, referencias y propuesta personalizada.",
     quoteAdvisoryVirtualTitle: "Virtual · 15 min",
     quoteAdvisoryVirtualPlatform: "Google Meet",
-    quoteAdvisoryVirtualBody: "Misma asesoría por videollamada — 15 minutos.",
+    quoteAdvisoryVirtualBody: "Misma asesoría gratuita por videollamada — 15 minutos.",
     quoteAdvisoryVirtualDetail: "Enlace al confirmar la reserva",
     quoteAdvisoryPresencialCta: "Ver agenda presencial",
     quoteAdvisoryVirtualCta: "Ver agenda virtual",
@@ -364,7 +365,11 @@ export const SITE_COPY = {
     quoteAdvisorySavedBadge: "Proyecto guardado",
     quoteAdvisoryBookingStep: "Paso 6 · Agenda",
     quoteAdvisoryBookingTitle: "Agenda disponible",
-    quoteAdvisoryBookingBody: "Elige día y hora para tu asesoría.",
+    quoteAdvisoryBookingBody:
+      "Elige día y hora para tu asesoría. Es una conversación sin costo, pensada para afinar tu proyecto con claridad.",
+    quoteAdvisoryBookingAssuranceTitle: "Sin costo · Sin spam",
+    quoteAdvisoryBookingAssurance:
+      "La asesoría es totalmente gratuita. Usamos tu nombre, correo y WhatsApp únicamente para confirmar el horario y enviarte los detalles de la cita. No enviamos promociones ni mensajes masivos.",
     quoteAdvisoryBookingDuration: "Duración: {minutes} min",
     quoteAdvisoryBookingDayLabel: "Día disponible",
     quoteAdvisoryBookingTimeLabel: "Horario disponible",
@@ -602,7 +607,7 @@ export const SITE_COPY = {
       "Recibí tu proyecto. Lo reviso con calma y te respondo con asesoría honesta — no con un mensaje automático.",
     quoteThanksAdvisoryTitle: "Asesoría en camino",
     quoteThanksAdvisoryBody:
-      "Tu cupo quedó apartado. Revisa tu correo con los detalles. Un día antes te pediremos confirmar asistencia por correo o WhatsApp.",
+      "Tu cupo quedó apartado sin ningún costo. Revisa tu correo con los detalles. Un día antes te pediremos confirmar asistencia por correo o WhatsApp — solo contacto de coordinación, sin spam.",
     quoteThanksInstagramCta: "Instagram",
     quoteThanksNewQuoteCta: "Otra cotización",
     quoteThanksWhatsappCta: "WhatsApp",
@@ -954,14 +959,15 @@ export const SITE_COPY = {
     quoteAdvisoryStep: "Step 6 · Advisory",
     quoteAdvisoryTitle: "Choose",
     quoteAdvisoryTitle2: "format",
-    quoteAdvisoryBody: "Choose how you'd like to discuss your piece. Available times follow on the next screen.",
+    quoteAdvisoryBody:
+      "Choose how you'd like to discuss your piece. The advisory is complimentary; available times follow on the next screen.",
     quoteAdvisoryPresencialTitle: "In person · 30 min",
     quoteAdvisoryPresencialStudio: "Estudio Emerald · Medellín",
     quoteAdvisoryPresencialBody:
-      "Advisory at Estudio Emerald: placement, references, and a tailored proposal.",
+      "Complimentary advisory at Estudio Emerald: placement, references, and a tailored proposal.",
     quoteAdvisoryVirtualTitle: "Virtual · 15 min",
     quoteAdvisoryVirtualPlatform: "Google Meet",
-    quoteAdvisoryVirtualBody: "Same advisory over video call — 15 minutes.",
+    quoteAdvisoryVirtualBody: "Same complimentary advisory over video call — 15 minutes.",
     quoteAdvisoryVirtualDetail: "Link sent after booking",
     quoteAdvisoryPresencialCta: "View in-person calendar",
     quoteAdvisoryVirtualCta: "View virtual calendar",
@@ -970,7 +976,11 @@ export const SITE_COPY = {
     quoteAdvisorySavedBadge: "Project saved",
     quoteAdvisoryBookingStep: "Step 6 · Calendar",
     quoteAdvisoryBookingTitle: "Available calendar",
-    quoteAdvisoryBookingBody: "Pick a day and time for your advisory session.",
+    quoteAdvisoryBookingBody:
+      "Pick a day and time for your advisory. There's no charge — it's a focused conversation to refine your project with clarity.",
+    quoteAdvisoryBookingAssuranceTitle: "No cost · No spam",
+    quoteAdvisoryBookingAssurance:
+      "The advisory is entirely free. We use your name, email, and WhatsApp only to confirm the time and share appointment details. We never send promotions or mass messages.",
     quoteAdvisoryBookingDuration: "Duration: {minutes} min",
     quoteAdvisoryBookingDayLabel: "Available day",
     quoteAdvisoryBookingTimeLabel: "Available time",
@@ -1208,7 +1218,7 @@ export const SITE_COPY = {
       "I received your project. I'll review it carefully and reply with honest advisory — not an automated message.",
     quoteThanksAdvisoryTitle: "Advisory on the way",
     quoteThanksAdvisoryBody:
-      "Your slot is held. Check your email for the details. One day before we'll ask you to confirm attendance by email or WhatsApp.",
+      "Your complimentary slot is held. Check your email for the details. One day before we'll ask you to confirm attendance by email or WhatsApp — coordination only, never spam.",
     quoteThanksInstagramCta: "Instagram",
     quoteThanksNewQuoteCta: "New quote",
     quoteThanksWhatsappCta: "WhatsApp",
