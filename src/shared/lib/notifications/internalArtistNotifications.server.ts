@@ -65,7 +65,7 @@ function wrapHtml(eyebrow: string, title: string, rows: Row[], link: string): st
 async function sendToArtist(subject: string, rows: Row[], eyebrow: string, title: string) {
   try {
     const link = adminLink();
-    const text = [title, "", rowsToText(rows), "", `Panel admin: ${link}`, "", `— ${BRAND.name}`].join("\n");
+    const text = [title, "", rowsToText(rows), "", `Panel admin: ${link}`, "", `- ${BRAND.name}`].join("\n");
     const to = getArtistNotificationsEmail();
     if (!to) {
       console.info("[internal-email:preview] (sin ARTIST_NOTIFICATIONS_EMAIL)", subject);
@@ -119,7 +119,7 @@ function hasRealEstimate(record: QuoteRequestRecord): boolean {
   return !/definir/i.test(total);
 }
 
-/** FASE 6.2 — Correo interno por nueva cotización (flujo mediano). */
+/** FASE 6.2, Correo interno por nueva cotización (flujo mediano). */
 export async function sendNewQuoteInternalEmail(record: QuoteRequestRecord) {
   const c = record.connectionAnswers ?? {};
   const rows: Row[] = [
@@ -154,7 +154,7 @@ export async function sendNewQuoteInternalEmail(record: QuoteRequestRecord) {
   );
 }
 
-/** FASE 6.3 — Correo interno por nueva asesoría reservada (proyecto grande). */
+/** FASE 6.3, Correo interno por nueva asesoría reservada (proyecto grande). */
 export async function sendNewAdvisoryInternalEmail(booking: AdvisoryBooking) {
   const b = booking.brief ?? {};
   const rows: Row[] = [
@@ -196,7 +196,7 @@ const CHANGE_TITLES: Record<AdvisoryChangeKind, { eyebrow: string; title: string
   cancelled: { eyebrow: "Asesoría cancelada", title: "Asesoría cancelada" },
 };
 
-/** FASE 6.4 — Correo interno por cambios importantes de una asesoría. */
+/** FASE 6.4, Correo interno por cambios importantes de una asesoría. */
 export async function sendAdvisoryChangeInternalEmail(
   booking: AdvisoryBooking,
   kind: AdvisoryChangeKind,

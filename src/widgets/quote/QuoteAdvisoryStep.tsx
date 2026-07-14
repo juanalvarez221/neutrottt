@@ -56,6 +56,18 @@ export function QuoteAdvisoryStep({ size }: { size: string }) {
             <p className="typo-body mt-4 max-w-lg leading-relaxed text-zinc-400">
               {t("quoteAdvisoryBody")}
             </p>
+
+            <div
+              className="advisory-free-callout mt-5 inline-flex max-w-full flex-wrap items-center gap-2.5 rounded-2xl border border-[rgba(var(--rgb-honey),0.28)] bg-[rgba(var(--rgb-camel),0.12)] px-3.5 py-2.5 shadow-[inset_0_1px_0_rgba(255,248,240,0.06)]"
+              role="status"
+            >
+              <span className="advisory-free-callout__badge typo-tech inline-flex items-center rounded-full border border-[rgba(var(--rgb-honey),0.35)] bg-[rgba(var(--rgb-honey),0.16)] px-2.5 py-1 text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-[rgba(var(--rgb-honey),0.95)]">
+                {t("quoteAdvisoryFreeBadge")}
+              </span>
+              <span className="text-sm font-medium leading-snug text-[rgba(var(--rgb-sand),0.92)]">
+                {t("quoteAdvisoryFreeNote")}
+              </span>
+            </div>
           </div>
 
           <div className="flex shrink-0 items-center gap-3 self-start rounded-xl border border-white/[0.06] bg-white/[0.025] px-4 py-3 lg:self-auto">

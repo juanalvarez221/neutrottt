@@ -6,6 +6,7 @@ import type { ConnectionSelectionMode } from "@/shared/lib/quoteConnection";
 type ConnectionChoiceOptionProps = {
   selected: boolean;
   label: string;
+  detail?: string;
   mode: ConnectionSelectionMode;
   onClick: () => void;
 };
@@ -13,6 +14,7 @@ type ConnectionChoiceOptionProps = {
 export function ConnectionChoiceOption({
   selected,
   label,
+  detail,
   mode,
   onClick,
 }: ConnectionChoiceOptionProps) {
@@ -28,9 +30,13 @@ export function ConnectionChoiceOption({
         "connection-choice focus-ring",
         selected ? "connection-choice--selected" : "",
         isSingle ? "connection-choice--single" : "connection-choice--multi",
+        detail ? "connection-choice--with-detail" : "",
       ].join(" ")}
     >
-      <span className="connection-choice__label">{label}</span>
+      <span className="connection-choice__copy">
+        <span className="connection-choice__label">{label}</span>
+        {detail ? <span className="connection-choice__detail">{detail}</span> : null}
+      </span>
       <span
         className={[
           "connection-choice__indicator",

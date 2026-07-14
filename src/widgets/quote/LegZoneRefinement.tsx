@@ -93,7 +93,7 @@ function buildSummary(
     t(LIMB_LATERALITY_LABEL_KEYS[selection.laterality]),
     t(LEG_FACE_SCOPE_LABEL_KEYS[selection.faceScope]),
     t(LEG_EXTENT_LABEL_KEYS[selection.extent]),
-  ].join(" — ");
+  ].join(", ");
 }
 
 export function LegZoneRefinement({ selection, onSelectionChange }: Props) {
@@ -248,7 +248,7 @@ export function LegZoneRefinement({ selection, onSelectionChange }: Props) {
       ) : (
         <SelectionSummary
           label={t("quoteSelectionSummary")}
-          value="—"
+          value="-"
           incomplete
           incompleteHint={t("quoteRefinementIncomplete")}
         />

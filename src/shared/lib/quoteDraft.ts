@@ -45,7 +45,7 @@ export function isLargeQuoteSize(size: string) {
   return normalizeQuoteSize(size).includes("gran");
 }
 
-/** Solo piezas medianas (8–20 cm) reciben estimado orientativo online. */
+/** Solo piezas medianas (-0 cm) reciben estimado orientativo online. */
 export function receivesOnlinePricing(size: string) {
   return !isLargeQuoteSize(size);
 }

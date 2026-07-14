@@ -15,6 +15,7 @@ import { ArrowRight } from "lucide-react";
 import { useSiteLanguage } from "@/shared/i18n/LanguageProvider";
 import { buildConnectionPraise } from "@/shared/lib/connectionPraise";
 import {
+  ADJUSTMENT_DETAIL_KEYS,
   ADJUSTMENT_LABEL_KEYS,
   ADJUSTMENT_OPTIONS,
   CONNECTION_SELECTION_MODES,
@@ -55,7 +56,7 @@ function pickOption<T extends string>(
 
 export function QuoteConnectionStep() {
   const router = useRouter();
-  const { t } = useSiteLanguage();
+  const { t, language } = useSiteLanguage();
   const [showIntro, setShowIntro] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [step, setStep] = useState(0);
@@ -74,8 +75,8 @@ export function QuoteConnectionStep() {
 
   const rewardPraise = useMemo(() => {
     if (!rewardConnection) return null;
-    return buildConnectionPraise(rewardConnection, t, firstName);
-  }, [rewardConnection, t, firstName]);
+    return buildConnectionPraise(rewardConnection, t, firstName, language);
+  }, [rewardConnection, t, firstName, language]);
 
   const handleIntroComplete = useCallback(() => {
     setShowIntro(false);
@@ -255,11 +256,9 @@ export function QuoteConnectionStep() {
                     </span>
                     <span className="connection-step__meta-progress">{progressLabel}</span>
                   </p>
-                  <h2 className="connection-step__title" aria-hidden>
-                    <span className="connection-step__title-line">{t("quoteConnectionTitle")}</span>
-                    <span className="connection-step__title-line connection-step__title-line--accent">
-                      {t("quoteConnectionTitle2")}
-                    </span>
+                  <h2 className="typo-section quote-step-title">
+                    {t("quoteConnectionTitle")}{" "}
+                    <span className="text-zinc-300">{t("quoteConnectionTitle2")}</span>
                   </h2>
                 </div>
 
@@ -382,8 +381,9 @@ export function QuoteConnectionStep() {
                         {t("quoteConnectionAdjustLabel")}
                       </legend>
                       <p className="connection-step__hint">{t("quoteConnectionAdjustHint")}</p>
+
                       <div
-                        className="connection-step__options connection-step__options--stack"
+                        className="connection-step__options connection-step__options--stack connection-step__options--spectrum"
                         role="radiogroup"
                         aria-label={t("quoteConnectionAdjustLabel")}
                       >
@@ -393,6 +393,7 @@ export function QuoteConnectionStep() {
                             mode={CONNECTION_SELECTION_MODES.adjustments}
                             selected={adjustments.includes(option)}
                             label={t(ADJUSTMENT_LABEL_KEYS[option])}
+                            detail={t(ADJUSTMENT_DETAIL_KEYS[option])}
                             onClick={() =>
                               setAdjustments((current) =>
                                 pickOption(

@@ -148,12 +148,12 @@ export function formatZoneDisplay(
   } = refinement;
 
   if (id === "cabeza" && headPart && isHeadPartId(headPart)) {
-    return `${base} — ${t(HEAD_PART_LABEL_KEYS[headPart as HeadPartId])}`;
+    return `${base}, ${t(HEAD_PART_LABEL_KEYS[headPart as HeadPartId])}`;
   }
   if (id === "espalda" && backPart) {
     const normalized = normalizeBackPartId(backPart);
     if (normalized) {
-      return `${base} — ${t(BACK_PART_LABEL_KEYS[normalized])}`;
+      return `${base}, ${t(BACK_PART_LABEL_KEYS[normalized])}`;
     }
   }
   if (id === "brazo") {
@@ -167,7 +167,7 @@ export function formatZoneDisplay(
     if (armPart && isArmPartId(armPart)) {
       parts.push(t(ARM_PART_LABEL_KEYS[armPart as ArmPartId]));
     }
-    return parts.length > 1 ? parts.join(" — ") : base;
+    return parts.length > 1 ? parts.join(", ") : base;
   }
   if (id === "pierna") {
     const parts: string[] = [base];
@@ -180,7 +180,7 @@ export function formatZoneDisplay(
     if (legExtent && isLegExtentId(legExtent)) {
       parts.push(t(LEG_EXTENT_LABEL_KEYS[legExtent]));
     }
-    return parts.length > 1 ? parts.join(" — ") : base;
+    return parts.length > 1 ? parts.join(", ") : base;
   }
   return base;
 }

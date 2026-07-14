@@ -109,7 +109,7 @@ export interface BodyZoneResult {
   fullSummary: string;
 }
 
-const NO_REGION_NOTE = "Sin cara trasera registrada — se resalta la cara visible.";
+const NO_REGION_NOTE = "Sin cara trasera registrada, se resalta la cara visible.";
 
 export const ZONES: ZoneConfig[] = [
   {
@@ -879,7 +879,7 @@ export const ZONES: ZoneConfig[] = [
           {
             id: "quad",
             label: "Frente del muslo",
-            description: "Cuádriceps — lo que se ve de frente",
+            description: "Cuádriceps, lo que se ve de frente",
             icon: ArrowUpRight,
             regions: ["zone-quad-{side}"],
             coverage: "front",
@@ -887,7 +887,7 @@ export const ZONES: ZoneConfig[] = [
           {
             id: "hamstring",
             label: "Atrás del muslo",
-            description: "Isquiotibiales — lo que se ve de atrás",
+            description: "Isquiotibiales, lo que se ve de atrás",
             icon: ArrowDownRight,
             regions: ["zone-hamstring-{side}"],
             coverage: "back",

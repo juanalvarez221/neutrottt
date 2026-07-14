@@ -235,7 +235,7 @@ function PortfolioPieceLightbox({
           <button
             type="button"
             onClick={onClose}
-            className="focus-ring inline-flex h-10 w-10 items-center justify-center rounded-full text-zinc-100 transition hover:bg-white/8 active:scale-[0.98]"
+            className="focus-ring inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/5 text-zinc-100 transition hover:bg-white/10 active:scale-[0.98]"
             aria-label={t("portfolioDetailClose")}
           >
             <X className="h-5 w-5" strokeWidth={1.75} />
@@ -252,22 +252,32 @@ function PortfolioPieceLightbox({
             </p>
           </div>
 
-          <span aria-hidden className="h-10 w-10" />
+          <span aria-hidden className="h-11 w-11" />
         </div>
 
-        <div className="portfolio-lightbox__stage">
+        <div
+          className="portfolio-lightbox__stage"
+          onClick={onClose}
+          role="presentation"
+        >
           {total > 1 ? (
             <button
               type="button"
               className="portfolio-lightbox__nav portfolio-lightbox__nav--prev focus-ring"
-              onClick={onPrev}
+              onClick={(event) => {
+                event.stopPropagation();
+                onPrev();
+              }}
               aria-label={t("portfolioDetailPrev")}
             >
               <ChevronLeft className="h-5 w-5" strokeWidth={1.75} />
             </button>
           ) : null}
 
-          <div className="portfolio-lightbox__frame-wrap">
+          <div
+            className="portfolio-lightbox__frame-wrap"
+            onClick={(event) => event.stopPropagation()}
+          >
             <PortfolioFramedImage piece={piece} sizes="(max-width: 768px) 92vw, 52rem" priority />
           </div>
 
@@ -275,7 +285,10 @@ function PortfolioPieceLightbox({
             <button
               type="button"
               className="portfolio-lightbox__nav portfolio-lightbox__nav--next focus-ring"
-              onClick={onNext}
+              onClick={(event) => {
+                event.stopPropagation();
+                onNext();
+              }}
               aria-label={t("portfolioDetailNext")}
             >
               <ChevronRight className="h-5 w-5" strokeWidth={1.75} />

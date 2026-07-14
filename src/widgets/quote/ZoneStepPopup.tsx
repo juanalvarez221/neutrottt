@@ -60,54 +60,48 @@ export function ZoneStepPopup({
     <AnimatePresence>
       {open ? (
         <motion.div
-          className="zone-step-popup fixed inset-0 z-[80] flex items-center justify-center p-3 sm:p-5"
+          className="zone-step-popup"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
+          transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
           role="dialog"
           aria-modal="true"
           aria-labelledby="zone-step-popup-title"
         >
-          <button
-            type="button"
-            className="absolute inset-0 bg-zinc-950/82 backdrop-blur-md"
-            aria-label={t("quotePopupClose")}
-            onClick={onClose}
-          />
-
           <motion.div
-            initial={{ opacity: 0, y: 32, scale: 0.98 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 24, scale: 0.98 }}
-            transition={{ type: "spring", stiffness: 420, damping: 32 }}
-            className="zone-step-popup__panel relative z-10 flex w-full max-w-[min(100%,40rem)] flex-col overflow-hidden"
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 12 }}
+            transition={{ type: "spring", stiffness: 380, damping: 34 }}
+            className="zone-step-popup__panel"
             onClick={(event) => event.stopPropagation()}
           >
-            <header className="zone-step-popup__header flex items-center gap-2 px-4 pb-3 pt-4 sm:px-5 sm:pt-5">
+            <header className="zone-step-popup__header">
               {canBack && onBack ? (
                 <button
                   type="button"
                   onClick={onBack}
-                  className="focus-ring inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/10 text-zinc-200 transition hover:bg-white/8 active:scale-[0.96]"
+                  className="zone-step-popup__icon-btn focus-ring"
                   aria-label={t("quotePopupBack")}
                 >
                   <ArrowLeft className="h-4 w-4" strokeWidth={2} />
                 </button>
               ) : (
-                <span className="h-10 w-10 shrink-0" aria-hidden />
+                <span className="zone-step-popup__icon-spacer" aria-hidden />
               )}
 
-              <div className="flex min-w-0 flex-1 justify-center gap-1.5" aria-hidden>
+              <div className="zone-step-popup__progress" aria-hidden>
                 {Array.from({ length: total }, (_, index) => (
                   <span
                     key={index}
                     className={[
-                      "h-1.5 rounded-full transition-all duration-300",
+                      "zone-step-popup__dot",
                       index + 1 === step
-                        ? "w-6 bg-stone-300"
+                        ? "zone-step-popup__dot--active"
                         : index + 1 < step
-                          ? "w-1.5 bg-stone-500"
-                          : "w-1.5 bg-white/20",
+                          ? "zone-step-popup__dot--done"
+                          : "",
                     ].join(" ")}
                   />
                 ))}
@@ -116,56 +110,54 @@ export function ZoneStepPopup({
               <button
                 type="button"
                 onClick={onClose}
-                className="focus-ring inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/10 text-zinc-200 transition hover:bg-white/8 active:scale-[0.96]"
+                className="zone-step-popup__icon-btn focus-ring"
                 aria-label={t("quotePopupClose")}
               >
                 <X className="h-4 w-4" strokeWidth={2} />
               </button>
             </header>
 
-            <div className="px-4 sm:px-5">
-              <h3
-                id="zone-step-popup-title"
-                className="text-center text-[1.35rem] font-bold leading-tight tracking-tight text-zinc-50 sm:text-[1.5rem]"
-              >
+            <div className="zone-step-popup__title-block">
+              <h3 id="zone-step-popup-title" className="zone-step-popup__title">
                 {title}
               </h3>
-              {subtitle ? (
-                <p className="mt-1.5 text-center text-sm text-zinc-400">{subtitle}</p>
-              ) : null}
+              {subtitle ? <p className="zone-step-popup__subtitle">{subtitle}</p> : null}
             </div>
 
-            <div className="zone-step-popup__main min-h-0 flex flex-1 flex-col">
+            <div className="zone-step-popup__stage">
               {visual ? (
                 <div
                   className={[
-                    "zone-step-popup__visual-slot shrink-0 px-4 pt-1 sm:px-5",
+                    "zone-step-popup__visual-slot",
                     visualCompact ? "zone-step-popup__visual-slot--compact" : "",
                   ].join(" ")}
                 >
                   {visual}
                 </div>
-              ) : null}
+              ) : (
+                <div className="zone-step-popup__visual-empty" aria-hidden />
+              )}
+            </div>
 
-              <div className="zone-step-popup__options-scroll min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-3 sm:px-5 sm:py-4">
-                <AnimatePresence mode="wait">
-                  <motion.div
-                    key={stepKey}
-                    initial={{ opacity: 0, x: 28 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -28 }}
-                    transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
-                  >
-                    {children}
-                  </motion.div>
-                </AnimatePresence>
-              </div>
+            <div className="zone-step-popup__choices">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={stepKey}
+                  className="zone-step-popup__choices-inner"
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -6 }}
+                  transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+                >
+                  {children}
+                </motion.div>
+              </AnimatePresence>
             </div>
 
             {onConfirm && confirmLabel ? (
-              <footer className="zone-step-popup__footer shrink-0 border-t border-white/10 px-4 py-3 sm:px-5 sm:py-4">
+              <footer className="zone-step-popup__footer">
                 {!canConfirm ? (
-                  <p className="mb-2.5 text-center text-xs text-zinc-500">{t("quoteRefinementIncomplete")}</p>
+                  <p className="zone-step-popup__hint">{t("quoteRefinementIncomplete")}</p>
                 ) : null}
                 <button
                   type="button"
@@ -173,8 +165,8 @@ export function ZoneStepPopup({
                   disabled={!canConfirm}
                   aria-disabled={!canConfirm}
                   className={[
-                    "focus-ring btn-accent typo-cta group inline-flex w-full min-h-[52px] items-center justify-center gap-2 rounded-xl px-6 py-3.5 active:scale-[0.98]",
-                    !canConfirm ? "cursor-not-allowed opacity-45" : "",
+                    "zone-step-popup__cta focus-ring btn-accent typo-cta group",
+                    !canConfirm ? "zone-step-popup__cta--disabled" : "",
                   ].join(" ")}
                 >
                   {confirmLabel}
@@ -220,12 +212,9 @@ export function PopupOptionButton({
       onBlur={onHoverEnd}
       aria-pressed={active}
       className={[
-        "focus-ring min-h-[52px] rounded-2xl border px-4 py-3.5 text-left text-[0.9375rem] font-semibold leading-snug transition active:scale-[0.98]",
-        "whitespace-normal break-words",
-        wide ? "col-span-full" : "",
-        active
-          ? "border-stone-300/40 bg-stone-500/18 text-stone-50 shadow-[inset_0_1px_0_rgba(255,248,240,0.08)]"
-          : "border-white/12 bg-white/[0.04] text-zinc-100 hover:border-stone-400/30 hover:bg-stone-600/10",
+        "zone-step-popup__chip focus-ring",
+        wide ? "zone-step-popup__chip--wide" : "",
+        active ? "zone-step-popup__chip--active" : "",
       ].join(" ")}
     >
       {label}

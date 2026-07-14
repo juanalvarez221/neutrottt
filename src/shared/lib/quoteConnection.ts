@@ -107,6 +107,13 @@ export const ADJUSTMENT_LABEL_KEYS: Record<AdjustmentOption, SiteCopyKey> = {
   fixed_idea_only: "quoteConnectionAdjustFixed",
 };
 
+export const ADJUSTMENT_DETAIL_KEYS: Record<AdjustmentOption, SiteCopyKey> = {
+  trust_artist: "quoteConnectionAdjustTrustDetail",
+  open_composition: "quoteConnectionAdjustCompositionDetail",
+  approve_each: "quoteConnectionAdjustApproveDetail",
+  fixed_idea_only: "quoteConnectionAdjustFixedDetail",
+};
+
 const QUOTE_CONNECTION_KEY = "quote_connection";
 
 function isValidConnection(parsed: unknown): parsed is QuoteConnection {
@@ -200,10 +207,10 @@ export function formatQuoteConnectionForAdmin(connection: QuoteConnection): stri
     silence: "Silencio",
   };
   const adjustmentLabels: Record<AdjustmentOption, string> = {
-    trust_artist: "Guía creativa total — confía en el criterio del artista",
-    open_composition: "Base clara, abierto a escala y composición",
-    approve_each: "Colaboración con aprobación en cada ajuste",
-    fixed_idea_only: "Idea cerrada — exactamente eso, sin asesoría",
+    trust_artist: "Criterio total de Neutro",
+    open_composition: "Base definida, apertura creativa",
+    approve_each: "Colaboración con aprobación",
+    fixed_idea_only: "Idea fija, sin cambios",
   };
 
   const referral = connection.referralSources

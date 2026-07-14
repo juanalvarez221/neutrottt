@@ -146,7 +146,7 @@ export function HeadZoneRefinement({ headPart, onHeadPartChange }: Props) {
       ) : (
         <SelectionSummary
           label={t("quoteSelectionSummary")}
-          value="—"
+          value="-"
           incomplete
           incompleteHint={t("quoteRefinementIncomplete")}
         />

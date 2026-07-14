@@ -125,7 +125,7 @@ export function HeroSplash({
           {usePortraitPhoto ? (
             <HeroPortraitBanner
               src={portraitBackgroundUrl!}
-              alt={`${artistName} — Tattoo Artist`}
+              alt={`${artistName}, Tattoo Artist`}
               imageY={portraitBgY}
               imageScale={portraitBgScale}
             />

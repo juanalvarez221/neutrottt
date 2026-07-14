@@ -18,25 +18,24 @@ import {
 } from "@/shared/config/aboutProcessSlides";
 import { AboutProcessLightboxRoot } from "@/widgets/home/AboutProcessLightbox";
 import {
-  DIRECTION_VELOCITY_THRESHOLD,
   DRAG_LOCK_THRESHOLD_PX,
   DRAG_LOCK_THRESHOLD_TOUCH_PX,
   INERTIA_FRICTION,
   INERTIA_MIN_VELOCITY,
+  INERTIA_VELOCITY_MOUSE_BOOST,
   INERTIA_VELOCITY_TOUCH_BOOST,
   MARQUEE_LOOP_SETS,
   MARQUEE_SPEED_PX_S,
   SNAP_EASE,
   SNAP_SCROLL_MS,
+  USER_CONTROL_IDLE_MS,
   VELOCITY_SAMPLE_WINDOW_MS,
   VERTICAL_SCROLL_THRESHOLD_PX,
-  directionToFlow,
   resolveMarqueeDirection,
   type MarqueeDirection,
-  type MarqueeFlow,
 } from "@/widgets/home/aboutProcessCarouselMotion";
 
-/** video → foto → video → foto — ver aboutProcessSlides.ts */
+/** video → foto → video → foto, ver aboutProcessSlides.ts */
 const PROCESS_SLIDES = ABOUT_PROCESS_SLIDES;
 
 const LOOP_SETS = MARQUEE_LOOP_SETS;
@@ -169,15 +168,16 @@ export function AboutProcessCarousel() {
   const pointerTypeRef = useRef<string>("mouse");
   const velocitySamplesRef = useRef<{ t: number; x: number }[]>([]);
   const inertiaLastTsRef = useRef(0);
-  const wheelSnapTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const wheelIdleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const userControlUntilRef = useRef(0);
+  const activePhysicalRef = useRef(0);
+  const activeLogicalRef = useRef(0);
+  const syncActiveRafRef = useRef<number | null>(null);
+  const draggingDomRef = useRef(false);
 
   const [activeLogicalIndex, setActiveLogicalIndex] = useState(0);
-  const [isPaused, setIsPaused] = useState(false);
-  const [isDragging, setIsDragging] = useState(false);
-  const [isPressing, setIsPressing] = useState(false);
-  const [flowDirection, setFlowDirection] = useState<MarqueeFlow>("right");
-  const [carouselInView, setCarouselInView] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  const [carouselInView, setCarouselInView] = useState(false);
   const videosEnabled = carouselInView && !reduceMotion && lightboxIndex === null;
 
   const slideCount = PROCESS_SLIDES.length;
@@ -193,8 +193,42 @@ export function AboutProcessCarousel() {
 
   const applyMarqueeDirection = useCallback((direction: MarqueeDirection) => {
     marqueeDirectionRef.current = direction;
-    setFlowDirection(directionToFlow(direction));
+    const viewport = viewportRef.current;
+    if (!viewport) return;
+    viewport.classList.toggle(
+      "about-process-carousel-viewport--flow-left",
+      direction === 1,
+    );
+    viewport.classList.toggle(
+      "about-process-carousel-viewport--flow-right",
+      direction === -1,
+    );
   }, []);
+
+  const setViewportFlag = useCallback((flag: string, on: boolean) => {
+    viewportRef.current?.classList.toggle(flag, on);
+  }, []);
+
+  const markUserControl = useCallback(() => {
+    userControlUntilRef.current = performance.now() + USER_CONTROL_IDLE_MS;
+    gesturePausedRef.current = true;
+    setViewportFlag("about-process-carousel-viewport--paused", true);
+  }, [setViewportFlag]);
+
+  const clearUserControlIfIdle = useCallback(() => {
+    if (performance.now() < userControlUntilRef.current) return;
+    if (
+      pointerActiveRef.current ||
+      draggingRef.current ||
+      inertiaRafRef.current !== null ||
+      scrollAnimRafRef.current !== null ||
+      lightboxOpenRef.current
+    ) {
+      return;
+    }
+    gesturePausedRef.current = false;
+    setViewportFlag("about-process-carousel-viewport--paused", false);
+  }, [setViewportFlag]);
 
   const normalizePosition = useCallback(() => {
     const setWidth = setWidthRef.current;
@@ -219,44 +253,59 @@ export function AboutProcessCarousel() {
     applyTransform();
   }, [applyTransform, normalizePosition, slideCount]);
 
-  const syncActiveIndex = useCallback(() => {
-    const viewport = viewportRef.current;
+  const applyActiveClasses = useCallback((physicalIndex: number) => {
     const track = trackRef.current;
-    if (!viewport || !track || track.children.length === 0) return;
-
-    const viewportCenter = viewport.offsetWidth / 2;
-    let closestLogical = 0;
-    let minDistance = Number.POSITIVE_INFINITY;
+    if (!track) return;
 
     Array.from(track.children).forEach((child, index) => {
-      const el = child as HTMLElement;
-      const childCenter =
-        el.offsetLeft - positionRef.current + el.offsetWidth / 2;
-      const distance = Math.abs(childCenter - viewportCenter);
-      if (distance < minDistance) {
-        minDistance = distance;
-        closestLogical = index % slideCount;
-      }
+      child.classList.toggle("about-process-slide--active", index === physicalIndex);
     });
-
-    setActiveLogicalIndex(closestLogical);
-  }, [slideCount]);
-
-  const isSlideActive = useCallback((physicalIndex: number) => {
-    const viewport = viewportRef.current;
-    const track = trackRef.current;
-    if (!viewport || !track) return false;
-
-    const el = track.children[physicalIndex] as HTMLElement | undefined;
-    if (!el) return false;
-
-    const childCenter =
-      el.offsetLeft - positionRef.current + el.offsetWidth / 2;
-    const viewportCenter = viewport.offsetWidth / 2;
-    const threshold = el.offsetWidth * 0.42;
-
-    return Math.abs(childCenter - viewportCenter) < threshold;
   }, []);
+
+  const syncActiveIndex = useCallback(
+    (force = false) => {
+      if (!force) {
+        if (syncActiveRafRef.current !== null) return;
+        syncActiveRafRef.current = requestAnimationFrame(() => {
+          syncActiveRafRef.current = null;
+          syncActiveIndex(true);
+        });
+        return;
+      }
+
+      const viewport = viewportRef.current;
+      const track = trackRef.current;
+      if (!viewport || !track || track.children.length === 0) return;
+
+      const viewportCenter = viewport.offsetWidth / 2;
+      let closestPhysical = 0;
+      let closestLogical = 0;
+      let minDistance = Number.POSITIVE_INFINITY;
+
+      Array.from(track.children).forEach((child, index) => {
+        const el = child as HTMLElement;
+        const childCenter =
+          el.offsetLeft - positionRef.current + el.offsetWidth / 2;
+        const distance = Math.abs(childCenter - viewportCenter);
+        if (distance < minDistance) {
+          minDistance = distance;
+          closestPhysical = index;
+          closestLogical = index % slideCount;
+        }
+      });
+
+      if (closestPhysical !== activePhysicalRef.current) {
+        activePhysicalRef.current = closestPhysical;
+        applyActiveClasses(closestPhysical);
+      }
+
+      if (closestLogical !== activeLogicalRef.current) {
+        activeLogicalRef.current = closestLogical;
+        setActiveLogicalIndex(closestLogical);
+      }
+    },
+    [applyActiveClasses, slideCount],
+  );
 
   const findBestPhysicalIndex = useCallback(
     (logicalIndex: number) => {
@@ -298,6 +347,22 @@ export function AboutProcessCarousel() {
     }
   }, []);
 
+  const pauseMarqueeForDrag = useCallback(() => {
+    markUserControl();
+  }, [markUserControl]);
+
+  const syncPausedUi = useCallback(() => {
+    const paused =
+      lightboxOpenRef.current ||
+      gesturePausedRef.current ||
+      pointerActiveRef.current ||
+      draggingRef.current ||
+      inertiaRafRef.current !== null ||
+      scrollAnimRafRef.current !== null ||
+      performance.now() < userControlUntilRef.current;
+    setViewportFlag("about-process-carousel-viewport--paused", paused);
+  }, [setViewportFlag]);
+
   const animateScrollToPhysical = useCallback(
     (physicalIndex: number, onComplete?: () => void) => {
       const track = trackRef.current;
@@ -329,36 +394,22 @@ export function AboutProcessCarousel() {
         }
 
         scrollAnimRafRef.current = null;
+        syncPausedUi();
         onComplete?.();
       };
 
       scrollAnimRafRef.current = requestAnimationFrame(step);
+      syncPausedUi();
     },
-    [applyTransform, normalizePosition, stopInertia, stopScrollAnim, syncActiveIndex],
+    [
+      applyTransform,
+      normalizePosition,
+      stopInertia,
+      stopScrollAnim,
+      syncActiveIndex,
+      syncPausedUi,
+    ],
   );
-
-  const snapToNearestSlide = useCallback(() => {
-    const track = trackRef.current;
-    const viewport = viewportRef.current;
-    if (!track || !viewport) return;
-
-    const viewportCenter = viewport.offsetWidth / 2;
-    let bestPhysical = 0;
-    let minDistance = Number.POSITIVE_INFINITY;
-
-    Array.from(track.children).forEach((child, index) => {
-      const el = child as HTMLElement;
-      const childCenter =
-        el.offsetLeft - positionRef.current + el.offsetWidth / 2;
-      const distance = Math.abs(childCenter - viewportCenter);
-      if (distance < minDistance) {
-        minDistance = distance;
-        bestPhysical = index;
-      }
-    });
-
-    animateScrollToPhysical(bestPhysical);
-  }, [animateScrollToPhysical]);
 
   const scrollToPhysical = useCallback(
     (physicalIndex: number) => {
@@ -372,7 +423,7 @@ export function AboutProcessCarousel() {
           el.offsetLeft + el.offsetWidth / 2 - viewport.offsetWidth / 2;
         normalizePosition();
         applyTransform();
-        syncActiveIndex();
+        syncActiveIndex(true);
         return;
       }
       animateScrollToPhysical(physicalIndex);
@@ -385,20 +436,6 @@ export function AboutProcessCarousel() {
       syncActiveIndex,
     ],
   );
-
-  const pauseMarqueeForDrag = useCallback(() => {
-    setIsPaused(true);
-  }, []);
-
-  const syncPausedUi = useCallback(() => {
-    setIsPaused(
-      lightboxOpenRef.current ||
-        gesturePausedRef.current ||
-        draggingRef.current ||
-        inertiaRafRef.current !== null ||
-        scrollAnimRafRef.current !== null,
-    );
-  }, []);
 
   const updateFlowFromGesture = useCallback(
     (pointerDeltaPx: number, velocityPxPerMs: number) => {
@@ -415,24 +452,32 @@ export function AboutProcessCarousel() {
       updateFlowFromGesture(pointerDeltaPx, velocityPxPerMs);
 
       stopInertia();
-      const touchBoost =
-        pointerTypeRef.current === "touch" ? INERTIA_VELOCITY_TOUCH_BOOST : 1;
-      let velocity = -velocityPxPerMs * 1000 * touchBoost;
-      if (Math.abs(velocity) < INERTIA_MIN_VELOCITY * 50) {
-        snapToNearestSlide();
+      const boost =
+        pointerTypeRef.current === "touch"
+          ? INERTIA_VELOCITY_TOUCH_BOOST
+          : INERTIA_VELOCITY_MOUSE_BOOST;
+
+      // Mismo signo que el gesto: dedo a la derecha -> coast a la derecha (position baja).
+      // Antes se invertía y el carrusel "se devolvía solo".
+      let velocity = velocityPxPerMs * 1000 * boost;
+
+      if (Math.abs(velocity) < INERTIA_MIN_VELOCITY) {
+        markUserControl();
+        syncPausedUi();
         return;
       }
 
+      markUserControl();
       inertiaLastTsRef.current = performance.now();
 
       const step = (now: number) => {
-        const dt = Math.min(0.05, (now - inertiaLastTsRef.current) / 1000);
+        const dt = Math.min(0.048, (now - inertiaLastTsRef.current) / 1000);
         inertiaLastTsRef.current = now;
 
         if (Math.abs(velocity) < INERTIA_MIN_VELOCITY) {
           inertiaRafRef.current = null;
+          markUserControl();
           syncPausedUi();
-          snapToNearestSlide();
           return;
         }
 
@@ -445,12 +490,13 @@ export function AboutProcessCarousel() {
       };
 
       inertiaRafRef.current = requestAnimationFrame(step);
+      syncPausedUi();
     },
     [
       applyTransform,
+      markUserControl,
       normalizePosition,
       stopInertia,
-      snapToNearestSlide,
       syncActiveIndex,
       syncPausedUi,
       updateFlowFromGesture,
@@ -462,6 +508,7 @@ export function AboutProcessCarousel() {
       applyMarqueeDirection(direction === 1 ? 1 : -1);
       stopInertia();
       stopScrollAnim();
+      markUserControl();
       const nextLogical =
         (activeLogicalIndex + direction + slideCount) % slideCount;
       scrollToPhysical(findBestPhysicalIndex(nextLogical));
@@ -470,6 +517,7 @@ export function AboutProcessCarousel() {
       activeLogicalIndex,
       applyMarqueeDirection,
       findBestPhysicalIndex,
+      markUserControl,
       scrollToPhysical,
       slideCount,
       stopInertia,
@@ -510,17 +558,27 @@ export function AboutProcessCarousel() {
       stopInertia();
       stopScrollAnim();
       setLightboxIndex(logicalIndex);
-      setIsPaused(true);
+      markUserControl();
+      setViewportFlag("about-process-carousel-viewport--lightbox", true);
       scrollToPhysical(findBestPhysicalIndex(logicalIndex));
     },
-    [findBestPhysicalIndex, scrollToPhysical, stopInertia, stopScrollAnim],
+    [
+      findBestPhysicalIndex,
+      markUserControl,
+      scrollToPhysical,
+      setViewportFlag,
+      stopInertia,
+      stopScrollAnim,
+    ],
   );
 
   const closeLightbox = useCallback(() => {
     lightboxOpenRef.current = false;
     setLightboxIndex(null);
+    setViewportFlag("about-process-carousel-viewport--lightbox", false);
+    markUserControl();
     syncPausedUi();
-  }, [syncPausedUi]);
+  }, [markUserControl, setViewportFlag, syncPausedUi]);
 
   const releasePointer = useCallback((trackEl: HTMLDivElement | null) => {
     if (capturedPointerIdRef.current !== null && trackEl) {
@@ -538,7 +596,7 @@ export function AboutProcessCarousel() {
       if (!pointerActiveRef.current) return;
 
       pointerActiveRef.current = false;
-      setIsPressing(false);
+      setViewportFlag("about-process-carousel-viewport--pressing", false);
       releasePointer(trackEl);
 
       const pointerDelta = clientX - dragStartXRef.current;
@@ -550,35 +608,47 @@ export function AboutProcessCarousel() {
           openLightbox(logicalIndex);
         }
         draggingRef.current = false;
-        setIsDragging(false);
+        draggingDomRef.current = false;
+        setViewportFlag("about-process-carousel-viewport--dragging", false);
+        markUserControl();
         syncPausedUi();
         return;
       }
 
       draggingRef.current = false;
-      setIsDragging(false);
+      draggingDomRef.current = false;
+      setViewportFlag("about-process-carousel-viewport--dragging", false);
       dragActivatedRef.current = false;
       tapTargetLogicalIndexRef.current = null;
 
       const velocity = getSmoothedVelocity();
       velocitySamplesRef.current = [];
-      if (Math.abs(velocity) < DIRECTION_VELOCITY_THRESHOLD) {
-        snapToNearestSlide();
-        syncPausedUi();
-        return;
-      }
-
       startInertia(velocity, pointerDelta);
-      syncPausedUi();
     },
-    [getSmoothedVelocity, openLightbox, releasePointer, snapToNearestSlide, startInertia, syncPausedUi],
+    [
+      getSmoothedVelocity,
+      markUserControl,
+      openLightbox,
+      releasePointer,
+      setViewportFlag,
+      startInertia,
+      syncPausedUi,
+    ],
   );
 
   const activateDrag = useCallback(
     (event: ReactPointerEvent<HTMLDivElement>) => {
+      dragStartXRef.current = event.clientX;
+      dragStartYRef.current = event.clientY;
+      dragStartPosRef.current = positionRef.current;
+      lastMoveXRef.current = event.clientX;
+      lastMoveTimeRef.current = performance.now();
+      velocitySamplesRef.current = [{ t: performance.now(), x: event.clientX }];
+
       dragActivatedRef.current = true;
       draggingRef.current = true;
-      setIsDragging(true);
+      draggingDomRef.current = true;
+      setViewportFlag("about-process-carousel-viewport--dragging", true);
       pauseMarqueeForDrag();
 
       if (capturedPointerIdRef.current === null) {
@@ -590,7 +660,7 @@ export function AboutProcessCarousel() {
         }
       }
     },
-    [pauseMarqueeForDrag],
+    [pauseMarqueeForDrag, setViewportFlag],
   );
 
   const handlePointerDown = useCallback(
@@ -612,9 +682,10 @@ export function AboutProcessCarousel() {
       pointerActiveRef.current = true;
       dragActivatedRef.current = false;
       draggingRef.current = false;
-      setIsPressing(true);
-      setIsDragging(false);
-      syncPausedUi();
+      draggingDomRef.current = false;
+      setViewportFlag("about-process-carousel-viewport--pressing", true);
+      setViewportFlag("about-process-carousel-viewport--dragging", false);
+      markUserControl();
 
       dragStartXRef.current = event.clientX;
       dragStartYRef.current = event.clientY;
@@ -624,16 +695,14 @@ export function AboutProcessCarousel() {
       dragVelocityRef.current = 0;
       recordVelocitySample(event.clientX);
 
-      if (event.pointerType === "touch") {
-        try {
-          event.currentTarget.setPointerCapture(event.pointerId);
-          capturedPointerIdRef.current = event.pointerId;
-        } catch {
-          /* ignore */
-        }
+      try {
+        event.currentTarget.setPointerCapture(event.pointerId);
+        capturedPointerIdRef.current = event.pointerId;
+      } catch {
+        /* ignore */
       }
     },
-    [recordVelocitySample, stopInertia, stopScrollAnim, syncPausedUi],
+    [markUserControl, recordVelocitySample, setViewportFlag, stopInertia, stopScrollAnim],
   );
 
   const handlePointerMove = useCallback(
@@ -646,12 +715,13 @@ export function AboutProcessCarousel() {
       if (!dragActivatedRef.current) {
         if (
           Math.abs(deltaY) > VERTICAL_SCROLL_THRESHOLD_PX &&
-          Math.abs(deltaY) > Math.abs(deltaX) * 1.05
+          Math.abs(deltaY) > Math.abs(deltaX) * 1.2
         ) {
           pointerActiveRef.current = false;
-          setIsPressing(false);
+          setViewportFlag("about-process-carousel-viewport--pressing", false);
           tapTargetLogicalIndexRef.current = null;
           releasePointer(event.currentTarget);
+          markUserControl();
           syncPausedUi();
           return;
         }
@@ -659,8 +729,10 @@ export function AboutProcessCarousel() {
         if (Math.abs(deltaX) < dragLockThreshold()) return;
 
         activateDrag(event);
+        return;
       }
 
+      event.preventDefault();
       positionRef.current = dragStartPosRef.current - deltaX;
       normalizePosition();
       applyTransform();
@@ -679,9 +751,11 @@ export function AboutProcessCarousel() {
       activateDrag,
       applyTransform,
       dragLockThreshold,
+      markUserControl,
       normalizePosition,
       recordVelocitySample,
       releasePointer,
+      setViewportFlag,
       syncActiveIndex,
       syncPausedUi,
     ],
@@ -696,14 +770,14 @@ export function AboutProcessCarousel() {
 
   useEffect(() => {
     measureSetWidth();
-    syncActiveIndex();
+    syncActiveIndex(true);
 
     const track = trackRef.current;
     if (!track) return;
 
     const ro = new ResizeObserver(() => {
       measureSetWidth();
-      syncActiveIndex();
+      syncActiveIndex(true);
     });
 
     ro.observe(track);
@@ -731,20 +805,22 @@ export function AboutProcessCarousel() {
 
     const tick = (timestamp: number) => {
       if (!lastTickRef.current) lastTickRef.current = timestamp;
-      const dt = (timestamp - lastTickRef.current) / 1000;
+      const dt = Math.min(0.048, (timestamp - lastTickRef.current) / 1000);
       lastTickRef.current = timestamp;
 
-      const paused =
+      clearUserControlIfIdle();
+
+      const underUserControl =
         lightboxOpenRef.current ||
-        gesturePausedRef.current ||
+        pointerActiveRef.current ||
         draggingRef.current ||
         inertiaRafRef.current !== null ||
-        scrollAnimRafRef.current !== null;
+        scrollAnimRafRef.current !== null ||
+        performance.now() < userControlUntilRef.current;
 
-      if (!paused && inViewRef.current && setWidthRef.current > 0) {
-        const wave = 1 + Math.sin(timestamp * 0.0014) * 0.06;
+      if (!underUserControl && inViewRef.current && setWidthRef.current > 0) {
         positionRef.current +=
-          marqueeDirectionRef.current * MARQUEE_SPEED_PX_S * dt * wave;
+          marqueeDirectionRef.current * MARQUEE_SPEED_PX_S * dt;
         normalizePosition();
         applyTransform();
         syncActiveIndex();
@@ -758,15 +834,25 @@ export function AboutProcessCarousel() {
       if (marqueeRafRef.current !== null) {
         cancelAnimationFrame(marqueeRafRef.current);
       }
+      if (syncActiveRafRef.current !== null) {
+        cancelAnimationFrame(syncActiveRafRef.current);
+        syncActiveRafRef.current = null;
+      }
     };
-  }, [applyTransform, normalizePosition, reduceMotion, syncActiveIndex]);
+  }, [
+    applyTransform,
+    clearUserControlIfIdle,
+    normalizePosition,
+    reduceMotion,
+    syncActiveIndex,
+  ]);
 
   useEffect(() => {
     return () => {
       stopInertia();
       stopScrollAnim();
-      if (wheelSnapTimerRef.current !== null) {
-        clearTimeout(wheelSnapTimerRef.current);
+      if (wheelIdleTimerRef.current !== null) {
+        clearTimeout(wheelIdleTimerRef.current);
       }
     };
   }, [stopInertia, stopScrollAnim]);
@@ -780,42 +866,39 @@ export function AboutProcessCarousel() {
 
       const absX = Math.abs(event.deltaX);
       const absY = Math.abs(event.deltaY);
-      if (absX < 2 || absX < absY * 0.5) return;
+      if (absX < 1.5 || absX < absY * 0.45) return;
 
       event.preventDefault();
       stopInertia();
       stopScrollAnim();
-      gesturePausedRef.current = true;
-      setIsPaused(true);
+      markUserControl();
 
-      updateFlowFromGesture(event.deltaX, event.deltaX * 0.018);
-      positionRef.current += event.deltaX;
+      updateFlowFromGesture(event.deltaX, event.deltaX * 0.02);
+      positionRef.current -= event.deltaX;
       normalizePosition();
       applyTransform();
       syncActiveIndex();
 
-      if (wheelSnapTimerRef.current !== null) {
-        clearTimeout(wheelSnapTimerRef.current);
+      if (wheelIdleTimerRef.current !== null) {
+        clearTimeout(wheelIdleTimerRef.current);
       }
-      wheelSnapTimerRef.current = setTimeout(() => {
-        wheelSnapTimerRef.current = null;
-        gesturePausedRef.current = false;
-        snapToNearestSlide();
+      wheelIdleTimerRef.current = setTimeout(() => {
+        wheelIdleTimerRef.current = null;
         syncPausedUi();
-      }, 200);
+      }, 180);
     };
 
     viewport.addEventListener("wheel", onWheel, { passive: false });
     return () => {
       viewport.removeEventListener("wheel", onWheel);
-      if (wheelSnapTimerRef.current !== null) {
-        clearTimeout(wheelSnapTimerRef.current);
+      if (wheelIdleTimerRef.current !== null) {
+        clearTimeout(wheelIdleTimerRef.current);
       }
     };
   }, [
     applyTransform,
+    markUserControl,
     normalizePosition,
-    snapToNearestSlide,
     stopInertia,
     stopScrollAnim,
     syncActiveIndex,
@@ -833,16 +916,7 @@ export function AboutProcessCarousel() {
 
       <div
         ref={viewportRef}
-        className={[
-          "about-process-carousel-viewport about-process-carousel-viewport--marquee page-bleed-x relative",
-          isPaused ? "about-process-carousel-viewport--paused" : "",
-          isDragging ? "about-process-carousel-viewport--dragging" : "",
-          isPressing ? "about-process-carousel-viewport--pressing" : "",
-          lightboxIndex !== null ? "about-process-carousel-viewport--lightbox" : "",
-          flowDirection === "left"
-            ? "about-process-carousel-viewport--flow-left"
-            : "about-process-carousel-viewport--flow-right",
-        ].join(" ")}
+        className="about-process-carousel-viewport about-process-carousel-viewport--marquee about-process-carousel-viewport--flow-right page-bleed-x relative"
         aria-roledescription="carrusel"
         aria-label={t("aboutProcessLabel")}
         onPointerDown={handlePointerDown}
@@ -885,20 +959,15 @@ export function AboutProcessCarousel() {
           className="about-process-carousel-track about-process-carousel-track--marquee"
         >
           {loopSlides.map(({ slide, physicalIndex, logicalIndex }) => {
-            const isActive = isSlideActive(physicalIndex);
-
             return (
               <figure
                 key={`${physicalIndex}-${slide.src}`}
                 data-process-logical={logicalIndex}
-                className={[
-                  "about-process-slide about-process-frame",
-                  isActive ? "about-process-slide--active" : "",
-                ].join(" ")}
+                className="about-process-slide about-process-frame"
                 draggable={false}
                 role="button"
-                tabIndex={isActive ? 0 : -1}
-                aria-label={`${t(slide.captionKey)} — ${t("aboutProcessOpenMoment")}`}
+                tabIndex={logicalIndex === activeLogicalIndex ? 0 : -1}
+                aria-label={`${t(slide.captionKey)}, ${t("aboutProcessOpenMoment")}`}
                 onKeyDown={(event) => {
                   if (event.key === "Enter" || event.key === " ") {
                     event.preventDefault();
@@ -941,6 +1010,7 @@ export function AboutProcessCarousel() {
             onClick={() => {
               stopInertia();
               stopScrollAnim();
+              markUserControl();
               scrollToPhysical(findBestPhysicalIndex(index));
             }}
             className={[

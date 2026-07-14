@@ -358,7 +358,7 @@ export function ZoneRefinementFlow({
     switch (currentStepId) {
       case "head-part":
         return wrapOptions(
-          <div className="grid grid-cols-1 gap-2">
+          <>
             {HEAD_PART_IDS.map((id) => (
               <PopupOptionButton
                 key={id}
@@ -368,28 +368,27 @@ export function ZoneRefinementFlow({
                 onClick={() => handleSelectOption(id)}
               />
             ))}
-          </div>,
+          </>,
         );
 
       case "back-part":
         return wrapOptions(
-          <div className="grid grid-cols-1 gap-2">
+          <>
             {BACK_PART_IDS.map((id) => (
               <PopupOptionButton
                 key={id}
                 label={t(BACK_PART_LABEL_KEYS[id])}
                 active={backPart === id}
-                wide
                 {...hoverProps(id)}
                 onClick={() => handleSelectOption(id)}
               />
             ))}
-          </div>,
+          </>,
         );
 
       case "arm-laterality":
         return wrapOptions(
-          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+          <>
             {ARM_LATERALITY_SIDE_IDS.map((id) => (
               <PopupOptionButton
                 key={id}
@@ -399,28 +398,27 @@ export function ZoneRefinementFlow({
                 onClick={() => handleSelectOption(id)}
               />
             ))}
-          </div>,
+          </>,
         );
 
       case "arm-face":
         return wrapOptions(
-          <div className="grid grid-cols-1 gap-2">
+          <>
             {ARM_FACE_SCOPE_IDS.map((id) => (
               <PopupOptionButton
                 key={id}
                 label={t(ARM_FACE_SCOPE_LABEL_KEYS[id])}
                 active={armSelection?.faceScope === id}
-                wide
                 {...hoverProps(id)}
                 onClick={() => handleSelectOption(id)}
               />
             ))}
-          </div>,
+          </>,
         );
 
       case "arm-part":
         return wrapOptions(
-          <div className="grid grid-cols-1 gap-2">
+          <>
             {ARM_PIECE_PART_IDS.map((id) => (
               <PopupOptionButton
                 key={id}
@@ -439,55 +437,52 @@ export function ZoneRefinementFlow({
                 onClick={() => handleSelectOption(id)}
               />
             ))}
-          </div>,
+          </>,
         );
 
       case "leg-laterality":
         return wrapOptions(
-          <div className="grid grid-cols-1 gap-2">
+          <>
             {LIMB_LATERALITY_IDS.map((id) => (
               <PopupOptionButton
                 key={id}
                 label={t(LIMB_LATERALITY_LABEL_KEYS[id])}
                 active={legSelection?.laterality === id}
-                wide
                 {...hoverProps(id)}
                 onClick={() => handleSelectOption(id)}
               />
             ))}
-          </div>,
+          </>,
         );
 
       case "leg-face":
         return wrapOptions(
-          <div className="grid grid-cols-1 gap-2">
+          <>
             {LEG_FACE_SCOPE_IDS.map((id) => (
               <PopupOptionButton
                 key={id}
                 label={t(LEG_FACE_SCOPE_LABEL_KEYS[id])}
                 active={legSelection?.faceScope === id}
-                wide
                 {...hoverProps(id)}
                 onClick={() => handleSelectOption(id)}
               />
             ))}
-          </div>,
+          </>,
         );
 
       case "leg-extent":
         return wrapOptions(
-          <div className="grid grid-cols-1 gap-2">
+          <>
             {LEG_EXTENT_IDS.map((id) => (
               <PopupOptionButton
                 key={id}
                 label={t(LEG_EXTENT_LABEL_KEYS[id])}
                 active={legSelection?.extent === id}
-                wide
                 {...hoverProps(id)}
                 onClick={() => handleSelectOption(id)}
               />
             ))}
-          </div>,
+          </>,
         );
 
       default:

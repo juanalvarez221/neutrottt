@@ -79,24 +79,22 @@ function ReferenceImageFrame({
 }) {
   const canvasClass =
     format === "landscape"
-      ? "zone-refinement-visual__canvas zone-refinement-visual__canvas--landscape aspect-[16/9]"
+      ? "zone-refinement-visual__canvas zone-refinement-visual__canvas--landscape"
       : format === "portrait-tall"
-        ? "zone-refinement-visual__canvas zone-refinement-visual__canvas--portrait aspect-[4/5]"
-        : "zone-refinement-visual__canvas zone-refinement-visual__canvas--portrait aspect-[3/4]";
+        ? "zone-refinement-visual__canvas zone-refinement-visual__canvas--tall"
+        : "zone-refinement-visual__canvas zone-refinement-visual__canvas--portrait";
 
   const sizes =
     format === "landscape"
-      ? "(max-width: 640px) 100vw, 560px"
-      : "(max-width: 640px) 100vw, 400px";
+      ? "(max-width: 640px) 100vw, 720px"
+      : "(max-width: 640px) 100vw, 520px";
 
   return (
     <div className="zone-refinement-visual">
       {viewLabel ? (
-        <p className="zone-refinement-visual__label mb-2.5 text-center text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-400">
-          {viewLabel}
-        </p>
+        <p className="zone-refinement-visual__label">{viewLabel}</p>
       ) : null}
-      <div className={`relative mx-auto w-full ${canvasClass} ${BODY_REFERENCE_IMAGE_FRAME}`}>
+      <div className={`zone-refinement-visual__frame ${canvasClass} ${BODY_REFERENCE_IMAGE_FRAME}`}>
         <Image src={src} alt={alt} fill quality={95} sizes={sizes} className="object-contain" priority />
         {children}
       </div>

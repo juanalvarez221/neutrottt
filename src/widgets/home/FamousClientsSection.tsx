@@ -10,6 +10,7 @@ import {
   ChevronRight,
   Heart,
   MapPin,
+  Maximize2,
   MessageCircle,
   MoreHorizontal,
   Play,
@@ -21,6 +22,7 @@ import type { SiteCopyKey } from "@/shared/i18n/siteLanguage";
 import { useHorizontalDragScroll } from "@/shared/hooks/useHorizontalDragScroll";
 import { LazyVideo } from "@/shared/ui/LazyVideo";
 import { scrollRevealViewport } from "@/shared/motion/scrollReveal";
+import { ClientMediaLightboxRoot } from "@/widgets/home/ClientMediaLightbox";
 
 type ClientMedia =
   | { type: "image"; src: string; altKey: SiteCopyKey }
@@ -359,11 +361,13 @@ function GalleryPostCard({
   tattoo,
   verifiedAlt,
   t,
+  onExpandMedia,
 }: {
   client: FeaturedClient;
   tattoo: ClientTattoo;
   verifiedAlt: string;
   t: (key: SiteCopyKey, vars?: Record<string, string>) => string;
+  onExpandMedia: (mediaIndex: number) => void;
 }) {
   const [slide, setSlide] = useState(0);
   const [liked, setLiked] = useState(false);
@@ -373,6 +377,7 @@ function GalleryPostCard({
   const [commentHint, setCommentHint] = useState(false);
   const scrollerRef = useRef<HTMLDivElement>(null);
   const lastTapRef = useRef(0);
+  const expandTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const shareTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const commentTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { wasDragged } = useHorizontalDragScroll(scrollerRef);
@@ -418,16 +423,29 @@ function GalleryPostCard({
     setLiked((current) => !current);
   }, []);
 
+  const clearExpandTimer = useCallback(() => {
+    if (expandTimerRef.current) {
+      clearTimeout(expandTimerRef.current);
+      expandTimerRef.current = null;
+    }
+  }, []);
+
   const handleMediaTap = useCallback(() => {
     if (wasDragged()) return;
     const now = Date.now();
     if (now - lastTapRef.current < 300) {
+      clearExpandTimer();
       triggerHeartBurst();
       lastTapRef.current = 0;
       return;
     }
     lastTapRef.current = now;
-  }, [triggerHeartBurst, wasDragged]);
+    clearExpandTimer();
+    expandTimerRef.current = setTimeout(() => {
+      expandTimerRef.current = null;
+      onExpandMedia(slide);
+    }, 280);
+  }, [clearExpandTimer, onExpandMedia, slide, triggerHeartBurst, wasDragged]);
 
   const showTransientToast = useCallback(
     (setter: (value: boolean) => void, timerRef: React.MutableRefObject<ReturnType<typeof setTimeout> | null>) => {
@@ -462,10 +480,11 @@ function GalleryPostCard({
 
   useEffect(() => {
     return () => {
+      clearExpandTimer();
       if (shareTimerRef.current) clearTimeout(shareTimerRef.current);
       if (commentTimerRef.current) clearTimeout(commentTimerRef.current);
     };
-  }, []);
+  }, [clearExpandTimer]);
 
   return (
     <motion.article
@@ -531,7 +550,7 @@ function GalleryPostCard({
               : "relative w-full"
           }
         >
-          {slides.map((s) => (
+          {slides.map((s, mediaIndex) => (
             <div
               key={s.key}
               className={multi ? "relative min-w-full shrink-0 snap-center" : "relative w-full"}
@@ -544,18 +563,29 @@ function GalleryPostCard({
                 onKeyDown={(event) => {
                   if (event.key === "Enter" || event.key === " ") {
                     event.preventDefault();
-                    toggleLike();
+                    onExpandMedia(mediaIndex);
                   }
                 }}
-                aria-label={liked ? t("famousPostUnlike") : t("famousPostLike")}
+                aria-label={t("famousMediaExpand")}
               >
                 {s.content}
               </div>
               {s.isVideo ? (
-                <span className="pointer-events-none absolute right-3 top-3 flex h-7 w-7 items-center justify-center rounded-full bg-black/55 text-white backdrop-blur-sm">
+                <span className="pointer-events-none absolute left-3 top-3 flex h-7 w-7 items-center justify-center rounded-full bg-black/55 text-white backdrop-blur-sm">
                   <Play className="h-3.5 w-3.5 fill-current" strokeWidth={0} />
                 </span>
               ) : null}
+              <button
+                type="button"
+                className="ig-post-expand focus-ring absolute right-3 top-3 z-10 inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full bg-black/55 text-white backdrop-blur-sm transition hover:bg-black/70 active:scale-[0.96]"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  onExpandMedia(mediaIndex);
+                }}
+                aria-label={t("famousMediaExpand")}
+              >
+                <Maximize2 className="h-4 w-4" strokeWidth={1.75} />
+              </button>
             </div>
           ))}
         </div>
@@ -577,7 +607,7 @@ function GalleryPostCard({
 
         {multi ? (
           <>
-            <div className="typo-ui-meta pointer-events-none absolute right-3 top-3 rounded-md bg-black/65 px-2 py-0.5 font-semibold tabular-nums text-white backdrop-blur-sm">
+            <div className="typo-ui-meta pointer-events-none absolute left-3 top-3 rounded-md bg-black/65 px-2 py-0.5 font-semibold tabular-nums text-white backdrop-blur-sm">
               {slide + 1}/{slides.length}
             </div>
             {slide > 0 ? (
@@ -662,6 +692,10 @@ function ClientGalleryModal({
   onClose: () => void;
 }) {
   const username = client.handle.replace("@", "");
+  const [lightbox, setLightbox] = useState<{
+    media: ClientTattoo["media"];
+    index: number;
+  } | null>(null);
 
   useEffect(() => {
     const previous = document.body.style.overflow;
@@ -673,85 +707,102 @@ function ClientGalleryModal({
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") onClose();
+      if (event.key === "Escape" && !lightbox) onClose();
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [onClose]);
+  }, [lightbox, onClose]);
 
   return (
-    <motion.div
-      className="featured-client-modal fixed inset-0 z-[75] flex items-stretch justify-center sm:items-center sm:p-3"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      role="dialog"
-      aria-modal="true"
-      aria-label={`${username} — ${t("famousViewGallery")}`}
-    >
-      <button
-        type="button"
-        className="absolute inset-0 bg-zinc-950/90 backdrop-blur-md"
-        aria-label={t("famousModalClose")}
-        onClick={onClose}
-      />
-
+    <>
       <motion.div
-        initial={{ opacity: 0, y: 24, scale: 0.985 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        exit={{ opacity: 0, y: 16, scale: 0.99 }}
-        transition={{ duration: 0.34, ease: [0.22, 1, 0.36, 1] }}
-        className="featured-client-modal__panel relative z-10 flex w-full flex-col overflow-hidden"
-        onClick={(event) => event.stopPropagation()}
+        className="featured-client-modal fixed inset-0 z-[75] flex items-stretch justify-center sm:items-center sm:p-3"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        role="dialog"
+        aria-modal="true"
+        aria-label={`${username}, ${t("famousViewGallery")}`}
       >
         <button
           type="button"
-          onClick={onClose}
-          className="featured-client-modal__close focus-ring inline-flex items-center justify-center rounded-full text-zinc-100 transition hover:bg-white/10 active:scale-[0.96]"
+          className="absolute inset-0 bg-zinc-950/90 backdrop-blur-md"
           aria-label={t("famousModalClose")}
+          onClick={onClose}
+        />
+
+        <motion.div
+          initial={{ opacity: 0, y: 24, scale: 0.985 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: 16, scale: 0.99 }}
+          transition={{ duration: 0.34, ease: [0.22, 1, 0.36, 1] }}
+          className="featured-client-modal__panel relative z-10 flex w-full flex-col overflow-hidden"
+          onClick={(event) => event.stopPropagation()}
         >
-          <X className="h-5 w-5" strokeWidth={2} />
-        </button>
-
-        <div className="featured-client-modal__toolbar">
-          <div className="featured-client-modal__title-wrap min-w-0 text-center">
-            <p className="featured-client-modal__title truncate">{username}</p>
-            <p className="featured-client-modal__subtitle typo-ui-meta truncate">{t("famousPostLocation")}</p>
-          </div>
-        </div>
-
-        <div className="featured-client-modal__content">
-          <div className="featured-client-modal__feed">
-            {client.tattoos.map((tattoo) => (
-              <GalleryPostCard
-                key={tattoo.id}
-                client={client}
-                tattoo={tattoo}
-                verifiedAlt={verifiedAlt}
-                t={t}
-              />
-            ))}
-            {client.tattoos.length > 1 ? (
-              <p className="featured-client-modal__feed-note typo-tech text-center text-[0.68rem] uppercase tracking-[0.18em] text-taupe">
-                {t("famousGalleryScrollHint")}
-              </p>
-            ) : null}
-          </div>
-        </div>
-
-        <div className="featured-client-modal__footer">
-          <a
-            href={client.instagramUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="featured-client-modal__instagram-cta focus-ring inline-flex w-full items-center justify-center gap-2 rounded-full px-4 py-2.5 text-[0.8125rem] font-semibold text-ivory transition active:scale-[0.98]"
+          <button
+            type="button"
+            onClick={onClose}
+            className="featured-client-modal__close focus-ring inline-flex items-center justify-center rounded-full text-zinc-100 transition hover:bg-white/10 active:scale-[0.96]"
+            aria-label={t("famousModalClose")}
           >
-            {t("famousOpenInstagram")}
-            <ArrowUpRight className="h-4 w-4 shrink-0" strokeWidth={2} />
-          </a>
-        </div>
+            <X className="h-5 w-5" strokeWidth={2} />
+          </button>
+
+          <div className="featured-client-modal__toolbar">
+            <div className="featured-client-modal__title-wrap min-w-0 text-center">
+              <p className="featured-client-modal__title truncate">{username}</p>
+              <p className="featured-client-modal__subtitle typo-ui-meta truncate">
+                {t("famousPostLocation")}
+              </p>
+            </div>
+          </div>
+
+          <div className="featured-client-modal__content">
+            <div className="featured-client-modal__feed">
+              {client.tattoos.map((tattoo) => (
+                <GalleryPostCard
+                  key={tattoo.id}
+                  client={client}
+                  tattoo={tattoo}
+                  verifiedAlt={verifiedAlt}
+                  t={t}
+                  onExpandMedia={(mediaIndex) =>
+                    setLightbox({ media: tattoo.media, index: mediaIndex })
+                  }
+                />
+              ))}
+              {client.tattoos.length > 1 ? (
+                <p className="featured-client-modal__feed-note typo-tech text-center text-[0.68rem] uppercase tracking-[0.18em] text-taupe">
+                  {t("famousGalleryScrollHint")}
+                </p>
+              ) : null}
+            </div>
+          </div>
+
+          <div className="featured-client-modal__footer">
+            <a
+              href={client.instagramUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="featured-client-modal__instagram-cta focus-ring inline-flex w-full items-center justify-center gap-2 rounded-full px-4 py-2.5 text-[0.8125rem] font-semibold text-ivory transition active:scale-[0.98]"
+            >
+              {t("famousOpenInstagram")}
+              <ArrowUpRight className="h-4 w-4 shrink-0" strokeWidth={2} />
+            </a>
+          </div>
+        </motion.div>
       </motion.div>
-    </motion.div>
+
+      <ClientMediaLightboxRoot
+        media={lightbox?.media ?? null}
+        index={lightbox?.index ?? 0}
+        title={username}
+        onClose={() => setLightbox(null)}
+        onChangeIndex={(nextIndex) =>
+          setLightbox((current) => (current ? { ...current, index: nextIndex } : null))
+        }
+      />
+    </>
   );
 }
 

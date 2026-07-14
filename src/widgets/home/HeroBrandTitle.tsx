@@ -47,7 +47,7 @@ export function HeroBrandTitle({
             : "items-center gap-3 md:gap-4",
         className,
       )}
-      aria-label={`${name} — ${tagline}`}
+      aria-label={`${name}, ${tagline}`}
     >
       <h1
         className={cn(

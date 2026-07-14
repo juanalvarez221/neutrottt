@@ -129,7 +129,7 @@ function CollaborationLightboxPanel({
           <button
             type="button"
             onClick={onClose}
-            className="focus-ring inline-flex h-10 w-10 items-center justify-center rounded-full text-zinc-100 transition hover:bg-white/8 active:scale-[0.98]"
+            className="focus-ring inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/5 text-zinc-100 transition hover:bg-white/10 active:scale-[0.98]"
             aria-label={t("portfolioDetailClose")}
           >
             <X className="h-5 w-5" strokeWidth={1.75} />
@@ -146,7 +146,7 @@ function CollaborationLightboxPanel({
             </p>
           </div>
 
-          <span aria-hidden className="h-10 w-10" />
+          <span aria-hidden className="h-11 w-11" />
         </div>
 
         <CollabViewToggle
@@ -156,12 +156,19 @@ function CollaborationLightboxPanel({
           resultLabel={t("collabResultLabel")}
         />
 
-        <div className="portfolio-lightbox__stage collab-lightbox__stage">
+        <div
+          className="portfolio-lightbox__stage collab-lightbox__stage"
+          onClick={onClose}
+          role="presentation"
+        >
           {total > 1 ? (
             <button
               type="button"
               className="portfolio-lightbox__nav portfolio-lightbox__nav--prev focus-ring"
-              onClick={onPrevProject}
+              onClick={(event) => {
+                event.stopPropagation();
+                onPrevProject();
+              }}
               aria-label={t("portfolioDetailPrev")}
             >
               <ChevronLeft className="h-5 w-5" strokeWidth={1.75} />
@@ -176,6 +183,7 @@ function CollaborationLightboxPanel({
               animate={{ opacity: 1, y: 0 }}
               exit={reduceMotion ? undefined : { opacity: 0, y: -8 }}
               transition={{ duration: 0.3, ease: easeOut }}
+              onClick={(event) => event.stopPropagation()}
             >
               {view === "process" ? (
                 <CollabLightboxVideo src={project.video} label={t(project.videoAltKey)} />
@@ -199,7 +207,10 @@ function CollaborationLightboxPanel({
             <button
               type="button"
               className="portfolio-lightbox__nav portfolio-lightbox__nav--next focus-ring"
-              onClick={onNextProject}
+              onClick={(event) => {
+                event.stopPropagation();
+                onNextProject();
+              }}
               aria-label={t("portfolioDetailNext")}
             >
               <ChevronRight className="h-5 w-5" strokeWidth={1.75} />

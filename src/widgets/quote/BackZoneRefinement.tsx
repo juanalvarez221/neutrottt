@@ -98,7 +98,7 @@ export function BackZoneRefinement({ backPart, onBackPartChange }: Props) {
       ) : (
         <SelectionSummary
           label={t("quoteSelectionSummary")}
-          value="—"
+          value="-"
           incomplete
           incompleteHint={t("quoteRefinementIncomplete")}
         />

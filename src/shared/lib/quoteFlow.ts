@@ -54,7 +54,7 @@ export function resolveQuoteEntryPath(): QuoteFlowPath {
 
 /**
  * Para pasos del tatuaje: devuelve el paso de onboarding pendiente o null si ya está listo.
- * No redirige al inicio del flujo de pieza — solo valida datos permanentes del usuario.
+ * No redirige al inicio del flujo de pieza, solo valida datos permanentes del usuario.
  */
 export function resolveOnboardingFallbackPath(): QuoteFlowPath | null {
   if (!hasCompleteQuoteProfile()) return QUOTE_FLOW_PATHS.profile;

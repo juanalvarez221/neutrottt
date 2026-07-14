@@ -57,7 +57,7 @@ function eventContent(booking: AdvisoryBooking, confirmed: boolean) {
     booking.size ? `• Tamaño del proyecto: ${booking.size}` : undefined,
     brief.bodyZone ? `• Zona corporal: ${brief.bodyZone}` : undefined,
     booking.projectNotes || brief.openNote
-      ? `• Notas: ${[booking.projectNotes, brief.openNote].filter(Boolean).join(" — ")}`
+      ? `• Notas: ${[booking.projectNotes, brief.openNote].filter(Boolean).join(", ")}`
       : undefined,
     brief.referral ? `• Cómo llegó: ${brief.referral}` : undefined,
     brief.personalValues ? `• Valores: ${brief.personalValues}` : undefined,

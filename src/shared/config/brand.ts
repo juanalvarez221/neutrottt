@@ -28,6 +28,6 @@ export function buildAdvisoryWhatsAppMessage({
   slotLabel: string;
   clientName: string;
 }) {
-  const modality = mode === "presencial" ? "presencial (30 min)" : "virtual (15 min)";
-  return `Hola Neutro, soy ${clientName}. Confirmo mi asesoría ${modality} para ${slotLabel} ✴️`;
+  const modality = mode === "presencial" ? "presencial" : "virtual";
+  return `Hola Neutro, soy ${clientName}. Tengo una consulta sobre mi asesoría ${modality} del ${slotLabel}.`;
 }

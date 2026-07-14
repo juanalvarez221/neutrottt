@@ -97,7 +97,7 @@ export async function sendAdvisoryBookingConfirmationEmail(booking: AdvisoryBook
     "Un día antes te escribiremos por correo o WhatsApp para confirmar tu asistencia.",
     "Si confirmas, el cupo queda fijo en la agenda. Si no respondes a tiempo, liberamos el horario para otra persona y te ayudamos a reagendar.",
     "",
-    `— ${BRAND.name}`,
+    `- ${BRAND.name}`,
   ].join("\n");
 
   const html = `
@@ -129,7 +129,7 @@ export async function sendAdvisoryAttendanceReminder(booking: AdvisoryBooking) {
     "",
     "Si no confirmas antes de 6 horas del horario, liberamos el cupo para otra persona. Luego podrás reagendar en un nuevo espacio.",
     "",
-    `— ${BRAND.name}`,
+    `- ${BRAND.name}`,
   ].join("\n");
 
   const html = `
@@ -173,7 +173,7 @@ export async function sendAdvisorySlotReleasedNotice(booking: AdvisoryBooking) {
     "Si aún quieres la asesoría, elige un nuevo cupo aquí:",
     link,
     "",
-    `— ${BRAND.name}`,
+    `- ${BRAND.name}`,
   ].join("\n");
 
   const html = `
@@ -215,7 +215,7 @@ export async function sendAdvisoryAttendanceConfirmedEmail(booking: AdvisoryBook
     "",
     "Nos vemos pronto.",
     "",
-    `— ${BRAND.name}`,
+    `- ${BRAND.name}`,
   ].join("\n");
 
   const html = `
@@ -244,7 +244,7 @@ export async function sendAdvisoryRescheduledEmail(booking: AdvisoryBooking) {
     "",
     "Un día antes te pediremos confirmar asistencia de nuevo.",
     "",
-    `— ${BRAND.name}`,
+    `- ${BRAND.name}`,
   ].join("\n");
 
   const html = `

@@ -3,7 +3,7 @@ import type { SiteCopyKey } from "@/shared/i18n/siteLanguage";
 export const LIMB_LATERALITY_IDS = ["izquierda", "derecha", "ambas"] as const;
 export type LimbLateralityId = (typeof LIMB_LATERALITY_IDS)[number];
 
-/** Solo izquierda/derecha — primer paso del brazo antes de más detalle. */
+/** Solo izquierda/derecha, primer paso del brazo antes de más detalle. */
 export const ARM_LATERALITY_SIDE_IDS = ["izquierda", "derecha"] as const;
 export type ArmLateralitySideId = (typeof ARM_LATERALITY_SIDE_IDS)[number];
 

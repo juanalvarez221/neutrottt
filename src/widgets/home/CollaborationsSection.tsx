@@ -51,7 +51,7 @@ function CollabArtistChip({
       href={artist.instagramUrl}
       target="_blank"
       rel="noreferrer"
-      aria-label={`${t(artist.nameKey)} — Instagram`}
+      aria-label={`${t(artist.nameKey)}, Instagram`}
       className="collab-artist-chip group"
       onClick={(event) => event.stopPropagation()}
     >
@@ -139,7 +139,7 @@ function CollabMediaPair({
         type="button"
         className="collab-compact__frame collab-compact__frame--interactive focus-ring"
         onClick={() => onOpen("process")}
-        aria-label={`${t("collabOpenProcess")} — ${t(project.titleKey)}`}
+        aria-label={`${t("collabOpenProcess")}, ${t(project.titleKey)}`}
       >
         <span className="collab-compact__label">{t("collabProcessLabel")}</span>
         <div className="relative aspect-[4/5] w-full overflow-hidden">
@@ -161,7 +161,7 @@ function CollabMediaPair({
         type="button"
         className="collab-compact__frame collab-compact__frame--interactive focus-ring"
         onClick={() => onOpen("result")}
-        aria-label={`${t("collabOpenResult")} — ${t(project.titleKey)}`}
+        aria-label={`${t("collabOpenResult")}, ${t(project.titleKey)}`}
       >
         <span className="collab-compact__label">{t("collabResultLabel")}</span>
         <div className="relative flex aspect-[4/5] w-full items-center justify-center overflow-hidden bg-background p-1.5">
@@ -228,7 +228,7 @@ function FeaturedCollabProject({
         type="button"
         className="collab-compact__copy collab-compact__copy-btn focus-ring text-left"
         onClick={() => onOpen("process")}
-        aria-label={`${t("collabOpenProject")} — ${t(project.titleKey)}`}
+        aria-label={`${t("collabOpenProject")}, ${t(project.titleKey)}`}
       >
         <p className="typo-tech text-[0.62rem] uppercase tracking-[0.2em] text-sand/90">
           {t(project.tagKey)}

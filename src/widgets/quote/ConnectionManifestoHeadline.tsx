@@ -3,7 +3,7 @@
 import { motion, useReducedMotion } from "framer-motion";
 
 const easeOut = [0.22, 1, 0.36, 1] as const;
-const springReveal = { type: "spring" as const, stiffness: 120, damping: 22 };
+const springReveal = { type: "spring" as const, stiffness: 130, damping: 22 };
 
 type ConnectionManifestoHeadlineProps = {
   line1: string;
@@ -16,10 +16,6 @@ function splitWords(text: string) {
   return text.split(/\s+/).filter(Boolean);
 }
 
-function splitChars(text: string) {
-  return [...text];
-}
-
 export function ConnectionManifestoHeadline({
   line1,
   line2,
@@ -29,23 +25,20 @@ export function ConnectionManifestoHeadline({
   const reduceMotion = useReducedMotion();
   const words1 = splitWords(line1);
   const words2 = splitWords(line2);
-  const heroWord = words2[words2.length - 1] ?? "";
-  const prefixWords = words2.slice(0, -1);
-  const heroChars = splitChars(heroWord);
+  const allWords = [...words1, ...words2];
 
-  const line1Start = 0.22;
-  const ruleDelay = line1Start + words1.length * 0.1 + 0.34;
-  const prefixStart = ruleDelay + 0.28;
-  const heroStart = prefixStart + prefixWords.length * 0.12 + 0.08;
+  const line1Start = 0.2;
+  const ruleDelay = line1Start + words1.length * 0.09 + 0.28;
+  const line2Start = ruleDelay + 0.22;
 
   if (reduceMotion) {
     return (
       <div className={`connection-manifesto connection-manifesto--${size}`}>
         {eyebrow ? <p className="connection-manifesto__eyebrow">{eyebrow}</p> : null}
-        <p className="connection-manifesto__line-static connection-manifesto__line-static--muted">{line1}</p>
-        <p className="connection-manifesto__line-static connection-manifesto__line-static--accent">
-          {line2}
-        </p>
+        <h2 className="connection-manifesto__static">
+          <span className="connection-manifesto__static-line">{line1}</span>
+          <span className="connection-manifesto__static-line">{line2}</span>
+        </h2>
       </div>
     );
   }
@@ -55,9 +48,9 @@ export function ConnectionManifestoHeadline({
       {eyebrow ? (
         <motion.p
           className="connection-manifesto__eyebrow"
-          initial={{ opacity: 0, y: 10, letterSpacing: "0.42em" }}
-          animate={{ opacity: 1, y: 0, letterSpacing: "0.28em" }}
-          transition={{ duration: 0.85, delay: 0.04, ease: easeOut }}
+          initial={{ opacity: 0, y: 8, letterSpacing: "0.36em" }}
+          animate={{ opacity: 1, y: 0, letterSpacing: "0.22em" }}
+          transition={{ duration: 0.75, delay: 0.04, ease: easeOut }}
         >
           {eyebrow}
         </motion.p>
@@ -67,31 +60,30 @@ export function ConnectionManifestoHeadline({
         <motion.span
           className="connection-manifesto__corner connection-manifesto__corner--tl"
           aria-hidden
-          initial={{ opacity: 0, scale: 0.6 }}
+          initial={{ opacity: 0, scale: 0.72 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.9, delay: 0.12, ease: easeOut }}
+          transition={{ duration: 0.8, delay: 0.1, ease: easeOut }}
         />
         <motion.span
           className="connection-manifesto__corner connection-manifesto__corner--br"
           aria-hidden
-          initial={{ opacity: 0, scale: 0.6 }}
+          initial={{ opacity: 0, scale: 0.72 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.9, delay: 0.22, ease: easeOut }}
+          transition={{ duration: 0.8, delay: 0.18, ease: easeOut }}
         />
 
-        <div className="connection-manifesto__lines">
-          <div className="connection-manifesto__line-wrap connection-manifesto__line-wrap--muted">
+        <h2 className="connection-manifesto__lines" aria-label={allWords.join(" ")}>
+          <div className="connection-manifesto__line-wrap">
             {words1.map((word, index) => (
               <span key={`l1-${word}-${index}`} className="connection-manifesto__word-mask">
                 <motion.span
-                  className="connection-manifesto__word connection-manifesto__word--muted"
-                  initial={{ opacity: 0, y: "120%", rotateX: 28 }}
-                  animate={{ opacity: 1, y: 0, rotateX: 0 }}
+                  className="connection-manifesto__word"
+                  initial={{ opacity: 0, y: "108%" }}
+                  animate={{ opacity: 1, y: 0 }}
                   transition={{
                     ...springReveal,
-                    delay: line1Start + index * 0.1,
+                    delay: line1Start + index * 0.09,
                   }}
-                  style={{ transformPerspective: 600 }}
                 >
                   {word}
                 </motion.span>
@@ -101,87 +93,30 @@ export function ConnectionManifestoHeadline({
 
           <motion.div
             className="connection-manifesto__rule"
+            aria-hidden
             initial={{ scaleX: 0, opacity: 0 }}
             animate={{ scaleX: 1, opacity: 1 }}
-            transition={{ duration: 0.82, delay: ruleDelay, ease: easeOut }}
-          >
-            <motion.span
-              className="connection-manifesto__rule-sweep"
-              aria-hidden
-              initial={{ x: "-120%", opacity: 0 }}
-              animate={{ x: "220%", opacity: [0, 1, 0] }}
-              transition={{
-                duration: 1.15,
-                delay: ruleDelay + 0.18,
-                ease: [0.16, 1, 0.3, 1],
-              }}
-            />
-          </motion.div>
+            transition={{ duration: 0.7, delay: ruleDelay, ease: easeOut }}
+          />
 
-          <div className="connection-manifesto__line-wrap connection-manifesto__line-wrap--accent">
-            {prefixWords.map((word, index) => (
+          <div className="connection-manifesto__line-wrap">
+            {words2.map((word, index) => (
               <span key={`l2-${word}-${index}`} className="connection-manifesto__word-mask">
                 <motion.span
-                  className="connection-manifesto__word connection-manifesto__word--accent"
-                  initial={{ opacity: 0, y: "115%", filter: "blur(6px)" }}
-                  animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                  className="connection-manifesto__word"
+                  initial={{ opacity: 0, y: "108%" }}
+                  animate={{ opacity: 1, y: 0 }}
                   transition={{
-                    duration: 0.78,
-                    delay: prefixStart + index * 0.12,
-                    ease: easeOut,
+                    ...springReveal,
+                    delay: line2Start + index * 0.09,
                   }}
                 >
                   {word}
                 </motion.span>
               </span>
             ))}
-
-            {heroWord ? (
-              <span className="connection-manifesto__hero-wrap">
-                <span className="connection-manifesto__word-mask connection-manifesto__word-mask--hero">
-                  {heroChars.map((char, index) => (
-                    <motion.span
-                      key={`hero-${char}-${index}`}
-                      className="connection-manifesto__char connection-manifesto__char--hero"
-                      initial={{ opacity: 0, y: "130%", scale: 0.82, rotateZ: index % 2 === 0 ? -8 : 8 }}
-                      animate={{ opacity: 1, y: 0, scale: 1, rotateZ: 0 }}
-                      transition={{
-                        ...springReveal,
-                        stiffness: 140,
-                        damping: 18,
-                        delay: heroStart + index * 0.055,
-                      }}
-                    >
-                      {char}
-                    </motion.span>
-                  ))}
-                </span>
-                <motion.span
-                  className="connection-manifesto__hero-glow"
-                  aria-hidden
-                  initial={{ opacity: 0, scale: 0.85 }}
-                  animate={{ opacity: [0, 0.55, 0.35], scale: [0.85, 1.08, 1] }}
-                  transition={{
-                    duration: 1.4,
-                    delay: heroStart + heroChars.length * 0.055 + 0.1,
-                    ease: easeOut,
-                  }}
-                />
-                <motion.span
-                  className="connection-manifesto__hero-shimmer"
-                  aria-hidden
-                  initial={{ x: "-140%", opacity: 0 }}
-                  animate={{ x: "240%", opacity: [0, 0.9, 0] }}
-                  transition={{
-                    duration: 1.05,
-                    delay: heroStart + heroChars.length * 0.055 + 0.35,
-                    ease: [0.16, 1, 0.3, 1],
-                  }}
-                />
-              </span>
-            ) : null}
           </div>
-        </div>
+        </h2>
       </div>
     </div>
   );

@@ -11,23 +11,14 @@ import {
   startNewQuoteSession,
 } from "@/shared/lib/quoteFlow";
 import { useSiteLanguage } from "@/shared/i18n/LanguageProvider";
-
-const COUNTRY_OPTIONS = [
-  { code: "+57", es: "Colombia", en: "Colombia" },
-  { code: "+1", es: "Estados Unidos / Canada", en: "United States / Canada" },
-  { code: "+52", es: "Mexico", en: "Mexico" },
-  { code: "+34", es: "Espana", en: "Spain" },
-  { code: "+54", es: "Argentina", en: "Argentina" },
-  { code: "+56", es: "Chile", en: "Chile" },
-  { code: "+51", es: "Peru", en: "Peru" },
-  { code: "+593", es: "Ecuador", en: "Ecuador" },
-] as const;
+import { PhoneCountryField } from "@/widgets/quote/PhoneCountryField";
+import { matchPhoneCountryFromRaw } from "@/shared/config/phoneCountries";
 
 export default function CotizacionPage() {
   const router = useRouter();
   const { language, t } = useSiteLanguage();
   const [name, setName] = useState("");
-  const [countryCode, setCountryCode] = useState<(typeof COUNTRY_OPTIONS)[number]["code"]>("+57");
+  const [countryCode, setCountryCode] = useState("+57");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
@@ -51,10 +42,10 @@ export default function CotizacionPage() {
       }
       setName(profile.name);
       const rawPhone = profile.phone.trim();
-      const matchedCountry = COUNTRY_OPTIONS.find((option) => rawPhone.startsWith(option.code));
+      const matchedCountry = matchPhoneCountryFromRaw(rawPhone);
       if (matchedCountry) {
-        setCountryCode(matchedCountry.code);
-        setPhone(rawPhone.replace(matchedCountry.code, "").replace(/^[\s-]+/, "").trim());
+        setCountryCode(matchedCountry.dial);
+        setPhone(rawPhone.replace(matchedCountry.dial, "").replace(/^[\s-]+/, "").trim());
       } else {
         setPhone(rawPhone);
       }
@@ -132,52 +123,35 @@ export default function CotizacionPage() {
               <input
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder={language === "en" ? "Ex: John Doe" : "Ej: Mateo Pérez"}
+                placeholder={language === "en" ? "Ex: Mateo Rivas" : "Ej: Mateo Pérez"}
                 className="w-full rounded-xl border border-white/10 bg-black/35 px-4 py-3 text-sm text-zinc-100 outline-none transition placeholder:text-zinc-500 focus:border-amber-500/50"
               />
             </label>
 
-            <label className="space-y-2">
-              <span className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-zinc-300">
-                <Phone className="h-4 w-4 text-amber-300" />
-                {language === "en" ? "Phone" : "Celular"}
-              </span>
-              <div className="grid grid-cols-1 gap-2 sm:grid-cols-[minmax(0,38%)_1fr]">
-                <label className="sr-only" htmlFor="quote-country-code">
-                  {language === "en" ? "Country code" : "Indicativo"}
-                </label>
-                <select
-                  id="quote-country-code"
-                  value={countryCode}
-                  onChange={(e) =>
-                    setCountryCode(e.target.value as (typeof COUNTRY_OPTIONS)[number]["code"])
-                  }
-                  className="min-w-0 w-full truncate rounded-xl border border-white/10 bg-black/35 px-3 py-3 text-sm text-zinc-100 outline-none transition focus:border-amber-500/50"
-                >
-                  {COUNTRY_OPTIONS.map((option) => (
-                    <option key={option.code} value={option.code}>
-                      {option.code} · {language === "en" ? option.en : option.es}
-                    </option>
-                  ))}
-                </select>
-
-                <label className="sr-only" htmlFor="quote-phone-local">
-                  {language === "en" ? "Phone number" : "Numero"}
-                </label>
-                <input
-                  id="quote-phone-local"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  placeholder={language === "en" ? "Ex: 555 000 1234" : "Ej: 300 123 4567"}
-                  className="w-full rounded-xl border border-white/10 bg-black/35 px-4 py-3 text-sm text-zinc-100 outline-none transition placeholder:text-zinc-500 focus:border-amber-500/50"
-                />
-              </div>
-              <p className="text-xs text-zinc-400">
-                {language === "en"
-                  ? "Select your country code and enter your WhatsApp number."
-                  : "Selecciona tu indicativo e ingresa tu numero de WhatsApp."}
-              </p>
-            </label>
+            <div>
+              <PhoneCountryField
+                dial={countryCode}
+                localNumber={phone}
+                onDialChange={setCountryCode}
+                onLocalNumberChange={setPhone}
+                language={language}
+                label={
+                  <>
+                    <Phone className="h-4 w-4 text-amber-300" />
+                    {language === "en" ? "Phone" : "Celular"}
+                  </>
+                }
+                numberLabel={language === "en" ? "Phone number" : "Número"}
+                numberPlaceholder={
+                  language === "en" ? "Ex: 555 000 1234" : "Ej: 300 123 4567"
+                }
+                helperText={
+                  language === "en"
+                    ? "Choose your country flag and enter your WhatsApp number."
+                    : "Elige la bandera de tu país e ingresa tu número de WhatsApp."
+                }
+              />
+            </div>
 
             <label className="space-y-2">
               <span className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-zinc-300">
@@ -214,4 +188,3 @@ export default function CotizacionPage() {
     </QuoteShell>
   );
 }
-

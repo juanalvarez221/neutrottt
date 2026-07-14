@@ -14,7 +14,7 @@ export const BACK_PART_LABEL_KEYS: Record<BackPartId, SiteCopyKey> = {
   lumbar: "quoteBackPartLower",
 };
 
-/** IDs antiguos del cotizador — se mapean a alta o baja. */
+/** IDs antiguos del cotizador, se mapean a alta o baja. */
 const LEGACY_BACK_PART_MAP: Record<string, BackPartId> = {
   trapecios: "espalda_alta",
   escapula_izquierda: "espalda_alta",

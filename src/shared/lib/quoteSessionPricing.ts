@@ -40,7 +40,7 @@ function formatTotalRange(minSessions: number, maxSessions: number, perSession: 
   const minTotal = minSessions * perSession;
   const maxTotal = maxSessions * perSession;
   if (minTotal === maxTotal) return formatCop(minTotal, locale);
-  return `${formatCop(minTotal, locale)} – ${formatCop(maxTotal, locale)}`;
+  return `${formatCop(minTotal, locale)} - ${formatCop(maxTotal, locale)}`;
 }
 
 export function buildQuoteSessionEstimate(size: string, locale: "es" | "en" = "es"): QuoteSessionEstimate {

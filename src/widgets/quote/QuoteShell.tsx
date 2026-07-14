@@ -45,7 +45,7 @@ export function QuoteShell({
     }
 
     video.play().catch(() => {
-      /* autoplay blocked — gradient fallback remains visible */
+      /* autoplay blocked, gradient fallback remains visible */
     });
   }, []);
 
