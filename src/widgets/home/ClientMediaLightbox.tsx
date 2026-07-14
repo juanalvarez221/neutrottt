@@ -6,6 +6,7 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import { useSiteLanguage } from "@/shared/i18n/LanguageProvider";
 import type { SiteCopyKey } from "@/shared/i18n/siteLanguage";
+import { MediaLightboxPortal } from "@/shared/ui/MediaLightboxPortal";
 
 const springPanel = { type: "spring" as const, stiffness: 280, damping: 28, mass: 0.85 };
 const easeOut = [0.22, 1, 0.36, 1] as const;
@@ -201,7 +202,9 @@ export function ClientMediaLightbox({
                     ? { duration: 0.12 }
                     : { type: "spring", stiffness: 320, damping: 32 }
                 }
-                drag={reduceMotion || total <= 1 ? false : "x"}
+                drag={
+                  reduceMotion || total <= 1 || item.type === "video" ? false : "x"
+                }
                 dragConstraints={{ left: 0, right: 0 }}
                 dragElastic={0.16}
                 onDragEnd={(_, info) => {
@@ -295,17 +298,19 @@ export function ClientMediaLightboxRoot({
   onChangeIndex: (index: number) => void;
 }) {
   return (
-    <AnimatePresence>
-      {media && media.length > 0 ? (
-        <ClientMediaLightbox
-          key="client-media-lightbox"
-          media={media}
-          index={Math.min(index, media.length - 1)}
-          title={title}
-          onClose={onClose}
-          onChangeIndex={onChangeIndex}
-        />
-      ) : null}
-    </AnimatePresence>
+    <MediaLightboxPortal>
+      <AnimatePresence>
+        {media && media.length > 0 ? (
+          <ClientMediaLightbox
+            key="client-media-lightbox"
+            media={media}
+            index={Math.min(index, media.length - 1)}
+            title={title}
+            onClose={onClose}
+            onChangeIndex={onChangeIndex}
+          />
+        ) : null}
+      </AnimatePresence>
+    </MediaLightboxPortal>
   );
 }

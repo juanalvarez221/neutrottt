@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import Image from "next/image";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
@@ -9,6 +9,7 @@ import {
   FEATURED_COLLABORATIONS,
   type FeaturedCollaboration,
 } from "@/shared/config/featuredCollaborations";
+import { MediaLightboxPortal } from "@/shared/ui/MediaLightboxPortal";
 
 const easeOut = [0.22, 1, 0.36, 1] as const;
 
@@ -101,7 +102,7 @@ function CollaborationLightboxPanel({
 
   return (
     <motion.div
-      className="collab-lightbox portfolio-lightbox fixed inset-0 z-[75] flex items-center justify-center"
+      className="collab-lightbox portfolio-lightbox fixed inset-0 z-[100] flex items-center justify-center"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -271,19 +272,21 @@ export function CollaborationLightboxRoot({
     projectIndex !== null ? FEATURED_COLLABORATIONS[projectIndex] : null;
 
   return (
-    <AnimatePresence>
-      {project && projectIndex !== null ? (
-        <CollaborationLightboxPanel
-          key="collab-lightbox"
-          project={project}
-          projectIndex={projectIndex}
-          view={view}
-          onClose={onClose}
-          onPrevProject={goPrev}
-          onNextProject={goNext}
-          onViewChange={onViewChange}
-        />
-      ) : null}
-    </AnimatePresence>
+    <MediaLightboxPortal>
+      <AnimatePresence>
+        {project && projectIndex !== null ? (
+          <CollaborationLightboxPanel
+            key="collab-lightbox"
+            project={project}
+            projectIndex={projectIndex}
+            view={view}
+            onClose={onClose}
+            onPrevProject={goPrev}
+            onNextProject={goNext}
+            onViewChange={onViewChange}
+          />
+        ) : null}
+      </AnimatePresence>
+    </MediaLightboxPortal>
   );
 }

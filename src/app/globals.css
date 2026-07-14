@@ -1231,7 +1231,7 @@ body {
 .about-process-lightbox {
   position: fixed;
   inset: 0;
-  z-index: 75;
+  z-index: 100;
   display: flex;
   align-items: stretch;
   justify-content: center;
@@ -1434,12 +1434,12 @@ body {
 }
 
 .about-process-lightbox__nav {
-  display: none;
+  display: inline-flex;
   position: absolute;
   top: 50%;
   z-index: 2;
-  width: 2.75rem;
-  height: 2.75rem;
+  width: 2.5rem;
+  height: 2.5rem;
   align-items: center;
   justify-content: center;
   border-radius: 9999px;
@@ -1631,7 +1631,8 @@ body {
   }
 
   .about-process-lightbox__nav {
-    display: inline-flex;
+    width: 2.75rem;
+    height: 2.75rem;
   }
 }
 
@@ -5389,7 +5390,7 @@ body {
 .client-media-lightbox {
   position: fixed;
   inset: 0;
-  z-index: 90;
+  z-index: 110;
   display: flex;
   align-items: stretch;
   justify-content: center;
@@ -5569,12 +5570,12 @@ body {
 }
 
 .client-media-lightbox__nav {
-  display: none;
+  display: inline-flex;
   position: absolute;
   top: 50%;
   z-index: 2;
-  width: 2.75rem;
-  height: 2.75rem;
+  width: 2.5rem;
+  height: 2.5rem;
   align-items: center;
   justify-content: center;
   border-radius: 9999px;
@@ -5703,7 +5704,8 @@ body {
   }
 
   .client-media-lightbox__nav {
-    display: inline-flex;
+    width: 2.75rem;
+    height: 2.75rem;
   }
 }
 

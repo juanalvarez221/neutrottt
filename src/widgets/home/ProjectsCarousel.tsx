@@ -8,6 +8,7 @@ import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import { useSiteLanguage } from "@/shared/i18n/LanguageProvider";
 import type { SiteCopyKey } from "@/shared/i18n/siteLanguage";
 import { scrollRevealViewport } from "@/shared/motion/scrollReveal";
+import { MediaLightboxPortal } from "@/shared/ui/MediaLightboxPortal";
 
 const STAGGER_S = 0.14;
 
@@ -207,7 +208,7 @@ function PortfolioPieceLightbox({
 
   return (
     <motion.div
-      className="portfolio-lightbox fixed inset-0 z-[75] flex items-center justify-center"
+      className="portfolio-lightbox fixed inset-0 z-[100] flex items-center justify-center"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -343,18 +344,20 @@ function PortfolioPhotoWall({ t }: { t: (key: SiteCopyKey, vars?: Record<string,
         ))}
       </motion.div>
 
-      <AnimatePresence>
-        {selectedIndex !== null ? (
-          <PortfolioPieceLightbox
-            key="portfolio-lightbox"
-            index={selectedIndex}
-            t={t}
-            onClose={closeLightbox}
-            onPrev={goPrev}
-            onNext={goNext}
-          />
-        ) : null}
-      </AnimatePresence>
+      <MediaLightboxPortal>
+        <AnimatePresence>
+          {selectedIndex !== null ? (
+            <PortfolioPieceLightbox
+              key="portfolio-lightbox"
+              index={selectedIndex}
+              t={t}
+              onClose={closeLightbox}
+              onPrev={goPrev}
+              onNext={goNext}
+            />
+          ) : null}
+        </AnimatePresence>
+      </MediaLightboxPortal>
     </>
   );
 }

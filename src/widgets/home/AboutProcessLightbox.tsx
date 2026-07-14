@@ -9,6 +9,7 @@ import {
   ABOUT_PROCESS_SLIDES,
   type AboutProcessSlide,
 } from "@/shared/config/aboutProcessSlides";
+import { MediaLightboxPortal } from "@/shared/ui/MediaLightboxPortal";
 
 const springPanel = { type: "spring" as const, stiffness: 280, damping: 28, mass: 0.85 };
 const easeOut = [0.22, 1, 0.36, 1] as const;
@@ -253,7 +254,9 @@ export function AboutProcessLightbox({
                     ? { duration: 0.12 }
                     : { type: "spring", stiffness: 320, damping: 32, mass: 0.8 }
                 }
-                drag={reduceMotion || total <= 1 ? false : "x"}
+                drag={
+                  reduceMotion || total <= 1 || slide.type === "video" ? false : "x"
+                }
                 dragConstraints={{ left: 0, right: 0 }}
                 dragElastic={0.18}
                 dragTransition={{ bounceStiffness: 420, bounceDamping: 28 }}
@@ -354,17 +357,19 @@ export function AboutProcessLightboxRoot({
   }, [index, onChangeIndex, total]);
 
   return (
-    <AnimatePresence>
-      {index !== null ? (
-        <AboutProcessLightbox
-          key="about-process-lightbox"
-          index={index}
-          onClose={onClose}
-          onPrev={goPrev}
-          onNext={goNext}
-          onSelectIndex={onChangeIndex}
-        />
-      ) : null}
-    </AnimatePresence>
+    <MediaLightboxPortal>
+      <AnimatePresence>
+        {index !== null ? (
+          <AboutProcessLightbox
+            key="about-process-lightbox"
+            index={index}
+            onClose={onClose}
+            onPrev={goPrev}
+            onNext={goNext}
+            onSelectIndex={onChangeIndex}
+          />
+        ) : null}
+      </AnimatePresence>
+    </MediaLightboxPortal>
   );
 }

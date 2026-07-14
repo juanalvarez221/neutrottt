@@ -21,6 +21,7 @@ import { useSiteLanguage } from "@/shared/i18n/LanguageProvider";
 import type { SiteCopyKey } from "@/shared/i18n/siteLanguage";
 import { useHorizontalDragScroll } from "@/shared/hooks/useHorizontalDragScroll";
 import { LazyVideo } from "@/shared/ui/LazyVideo";
+import { MediaLightboxPortal } from "@/shared/ui/MediaLightboxPortal";
 import { scrollRevealViewport } from "@/shared/motion/scrollReveal";
 import { ClientMediaLightboxRoot } from "@/widgets/home/ClientMediaLightbox";
 
@@ -716,7 +717,7 @@ function ClientGalleryModal({
   return (
     <>
       <motion.div
-        className="featured-client-modal fixed inset-0 z-[75] flex items-stretch justify-center sm:items-center sm:p-3"
+        className="featured-client-modal fixed inset-0 z-[100] flex items-stretch justify-center sm:items-center sm:p-3"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
@@ -849,17 +850,19 @@ export function FamousClientsSection() {
         </div>
       </motion.section>
 
-      <AnimatePresence>
-        {selectedClient ? (
-          <ClientGalleryModal
-            key={selectedClient.id}
-            client={selectedClient}
-            verifiedAlt={t("famousVerifiedAlt")}
-            t={t}
-            onClose={() => setSelectedClientId(null)}
-          />
-        ) : null}
-      </AnimatePresence>
+      <MediaLightboxPortal>
+        <AnimatePresence>
+          {selectedClient ? (
+            <ClientGalleryModal
+              key={selectedClient.id}
+              client={selectedClient}
+              verifiedAlt={t("famousVerifiedAlt")}
+              t={t}
+              onClose={() => setSelectedClientId(null)}
+            />
+          ) : null}
+        </AnimatePresence>
+      </MediaLightboxPortal>
     </>
   );
 }
