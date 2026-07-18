@@ -125,7 +125,7 @@ export function QuoteLocationStep({ size }: { size: string }) {
       backPart: backPart ?? undefined,
       armLaterality: armSelection?.laterality,
       armFaceScope: armSelection?.faceScope,
-      armPart: armSelection?.part,
+      armPart: armSelection?.part ?? undefined,
       legLaterality: legSelection?.laterality,
       legFaceScope: legSelection?.faceScope,
       legExtent: legSelection?.extent,
