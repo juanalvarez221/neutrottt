@@ -38,7 +38,6 @@ export function QuoteReferenceStep({
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [note, setNote] = useState("");
   const [fileError, setFileError] = useState("");
-  const isLarge = requiresProjectAdvisory(size);
   const gateReady = useQuoteOnboardingGate();
 
   useEffect(() => {
@@ -50,6 +49,11 @@ export function QuoteReferenceStep({
 
   useEffect(() => {
     if (!gateReady) return;
+    // Proyectos grandes van directo a asesoría; este paso solo aplica a medianos.
+    if (requiresProjectAdvisory(size)) {
+      router.replace(`/cotizacion/asesoria?size=${encodeURIComponent(size)}`);
+      return;
+    }
     if (!zone.trim()) {
       router.replace(`/cotizacion/ubicacion?size=${encodeURIComponent(size)}`);
     }
@@ -117,10 +121,6 @@ export function QuoteReferenceStep({
       zoneOther: zoneOther.trim() || undefined,
       notes: trimmedNote,
     });
-    if (isLarge) {
-      router.push(`/cotizacion/asesoria?size=${encodeURIComponent(size)}`);
-      return;
-    }
     const params = new URLSearchParams({ size, zone });
     if (zoneOther.trim()) params.set("zoneOther", zoneOther.trim());
     router.push(`/cotizacion/confirmacion?${params.toString()}`);
@@ -143,7 +143,7 @@ export function QuoteReferenceStep({
           </span>
         </h2>
         <p className="typo-body mt-4 max-w-2xl leading-relaxed">
-          {isLarge ? t("quoteReferenceBodyLarge") : t("quoteReferenceBody")}
+          {t("quoteReferenceBody")}
         </p>
       </section>
 
@@ -276,7 +276,7 @@ export function QuoteReferenceStep({
           onClick={onContinue}
           className="quote-step-footer-next btn-accent focus-ring typo-cta rounded-xl px-6 py-3 active:scale-[0.98]"
         >
-          {isLarge ? t("quoteReferenceNextLarge") : t("quoteReferenceNextSmall")}
+          {t("quoteReferenceNextSmall")}
         </button>
       </div>
     </QuoteShell>

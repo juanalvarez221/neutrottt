@@ -7,6 +7,11 @@ import { QuoteShell } from "@/widgets/quote/QuoteShell";
 import { BodyAreaSelector } from "@/widgets/quote/BodyAreaSelector";
 import { useQuoteOnboardingGate } from "@/widgets/quote/useQuoteOnboardingGate";
 import { useSiteLanguage } from "@/shared/i18n/LanguageProvider";
+import {
+  getQuoteDraft,
+  isLargeQuoteSize,
+  saveQuoteDraft,
+} from "@/shared/lib/quoteDraft";
 import type { ZoneId } from "@/shared/lib/quoteZones";
 import type { HeadPartId } from "@/shared/lib/headZoneParts";
 import type { BackPartId } from "@/shared/lib/backZoneParts";
@@ -109,7 +114,29 @@ export function QuoteLocationStep({ size }: { size: string }) {
   ]);
 
   function handleContinue() {
-    if (!isLocationComplete || !nextHref) return;
+    if (!isLocationComplete || !zone) return;
+
+    saveQuoteDraft({
+      ...(getQuoteDraft() ?? { size }),
+      size,
+      zone,
+      zoneOther: zoneOther.trim() || undefined,
+      headPart: headPart ?? undefined,
+      backPart: backPart ?? undefined,
+      armLaterality: armSelection?.laterality,
+      armFaceScope: armSelection?.faceScope,
+      armPart: armSelection?.part,
+      legLaterality: legSelection?.laterality,
+      legFaceScope: legSelection?.faceScope,
+      legExtent: legSelection?.extent,
+    });
+
+    if (isLargeQuoteSize(size)) {
+      router.push(`/cotizacion/asesoria?size=${encodeURIComponent(size)}`);
+      return;
+    }
+
+    if (!nextHref) return;
     router.push(nextHref);
   }
 
@@ -126,7 +153,7 @@ export function QuoteLocationStep({ size }: { size: string }) {
   }
 
   return (
-    <QuoteShell brand="MALIANTEO">
+    <QuoteShell>
       <section className="relative mb-8">
         <div className="pointer-events-none absolute -left-10 -top-10 h-40 w-40 rounded-full bg-amber-600/15 blur-[60px]" />
 

@@ -196,8 +196,8 @@ export const SITE_COPY = {
     quoteConnectionTitle: "No cualquiera",
     quoteConnectionTitle2: "es mi cliente",
     quoteConnectionManifest:
-      "No busco clientes, busco ecos:\nsolo transformo en tinta aquello que resuena\nen el mismo idioma que mi arte.",
-    quoteConnectionHook: "Sin poses. Tatuar es confiarse, y quiero conectar de verdad.",
+      "Siéntete representado por mi arte.\nY deja que te acompañe toda tu vida.",
+    quoteConnectionHook: "Sin poses. Solo una verdad compartida entre piel e intención.",
     quoteConnectionPace: "Una pregunta a la vez. Sin apuro.",
     quoteConnectionProgress: "{current} de {total}",
     quoteConnectionMultiHint: "Puedes elegir varias opciones.",
@@ -216,7 +216,7 @@ export const SITE_COPY = {
     quoteConnectionValueJoy: "Alegría",
     quoteConnectionValueLight: "Luz",
     quoteConnectionValueInnerDarkness: "Oscuridad interna",
-    quoteConnectionValueVulnerability: "Vulnerabilidad",
+    quoteConnectionValueVulnerability: "Superación Personal",
     quoteConnectionValueLoyalty: "Lealtad",
     quoteConnectionValueFreedom: "Libertad",
     quoteConnectionValueResilience: "Resiliencia",
@@ -226,15 +226,15 @@ export const SITE_COPY = {
     quoteConnectionValueSilence: "Silencio",
     quoteConnectionAdjustLabel: "¿Cómo quieres trabajar la pieza?",
     quoteConnectionAdjustHint:
-      "De más abierta al criterio de Neutro (arriba) a sin cambios (abajo).",
-    quoteConnectionAdjustTrust: "Criterio total de Neutro",
-    quoteConnectionAdjustTrustDetail: "Diseño y composición a cargo del artista.",
-    quoteConnectionAdjustComposition: "Base definida, apertura creativa",
-    quoteConnectionAdjustCompositionDetail: "Escala, ubicación y composición ajustables.",
+      "Coordinamos la idea, yo me aseguro de que el diseño quede perfecto.",
+    quoteConnectionAdjustTrust: "Libertad creativa completa",
+    quoteConnectionAdjustTrustDetail: "Idónea para proyectos como los que ves en Instagram",
+    quoteConnectionAdjustComposition: "Elegimos juntos la dirección del proyecto",
+    quoteConnectionAdjustCompositionDetail: "",
     quoteConnectionAdjustApprove: "Colaboración con aprobación",
     quoteConnectionAdjustApproveDetail: "Cada ajuste requiere visto bueno.",
-    quoteConnectionAdjustFixed: "Idea fija, sin cambios",
-    quoteConnectionAdjustFixedDetail: "Ejecución fiel, sin rediseño.",
+    quoteConnectionAdjustFixed: "No estoy abierto a temáticas",
+    quoteConnectionAdjustFixedDetail: "",
 
     quoteConnectionOpenLabel: "¿Qué te trajo hasta aquí?",
     quoteConnectionOpenHint: "Opcional. Una frase corta basta.",
@@ -261,7 +261,7 @@ export const SITE_COPY = {
     quoteConnectionRewardNounJoy: "la alegría",
     quoteConnectionRewardNounLight: "la luz",
     quoteConnectionRewardNounInnerDarkness: "la oscuridad interna",
-    quoteConnectionRewardNounVulnerability: "la vulnerabilidad",
+    quoteConnectionRewardNounVulnerability: "la superación personal",
     quoteConnectionRewardNounLoyalty: "la lealtad",
     quoteConnectionRewardNounFreedom: "la libertad",
     quoteConnectionRewardNounResilience: "la resiliencia",
@@ -278,7 +278,7 @@ export const SITE_COPY = {
     quoteConnectionRewardPraiseInnerDarkness:
       "Nombrar tu oscuridad interna es honestidad pura; en sombras, conectamos.",
     quoteConnectionRewardPraiseVulnerability:
-      "Atreverte a la vulnerabilidad muestra un coraje que se traduce en piezas con alma.",
+      "Buscar superación personal habla de alguien que transforma lo vivido en fuerza.",
     quoteConnectionRewardPraiseLoyalty:
       "Tu lealtad habla de alguien que honra lo que elige, eso importa en mi silla.",
     quoteConnectionRewardPraiseFreedom:
@@ -352,7 +352,7 @@ export const SITE_COPY = {
     quoteReferencePreviewAlt: "Vista previa de referencia",
     quoteReferenceNextSmall: "Continuar cotización",
     quoteReferenceNextLarge: "Agendar asesoría",
-    quoteAdvisoryStep: "Paso 6 · Asesoría",
+    quoteAdvisoryStep: "Paso 5 · Asesoría",
     quoteAdvisoryTitle: "Elige",
     quoteAdvisoryTitle2: "modalidad",
     quoteAdvisoryBody:
@@ -373,6 +373,7 @@ export const SITE_COPY = {
       "Tu proyecto quedó registrado. Solo falta elegir modalidad y horario.",
     quoteAdvisorySavedBadge: "Proyecto guardado",
     quoteAdvisoryBookingStep: "Paso 6 · Agenda",
+
     quoteAdvisoryBookingTitle: "Agenda disponible",
     quoteAdvisoryBookingBody:
       "Elige día y hora para afinar tu proyecto con claridad.",
@@ -815,8 +816,8 @@ export const SITE_COPY = {
     quoteConnectionTitle: "Not everyone",
     quoteConnectionTitle2: "is my client",
     quoteConnectionManifest:
-      "I don't look for clients, I look for echoes:\nI only turn into ink what resonates\nin the same language as my art.",
-    quoteConnectionHook: "No poses. Tattooing is about trust, and I want a real connection.",
+      "Feel represented by my art.\nAnd let it walk with you for life.",
+    quoteConnectionHook: "No poses. Only a shared truth between skin and intention.",
     quoteConnectionPace: "One question at a time. No rush.",
     quoteConnectionProgress: "{current} of {total}",
     quoteConnectionMultiHint: "You can choose several options.",
@@ -835,7 +836,7 @@ export const SITE_COPY = {
     quoteConnectionValueJoy: "Joy",
     quoteConnectionValueLight: "Light",
     quoteConnectionValueInnerDarkness: "Inner darkness",
-    quoteConnectionValueVulnerability: "Vulnerability",
+    quoteConnectionValueVulnerability: "Personal Growth",
     quoteConnectionValueLoyalty: "Loyalty",
     quoteConnectionValueFreedom: "Freedom",
     quoteConnectionValueResilience: "Resilience",
@@ -845,15 +846,15 @@ export const SITE_COPY = {
     quoteConnectionValueSilence: "Silence",
     quoteConnectionAdjustLabel: "How do you want to work on the piece?",
     quoteConnectionAdjustHint:
-      "From fully open to Neutro's judgment (top) to no changes (bottom).",
-    quoteConnectionAdjustTrust: "Full creative lead by Neutro",
-    quoteConnectionAdjustTrustDetail: "Design and composition led by the artist.",
-    quoteConnectionAdjustComposition: "Defined base, creative room",
-    quoteConnectionAdjustCompositionDetail: "Scale, placement, and composition adjustable.",
+      "We align on the idea; I make sure the design lands perfectly.",
+    quoteConnectionAdjustTrust: "Full creative freedom",
+    quoteConnectionAdjustTrustDetail: "Ideal for projects like the ones you see on Instagram",
+    quoteConnectionAdjustComposition: "We choose the project direction together",
+    quoteConnectionAdjustCompositionDetail: "",
     quoteConnectionAdjustApprove: "Collaboration with approval",
     quoteConnectionAdjustApproveDetail: "Each adjustment needs sign-off.",
-    quoteConnectionAdjustFixed: "Fixed idea, no changes",
-    quoteConnectionAdjustFixedDetail: "Faithful execution, no redesign.",
+    quoteConnectionAdjustFixed: "I'm not open to themes",
+    quoteConnectionAdjustFixedDetail: "",
 
     quoteConnectionOpenLabel: "What brought you here?",
     quoteConnectionOpenHint: "Optional. A short sentence is enough.",
@@ -880,7 +881,7 @@ export const SITE_COPY = {
     quoteConnectionRewardNounJoy: "joy",
     quoteConnectionRewardNounLight: "light",
     quoteConnectionRewardNounInnerDarkness: "inner darkness",
-    quoteConnectionRewardNounVulnerability: "vulnerability",
+    quoteConnectionRewardNounVulnerability: "personal growth",
     quoteConnectionRewardNounLoyalty: "loyalty",
     quoteConnectionRewardNounFreedom: "freedom",
     quoteConnectionRewardNounResilience: "resilience",
@@ -897,7 +898,7 @@ export const SITE_COPY = {
     quoteConnectionRewardPraiseInnerDarkness:
       "Naming your inner darkness is pure honesty; in shadows, we connect.",
     quoteConnectionRewardPraiseVulnerability:
-      "Daring to be vulnerable shows a courage that becomes pieces with soul.",
+      "Seeking personal growth speaks of someone who turns what they've lived into strength.",
     quoteConnectionRewardPraiseLoyalty:
       "Your loyalty speaks of someone who honors what they choose, that matters in my chair.",
     quoteConnectionRewardPraiseFreedom:
@@ -971,7 +972,7 @@ export const SITE_COPY = {
     quoteReferencePreviewAlt: "Reference preview",
     quoteReferenceNextSmall: "Continue quote",
     quoteReferenceNextLarge: "Book advisory",
-    quoteAdvisoryStep: "Step 6 · Advisory",
+    quoteAdvisoryStep: "Step 5 · Advisory",
     quoteAdvisoryTitle: "Choose",
     quoteAdvisoryTitle2: "format",
     quoteAdvisoryBody:

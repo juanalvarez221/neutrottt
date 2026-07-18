@@ -73,22 +73,22 @@ export const LEG_ANTERIOR_DETAIL_HOTSPOTS: LegDetailHotspot[] = [
   {
     id: "muslo_anterior",
     laterality: "derecha",
-    className: "left-[35%] top-[6%] h-[39%] w-[30%] rounded-[24%]",
+    className: "left-[32%] top-[5%] h-[40%] w-[36%] rounded-[26%]",
   },
   {
     id: "pierna_anterior",
     laterality: "derecha",
-    className: "left-[38%] top-[45%] h-[46%] w-[24%] rounded-[22%]",
+    className: "left-[35%] top-[45%] h-[46%] w-[30%] rounded-[24%]",
   },
   {
     id: "muslo_anterior",
     laterality: "izquierda",
-    className: "left-[35%] top-[6%] h-[39%] w-[30%] rounded-[24%]",
+    className: "left-[32%] top-[5%] h-[40%] w-[36%] rounded-[26%]",
   },
   {
     id: "pierna_anterior",
     laterality: "izquierda",
-    className: "left-[38%] top-[45%] h-[46%] w-[24%] rounded-[22%]",
+    className: "left-[35%] top-[45%] h-[46%] w-[30%] rounded-[24%]",
   },
 ];
 
@@ -96,22 +96,22 @@ export const LEG_POSTERIOR_DETAIL_HOTSPOTS: LegDetailHotspot[] = [
   {
     id: "muslo_posterior",
     laterality: "izquierda",
-    className: "left-[35%] top-[6%] h-[39%] w-[30%] rounded-[24%]",
+    className: "left-[32%] top-[5%] h-[40%] w-[36%] rounded-[26%]",
   },
   {
     id: "pierna_posterior",
     laterality: "izquierda",
-    className: "left-[38%] top-[45%] h-[46%] w-[24%] rounded-[22%]",
+    className: "left-[35%] top-[45%] h-[46%] w-[30%] rounded-[24%]",
   },
   {
     id: "muslo_posterior",
     laterality: "derecha",
-    className: "left-[35%] top-[6%] h-[39%] w-[30%] rounded-[24%]",
+    className: "left-[32%] top-[5%] h-[40%] w-[36%] rounded-[26%]",
   },
   {
     id: "pierna_posterior",
     laterality: "derecha",
-    className: "left-[38%] top-[45%] h-[46%] w-[24%] rounded-[22%]",
+    className: "left-[35%] top-[45%] h-[46%] w-[30%] rounded-[24%]",
   },
 ];
 

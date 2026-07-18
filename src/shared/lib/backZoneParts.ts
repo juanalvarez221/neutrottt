@@ -28,11 +28,11 @@ export const BACK_DETAIL_IMAGE = "/body/back-detail.png";
 export const BACK_DETAIL_HOTSPOTS: BackDetailHotspot[] = [
   {
     id: "espalda_alta",
-    className: "left-[16%] top-[10%] h-[40%] w-[68%] rounded-[22%]",
+    className: "left-[12%] top-[9%] h-[42%] w-[76%] rounded-[24%]",
   },
   {
     id: "lumbar",
-    className: "left-[20%] top-[50%] h-[30%] w-[60%] rounded-[20%]",
+    className: "left-[16%] top-[51%] h-[30%] w-[68%] rounded-[22%]",
   },
 ];
 

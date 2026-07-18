@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import type { SiteCopyKey } from "@/shared/i18n/siteLanguage";
 import type { HeadPartId } from "@/shared/lib/headZoneParts";
 import {
@@ -34,8 +33,8 @@ import {
   type LegExtentId,
   type LegSelection,
 } from "@/shared/lib/legZoneParts";
+import { BodyImageFrame } from "@/widgets/quote/BodyImageFrame";
 import { DetailHotspot } from "@/widgets/quote/DetailHotspot";
-import { BODY_REFERENCE_IMAGE_FRAME } from "@/widgets/quote/quoteRefinementUi";
 
 export type FlowStepId =
   | "head-part"
@@ -67,37 +66,30 @@ function legExtentFromSpot(spotId: string): LegExtentId {
 function ReferenceImageFrame({
   src,
   alt,
-  format = "portrait",
   viewLabel,
   children,
 }: {
   src: string;
   alt: string;
-  format?: "portrait" | "portrait-tall" | "landscape";
   viewLabel?: string;
   children?: React.ReactNode;
 }) {
-  const canvasClass =
-    format === "landscape"
-      ? "zone-refinement-visual__canvas zone-refinement-visual__canvas--landscape"
-      : format === "portrait-tall"
-        ? "zone-refinement-visual__canvas zone-refinement-visual__canvas--tall"
-        : "zone-refinement-visual__canvas zone-refinement-visual__canvas--portrait";
-
-  const sizes =
-    format === "landscape"
-      ? "(max-width: 640px) 100vw, 720px"
-      : "(max-width: 640px) 100vw, 520px";
-
   return (
     <div className="zone-refinement-visual">
       {viewLabel ? (
         <p className="zone-refinement-visual__label">{viewLabel}</p>
       ) : null}
-      <div className={`zone-refinement-visual__frame ${canvasClass} ${BODY_REFERENCE_IMAGE_FRAME}`}>
-        <Image src={src} alt={alt} fill quality={95} sizes={sizes} className="object-contain" priority />
+      <BodyImageFrame
+        src={src}
+        alt={alt}
+        fit="fit"
+        className="zone-refinement-visual__frame-wrap"
+        sizes="(max-width: 640px) 100vw, 560px"
+        priority
+        quality={95}
+      >
         {children}
-      </div>
+      </BodyImageFrame>
     </div>
   );
 }
@@ -141,7 +133,6 @@ export function ZoneRefinementVisual({
       <ReferenceImageFrame
         src={src}
         alt={t("quoteHeadPartScalpViewAlt")}
-        format="portrait-tall"
         viewLabel={t(labelKey)}
       >
         {hotspots.map((spot, index) => (
@@ -164,7 +155,6 @@ export function ZoneRefinementVisual({
       <ReferenceImageFrame
         src={BACK_DETAIL_IMAGE}
         alt={t("quoteBackPartDetailAlt")}
-        format="portrait"
         viewLabel={t("quoteBackPartDetailLabel")}
       >
         {BACK_DETAIL_HOTSPOTS.map((spot) => (
@@ -196,7 +186,6 @@ export function ZoneRefinementVisual({
               key={face}
               src={ARM_DETAIL_IMAGE[face]}
               alt={face === "interna" ? t("quoteArmPartDetailAltInner") : t("quoteArmPartDetailAlt")}
-              format={face === "interna" ? "portrait" : "landscape"}
               viewLabel={
                 face === "interna" ? t("quoteArmPartDetailLabelInner") : t("quoteArmPartDetailLabelOuter")
               }
@@ -237,7 +226,6 @@ export function ZoneRefinementVisual({
         alt={
           previewFace === "interna" ? t("quoteArmPartDetailAltInner") : t("quoteArmPartDetailAlt")
         }
-        format={previewFace === "interna" ? "portrait" : "landscape"}
         viewLabel={
           previewFace === "interna"
             ? t("quoteArmPartDetailLabelInner")
@@ -261,7 +249,6 @@ export function ZoneRefinementVisual({
             key={face}
             src={LEG_DETAIL_IMAGE[face]}
             alt={face === "posterior" ? t("quoteLegPartDetailAltPosterior") : t("quoteLegPartDetailAlt")}
-            format="portrait"
             viewLabel={
               face === "posterior"
                 ? t("quoteLegPartDetailLabelPosterior")
@@ -301,7 +288,6 @@ export function ZoneRefinementVisual({
       <ReferenceImageFrame
         src={LEG_DETAIL_IMAGE.anterior}
         alt={t("quoteLegPartDetailAlt")}
-        format="portrait"
         viewLabel={t("quoteLegPartDetailLabel")}
       />
     );

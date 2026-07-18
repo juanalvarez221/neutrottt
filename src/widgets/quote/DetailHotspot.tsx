@@ -18,7 +18,7 @@ export function detailHotspotSurface(active: boolean, interactive: boolean, prev
     return [
       "absolute z-20 border-2 transition-all duration-200",
       interactive ? "cursor-pointer" : "pointer-events-none",
-      "border-stone-100/90 bg-stone-400/42 shadow-[0_0_0_2px_rgba(232,226,218,0.55)_inset,0_0_28px_rgba(180,160,140,0.55)]",
+      "border-stone-100/90 bg-stone-400/40 shadow-[0_0_0_2px_rgba(232,226,218,0.5)_inset,0_0_24px_rgba(180,160,140,0.45)]",
     ].join(" ");
   }
 
@@ -26,14 +26,14 @@ export function detailHotspotSurface(active: boolean, interactive: boolean, prev
     return [
       "absolute z-[15] border transition-all duration-200",
       interactive ? "cursor-pointer" : "pointer-events-none",
-      "border-amber-200/55 bg-amber-400/22 shadow-[0_0_0_1px_rgba(251,191,36,0.35)_inset,0_0_16px_rgba(251,191,36,0.28)]",
+      "border-amber-200/55 bg-amber-400/20 shadow-[0_0_0_1px_rgba(251,191,36,0.3)_inset,0_0_14px_rgba(251,191,36,0.24)]",
     ].join(" ");
   }
 
   return [
     "absolute border transition-all duration-200",
     interactive ? "cursor-pointer" : "pointer-events-none",
-    "z-[1] border-stone-500/22 bg-stone-500/8 hover:border-stone-400/40 hover:bg-stone-500/14",
+    "z-[1] border-stone-400/30 bg-stone-500/10 hover:border-stone-200/50 hover:bg-stone-400/18",
   ].join(" ");
 }
 

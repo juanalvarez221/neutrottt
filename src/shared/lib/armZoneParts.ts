@@ -77,46 +77,46 @@ export const ARM_DETAIL_IMAGE: Record<ArmSideId, string> = {
 export const ARM_OUTER_DETAIL_HOTSPOTS: { id: ArmPiecePartId; className: string }[] = [
   {
     id: "hombro",
-    className: "left-[28.5%] top-[35%] h-[19%] w-[8.5%] rounded-[24%]",
+    className: "left-[4.5%] top-[30%] h-[28%] w-[14%] rounded-[30%]",
   },
   {
     id: "bicep",
-    className: "left-[36%] top-[36.5%] h-[14.5%] w-[13%] rounded-[999px]",
+    className: "left-[18%] top-[29%] h-[17%] w-[20%] rounded-[999px]",
   },
   {
     id: "tricep",
-    className: "left-[36%] top-[49.5%] h-[13%] w-[13%] rounded-[999px]",
+    className: "left-[18%] top-[48%] h-[16%] w-[20%] rounded-[999px]",
   },
   {
     id: "antebrazo",
-    className: "left-[48%] top-[37%] h-[17%] w-[21%] rounded-[999px]",
+    className: "left-[40%] top-[31%] h-[26%] w-[28%] rounded-[999px]",
   },
   {
     id: "mano",
-    className: "left-[68%] top-[38%] h-[16%] w-[9.5%] rounded-[16%]",
+    className: "left-[70%] top-[33%] h-[24%] w-[22%] rounded-[20%]",
   },
 ];
 
 export const ARM_INNER_DETAIL_HOTSPOTS: { id: ArmPiecePartId; className: string }[] = [
   {
     id: "hombro",
-    className: "left-[42%] top-[6%] h-[14%] w-[17%] rounded-[22%]",
+    className: "left-[36%] top-[5%] h-[14%] w-[28%] rounded-[24%]",
   },
   {
     id: "bicep",
-    className: "left-[39%] top-[22%] h-[18%] w-[15.5%] rounded-[999px]",
+    className: "left-[31%] top-[21%] h-[18%] w-[26%] rounded-[999px]",
   },
   {
     id: "tricep",
-    className: "left-[32%] top-[22%] h-[20%] w-[12.5%] rounded-[999px]",
+    className: "left-[20%] top-[21%] h-[20%] w-[20%] rounded-[999px]",
   },
   {
     id: "antebrazo",
-    className: "left-[35.5%] top-[42%] h-[27%] w-[16%] rounded-[999px]",
+    className: "left-[26%] top-[41%] h-[28%] w-[27%] rounded-[999px]",
   },
   {
     id: "mano",
-    className: "left-[34%] top-[69%] h-[20%] w-[18%] rounded-[18%]",
+    className: "left-[23%] top-[69%] h-[20%] w-[30%] rounded-[20%]",
   },
 ];
 

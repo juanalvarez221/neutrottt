@@ -126,13 +126,9 @@ export function QuoteAdvisoryStep({ size }: { size: string }) {
       <div className="quote-step-footer mt-8 md:mt-10">
         <button
           type="button"
-          onClick={() => {
-            const draft = getQuoteDraft();
-            const zone = draft?.zone ?? "";
-            router.push(
-              `/cotizacion/referencia?size=${encodeURIComponent(size)}&zone=${encodeURIComponent(zone)}`,
-            );
-          }}
+          onClick={() =>
+            router.push(`/cotizacion/ubicacion?size=${encodeURIComponent(size)}`)
+          }
           className="quote-step-footer-back rounded-xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold text-zinc-100 transition hover:bg-white/8 active:scale-[0.98]"
         >
           {t("commonBack")}

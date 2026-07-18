@@ -22,7 +22,6 @@ export type PersonalValue =
 export type AdjustmentOption =
   | "trust_artist"
   | "open_composition"
-  | "approve_each"
   | "fixed_idea_only";
 
 export type QuoteConnection = {
@@ -58,7 +57,6 @@ export const PERSONAL_VALUES: PersonalValue[] = [
 export const ADJUSTMENT_OPTIONS: AdjustmentOption[] = [
   "trust_artist",
   "open_composition",
-  "approve_each",
   "fixed_idea_only",
 ];
 
@@ -103,14 +101,12 @@ export const VALUE_LABEL_KEYS: Record<PersonalValue, SiteCopyKey> = {
 export const ADJUSTMENT_LABEL_KEYS: Record<AdjustmentOption, SiteCopyKey> = {
   trust_artist: "quoteConnectionAdjustTrust",
   open_composition: "quoteConnectionAdjustComposition",
-  approve_each: "quoteConnectionAdjustApprove",
   fixed_idea_only: "quoteConnectionAdjustFixed",
 };
 
 export const ADJUSTMENT_DETAIL_KEYS: Record<AdjustmentOption, SiteCopyKey> = {
   trust_artist: "quoteConnectionAdjustTrustDetail",
   open_composition: "quoteConnectionAdjustCompositionDetail",
-  approve_each: "quoteConnectionAdjustApproveDetail",
   fixed_idea_only: "quoteConnectionAdjustFixedDetail",
 };
 
@@ -197,7 +193,7 @@ export function formatQuoteConnectionForAdmin(connection: QuoteConnection): stri
     joy: "Alegría",
     light: "Luz",
     inner_darkness: "Oscuridad interna",
-    vulnerability: "Vulnerabilidad",
+    vulnerability: "Superación Personal",
     loyalty: "Lealtad",
     freedom: "Libertad",
     resilience: "Resiliencia",
@@ -207,10 +203,9 @@ export function formatQuoteConnectionForAdmin(connection: QuoteConnection): stri
     silence: "Silencio",
   };
   const adjustmentLabels: Record<AdjustmentOption, string> = {
-    trust_artist: "Criterio total de Neutro",
-    open_composition: "Base definida, apertura creativa",
-    approve_each: "Colaboración con aprobación",
-    fixed_idea_only: "Idea fija, sin cambios",
+    trust_artist: "Libertad creativa completa",
+    open_composition: "Elegimos juntos la dirección del proyecto",
+    fixed_idea_only: "No estoy abierto a temáticas",
   };
 
   const referral = connection.referralSources

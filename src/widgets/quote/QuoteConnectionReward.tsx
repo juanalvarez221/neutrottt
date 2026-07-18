@@ -44,6 +44,10 @@ export function QuoteConnectionReward({
 
   const words1 = splitWords(title1);
   const words2 = splitWords(title2);
+  const valueBlocksKey = praise.valueBlocks.map((block) => block.text).join("|");
+  const extraReadMs = Math.max(0, praise.valueBlocks.length - 1) * 1600;
+  const minReadMs = REWARD_MIN_READ_MS + extraReadMs;
+  const controlsMs = REWARD_CONTROLS_MS + extraReadMs;
 
   const complete = useCallback(() => {
     if (completedRef.current || !canDismiss) return;
@@ -65,13 +69,13 @@ export function QuoteConnectionReward({
 
   useEffect(() => {
     if (reduceMotion) return;
-    const readTimer = window.setTimeout(() => setCanDismiss(true), REWARD_MIN_READ_MS);
-    const controlsTimer = window.setTimeout(() => setShowControls(true), REWARD_CONTROLS_MS);
+    const readTimer = window.setTimeout(() => setCanDismiss(true), minReadMs);
+    const controlsTimer = window.setTimeout(() => setShowControls(true), controlsMs);
     return () => {
       window.clearTimeout(readTimer);
       window.clearTimeout(controlsTimer);
     };
-  }, [reduceMotion]);
+  }, [reduceMotion, minReadMs, controlsMs]);
 
   useGSAP(
     () => {
@@ -91,8 +95,8 @@ export function QuoteConnectionReward({
             ".connection-reward__subtitle",
             ".connection-reward__values",
             ".connection-reward__chip",
-            ".connection-reward__insight",
-            ".connection-reward__resonance",
+            ".connection-reward__value-block",
+            ".connection-reward__fallback",
             ".connection-reward__note",
           ],
           { clearProps: "all", opacity: 1, y: 0, scale: 1 },
@@ -176,16 +180,16 @@ export function QuoteConnectionReward({
           "-=0.35",
         )
         .fromTo(
-          ".connection-reward__insight",
+          ".connection-reward__value-block",
           { opacity: 0, y: 16 },
-          { opacity: 1, y: 0, duration: 0.75 },
+          { opacity: 1, y: 0, duration: 0.7, stagger: 0.12 },
           "-=0.15",
         )
         .fromTo(
-          ".connection-reward__resonance",
-          { opacity: 0, y: 12 },
-          { opacity: 1, y: 0, duration: 0.7 },
-          "-=0.4",
+          ".connection-reward__fallback",
+          { opacity: 0, y: 16 },
+          { opacity: 1, y: 0, duration: 0.75 },
+          "-=0.35",
         )
         .fromTo(
           ".connection-reward__note",
@@ -204,7 +208,10 @@ export function QuoteConnectionReward({
         delay: 1.4,
       });
     },
-    { scope: rootRef, dependencies: [reduceMotion, praise.insight] },
+    {
+      scope: rootRef,
+      dependencies: [reduceMotion, valueBlocksKey],
+    },
   );
 
   useGSAP(
@@ -325,12 +332,19 @@ export function QuoteConnectionReward({
             </div>
           ) : null}
 
-          {praise.insight ? (
-            <p className="connection-reward__insight">{praise.insight}</p>
+          {praise.valueBlocks.length > 0 ? (
+            <div className="connection-reward__descriptions">
+              {praise.valueBlocks.map((block) => (
+                <div key={block.value} className="connection-reward__value-block">
+                  <p className="connection-reward__value-title">{block.label}</p>
+                  <p className="connection-reward__value-text">{block.text}</p>
+                </div>
+              ))}
+            </div>
           ) : null}
 
-          {praise.resonance ? (
-            <p className="connection-reward__resonance">{praise.resonance}</p>
+          {praise.fallbackInsight ? (
+            <p className="connection-reward__fallback">{praise.fallbackInsight}</p>
           ) : null}
 
           {praise.noteAck ? (

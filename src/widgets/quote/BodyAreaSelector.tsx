@@ -1,6 +1,5 @@
 ﻿"use client";
 
-import Image from "next/image";
 import { useState, type CSSProperties } from "react";
 import { Bone, CircleDot, MapPin, PersonStanding } from "lucide-react";
 import { useSiteLanguage } from "@/shared/i18n/LanguageProvider";
@@ -24,6 +23,7 @@ import type { HeadPartId } from "@/shared/lib/headZoneParts";
 import type { BackPartId } from "@/shared/lib/backZoneParts";
 import type { LegPartId } from "@/shared/lib/legZoneParts";
 import { getBodyMapViewLabel } from "@/widgets/quote/bodyMapViewLabels";
+import { BodyImageFrame } from "@/widgets/quote/BodyImageFrame";
 import { needsZoneRefinement } from "@/widgets/quote/ZoneFlowHelpers";
 import {
   isZoneRefinementComplete,
@@ -74,152 +74,152 @@ const ARM_BODY_ZONE_IDS: ZoneId[] = ["hombro", "bicep", "tricep", "antebrazo"];
 const FRONT_HOTSPOTS: BodyHotspot[] = [
   {
     id: "cabeza",
-    className: "left-[43.2%] top-[4.6%] h-[10.4%] w-[13.8%] rounded-[999px]",
+    className: "left-[42.4%] top-[4.6%] h-[10.4%] w-[15.4%] rounded-[999px]",
   },
   {
     id: "hombro",
     laterality: "derecha",
-    className: "left-[30.2%] top-[18.1%] h-[5.8%] w-[10.6%] rounded-[999px]",
+    className: "left-[27.9%] top-[18.1%] h-[5.8%] w-[11.8%] rounded-[999px]",
   },
   {
     id: "hombro",
     laterality: "izquierda",
-    className: "left-[59.2%] top-[18.1%] h-[5.8%] w-[10.6%] rounded-[999px]",
+    className: "left-[60.3%] top-[18.1%] h-[5.8%] w-[11.8%] rounded-[999px]",
   },
   {
     id: "pecho",
-    className: "left-[37.2%] top-[24.4%] h-[9.4%] w-[25.8%] rounded-[28%]",
+    className: "left-[35.7%] top-[24.4%] h-[9.4%] w-[28.8%] rounded-[28%]",
   },
   {
     id: "abdomen",
-    className: "left-[39.2%] top-[35.2%] h-[12.8%] w-[21.6%] rounded-[24%]",
+    className: "left-[37.9%] top-[35.2%] h-[12.8%] w-[24.1%] rounded-[24%]",
   },
   {
     id: "bicep",
     laterality: "derecha",
-    className: "left-[25.6%] top-[24.6%] h-[12.8%] w-[8.1%] rounded-[999px]",
+    className: "left-[22.7%] top-[24.6%] h-[12.8%] w-[9.1%] rounded-[999px]",
     style: { transform: "rotate(-9deg)" },
   },
   {
     id: "bicep",
     laterality: "izquierda",
-    className: "left-[66.3%] top-[24.6%] h-[12.8%] w-[8.1%] rounded-[999px]",
+    className: "left-[68.2%] top-[24.6%] h-[12.8%] w-[9.1%] rounded-[999px]",
     style: { transform: "rotate(9deg)" },
   },
   {
     id: "antebrazo",
     laterality: "derecha",
-    className: "left-[20.8%] top-[37.1%] h-[15.1%] w-[7.4%] rounded-[999px]",
+    className: "left-[17.4%] top-[37.1%] h-[15.1%] w-[8.3%] rounded-[999px]",
     style: { transform: "rotate(-8deg)" },
   },
   {
     id: "antebrazo",
     laterality: "izquierda",
-    className: "left-[71.7%] top-[37.1%] h-[15.1%] w-[7.4%] rounded-[999px]",
+    className: "left-[74.3%] top-[37.1%] h-[15.1%] w-[8.3%] rounded-[999px]",
     style: { transform: "rotate(8deg)" },
   },
   {
     id: "pierna",
     laterality: "derecha",
     legPart: "muslo_anterior",
-    className: "left-[40.1%] top-[56.2%] h-[17.8%] w-[8.8%] rounded-[26%]",
+    className: "left-[38.9%] top-[56.2%] h-[17.8%] w-[9.8%] rounded-[26%]",
   },
   {
     id: "pierna",
     laterality: "izquierda",
     legPart: "muslo_anterior",
-    className: "left-[51.1%] top-[56.2%] h-[17.8%] w-[8.8%] rounded-[26%]",
+    className: "left-[51.2%] top-[56.2%] h-[17.8%] w-[9.8%] rounded-[26%]",
   },
   {
     id: "pierna",
     laterality: "derecha",
     legPart: "pierna_anterior",
-    className: "left-[40%] top-[74.2%] h-[17.9%] w-[8%] rounded-[24%]",
+    className: "left-[38.8%] top-[74.2%] h-[17.9%] w-[8.9%] rounded-[24%]",
   },
   {
     id: "pierna",
     laterality: "izquierda",
     legPart: "pierna_anterior",
-    className: "left-[51.9%] top-[74.2%] h-[17.9%] w-[8%] rounded-[24%]",
+    className: "left-[52.1%] top-[74.2%] h-[17.9%] w-[8.9%] rounded-[24%]",
   },
 ];
 
 const BACK_HOTSPOTS: BodyHotspot[] = [
   {
     id: "cabeza",
-    className: "left-[43.2%] top-[4.6%] h-[10.4%] w-[13.8%] rounded-[999px]",
+    className: "left-[42.4%] top-[4.6%] h-[10.4%] w-[15.4%] rounded-[999px]",
   },
   {
     id: "hombro",
     laterality: "izquierda",
-    className: "left-[30.2%] top-[18.1%] h-[5.8%] w-[10.6%] rounded-[999px]",
+    className: "left-[27.9%] top-[18.1%] h-[5.8%] w-[11.8%] rounded-[999px]",
   },
   {
     id: "hombro",
     laterality: "derecha",
-    className: "left-[59.2%] top-[18.1%] h-[5.8%] w-[10.6%] rounded-[999px]",
+    className: "left-[60.3%] top-[18.1%] h-[5.8%] w-[11.8%] rounded-[999px]",
   },
   {
     id: "espalda",
-    className: "left-[35.2%] top-[22.6%] h-[23.2%] w-[29.8%] rounded-[24%]",
+    className: "left-[33.5%] top-[22.6%] h-[23.2%] w-[33.3%] rounded-[24%]",
   },
   {
     id: "tricep",
     laterality: "izquierda",
-    className: "left-[25.8%] top-[24.9%] h-[12.4%] w-[8%] rounded-[999px]",
+    className: "left-[22.9%] top-[24.9%] h-[12.4%] w-[8.9%] rounded-[999px]",
     style: { transform: "rotate(-9deg)" },
   },
   {
     id: "tricep",
     laterality: "derecha",
-    className: "left-[66.2%] top-[24.9%] h-[12.4%] w-[8%] rounded-[999px]",
+    className: "left-[68.1%] top-[24.9%] h-[12.4%] w-[8.9%] rounded-[999px]",
     style: { transform: "rotate(9deg)" },
   },
   {
     id: "antebrazo",
     laterality: "izquierda",
-    className: "left-[20.9%] top-[37.2%] h-[15%] w-[7.4%] rounded-[999px]",
+    className: "left-[17.5%] top-[37.2%] h-[15%] w-[8.3%] rounded-[999px]",
     style: { transform: "rotate(-8deg)" },
   },
   {
     id: "antebrazo",
     laterality: "derecha",
-    className: "left-[71.7%] top-[37.2%] h-[15%] w-[7.4%] rounded-[999px]",
+    className: "left-[74.3%] top-[37.2%] h-[15%] w-[8.3%] rounded-[999px]",
     style: { transform: "rotate(8deg)" },
   },
   {
     id: "gluteo",
     laterality: "izquierda",
-    className: "left-[39.1%] top-[47.9%] h-[8.1%] w-[10.2%] rounded-[42%]",
+    className: "left-[37.8%] top-[47.9%] h-[8.1%] w-[11.4%] rounded-[42%]",
   },
   {
     id: "gluteo",
     laterality: "derecha",
-    className: "left-[50.5%] top-[47.9%] h-[8.1%] w-[10.2%] rounded-[42%]",
+    className: "left-[50.5%] top-[47.9%] h-[8.1%] w-[11.4%] rounded-[42%]",
   },
   {
     id: "pierna",
     laterality: "izquierda",
     legPart: "muslo_posterior",
-    className: "left-[40.1%] top-[56.2%] h-[17.8%] w-[8.8%] rounded-[26%]",
+    className: "left-[38.9%] top-[56.2%] h-[17.8%] w-[9.8%] rounded-[26%]",
   },
   {
     id: "pierna",
     laterality: "derecha",
     legPart: "muslo_posterior",
-    className: "left-[51.1%] top-[56.2%] h-[17.8%] w-[8.8%] rounded-[26%]",
+    className: "left-[51.2%] top-[56.2%] h-[17.8%] w-[9.8%] rounded-[26%]",
   },
   {
     id: "pierna",
     laterality: "izquierda",
     legPart: "pierna_posterior",
-    className: "left-[40%] top-[74.2%] h-[17.9%] w-[8%] rounded-[24%]",
+    className: "left-[38.8%] top-[74.2%] h-[17.9%] w-[8.9%] rounded-[24%]",
   },
   {
     id: "pierna",
     laterality: "derecha",
     legPart: "pierna_posterior",
-    className: "left-[51.9%] top-[74.2%] h-[17.9%] w-[8%] rounded-[24%]",
+    className: "left-[52.1%] top-[74.2%] h-[17.9%] w-[8.9%] rounded-[24%]",
   },
 ];
 
@@ -306,25 +306,22 @@ function BodyMapImage({
 
   return (
     <div className="glass-card relative overflow-hidden rounded-2xl p-3">
-      <div className="relative mx-auto aspect-[3/4] w-full max-w-[min(100%,330px)] overflow-hidden rounded-xl border border-white/12 bg-black/20">
-        <Image
-          src={BODY_IMAGE[side]}
-          alt={
-            side === "front"
-              ? language === "en"
-                ? "Front body map"
-                : "Mapa corporal frontal"
-              : language === "en"
-                ? "Back body map"
-                : "Mapa corporal posterior"
-          }
-          fill
-          quality={100}
-          sizes="(max-width: 640px) 300px, 330px"
-          className="object-contain"
-          priority
-        />
-
+      <BodyImageFrame
+        src={BODY_IMAGE[side]}
+        alt={
+          side === "front"
+            ? language === "en"
+              ? "Front body map"
+              : "Mapa corporal frontal"
+            : language === "en"
+              ? "Back body map"
+              : "Mapa corporal posterior"
+        }
+        className="mx-auto w-full max-w-[min(100%,330px)]"
+        sizes="(max-width: 640px) 300px, 330px"
+        priority
+        quality={100}
+      >
         {BODY_HOTSPOTS[side].map((spot, index) => {
           const active = isSpotActive(spot);
           const label = t(ZONE_LABEL_KEYS[spot.id]);
@@ -338,17 +335,15 @@ function BodyMapImage({
               aria-pressed={active}
               style={spot.style}
               className={[
-                "absolute z-10 border transition-all duration-200 outline-none",
-                "focus-visible:ring-2 focus-visible:ring-stone-400/70",
+                "body-map-hotspot absolute z-10 outline-none touch-manipulation",
+                "focus-visible:ring-2 focus-visible:ring-stone-300/80 focus-visible:ring-offset-1 focus-visible:ring-offset-transparent",
                 spot.className,
-                active
-                  ? "border-stone-200/90 bg-stone-500/25 shadow-[0_0_0_1px_rgba(232,226,218,0.45)_inset,0_0_18px_rgba(107,99,92,0.35)]"
-                  : "border-white/25 bg-black/10 hover:border-stone-300/55 hover:bg-stone-500/12",
+                active ? "body-map-hotspot--active" : "body-map-hotspot--idle",
               ].join(" ")}
             />
           );
         })}
-      </div>
+      </BodyImageFrame>
 
       <span className="mt-2 block text-center text-xs font-semibold uppercase tracking-[0.16em] text-zinc-300">
         {getBodyMapViewLabel(side, language)}
