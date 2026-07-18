@@ -1,15 +1,16 @@
 "use client";
 
+import type { BodyModelDefinition } from "@/widgets/body-3d/bodyModelDefinition";
 import type {
   BodyAppearanceMode,
   BodyCameraView,
-} from "@/widgets/body-3d/lab/bodyLabTypes";
-import {
-  BODY_LAB_STATS,
-  CAMERA_VIEW_LABELS,
-} from "@/widgets/body-3d/lab/bodyLabTypes";
+} from "@/widgets/body-3d/bodyViewerTypes";
+import { CAMERA_VIEW_LABELS } from "@/widgets/body-3d/lab/bodyLabTypes";
 
 type BodyLabControlsProps = {
+  models: readonly BodyModelDefinition[];
+  activeModel: BodyModelDefinition;
+  onModelChange: (modelId: string) => void;
   cameraView: BodyCameraView;
   onCameraViewChange: (view: BodyCameraView) => void;
   appearance: BodyAppearanceMode;
@@ -29,6 +30,9 @@ function labelClassName() {
 }
 
 export function BodyLabControls({
+  models,
+  activeModel,
+  onModelChange,
   cameraView,
   onCameraViewChange,
   appearance,
@@ -36,8 +40,36 @@ export function BodyLabControls({
   wireframe,
   onWireframeChange,
 }: BodyLabControlsProps) {
+  const stats = activeModel.labStats;
+
   return (
     <aside className="flex w-full flex-col gap-3 lg:w-[240px] lg:shrink-0">
+      <section className={controlShellClassName()}>
+        <p className={labelClassName()}>Modelo</p>
+        {models.length === 1 ? (
+          <p className="text-sm font-semibold text-zinc-200">
+            {activeModel.displayName}
+          </p>
+        ) : (
+          <select
+            value={activeModel.id}
+            onChange={(event) => onModelChange(event.target.value)}
+            className="min-h-[40px] w-full rounded-lg border border-white/10 bg-black/40 px-3 text-sm font-semibold text-zinc-100 outline-none focus:border-stone-400/40"
+          >
+            {models.map((entry) => (
+              <option key={entry.id} value={entry.id}>
+                {entry.displayName}
+              </option>
+            ))}
+          </select>
+        )}
+        {activeModel.role === "prototype" ? (
+          <p className="mt-2 text-[11px] leading-relaxed text-zinc-500">
+            Prototipo técnico. No es el modelo de producción.
+          </p>
+        ) : null}
+      </section>
+
       <section className={controlShellClassName()}>
         <p className={labelClassName()}>Cámara</p>
         <div className="grid grid-cols-2 gap-2">
@@ -102,15 +134,17 @@ export function BodyLabControls({
         </label>
       </section>
 
-      <section className={controlShellClassName()}>
-        <p className={labelClassName()}>Diagnóstico</p>
-        <ul className="space-y-1.5 font-mono text-[11px] leading-relaxed text-zinc-400">
-          <li>{BODY_LAB_STATS.verticesLabel}</li>
-          <li>{BODY_LAB_STATS.trianglesLabel}</li>
-          <li>{BODY_LAB_STATS.meshesLabel}</li>
-          <li>{BODY_LAB_STATS.rigLabel}</li>
-        </ul>
-      </section>
+      {stats ? (
+        <section className={controlShellClassName()}>
+          <p className={labelClassName()}>Diagnóstico</p>
+          <ul className="space-y-1.5 font-mono text-[11px] leading-relaxed text-zinc-400">
+            <li>{stats.verticesLabel}</li>
+            <li>{stats.trianglesLabel}</li>
+            <li>{stats.meshesLabel}</li>
+            <li>{stats.rigLabel}</li>
+          </ul>
+        </section>
+      ) : null}
     </aside>
   );
 }

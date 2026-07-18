@@ -10,12 +10,11 @@ import {
   type Mesh,
   type Object3D,
 } from "three";
-import { MODEL_Y_UP_FRONT_OFFSET } from "@/widgets/body-3d/bodyModelOrientation";
+import type { BodyModelDefinition } from "@/widgets/body-3d/bodyModelDefinition";
 import type { BodyAppearanceMode } from "@/widgets/body-3d/bodyViewerTypes";
 
-export const HUMAN_BODY_MODEL_PATH = "/models/human_body.glb";
-
 type HumanBodyModelProps = Omit<ThreeElements["group"], "children"> & {
+  model: BodyModelDefinition;
   appearance?: BodyAppearanceMode;
   wireframe?: boolean;
 };
@@ -46,12 +45,17 @@ function collectMeshes(root: Object3D) {
   return meshes;
 }
 
+/**
+ * Carga y presenta un cuerpo 3D a partir de una `BodyModelDefinition`.
+ * No conoce assets concretos ni el dominio de zonas.
+ */
 export function HumanBodyModel({
+  model,
   appearance = "original",
   wireframe = false,
   ...props
 }: HumanBodyModelProps) {
-  const { scene } = useGLTF(HUMAN_BODY_MODEL_PATH);
+  const { scene } = useGLTF(model.src);
   const neutralMaterialRef = useRef<MeshStandardMaterial | null>(null);
 
   const prepared = useMemo(() => {
@@ -120,11 +124,15 @@ export function HumanBodyModel({
     };
   }, [prepared]);
 
+  const scale = model.scale ?? 1;
+
   return (
-    <group {...props} rotation={[0, MODEL_Y_UP_FRONT_OFFSET, 0]}>
+    <group
+      {...props}
+      rotation={model.rotation}
+      scale={[scale, scale, scale]}
+    >
       <primitive object={prepared.cloned} />
     </group>
   );
 }
-
-useGLTF.preload(HUMAN_BODY_MODEL_PATH);

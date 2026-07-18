@@ -1,15 +1,16 @@
 "use client";
 
-import { Suspense, useLayoutEffect, useRef, useState } from "react";
+import { Suspense, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Canvas } from "@react-three/fiber";
-import { Center, OrbitControls } from "@react-three/drei";
+import { Center, OrbitControls, useGLTF } from "@react-three/drei";
 import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
 import { HumanBodyModel } from "@/widgets/body-3d/HumanBodyModel";
 import { BodyCameraController } from "@/widgets/body-3d/BodyCameraController";
+import type { BodyModelDefinition } from "@/widgets/body-3d/bodyModelDefinition";
 import {
-  LAB_CAMERA_DISTANCE,
-  LAB_CAMERA_TARGET_Y,
-} from "@/widgets/body-3d/bodyModelOrientation";
+  getCameraLookTarget,
+  getCameraPositionForView,
+} from "@/widgets/body-3d/cameraViewHelpers";
 import type {
   BodyAppearanceMode,
   BodyCameraView,
@@ -23,6 +24,7 @@ type ViewerSize = {
 };
 
 type Body3DViewerProps = {
+  model: BodyModelDefinition;
   appearance?: BodyAppearanceMode;
   wireframe?: boolean;
   cameraView?: BodyCameraView;
@@ -34,34 +36,51 @@ type Body3DViewerProps = {
 function StudioLights() {
   return (
     <>
-      {/* Relleno ambiental moderado: evita negros absolutos sin lavar la forma */}
       <ambientLight intensity={0.42} />
       <hemisphereLight args={["#ebe1d4", "#2a2118", 0.38]} />
-      {/* Key light principal (estudio cálido) */}
       <directionalLight position={[2.4, 3.8, 2.8]} intensity={1.35} />
-      {/* Fill suave opuesto */}
       <directionalLight position={[-2.6, 1.4, 0.8]} intensity={0.42} />
-      {/* Rim discreto para leer espalda/volumen */}
       <directionalLight position={[0.2, 2.2, -2.8]} intensity={0.32} />
     </>
   );
 }
 
 function BodyScene({
+  model,
   appearance,
   wireframe,
 }: {
+  model: BodyModelDefinition;
   appearance: BodyAppearanceMode;
   wireframe: boolean;
 }) {
   return (
     <Center>
-      <HumanBodyModel appearance={appearance} wireframe={wireframe} />
+      <HumanBodyModel
+        model={model}
+        appearance={appearance}
+        wireframe={wireframe}
+      />
     </Center>
   );
 }
 
+function readHostSize(host: HTMLElement): ViewerSize {
+  const rect = host.getBoundingClientRect();
+  return {
+    width: Math.max(
+      0,
+      Math.floor(rect.width || host.clientWidth || host.offsetWidth),
+    ),
+    height: Math.max(
+      0,
+      Math.floor(rect.height || host.clientHeight || host.offsetHeight),
+    ),
+  };
+}
+
 export function Body3DViewer({
+  model,
   appearance = "original",
   wireframe = false,
   cameraView = "front",
@@ -70,18 +89,24 @@ export function Body3DViewer({
   height = "min(72dvh, 720px)",
 }: Body3DViewerProps) {
   const hostRef = useRef<HTMLDivElement>(null);
+  const orbitRef = useRef<OrbitControlsImpl | null>(null);
   const [size, setSize] = useState<ViewerSize>({ width: 0, height: 0 });
+
+  const initialCameraPosition = useMemo(
+    () => getCameraPositionForView("front", model.camera),
+    [model.camera],
+  );
+  const lookTarget = useMemo(
+    () => getCameraLookTarget(model.camera),
+    [model.camera],
+  );
 
   useLayoutEffect(() => {
     const host = hostRef.current;
     if (!host) return;
 
     const update = () => {
-      const rect = host.getBoundingClientRect();
-      const next = {
-        width: Math.max(0, Math.floor(rect.width)),
-        height: Math.max(0, Math.floor(rect.height)),
-      };
+      const next = readHostSize(host);
       setSize((prev) =>
         prev.width === next.width && prev.height === next.height ? prev : next,
       );
@@ -91,19 +116,25 @@ export function Body3DViewer({
     const observer = new ResizeObserver(update);
     observer.observe(host);
     window.addEventListener("resize", update);
-    // Re-medir tras el primer paint (viewports móviles / HMR).
+
+    const timers = [0, 50, 150, 400].map((ms) => window.setTimeout(update, ms));
     const raf = window.requestAnimationFrame(update);
-    const timeout = window.setTimeout(update, 120);
+
     return () => {
       observer.disconnect();
       window.removeEventListener("resize", update);
       window.cancelAnimationFrame(raf);
-      window.clearTimeout(timeout);
+      for (const id of timers) window.clearTimeout(id);
     };
   }, []);
 
+  useLayoutEffect(() => {
+    void useGLTF.preload(model.src);
+  }, [model.src]);
+
   const canRender = size.width > 0 && size.height > 0;
-  const orbitRef = useRef<OrbitControlsImpl | null>(null);
+  const minDistance = model.camera.minDistance ?? model.camera.distance * 0.55;
+  const maxDistance = model.camera.maxDistance ?? model.camera.distance * 2.1;
 
   return (
     <div
@@ -114,10 +145,11 @@ export function Body3DViewer({
       ]
         .filter(Boolean)
         .join(" ")}
-      style={{ height }}
+      style={{ height, width: "100%" }}
     >
       {canRender ? (
         <Canvas
+          key={model.id}
           dpr={[1, 1.75]}
           style={{
             width: size.width,
@@ -130,7 +162,11 @@ export function Body3DViewer({
             powerPreference: "default",
           }}
           camera={{
-            position: [0, LAB_CAMERA_TARGET_Y, LAB_CAMERA_DISTANCE],
+            position: [
+              initialCameraPosition.x,
+              initialCameraPosition.y,
+              initialCameraPosition.z,
+            ],
             fov: 42,
             near: 0.05,
             far: 80,
@@ -140,11 +176,16 @@ export function Body3DViewer({
           <StudioLights />
 
           <Suspense fallback={null}>
-            <BodyScene appearance={appearance} wireframe={wireframe} />
+            <BodyScene
+              model={model}
+              appearance={appearance}
+              wireframe={wireframe}
+            />
           </Suspense>
 
           <BodyCameraController
             view={cameraView}
+            framing={model.camera}
             viewToken={cameraViewToken}
             orbitRef={orbitRef}
           />
@@ -157,11 +198,11 @@ export function Body3DViewer({
             dampingFactor={0.08}
             rotateSpeed={0.72}
             zoomSpeed={0.85}
-            minDistance={1.0}
-            maxDistance={3.8}
+            minDistance={minDistance}
+            maxDistance={maxDistance}
             minPolarAngle={Math.PI * 0.12}
             maxPolarAngle={Math.PI * 0.88}
-            target={[0, LAB_CAMERA_TARGET_Y, 0]}
+            target={[lookTarget.x, lookTarget.y, lookTarget.z]}
           />
         </Canvas>
       ) : (

@@ -1,28 +1,49 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Body3DViewer } from "@/widgets/body-3d/Body3DViewer";
 import { BodyLabControls } from "@/widgets/body-3d/lab/BodyLabControls";
+import {
+  AVAILABLE_BODY_MODELS,
+  DEFAULT_LAB_BODY_MODEL,
+} from "@/widgets/body-3d/lab/availableBodyModels";
 import type {
   BodyAppearanceMode,
   BodyCameraView,
 } from "@/widgets/body-3d/bodyViewerTypes";
 
 export function BodyLabWorkbench() {
+  const [modelId, setModelId] = useState(DEFAULT_LAB_BODY_MODEL.id);
   const [cameraView, setCameraView] = useState<BodyCameraView>("front");
   const [cameraViewToken, setCameraViewToken] = useState(0);
   const [appearance, setAppearance] = useState<BodyAppearanceMode>("original");
   const [wireframe, setWireframe] = useState(false);
+
+  const activeModel = useMemo(
+    () =>
+      AVAILABLE_BODY_MODELS.find((entry) => entry.id === modelId) ??
+      DEFAULT_LAB_BODY_MODEL,
+    [modelId],
+  );
 
   function handleCameraViewChange(view: BodyCameraView) {
     setCameraView(view);
     setCameraViewToken((token) => token + 1);
   }
 
+  function handleModelChange(nextId: string) {
+    setModelId(nextId);
+    setCameraView("front");
+    setCameraViewToken((token) => token + 1);
+    setAppearance("original");
+    setWireframe(false);
+  }
+
   return (
     <div className="flex flex-col gap-4 lg:flex-row lg:items-start">
       <div className="min-w-0 flex-1">
         <Body3DViewer
+          model={activeModel}
           appearance={appearance}
           wireframe={wireframe}
           cameraView={cameraView}
@@ -35,6 +56,9 @@ export function BodyLabWorkbench() {
       </div>
 
       <BodyLabControls
+        models={AVAILABLE_BODY_MODELS}
+        activeModel={activeModel}
+        onModelChange={handleModelChange}
         cameraView={cameraView}
         onCameraViewChange={handleCameraViewChange}
         appearance={appearance}

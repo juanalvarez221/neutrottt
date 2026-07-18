@@ -2,55 +2,47 @@
 
 import { useEffect, useRef, type RefObject } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
-import { Vector3 } from "three";
 import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
+import type { BodyCameraFraming } from "@/widgets/body-3d/cameraViewHelpers";
 import {
-  LAB_CAMERA_DISTANCE,
-  LAB_CAMERA_TARGET_Y,
-} from "@/widgets/body-3d/bodyModelOrientation";
+  getCameraLookTarget,
+  getCameraPositionForView,
+} from "@/widgets/body-3d/cameraViewHelpers";
 import type { BodyCameraView } from "@/widgets/body-3d/bodyViewerTypes";
 
 type BodyCameraControllerProps = {
   view: BodyCameraView;
+  framing: BodyCameraFraming;
   /** Incrementar para re-disparar el preset aunque la vista no cambie. */
   viewToken: number;
   orbitRef: RefObject<OrbitControlsImpl | null>;
 };
 
-function viewToCameraPosition(view: BodyCameraView, distance: number) {
-  switch (view) {
-    case "front":
-      return new Vector3(0, LAB_CAMERA_TARGET_Y, distance);
-    case "back":
-      return new Vector3(0, LAB_CAMERA_TARGET_Y, -distance);
-    case "left":
-      // Perfil del lado izquierdo anatómico del sujeto (cámara en -X mundo).
-      return new Vector3(-distance, LAB_CAMERA_TARGET_Y, 0);
-    case "right":
-      return new Vector3(distance, LAB_CAMERA_TARGET_Y, 0);
-  }
-}
-
+/**
+ * Interpola la cámara hacia presets front/back/left/right.
+ * Recibe framing del modelo activo — no hardcodea distancias Tripo.
+ */
 export function BodyCameraController({
   view,
+  framing,
   viewToken,
   orbitRef,
 }: BodyCameraControllerProps) {
   const { camera } = useThree();
-  const targetPos = useRef(viewToCameraPosition(view, LAB_CAMERA_DISTANCE));
-  const targetLook = useRef(new Vector3(0, LAB_CAMERA_TARGET_Y, 0));
+  const targetPos = useRef(getCameraPositionForView(view, framing));
+  const targetLook = useRef(getCameraLookTarget(framing));
   const animating = useRef(false);
 
   useEffect(() => {
-    targetPos.current = viewToCameraPosition(view, LAB_CAMERA_DISTANCE);
-    targetLook.current.set(0, LAB_CAMERA_TARGET_Y, 0);
+    targetPos.current = getCameraPositionForView(view, framing);
+    targetLook.current = getCameraLookTarget(framing);
     animating.current = true;
 
     const orbit = orbitRef.current;
     if (orbit) {
       orbit.enabled = false;
     }
-  }, [orbitRef, view, viewToken]);
+  }, [framing, orbitRef, view, viewToken]);
 
   useFrame((_, delta) => {
     if (!animating.current) return;
