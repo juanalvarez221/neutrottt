@@ -5,7 +5,10 @@ import type {
   BodyAppearanceMode,
   BodyCameraView,
 } from "@/widgets/body-3d/bodyViewerTypes";
-import type { ArmDebugVisibility } from "@/widgets/body-3d/domain/bodyZones";
+import type {
+  ArmDebugVisibility,
+  InteractionDebugLayer,
+} from "@/widgets/body-3d/domain/bodyZones";
 import { CAMERA_VIEW_LABELS } from "@/widgets/body-3d/lab/bodyLabTypes";
 
 type BodyLabControlsProps = {
@@ -24,6 +27,8 @@ type BodyLabControlsProps = {
   onZonesVisualizationChange: (value: "surface" | "edges") => void;
   armVisibility: ArmDebugVisibility;
   onArmVisibilityChange: (value: ArmDebugVisibility) => void;
+  debugLayer: InteractionDebugLayer;
+  onDebugLayerChange: (value: InteractionDebugLayer) => void;
 };
 
 const CAMERA_VIEWS: BodyCameraView[] = ["front", "back", "left", "right"];
@@ -52,9 +57,13 @@ export function BodyLabControls({
   onZonesVisualizationChange,
   armVisibility,
   onArmVisibilityChange,
+  debugLayer,
+  onDebugLayerChange,
 }: BodyLabControlsProps) {
   const stats = activeModel.labStats;
   const zonesAvailable = activeModel.role === "production";
+  const showArmFilter =
+    debugLayer === "arms" || debugLayer === "arms_and_torso_t2";
 
   return (
     <aside className="flex w-full flex-col gap-3 lg:w-[240px] lg:shrink-0">
@@ -176,18 +185,22 @@ export function BodyLabControls({
         ) : (
           <>
             <p className="mt-2 text-[11px] leading-relaxed text-zinc-500">
-              InteractionModel bilateral (24 meshes). Sin selección.
+              Diagnóstico BodyVisual + InteractionModel. Sin selección.
             </p>
             {showInteractionZones ? (
               <div className="mt-3 space-y-2">
                 <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-500">
-                  Visibilidad
+                  Capa
                 </p>
                 {(
                   [
-                    { id: "right", label: "Brazo derecho" },
-                    { id: "left", label: "Brazo izquierdo" },
-                    { id: "both", label: "Ambos brazos" },
+                    { id: "arms", label: "Brazos" },
+                    { id: "torso_t1", label: "Torso T1" },
+                    { id: "torso_t2", label: "Torso T2" },
+                    {
+                      id: "arms_and_torso_t2",
+                      label: "Brazos + torso T2",
+                    },
                   ] as const
                 ).map((option) => (
                   <label
@@ -196,15 +209,44 @@ export function BodyLabControls({
                   >
                     <input
                       type="radio"
-                      name="arm-visibility"
+                      name="debug-layer"
                       value={option.id}
-                      checked={armVisibility === option.id}
-                      onChange={() => onArmVisibilityChange(option.id)}
+                      checked={debugLayer === option.id}
+                      onChange={() => onDebugLayerChange(option.id)}
                       className="accent-stone-400"
                     />
                     {option.label}
                   </label>
                 ))}
+                {showArmFilter ? (
+                  <>
+                    <p className="pt-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-500">
+                      Visibilidad brazos
+                    </p>
+                    {(
+                      [
+                        { id: "right", label: "Brazo derecho" },
+                        { id: "left", label: "Brazo izquierdo" },
+                        { id: "both", label: "Ambos brazos" },
+                      ] as const
+                    ).map((option) => (
+                      <label
+                        key={option.id}
+                        className="flex min-h-[36px] cursor-pointer items-center gap-2.5 rounded-lg border border-white/8 bg-white/[0.03] px-3 py-1.5 text-sm text-zinc-200 transition hover:bg-white/[0.05]"
+                      >
+                        <input
+                          type="radio"
+                          name="arm-visibility"
+                          value={option.id}
+                          checked={armVisibility === option.id}
+                          onChange={() => onArmVisibilityChange(option.id)}
+                          className="accent-stone-400"
+                        />
+                        {option.label}
+                      </label>
+                    ))}
+                  </>
+                ) : null}
                 <p className="pt-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-500">
                   Visualización
                 </p>

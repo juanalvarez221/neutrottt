@@ -16,7 +16,10 @@ import type {
   BodyAppearanceMode,
   BodyCameraView,
 } from "@/widgets/body-3d/bodyViewerTypes";
-import type { ArmDebugVisibility } from "@/widgets/body-3d/domain/bodyZones";
+import type {
+  ArmDebugVisibility,
+  InteractionDebugLayer,
+} from "@/widgets/body-3d/domain/bodyZones";
 
 const BG = "#17110d";
 
@@ -34,6 +37,7 @@ type Body3DViewerProps = {
   showInteractionZones?: boolean;
   zonesVisualization?: "surface" | "edges";
   armVisibility?: ArmDebugVisibility;
+  debugLayer?: InteractionDebugLayer;
   className?: string;
   height?: string;
 };
@@ -57,6 +61,7 @@ function BodyScene({
   showInteractionZones,
   zonesVisualization,
   armVisibility,
+  debugLayer,
 }: {
   model: BodyModelDefinition;
   appearance: BodyAppearanceMode;
@@ -64,6 +69,7 @@ function BodyScene({
   showInteractionZones: boolean;
   zonesVisualization: "surface" | "edges";
   armVisibility: ArmDebugVisibility;
+  debugLayer: InteractionDebugLayer;
 }) {
   const canShowZones =
     showInteractionZones && model.role === "production";
@@ -81,6 +87,7 @@ function BodyScene({
           scale={model.scale ?? 1}
           visualization={zonesVisualization}
           armVisibility={armVisibility}
+          debugLayer={debugLayer}
         />
       ) : null}
     </Center>
@@ -110,6 +117,7 @@ export function Body3DViewer({
   showInteractionZones = false,
   zonesVisualization = "surface",
   armVisibility = "both",
+  debugLayer = "arms",
   className = "",
   height = "min(72dvh, 720px)",
 }: Body3DViewerProps) {
@@ -208,6 +216,7 @@ export function Body3DViewer({
               showInteractionZones={showInteractionZones}
               zonesVisualization={zonesVisualization}
               armVisibility={armVisibility}
+              debugLayer={debugLayer}
             />
           </Suspense>
 

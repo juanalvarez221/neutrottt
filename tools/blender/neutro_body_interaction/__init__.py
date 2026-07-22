@@ -33,6 +33,20 @@ from .arm_segmentation import (
     segment_arm_faces,
 )
 from .island_cleanup import cleanup_islands, connected_components
+from .island_cleanup_generic import cleanup_islands_generic
+from .body_frame import BodyFrame, TorsoLandmarks, build_body_frame, resolve_torso_landmarks
+from .torso_segmentation import (
+    segment_torso_faces,
+    collect_arm_universe_faces,
+    build_torso_context,
+)
+from .config import (
+    TORSO_T1_CONFIG,
+    TORSO_T2_CONFIG,
+    TORSO_ZONE_COLORS,
+    TORSO_ZONE_IDS,
+    TORSO_ISLAND_CLEANUP,
+)
 
 __all__ = [
     "ARM_ANGULAR_CONFIG",
@@ -61,4 +75,17 @@ __all__ = [
     "segment_arm_faces",
     "cleanup_islands",
     "connected_components",
+    "cleanup_islands_generic",
+    "BodyFrame",
+    "TorsoLandmarks",
+    "build_body_frame",
+    "resolve_torso_landmarks",
+    "TORSO_ZONE_IDS",
+    "segment_torso_faces",
+    "collect_arm_universe_faces",
+    "build_torso_context",
+    "TORSO_T1_CONFIG",
+    "TORSO_T2_CONFIG",
+    "TORSO_ZONE_COLORS",
+    "TORSO_ISLAND_CLEANUP",
 ]

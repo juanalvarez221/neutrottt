@@ -11,7 +11,10 @@ import type {
   BodyAppearanceMode,
   BodyCameraView,
 } from "@/widgets/body-3d/bodyViewerTypes";
-import type { ArmDebugVisibility } from "@/widgets/body-3d/domain/bodyZones";
+import type {
+  ArmDebugVisibility,
+  InteractionDebugLayer,
+} from "@/widgets/body-3d/domain/bodyZones";
 
 export function BodyLabWorkbench() {
   const [modelId, setModelId] = useState(DEFAULT_LAB_BODY_MODEL.id);
@@ -25,6 +28,8 @@ export function BodyLabWorkbench() {
   >("surface");
   const [armVisibility, setArmVisibility] =
     useState<ArmDebugVisibility>("both");
+  const [debugLayer, setDebugLayer] =
+    useState<InteractionDebugLayer>("arms");
 
   const activeModel = useMemo(
     () =>
@@ -47,6 +52,7 @@ export function BodyLabWorkbench() {
     setShowInteractionZones(false);
     setZonesVisualization("surface");
     setArmVisibility("both");
+    setDebugLayer("arms");
   }
 
   return (
@@ -61,6 +67,7 @@ export function BodyLabWorkbench() {
           showInteractionZones={showInteractionZones}
           zonesVisualization={zonesVisualization}
           armVisibility={armVisibility}
+          debugLayer={debugLayer}
           height="min(70dvh, 680px)"
         />
         <p className="mt-3 text-center text-xs text-zinc-500 sm:text-left">
@@ -84,6 +91,8 @@ export function BodyLabWorkbench() {
         onZonesVisualizationChange={setZonesVisualization}
         armVisibility={armVisibility}
         onArmVisibilityChange={setArmVisibility}
+        debugLayer={debugLayer}
+        onDebugLayerChange={setDebugLayer}
       />
     </div>
   );
