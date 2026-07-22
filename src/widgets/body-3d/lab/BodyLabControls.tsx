@@ -5,6 +5,7 @@ import type {
   BodyAppearanceMode,
   BodyCameraView,
 } from "@/widgets/body-3d/bodyViewerTypes";
+import type { LabInteractionMode } from "@/widgets/body-3d/Body3DViewer";
 import type {
   ArmDebugVisibility,
   BodyRegionFilter,
@@ -32,6 +33,8 @@ type BodyLabControlsProps = {
   onDebugLayerChange: (value: InteractionDebugLayer) => void;
   regionFilter: BodyRegionFilter;
   onRegionFilterChange: (value: BodyRegionFilter) => void;
+  labInteractionMode: LabInteractionMode;
+  onLabInteractionModeChange: (mode: LabInteractionMode) => void;
 };
 
 const CAMERA_VIEWS: BodyCameraView[] = ["front", "back", "left", "right"];
@@ -64,19 +67,24 @@ export function BodyLabControls({
   onDebugLayerChange,
   regionFilter,
   onRegionFilterChange,
+  labInteractionMode,
+  onLabInteractionModeChange,
 }: BodyLabControlsProps) {
   const stats = activeModel.labStats;
   const zonesAvailable = activeModel.role === "production";
+  const showDebugControls = labInteractionMode === "debug";
   const showArmFilter =
-    debugLayer === "arms" ||
-    debugLayer === "arms_and_torso_pelvis_p2" ||
-    debugLayer === "arms_and_torso_pelvis_final" ||
-    debugLayer === "central_plus_arms_legs_l1" ||
-    debugLayer === "central_plus_arms_legs_l2" ||
-    debugLayer === "central_plus_arms_legs_g1" ||
-    debugLayer === "central_plus_arms_legs_g2";
+    showDebugControls &&
+    (debugLayer === "arms" ||
+      debugLayer === "arms_and_torso_pelvis_p2" ||
+      debugLayer === "arms_and_torso_pelvis_final" ||
+      debugLayer === "central_plus_arms_legs_l1" ||
+      debugLayer === "central_plus_arms_legs_l2" ||
+      debugLayer === "central_plus_arms_legs_g1" ||
+      debugLayer === "central_plus_arms_legs_g2");
   const showRegionFilter =
-    debugLayer === "body_69" || debugLayer === "body_81";
+    showDebugControls &&
+    (debugLayer === "body_69" || debugLayer === "body_81");
 
   return (
     <aside className="flex w-full flex-col gap-3 lg:w-[240px] lg:shrink-0">
@@ -171,36 +179,83 @@ export function BodyLabControls({
       </section>
 
       <section className={controlShellClassName()}>
+        <p className={labelClassName()}>Modo lab</p>
+        <div className="space-y-2">
+          {(
+            [
+              { id: "off" as const, label: "Apagado" },
+              { id: "debug" as const, label: "Debug zones" },
+              { id: "interaction" as const, label: "Interaction UX" },
+            ] as const
+          ).map((option) => (
+            <label
+              key={option.id}
+              className={[
+                "flex min-h-[36px] items-center gap-2.5 rounded-lg border border-white/8 bg-white/[0.03] px-3 py-1.5 text-sm text-zinc-200 transition",
+                zonesAvailable || option.id === "off"
+                  ? "cursor-pointer hover:bg-white/[0.05]"
+                  : "cursor-not-allowed opacity-50",
+              ].join(" ")}
+            >
+              <input
+                type="radio"
+                name="lab-interaction-mode"
+                value={option.id}
+                checked={labInteractionMode === option.id}
+                disabled={!zonesAvailable && option.id !== "off"}
+                onChange={() => onLabInteractionModeChange(option.id)}
+                className="accent-stone-400"
+              />
+              {option.label}
+            </label>
+          ))}
+        </div>
+        {!zonesAvailable ? (
+          <p className="mt-2 text-[11px] leading-relaxed text-zinc-500">
+            Interaction disponible solo con Neutro Body V1.
+          </p>
+        ) : null}
+      </section>
+
+      <section className={controlShellClassName()}>
         <p className={labelClassName()}>Zonas de interacción</p>
         <label
           className={[
             "flex min-h-[40px] items-center gap-2.5 rounded-lg border border-white/8 bg-white/[0.03] px-3 py-2 text-sm text-zinc-200 transition",
-            zonesAvailable
+            zonesAvailable && labInteractionMode === "debug"
               ? "cursor-pointer hover:bg-white/[0.05]"
               : "cursor-not-allowed opacity-50",
           ].join(" ")}
         >
           <input
             type="checkbox"
-            checked={showInteractionZones && zonesAvailable}
-            disabled={!zonesAvailable}
+            checked={
+              showInteractionZones &&
+              zonesAvailable &&
+              labInteractionMode === "debug"
+            }
+            disabled={!zonesAvailable || labInteractionMode !== "debug"}
             onChange={(event) =>
               onShowInteractionZonesChange(event.target.checked)
             }
             className="accent-stone-400"
           />
-          Mostrar zonas
+          Mostrar zonas (debug)
         </label>
         {!zonesAvailable ? (
           <p className="mt-2 text-[11px] leading-relaxed text-zinc-500">
             Disponible solo con Neutro Body V1.
+          </p>
+        ) : labInteractionMode === "interaction" ? (
+          <p className="mt-2 text-[11px] leading-relaxed text-zinc-500">
+            Hover, click/tap y selección jerárquica activos. Sin colores debug.
           </p>
         ) : (
           <>
             <p className="mt-2 text-[11px] leading-relaxed text-zinc-500">
               Diagnóstico BodyVisual + InteractionModel. Sin selección.
             </p>
-            {showInteractionZones ? (
+            {showDebugControls && showInteractionZones ? (
               <div className="mt-3 space-y-2">
                 <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-500">
                   Capa

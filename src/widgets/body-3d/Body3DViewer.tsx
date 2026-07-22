@@ -7,6 +7,10 @@ import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
 import { HumanBodyModel } from "@/widgets/body-3d/HumanBodyModel";
 import { BodyCameraController } from "@/widgets/body-3d/BodyCameraController";
 import { InteractionZonesDebug } from "@/widgets/body-3d/lab/InteractionZonesDebug";
+import {
+  BodyInteractionModel,
+  BodyZoneHighlight,
+} from "@/widgets/body-3d/interaction";
 import type { BodyModelDefinition } from "@/widgets/body-3d/bodyModelDefinition";
 import {
   getCameraLookTarget,
@@ -24,6 +28,8 @@ import type {
 
 const BG = "#17110d";
 
+export type LabInteractionMode = "off" | "debug" | "interaction";
+
 type ViewerSize = {
   width: number;
   height: number;
@@ -40,6 +46,12 @@ type Body3DViewerProps = {
   armVisibility?: ArmDebugVisibility;
   debugLayer?: InteractionDebugLayer;
   regionFilter?: BodyRegionFilter;
+  /** Modo lab: debug de colores de zona vs UX de interacción. */
+  labInteractionMode?: LabInteractionMode;
+  hoveredAtomicZoneId?: string | null;
+  selectedAtomicZoneIds?: readonly string[];
+  onHoverAtomicZone?: (atomicId: string | null) => void;
+  onActivateAtomicZone?: (atomicId: string) => void;
   className?: string;
   height?: string;
 };
@@ -65,6 +77,11 @@ function BodyScene({
   armVisibility,
   debugLayer,
   regionFilter,
+  labInteractionMode,
+  hoveredAtomicZoneId,
+  selectedAtomicZoneIds,
+  onHoverAtomicZone,
+  onActivateAtomicZone,
 }: {
   model: BodyModelDefinition;
   appearance: BodyAppearanceMode;
@@ -74,9 +91,17 @@ function BodyScene({
   armVisibility: ArmDebugVisibility;
   debugLayer: InteractionDebugLayer;
   regionFilter: BodyRegionFilter;
+  labInteractionMode: LabInteractionMode;
+  hoveredAtomicZoneId: string | null;
+  selectedAtomicZoneIds: readonly string[];
+  onHoverAtomicZone: (atomicId: string | null) => void;
+  onActivateAtomicZone: (atomicId: string) => void;
 }) {
-  const canShowZones =
-    showInteractionZones && model.role === "production";
+  const isProduction = model.role === "production";
+  const showDebug =
+    isProduction && showInteractionZones && labInteractionMode === "debug";
+  const showInteraction =
+    isProduction && labInteractionMode === "interaction";
 
   return (
     <Center>
@@ -84,8 +109,9 @@ function BodyScene({
         model={model}
         appearance={appearance}
         wireframe={wireframe}
+        raycastEnabled={!showInteraction}
       />
-      {canShowZones ? (
+      {showDebug ? (
         <InteractionZonesDebug
           rotation={model.rotation}
           scale={model.scale ?? 1}
@@ -94,6 +120,23 @@ function BodyScene({
           debugLayer={debugLayer}
           regionFilter={regionFilter}
         />
+      ) : null}
+      {showInteraction ? (
+        <>
+          <BodyZoneHighlight
+            rotation={model.rotation}
+            scale={model.scale ?? 1}
+            hoveredAtomicZoneId={hoveredAtomicZoneId}
+            selectedAtomicZoneIds={selectedAtomicZoneIds}
+          />
+          <BodyInteractionModel
+            rotation={model.rotation}
+            scale={model.scale ?? 1}
+            enabled
+            onHoverAtomicZone={onHoverAtomicZone}
+            onActivateAtomicZone={onActivateAtomicZone}
+          />
+        </>
       ) : null}
     </Center>
   );
@@ -124,6 +167,11 @@ export function Body3DViewer({
   armVisibility = "both",
   debugLayer = "arms",
   regionFilter = "all",
+  labInteractionMode = "off",
+  hoveredAtomicZoneId = null,
+  selectedAtomicZoneIds = [],
+  onHoverAtomicZone,
+  onActivateAtomicZone,
   className = "",
   height = "min(72dvh, 720px)",
 }: Body3DViewerProps) {
@@ -224,6 +272,11 @@ export function Body3DViewer({
               armVisibility={armVisibility}
               debugLayer={debugLayer}
               regionFilter={regionFilter}
+              labInteractionMode={labInteractionMode}
+              hoveredAtomicZoneId={hoveredAtomicZoneId}
+              selectedAtomicZoneIds={selectedAtomicZoneIds}
+              onHoverAtomicZone={onHoverAtomicZone ?? (() => undefined)}
+              onActivateAtomicZone={onActivateAtomicZone ?? (() => undefined)}
             />
           </Suspense>
 

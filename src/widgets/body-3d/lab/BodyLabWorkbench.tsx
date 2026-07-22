@@ -1,7 +1,10 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Body3DViewer } from "@/widgets/body-3d/Body3DViewer";
+import {
+  Body3DViewer,
+  type LabInteractionMode,
+} from "@/widgets/body-3d/Body3DViewer";
 import { BodyLabControls } from "@/widgets/body-3d/lab/BodyLabControls";
 import {
   AVAILABLE_BODY_MODELS,
@@ -16,6 +19,15 @@ import type {
   BodyRegionFilter,
   InteractionDebugLayer,
 } from "@/widgets/body-3d/domain/bodyZones";
+import {
+  addSelectionTarget,
+  BodyInteractionLabPanel,
+  clearSelectionTargets,
+  getSelectionDisplayLabel,
+  getSelectionOptionsForAtomicZone,
+  removeSelectionTarget,
+  resolveSelectedAtomicZoneIds,
+} from "@/widgets/body-3d/interaction";
 
 export function BodyLabWorkbench() {
   const [modelId, setModelId] = useState(DEFAULT_LAB_BODY_MODEL.id);
@@ -32,6 +44,29 @@ export function BodyLabWorkbench() {
   const [debugLayer, setDebugLayer] =
     useState<InteractionDebugLayer>("body_81");
   const [regionFilter, setRegionFilter] = useState<BodyRegionFilter>("all");
+  const [labInteractionMode, setLabInteractionMode] =
+    useState<LabInteractionMode>("off");
+
+  const [hoveredAtomicZoneId, setHoveredAtomicZoneId] = useState<string | null>(
+    null,
+  );
+  const [activeAtomicZoneId, setActiveAtomicZoneId] = useState<string | null>(
+    null,
+  );
+  const [selectedTargetIds, setSelectedTargetIds] = useState<string[]>([]);
+
+  const resolvedSelectedAtomicZoneIds = useMemo(
+    () => resolveSelectedAtomicZoneIds(selectedTargetIds),
+    [selectedTargetIds],
+  );
+
+  const contextualOptions = useMemo(
+    () =>
+      activeAtomicZoneId
+        ? getSelectionOptionsForAtomicZone(activeAtomicZoneId)
+        : [],
+    [activeAtomicZoneId],
+  );
 
   const activeModel = useMemo(
     () =>
@@ -56,6 +91,25 @@ export function BodyLabWorkbench() {
     setArmVisibility("both");
     setDebugLayer("body_81");
     setRegionFilter("all");
+    setLabInteractionMode("off");
+    setHoveredAtomicZoneId(null);
+    setActiveAtomicZoneId(null);
+    setSelectedTargetIds([]);
+  }
+
+  function handleLabModeChange(mode: LabInteractionMode) {
+    setLabInteractionMode(mode);
+    if (mode === "debug") {
+      setShowInteractionZones(true);
+    }
+    if (mode === "off") {
+      setShowInteractionZones(false);
+      setHoveredAtomicZoneId(null);
+      setActiveAtomicZoneId(null);
+    }
+    if (mode === "interaction") {
+      setShowInteractionZones(false);
+    }
   }
 
   return (
@@ -72,34 +126,72 @@ export function BodyLabWorkbench() {
           armVisibility={armVisibility}
           debugLayer={debugLayer}
           regionFilter={regionFilter}
+          labInteractionMode={labInteractionMode}
+          hoveredAtomicZoneId={hoveredAtomicZoneId}
+          selectedAtomicZoneIds={resolvedSelectedAtomicZoneIds}
+          onHoverAtomicZone={setHoveredAtomicZoneId}
+          onActivateAtomicZone={setActiveAtomicZoneId}
           height="min(70dvh, 680px)"
         />
         <p className="mt-3 text-center text-xs text-zinc-500 sm:text-left">
-          Arrastra para girar · Usa la rueda o gesto de pinza para acercar
+          {labInteractionMode === "interaction"
+            ? "Arrastra para girar · Tap/click para opciones · Pellizca para zoom"
+            : "Arrastra para girar · Usa la rueda o gesto de pinza para acercar"}
         </p>
+        {labInteractionMode === "interaction" && hoveredAtomicZoneId ? (
+          <p className="mt-1 text-center text-sm font-medium text-stone-300 sm:text-left">
+            {getSelectionDisplayLabel(hoveredAtomicZoneId)}
+          </p>
+        ) : null}
       </div>
 
-      <BodyLabControls
-        models={AVAILABLE_BODY_MODELS}
-        activeModel={activeModel}
-        onModelChange={handleModelChange}
-        cameraView={cameraView}
-        onCameraViewChange={handleCameraViewChange}
-        appearance={appearance}
-        onAppearanceChange={setAppearance}
-        wireframe={wireframe}
-        onWireframeChange={setWireframe}
-        showInteractionZones={showInteractionZones}
-        onShowInteractionZonesChange={setShowInteractionZones}
-        zonesVisualization={zonesVisualization}
-        onZonesVisualizationChange={setZonesVisualization}
-        armVisibility={armVisibility}
-        onArmVisibilityChange={setArmVisibility}
-        debugLayer={debugLayer}
-        onDebugLayerChange={setDebugLayer}
-        regionFilter={regionFilter}
-        onRegionFilterChange={setRegionFilter}
-      />
+      <div className="flex w-full flex-col gap-3 lg:w-auto lg:shrink-0">
+        <BodyLabControls
+          models={AVAILABLE_BODY_MODELS}
+          activeModel={activeModel}
+          onModelChange={handleModelChange}
+          cameraView={cameraView}
+          onCameraViewChange={handleCameraViewChange}
+          appearance={appearance}
+          onAppearanceChange={setAppearance}
+          wireframe={wireframe}
+          onWireframeChange={setWireframe}
+          showInteractionZones={showInteractionZones}
+          onShowInteractionZonesChange={setShowInteractionZones}
+          zonesVisualization={zonesVisualization}
+          onZonesVisualizationChange={setZonesVisualization}
+          armVisibility={armVisibility}
+          onArmVisibilityChange={setArmVisibility}
+          debugLayer={debugLayer}
+          onDebugLayerChange={setDebugLayer}
+          regionFilter={regionFilter}
+          onRegionFilterChange={setRegionFilter}
+          labInteractionMode={labInteractionMode}
+          onLabInteractionModeChange={handleLabModeChange}
+        />
+
+        {labInteractionMode === "interaction" ? (
+          <BodyInteractionLabPanel
+            hoveredAtomicZoneId={hoveredAtomicZoneId}
+            activeAtomicZoneId={activeAtomicZoneId}
+            options={contextualOptions}
+            selectedTargetIds={selectedTargetIds}
+            onSelectOption={(targetId) => {
+              setSelectedTargetIds((prev) => addSelectionTarget(prev, targetId));
+              setActiveAtomicZoneId(null);
+            }}
+            onRemoveTarget={(targetId) => {
+              setSelectedTargetIds((prev) =>
+                removeSelectionTarget(prev, targetId),
+              );
+            }}
+            onClearSelection={() => {
+              setSelectedTargetIds(clearSelectionTargets());
+            }}
+            onCloseActive={() => setActiveAtomicZoneId(null)}
+          />
+        ) : null}
+      </div>
     </div>
   );
 }

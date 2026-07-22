@@ -5,9 +5,9 @@ import { useGLTF } from "@react-three/drei";
 import type { ThreeElements } from "@react-three/fiber";
 import {
   Color,
+  Mesh,
   MeshStandardMaterial,
   type Material,
-  type Mesh,
   type Object3D,
 } from "three";
 import type { BodyModelDefinition } from "@/widgets/body-3d/bodyModelDefinition";
@@ -17,6 +17,8 @@ type HumanBodyModelProps = Omit<ThreeElements["group"], "children"> & {
   model: BodyModelDefinition;
   appearance?: BodyAppearanceMode;
   wireframe?: boolean;
+  /** Cuando false, el BodyVisual no captura pointer (InteractionModel lo hace). */
+  raycastEnabled?: boolean;
 };
 
 function createNeutralMaterial(wireframe: boolean) {
@@ -53,6 +55,7 @@ export function HumanBodyModel({
   model,
   appearance = "original",
   wireframe = false,
+  raycastEnabled = true,
   ...props
 }: HumanBodyModelProps) {
   const { scene } = useGLTF(model.src);
@@ -78,6 +81,14 @@ export function HumanBodyModel({
 
     return { cloned, originals };
   }, [scene]);
+
+  useEffect(() => {
+    for (const mesh of collectMeshes(prepared.cloned)) {
+      mesh.raycast = raycastEnabled
+        ? Mesh.prototype.raycast
+        : () => undefined;
+    }
+  }, [prepared, raycastEnabled]);
 
   useEffect(() => {
     const { cloned, originals } = prepared;
