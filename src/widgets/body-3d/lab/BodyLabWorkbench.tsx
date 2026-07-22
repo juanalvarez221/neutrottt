@@ -11,6 +11,7 @@ import type {
   BodyAppearanceMode,
   BodyCameraView,
 } from "@/widgets/body-3d/bodyViewerTypes";
+import type { InteractionDebugModelId } from "@/widgets/body-3d/domain/bodyZones";
 
 export function BodyLabWorkbench() {
   const [modelId, setModelId] = useState(DEFAULT_LAB_BODY_MODEL.id);
@@ -22,6 +23,8 @@ export function BodyLabWorkbench() {
   const [zonesVisualization, setZonesVisualization] = useState<
     "surface" | "edges"
   >("surface");
+  const [interactionDebugModel, setInteractionDebugModel] =
+    useState<InteractionDebugModelId>("longitudinal");
 
   const activeModel = useMemo(
     () =>
@@ -43,6 +46,7 @@ export function BodyLabWorkbench() {
     setWireframe(false);
     setShowInteractionZones(false);
     setZonesVisualization("surface");
+    setInteractionDebugModel("longitudinal");
   }
 
   return (
@@ -56,6 +60,7 @@ export function BodyLabWorkbench() {
           cameraViewToken={cameraViewToken}
           showInteractionZones={showInteractionZones}
           zonesVisualization={zonesVisualization}
+          interactionDebugModel={interactionDebugModel}
           height="min(70dvh, 680px)"
         />
         <p className="mt-3 text-center text-xs text-zinc-500 sm:text-left">
@@ -77,6 +82,8 @@ export function BodyLabWorkbench() {
         onShowInteractionZonesChange={setShowInteractionZones}
         zonesVisualization={zonesVisualization}
         onZonesVisualizationChange={setZonesVisualization}
+        interactionDebugModel={interactionDebugModel}
+        onInteractionDebugModelChange={setInteractionDebugModel}
       />
     </div>
   );

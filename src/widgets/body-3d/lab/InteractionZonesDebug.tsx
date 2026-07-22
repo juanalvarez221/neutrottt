@@ -10,21 +10,17 @@ import {
   type MeshStandardMaterial,
 } from "three";
 import {
-  PILOT_BODY_ZONES,
-  RIGHT_ARM_INTERACTION_MODEL_SRC,
+  INTERACTION_DEBUG_MODELS,
+  type InteractionDebugModelId,
 } from "@/widgets/body-3d/domain/bodyZones";
 
 type InteractionZonesDebugProps = Omit<ThreeElements["group"], "children"> & {
-  /** Rotación del BodyVisual activo (misma orientación espacial). */
   rotation?: [number, number, number];
   scale?: number;
-  /** Laboratorio: `surface` = relleno debug; `edges` = wireframe de fronteras. */
   visualization?: "surface" | "edges";
+  /** Qué asset de interacción cargar (laboratorio). */
+  debugModel?: InteractionDebugModelId;
 };
-
-const EXPECTED_MESH_NAMES = new Set(
-  PILOT_BODY_ZONES.map((z) => z.interactionMeshName),
-);
 
 function disposeMaterial(material: Material | Material[]) {
   const list = Array.isArray(material) ? material : [material];
@@ -33,17 +29,19 @@ function disposeMaterial(material: Material | Material[]) {
   }
 }
 
-/**
- * Superpone el InteractionModel piloto sobre el BodyVisual.
- * Solo diagnóstico de laboratorio: sin hover, click ni selección.
- */
-export function InteractionZonesDebug({
-  rotation = [0, 0, 0],
-  scale = 1,
-  visualization = "surface",
+function InteractionZonesDebugScene({
+  src,
+  visualization,
+  rotation,
+  scale,
   ...props
-}: InteractionZonesDebugProps) {
-  const { scene } = useGLTF(RIGHT_ARM_INTERACTION_MODEL_SRC);
+}: {
+  src: string;
+  visualization: "surface" | "edges";
+  rotation: [number, number, number];
+  scale: number;
+} & Omit<ThreeElements["group"], "children" | "rotation" | "scale">) {
+  const { scene } = useGLTF(src);
 
   const prepared = useMemo(() => {
     const cloned = scene.clone(true);
@@ -68,7 +66,6 @@ export function InteractionZonesDebug({
           std.opacity = 1;
           std.depthWrite = true;
           std.wireframe = true;
-          std.wireframeLinewidth = 1;
         } else {
           std.transparent = true;
           std.opacity = 0.42;
@@ -85,12 +82,6 @@ export function InteractionZonesDebug({
       });
 
       mesh.material = next.length === 1 ? next[0] : next;
-
-      if (mesh.name && !EXPECTED_MESH_NAMES.has(mesh.name)) {
-        console.warn(
-          `[InteractionZonesDebug] mesh inesperado: ${mesh.name}`,
-        );
-      }
     });
 
     return { cloned, materials };
@@ -111,4 +102,30 @@ export function InteractionZonesDebug({
   );
 }
 
-useGLTF.preload(RIGHT_ARM_INTERACTION_MODEL_SRC);
+/**
+ * Superpone el InteractionModel de laboratorio sobre el BodyVisual.
+ * Sin hover, click ni selección.
+ */
+export function InteractionZonesDebug({
+  rotation = [0, 0, 0],
+  scale = 1,
+  visualization = "surface",
+  debugModel = "longitudinal",
+  ...props
+}: InteractionZonesDebugProps) {
+  const src = INTERACTION_DEBUG_MODELS[debugModel].src;
+
+  return (
+    <InteractionZonesDebugScene
+      {...props}
+      src={src}
+      visualization={visualization}
+      rotation={rotation}
+      scale={scale}
+    />
+  );
+}
+
+useGLTF.preload(INTERACTION_DEBUG_MODELS.longitudinal.src);
+useGLTF.preload(INTERACTION_DEBUG_MODELS.c1.src);
+useGLTF.preload(INTERACTION_DEBUG_MODELS.c2.src);

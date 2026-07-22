@@ -5,6 +5,7 @@ import type {
   BodyAppearanceMode,
   BodyCameraView,
 } from "@/widgets/body-3d/bodyViewerTypes";
+import type { InteractionDebugModelId } from "@/widgets/body-3d/domain/bodyZones";
 import { CAMERA_VIEW_LABELS } from "@/widgets/body-3d/lab/bodyLabTypes";
 
 type BodyLabControlsProps = {
@@ -21,6 +22,8 @@ type BodyLabControlsProps = {
   onShowInteractionZonesChange: (value: boolean) => void;
   zonesVisualization: "surface" | "edges";
   onZonesVisualizationChange: (value: "surface" | "edges") => void;
+  interactionDebugModel: InteractionDebugModelId;
+  onInteractionDebugModelChange: (value: InteractionDebugModelId) => void;
 };
 
 const CAMERA_VIEWS: BodyCameraView[] = ["front", "back", "left", "right"];
@@ -47,6 +50,8 @@ export function BodyLabControls({
   onShowInteractionZonesChange,
   zonesVisualization,
   onZonesVisualizationChange,
+  interactionDebugModel,
+  onInteractionDebugModelChange,
 }: BodyLabControlsProps) {
   const stats = activeModel.labStats;
   const zonesAvailable = activeModel.role === "production";
@@ -176,6 +181,33 @@ export function BodyLabControls({
             {showInteractionZones ? (
               <div className="mt-3 space-y-2">
                 <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-500">
+                  Modelo de zonas
+                </p>
+                {(
+                  [
+                    { id: "longitudinal", label: "Longitudinal" },
+                    { id: "c1", label: "Circunferencial C1" },
+                    { id: "c2", label: "Circunferencial C2" },
+                  ] as const
+                ).map((option) => (
+                  <label
+                    key={option.id}
+                    className="flex min-h-[36px] cursor-pointer items-center gap-2.5 rounded-lg border border-white/8 bg-white/[0.03] px-3 py-1.5 text-sm text-zinc-200 transition hover:bg-white/[0.05]"
+                  >
+                    <input
+                      type="radio"
+                      name="interaction-debug-model"
+                      value={option.id}
+                      checked={interactionDebugModel === option.id}
+                      onChange={() =>
+                        onInteractionDebugModelChange(option.id)
+                      }
+                      className="accent-stone-400"
+                    />
+                    {option.label}
+                  </label>
+                ))}
+                <p className="pt-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-500">
                   Visualización de zonas
                 </p>
                 {(
