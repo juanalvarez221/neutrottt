@@ -8,6 +8,20 @@ from .config import (
     BODY_FRONT_BLENDER,
     QUAD_COLORS,
     JOINT_COLORS,
+    TORSO_T1_CONFIG,
+    TORSO_T2_CONFIG,
+    TORSO_ZONE_COLORS,
+    TORSO_ZONE_IDS,
+    TORSO_ISLAND_CLEANUP,
+    PELVIS_P1_CONFIG,
+    PELVIS_P2_CONFIG,
+    PELVIS_ZONE_COLORS,
+    PELVIS_ZONE_IDS,
+    COMBINED_TORSO_PELVIS_ZONE_IDS,
+    LOCKED_TORSO_IDS,
+    MUTABLE_LOWER_TORSO_IDS,
+    PELVIS_ISLAND_CLEANUP,
+    RIBS_ISLAND_CLEANUP,
 )
 from .geometry import (
     angle_deg,
@@ -40,12 +54,10 @@ from .torso_segmentation import (
     collect_arm_universe_faces,
     build_torso_context,
 )
-from .config import (
-    TORSO_T1_CONFIG,
-    TORSO_T2_CONFIG,
-    TORSO_ZONE_COLORS,
-    TORSO_ZONE_IDS,
-    TORSO_ISLAND_CLEANUP,
+from .pelvis_segmentation import (
+    resolve_pelvis_landmarks,
+    integrate_pelvis_with_torso,
+    ribs_secondary_ok,
 )
 
 __all__ = [
@@ -88,4 +100,16 @@ __all__ = [
     "TORSO_T2_CONFIG",
     "TORSO_ZONE_COLORS",
     "TORSO_ISLAND_CLEANUP",
+    "resolve_pelvis_landmarks",
+    "integrate_pelvis_with_torso",
+    "ribs_secondary_ok",
+    "PELVIS_P1_CONFIG",
+    "PELVIS_P2_CONFIG",
+    "PELVIS_ZONE_COLORS",
+    "PELVIS_ZONE_IDS",
+    "COMBINED_TORSO_PELVIS_ZONE_IDS",
+    "LOCKED_TORSO_IDS",
+    "MUTABLE_LOWER_TORSO_IDS",
+    "PELVIS_ISLAND_CLEANUP",
+    "RIBS_ISLAND_CLEANUP",
 ]

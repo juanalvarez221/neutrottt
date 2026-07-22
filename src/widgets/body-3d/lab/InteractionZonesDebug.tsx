@@ -12,6 +12,8 @@ import {
 } from "three";
 import {
   DETAILED_ARMS_INTERACTION_MODEL_SRC,
+  TORSO_PELVIS_P1_INTERACTION_MODEL_SRC,
+  TORSO_PELVIS_P2_INTERACTION_MODEL_SRC,
   TORSO_T1_INTERACTION_MODEL_SRC,
   TORSO_T2_INTERACTION_MODEL_SRC,
   type ArmDebugVisibility,
@@ -114,10 +116,6 @@ function InteractionGlbLayer({
   return <primitive object={prepared.cloned} />;
 }
 
-/**
- * Superpone InteractionModel(s) sobre el BodyVisual.
- * Solo laboratorio — sin hover/click/selección.
- */
 export function InteractionZonesDebug({
   rotation = [0, 0, 0],
   scale = 1,
@@ -127,10 +125,13 @@ export function InteractionZonesDebug({
   ...props
 }: InteractionZonesDebugProps) {
   const showArms =
-    debugLayer === "arms" || debugLayer === "arms_and_torso_t2";
+    debugLayer === "arms" || debugLayer === "arms_and_torso_pelvis_p2";
   const showTorsoT1 = debugLayer === "torso_t1";
-  const showTorsoT2 =
-    debugLayer === "torso_t2" || debugLayer === "arms_and_torso_t2";
+  const showTorsoT2 = debugLayer === "torso_t2";
+  const showPelvisP1 = debugLayer === "torso_pelvis_p1";
+  const showPelvisP2 =
+    debugLayer === "torso_pelvis_p2" ||
+    debugLayer === "arms_and_torso_pelvis_p2";
 
   const armFilter = useMemo(
     () => (name: string) => sideVisible(name, armVisibility),
@@ -158,6 +159,18 @@ export function InteractionZonesDebug({
           visualization={visualization}
         />
       ) : null}
+      {showPelvisP1 ? (
+        <InteractionGlbLayer
+          src={TORSO_PELVIS_P1_INTERACTION_MODEL_SRC}
+          visualization={visualization}
+        />
+      ) : null}
+      {showPelvisP2 ? (
+        <InteractionGlbLayer
+          src={TORSO_PELVIS_P2_INTERACTION_MODEL_SRC}
+          visualization={visualization}
+        />
+      ) : null}
     </group>
   );
 }
@@ -165,3 +178,5 @@ export function InteractionZonesDebug({
 useGLTF.preload(DETAILED_ARMS_INTERACTION_MODEL_SRC);
 useGLTF.preload(TORSO_T1_INTERACTION_MODEL_SRC);
 useGLTF.preload(TORSO_T2_INTERACTION_MODEL_SRC);
+useGLTF.preload(TORSO_PELVIS_P1_INTERACTION_MODEL_SRC);
+useGLTF.preload(TORSO_PELVIS_P2_INTERACTION_MODEL_SRC);

@@ -174,3 +174,102 @@ TORSO_ISLAND_CLEANUP = IslandCleanupConfig(
     max_fraction_of_parent=0.08,
     min_faces=2,
 )
+
+
+@dataclass(frozen=True)
+class PelvisGridConfig:
+    """
+    Pelvis / hip / glute grid on body-normalized coords.
+
+    Vertical cuts are fractions along waist→thighStart.
+    Lateral / front thresholds are fractions of local half-width / half-depth.
+    """
+
+    # Vertical (0 = thigh start, 1 = waist)
+    lower_back_lo: float = 0.55  # above this → lower_back; below → sacrum/glute/hip
+    sacrum_hi: float = 0.62
+    sacrum_lo: float = 0.28
+    glute_hi: float = 0.55
+    hip_hi: float = 0.72
+    abdomen_lo: float = 0.22  # front center stops above thigh
+    # Lateral
+    sacrum_half: float = 0.28
+    abdomen_half: float = 0.48
+    hip_inner: float = 0.28
+    glute_inner: float = 0.18
+    # Front / back
+    front_thresh: float = 0.18
+    back_thresh: float = 0.16
+    # Membership
+    pelvis_weight_min: float = 0.10
+    thigh_exclude_weight: float = 0.28
+    thigh_start_margin: float = 0.08  # along thigh bone from hip
+    max_dist_from_pelvis: float = 0.22
+
+
+PELVIS_P1_CONFIG = PelvisGridConfig(
+    lower_back_lo=0.42,
+    sacrum_hi=0.48,
+    sacrum_lo=0.18,
+    glute_hi=0.50,
+    hip_hi=0.70,
+    abdomen_lo=0.18,
+    sacrum_half=0.34,
+    abdomen_half=0.52,
+)
+
+PELVIS_P2_CONFIG = PelvisGridConfig(
+    lower_back_lo=0.38,
+    sacrum_hi=0.52,
+    sacrum_lo=0.14,
+    glute_hi=0.55,
+    hip_hi=0.78,
+    abdomen_lo=0.12,
+    sacrum_half=0.38,
+    abdomen_half=0.58,
+    hip_inner=0.20,
+    glute_inner=0.10,
+    front_thresh=0.12,
+    back_thresh=0.10,
+)
+
+PELVIS_ZONE_IDS: tuple[str, ...] = (
+    "left_hip",
+    "right_hip",
+    "left_glute",
+    "right_glute",
+    "sacrum",
+)
+
+# Lower torso zones whose inferior boundary may be redrawn with pelvis.
+MUTABLE_LOWER_TORSO_IDS: tuple[str, ...] = (
+    "lower_abdomen",
+    "left_lower_back",
+    "right_lower_back",
+    "lower_back_center",
+)
+
+LOCKED_TORSO_IDS: tuple[str, ...] = tuple(
+    z for z in TORSO_ZONE_IDS if z not in MUTABLE_LOWER_TORSO_IDS
+)
+
+COMBINED_TORSO_PELVIS_ZONE_IDS: tuple[str, ...] = TORSO_ZONE_IDS + PELVIS_ZONE_IDS
+
+PELVIS_ZONE_COLORS: dict[str, tuple[float, float, float, float]] = {
+    "left_hip": (0.78, 0.62, 0.28, 1.0),
+    "right_hip": (0.88, 0.68, 0.22, 1.0),
+    "left_glute": (0.72, 0.38, 0.48, 1.0),
+    "right_glute": (0.82, 0.32, 0.42, 1.0),
+    "sacrum": (0.70, 0.72, 0.55, 1.0),
+}
+
+PELVIS_ISLAND_CLEANUP = IslandCleanupConfig(
+    max_fraction_of_parent=0.10,
+    min_faces=2,
+)
+
+# Stronger cleanup for wrapping rib panels
+RIBS_ISLAND_CLEANUP = IslandCleanupConfig(
+    max_fraction_of_parent=0.18,
+    min_faces=2,
+)

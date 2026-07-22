@@ -63,7 +63,7 @@ export function BodyLabControls({
   const stats = activeModel.labStats;
   const zonesAvailable = activeModel.role === "production";
   const showArmFilter =
-    debugLayer === "arms" || debugLayer === "arms_and_torso_t2";
+    debugLayer === "arms" || debugLayer === "arms_and_torso_pelvis_p2";
 
   return (
     <aside className="flex w-full flex-col gap-3 lg:w-[240px] lg:shrink-0">
@@ -195,11 +195,12 @@ export function BodyLabControls({
                 {(
                   [
                     { id: "arms", label: "Brazos" },
-                    { id: "torso_t1", label: "Torso T1" },
                     { id: "torso_t2", label: "Torso T2" },
+                    { id: "torso_pelvis_p1", label: "Torso + Pelvis P1" },
+                    { id: "torso_pelvis_p2", label: "Torso + Pelvis P2" },
                     {
-                      id: "arms_and_torso_t2",
-                      label: "Brazos + torso T2",
+                      id: "arms_and_torso_pelvis_p2",
+                      label: "Brazos + torso + pelvis",
                     },
                   ] as const
                 ).map((option) => (

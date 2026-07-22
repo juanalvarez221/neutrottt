@@ -16,17 +16,15 @@ def cleanup_islands_generic(
     parent_tris_fn: Callable[[str], int],
     score_fn: Callable[[set[int], str], dict[str, float]] | None = None,
     cfg: IslandCleanupConfig | None = None,
+    secondary_ok_fn: Callable[[set[int], str, str], bool] | None = None,
+    max_passes: int = 5,
 ) -> tuple[int, list[dict], dict[str, dict]]:
     """
     Reassign small islands when shared boundary + score coherence agree.
 
     parent_tris_fn(zone_id) → triangle budget used for size threshold.
-    score_fn(comp, zone_id) → optional affinity scores to candidate zones
-      (higher = better). If None, only neighbor edge counts are used (still
-      requiring a shared boundary).
-
-    Returns (reassigned_faces, details, per_zone_stats) where per_zone_stats
-    maps zone_id → {before, after, reassigned}.
+    score_fn(comp, zone_id) → optional affinity scores to candidate zones.
+    secondary_ok_fn(comp, from_zone, to_zone) → optional anatomical gate.
     """
     cfg = cfg or IslandCleanupConfig(max_fraction_of_parent=0.04, min_faces=2)
     all_faces = set(face_zone.keys())
@@ -52,7 +50,7 @@ def cleanup_islands_generic(
                 counts[face_zone[a]] += 1
         return counts
 
-    for _pass in range(5):
+    for _pass in range(max_passes):
         changed = 0
         for zid in zone_ids:
             faces = [fi for fi, z in face_zone.items() if z == zid]
@@ -72,7 +70,6 @@ def cleanup_islands_generic(
                 if not cand:
                     continue
                 scores = score_fn(comp_set, zid) if score_fn else {}
-                # Prefer neighbor with most shared edges; optionally require top-2 score.
                 ranked = sorted(cand.items(), key=lambda kv: kv[1], reverse=True)
                 best = None
                 if scores:
@@ -84,16 +81,27 @@ def cleanup_islands_generic(
                     for nz, ec in ranked:
                         if nz not in top2:
                             continue
+                        if secondary_ok_fn is not None and not secondary_ok_fn(
+                            comp_set, zid, nz
+                        ):
+                            continue
                         sc = ec + 2.0 + scores.get(nz, 0.0)
                         if sc > best_score:
                             best_score = sc
                             best = nz
                 else:
-                    # Without angular scores: only reassign if a clear neighbor dominates.
-                    if len(ranked) >= 1 and (
-                        len(ranked) == 1 or ranked[0][1] >= ranked[1][1] + 1
-                    ):
-                        best = ranked[0][0]
+                    for nz, ec in ranked:
+                        ok = True
+                        if secondary_ok_fn is not None:
+                            ok = secondary_ok_fn(comp_set, zid, nz)
+                        if not ok:
+                            continue
+                        if len(ranked) == 1 or ec >= ranked[1][1]:
+                            best = nz
+                            break
+                    if best is None and secondary_ok_fn is None:
+                        if len(ranked) == 1 or ranked[0][1] >= ranked[1][1] + 1:
+                            best = ranked[0][0]
                 if best is None:
                     continue
                 for fi in comp_set:
