@@ -409,6 +409,111 @@ export const LEGS_L1_INTERACTION_MODEL_SRC =
 export const LEGS_L2_INTERACTION_MODEL_SRC =
   "/models/interaction/pilot/neutro_body_v1_legs_l2.glb";
 
+/** Pilotos circunferenciales G1/G2 (22 meshes). */
+export const LEGS_G1_INTERACTION_MODEL_SRC =
+  "/models/interaction/pilot/neutro_body_v1_legs_g1.glb";
+export const LEGS_G2_INTERACTION_MODEL_SRC =
+  "/models/interaction/pilot/neutro_body_v1_legs_g2.glb";
+
+/** 16 subzonas experimentales thigh/lower_leg (no atómicas definitivas aún). */
+export const LEG_EXPERIMENTAL_DETAILED_ZONE_IDS = [
+  "right_thigh_front",
+  "right_thigh_back",
+  "right_thigh_inner",
+  "right_thigh_outer",
+  "left_thigh_front",
+  "left_thigh_back",
+  "left_thigh_inner",
+  "left_thigh_outer",
+  "right_lower_leg_front",
+  "right_lower_leg_back",
+  "right_lower_leg_inner",
+  "right_lower_leg_outer",
+  "left_lower_leg_front",
+  "left_lower_leg_back",
+  "left_lower_leg_inner",
+  "left_lower_leg_outer",
+] as const;
+
+/** Parents lógicos (sin mesh coarse en candidatos G*). */
+export const LEG_LOGICAL_PARENT_IDS = [
+  "right_thigh",
+  "left_thigh",
+  "right_lower_leg",
+  "left_lower_leg",
+] as const;
+
+export const LEG_LOGICAL_HIERARCHIES = [
+  {
+    parentId: "right_thigh",
+    childIds: [
+      "right_thigh_front",
+      "right_thigh_back",
+      "right_thigh_inner",
+      "right_thigh_outer",
+    ],
+  },
+  {
+    parentId: "left_thigh",
+    childIds: [
+      "left_thigh_front",
+      "left_thigh_back",
+      "left_thigh_inner",
+      "left_thigh_outer",
+    ],
+  },
+  {
+    parentId: "right_lower_leg",
+    childIds: [
+      "right_lower_leg_front",
+      "right_lower_leg_back",
+      "right_lower_leg_inner",
+      "right_lower_leg_outer",
+    ],
+  },
+  {
+    parentId: "left_lower_leg",
+    childIds: [
+      "left_lower_leg_front",
+      "left_lower_leg_back",
+      "left_lower_leg_inner",
+      "left_lower_leg_outer",
+    ],
+  },
+] as const;
+
+/** Grupos conceptuales de piernas (0 meshes). */
+export const RIGHT_FULL_LEG_GROUP: BodyZoneGroupDefinition = {
+  id: "right_full_leg",
+  label: "Right full leg",
+  zoneIds: [
+    "right_thigh",
+    "right_knee",
+    "right_lower_leg",
+    "right_ankle",
+    "right_foot",
+  ],
+};
+export const LEFT_FULL_LEG_GROUP: BodyZoneGroupDefinition = {
+  id: "left_full_leg",
+  label: "Left full leg",
+  zoneIds: [
+    "left_thigh",
+    "left_knee",
+    "left_lower_leg",
+    "left_ankle",
+    "left_foot",
+  ],
+};
+export const BOTH_LEGS_GROUP: BodyZoneGroupDefinition = {
+  id: "both_legs",
+  label: "Both legs",
+  zoneIds: [
+    ...RIGHT_FULL_LEG_GROUP.zoneIds,
+    ...LEFT_FULL_LEG_GROUP.zoneIds,
+  ],
+};
+
 /** Legacy longitudinal R2 (6 meshes derecho) — referencia. */
 export const RIGHT_ARM_INTERACTION_MODEL_SRC =
   "/models/interaction/neutro_body_v1_right_arm_interaction.glb";
@@ -426,8 +531,12 @@ export type InteractionDebugLayer =
   | "arms_and_torso_pelvis_final"
   | "legs_l1"
   | "legs_l2"
+  | "legs_g1"
+  | "legs_g2"
   | "central_plus_arms_legs_l1"
-  | "central_plus_arms_legs_l2";
+  | "central_plus_arms_legs_l2"
+  | "central_plus_arms_legs_g1"
+  | "central_plus_arms_legs_g2";
 
 export function interactionModelSrcForLayer(
   layer: InteractionDebugLayer,
@@ -442,12 +551,16 @@ export function interactionModelSrcForLayer(
     layer === "torso_pelvis_final" ||
     layer === "arms_and_torso_pelvis_final" ||
     layer === "central_plus_arms_legs_l1" ||
-    layer === "central_plus_arms_legs_l2"
+    layer === "central_plus_arms_legs_l2" ||
+    layer === "central_plus_arms_legs_g1" ||
+    layer === "central_plus_arms_legs_g2"
   ) {
     return TORSO_PELVIS_FINAL_INTERACTION_MODEL_SRC;
   }
   if (layer === "legs_l1") return LEGS_L1_INTERACTION_MODEL_SRC;
   if (layer === "legs_l2") return LEGS_L2_INTERACTION_MODEL_SRC;
+  if (layer === "legs_g1") return LEGS_G1_INTERACTION_MODEL_SRC;
+  if (layer === "legs_g2") return LEGS_G2_INTERACTION_MODEL_SRC;
   return DETAILED_ARMS_INTERACTION_MODEL_SRC;
 }
 

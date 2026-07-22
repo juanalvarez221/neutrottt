@@ -375,3 +375,78 @@ LEG_ISLAND_CLEANUP = IslandCleanupConfig(
     max_fraction_of_parent=0.06,
     min_faces=2,
 )
+
+# Official longitudinal base (Paso 27/28): L2 Anatomical Balanced
+LEG_FINAL_LONGITUDINAL_CONFIG = LEG_L2_CONFIG
+
+# Circumferential angular sectors for legs (NOT arm defaults).
+# front_deg = full front span; outer/inner are contiguous spans;
+# back = remainder to 360°.
+
+
+@dataclass(frozen=True)
+class LegCircumferentialPair:
+    """Separate angular configs for thigh vs lower_leg."""
+
+    thigh: AngularConfig
+    lower_leg: AngularConfig
+
+
+# G1 — Balanced Quadrants (~90° each)
+LEG_G1_CONFIG = LegCircumferentialPair(
+    thigh=AngularConfig(front_deg=90.0, outer_deg=90.0, back_deg=90.0, inner_deg=90.0),
+    lower_leg=AngularConfig(front_deg=90.0, outer_deg=90.0, back_deg=90.0, inner_deg=90.0),
+)
+
+# G2 — Tattoo Optimized Legs
+# Thigh: generous front + outer; back/inner remain usable (>= ~20% target intent)
+# Lower: front/outer/back emphasized; inner not minimal
+LEG_G2_CONFIG = LegCircumferentialPair(
+    thigh=AngularConfig(front_deg=105.0, outer_deg=100.0, back_deg=80.0, inner_deg=75.0),
+    lower_leg=AngularConfig(front_deg=100.0, outer_deg=95.0, back_deg=90.0, inner_deg=75.0),
+)
+
+LEG_CIRC_ISLAND_CLEANUP = IslandCleanupConfig(
+    max_fraction_of_parent=0.03,
+    min_faces=2,
+)
+
+LEG_DETAILED_QUAD_SUFFIXES: tuple[str, ...] = tuple(
+    f"{seg}_{q}" for seg in ("thigh", "lower_leg") for q in QUAD
+)
+
+LEG_DETAILED_ZONE_IDS: tuple[str, ...] = tuple(
+    f"{side}_{suf}"
+    for side in ("right", "left")
+    for suf in (
+        "thigh_front",
+        "thigh_back",
+        "thigh_inner",
+        "thigh_outer",
+        "knee",
+        "lower_leg_front",
+        "lower_leg_back",
+        "lower_leg_inner",
+        "lower_leg_outer",
+        "ankle",
+        "foot",
+    )
+)
+
+LEG_DETAILED_ZONE_COLORS: dict[str, tuple[float, float, float, float]] = {
+    **{f"{side}_thigh_{q}": QUAD_COLORS[q] for side in ("right", "left") for q in QUAD},
+    "right_lower_leg_front": (0.12, 0.68, 0.72, 1.0),
+    "left_lower_leg_front": (0.12, 0.68, 0.72, 1.0),
+    "right_lower_leg_back": (0.78, 0.22, 0.50, 1.0),
+    "left_lower_leg_back": (0.78, 0.22, 0.50, 1.0),
+    "right_lower_leg_inner": (0.30, 0.40, 0.90, 1.0),
+    "left_lower_leg_inner": (0.30, 0.40, 0.90, 1.0),
+    "right_lower_leg_outer": (0.92, 0.50, 0.10, 1.0),
+    "left_lower_leg_outer": (0.92, 0.50, 0.10, 1.0),
+    "right_knee": (0.95, 0.82, 0.18, 1.0),
+    "left_knee": (0.95, 0.82, 0.18, 1.0),
+    "right_ankle": (0.55, 0.78, 0.95, 1.0),
+    "left_ankle": (0.55, 0.78, 0.95, 1.0),
+    "right_foot": (0.72, 0.38, 0.88, 1.0),
+    "left_foot": (0.72, 0.38, 0.88, 1.0),
+}

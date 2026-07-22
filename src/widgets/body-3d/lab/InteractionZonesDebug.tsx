@@ -12,6 +12,8 @@ import {
 } from "three";
 import {
   DETAILED_ARMS_INTERACTION_MODEL_SRC,
+  LEGS_G1_INTERACTION_MODEL_SRC,
+  LEGS_G2_INTERACTION_MODEL_SRC,
   LEGS_L1_INTERACTION_MODEL_SRC,
   LEGS_L2_INTERACTION_MODEL_SRC,
   TORSO_PELVIS_FINAL_INTERACTION_MODEL_SRC,
@@ -132,7 +134,9 @@ export function InteractionZonesDebug({
     debugLayer === "arms_and_torso_pelvis_p2" ||
     debugLayer === "arms_and_torso_pelvis_final" ||
     debugLayer === "central_plus_arms_legs_l1" ||
-    debugLayer === "central_plus_arms_legs_l2";
+    debugLayer === "central_plus_arms_legs_l2" ||
+    debugLayer === "central_plus_arms_legs_g1" ||
+    debugLayer === "central_plus_arms_legs_g2";
   const showTorsoT1 = debugLayer === "torso_t1";
   const showTorsoT2 = debugLayer === "torso_t2";
   const showPelvisP1 = debugLayer === "torso_pelvis_p1";
@@ -143,11 +147,17 @@ export function InteractionZonesDebug({
     debugLayer === "torso_pelvis_final" ||
     debugLayer === "arms_and_torso_pelvis_final" ||
     debugLayer === "central_plus_arms_legs_l1" ||
-    debugLayer === "central_plus_arms_legs_l2";
+    debugLayer === "central_plus_arms_legs_l2" ||
+    debugLayer === "central_plus_arms_legs_g1" ||
+    debugLayer === "central_plus_arms_legs_g2";
   const showLegsL1 =
     debugLayer === "legs_l1" || debugLayer === "central_plus_arms_legs_l1";
   const showLegsL2 =
     debugLayer === "legs_l2" || debugLayer === "central_plus_arms_legs_l2";
+  const showLegsG1 =
+    debugLayer === "legs_g1" || debugLayer === "central_plus_arms_legs_g1";
+  const showLegsG2 =
+    debugLayer === "legs_g2" || debugLayer === "central_plus_arms_legs_g2";
 
   const armFilter = useMemo(
     () => (name: string) => sideVisible(name, armVisibility),
@@ -205,6 +215,18 @@ export function InteractionZonesDebug({
           visualization={visualization}
         />
       ) : null}
+      {showLegsG1 ? (
+        <InteractionGlbLayer
+          src={LEGS_G1_INTERACTION_MODEL_SRC}
+          visualization={visualization}
+        />
+      ) : null}
+      {showLegsG2 ? (
+        <InteractionGlbLayer
+          src={LEGS_G2_INTERACTION_MODEL_SRC}
+          visualization={visualization}
+        />
+      ) : null}
     </group>
   );
 }
@@ -217,3 +239,5 @@ useGLTF.preload(TORSO_PELVIS_P2_INTERACTION_MODEL_SRC);
 useGLTF.preload(TORSO_PELVIS_FINAL_INTERACTION_MODEL_SRC);
 useGLTF.preload(LEGS_L1_INTERACTION_MODEL_SRC);
 useGLTF.preload(LEGS_L2_INTERACTION_MODEL_SRC);
+useGLTF.preload(LEGS_G1_INTERACTION_MODEL_SRC);
+useGLTF.preload(LEGS_G2_INTERACTION_MODEL_SRC);

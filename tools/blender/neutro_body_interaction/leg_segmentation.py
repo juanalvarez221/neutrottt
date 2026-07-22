@@ -9,14 +9,25 @@ from typing import Literal
 from mathutils import Vector
 
 from .arm_segmentation import vertex_weight
+from .anatomical_frames import (
+    AnatomicalFrame,
+    build_upper_arm_frame,
+    estimate_twist_about_L,
+    transport_forearm_frame,
+)
 from .config import (
     LEG_L1_CONFIG,
     LEG_L2_CONFIG,
     LEG_MEMBERSHIP_CONFIG,
+    AngularConfig,
+    LegCircumferentialPair,
     LegLongitudinalConfig,
     LegMembershipConfig,
+    QUAD,
 )
-from .geometry import arm_polyline_param, face_area, project_point_on_segment
+from .geometry import angle_deg, arm_polyline_param, face_area, project_point_on_segment
+from .arm_segmentation import classify_angular_c2, angular_sector_scores
+
 
 LegSide = Literal["right", "left"]
 
@@ -353,3 +364,143 @@ def default_leg_config(tag: str) -> LegLongitudinalConfig:
     if tag.upper() == "L2":
         return LEG_L2_CONFIG
     return LEG_L1_CONFIG
+
+
+@dataclass
+class LegFrameBundle:
+    side: LegSide
+    thigh: AnatomicalFrame
+    lower: AnatomicalFrame
+    angle_f_deg: float
+    angle_s_deg: float
+    artificial_twist_deg: float
+
+
+@dataclass
+class LegCircumferentialResult:
+    side: LegSide
+    face_zone: dict[int, str]
+    frames: LegFrameBundle
+    areas: dict[int, float]
+    tris_by_face: dict[int, int]
+    long_parent: dict[int, str]
+
+
+def build_leg_frames(
+    landmarks: LegLandmarks,
+    pelvis_center: Vector,
+) -> LegFrameBundle:
+    """
+    Thigh: L + projected BODY_FRONT + S outer (away from pelvisCenter).
+    Lower: RMF / parallel transport from thigh; no artificial twist.
+    Inner = toward pelvisCenter; Outer = -inner (S).
+    """
+    thigh = build_upper_arm_frame(
+        landmarks.hip_center,
+        landmarks.knee_center,
+        pelvis_center,
+    )
+    lower, _q = transport_forearm_frame(
+        thigh,
+        landmarks.knee_center,
+        landmarks.ankle_center,
+        pelvis_center,
+    )
+    # Artificial twist of lower F vs RMF-transported F is 0 by construction.
+    twist = 0.0
+    # Sanity: also report angle between F/S planes after transport
+    return LegFrameBundle(
+        side=landmarks.side,
+        thigh=thigh,
+        lower=lower,
+        angle_f_deg=angle_deg(thigh.F, lower.F),
+        angle_s_deg=angle_deg(thigh.S, lower.S),
+        artificial_twist_deg=twist,
+    )
+
+
+def apply_leg_circumferential(
+    mesh,
+    mw,
+    long_result: LegSegmentationResult,
+    pelvis_center: Vector,
+    circ: LegCircumferentialPair,
+) -> LegCircumferentialResult:
+    """
+    Subdivide thigh / lower_leg into front/back/inner/outer.
+    knee / ankle / foot remain longitudinal atomic candidates (unchanged).
+    """
+    lm = long_result.landmarks
+    side = lm.side
+    prefix = f"{side}_"
+    frames = build_leg_frames(lm, pelvis_center)
+
+    face_zone: dict[int, str] = {}
+    long_parent: dict[int, str] = {}
+    centroids: dict[int, Vector] = {}
+
+    # Precompute centroids for faces in universe
+    for fi, zid in long_result.face_zone.items():
+        poly = mesh.polygons[fi]
+        c = Vector((0, 0, 0))
+        for vi in poly.vertices:
+            c += mw @ mesh.vertices[vi].co
+        c /= float(len(poly.vertices))
+        centroids[fi] = c
+        long_parent[fi] = zid
+
+        if zid == f"{prefix}thigh":
+            closest, _, _ = project_point_on_segment(
+                c, lm.hip_center, lm.knee_center
+            )
+            R = c - closest
+            q = classify_angular_c2(
+                R.dot(frames.thigh.F), R.dot(frames.thigh.S), circ.thigh
+            )
+            face_zone[fi] = f"{prefix}thigh_{q}"
+        elif zid == f"{prefix}lower_leg":
+            closest, _, _ = project_point_on_segment(
+                c, lm.knee_center, lm.ankle_center
+            )
+            R = c - closest
+            q = classify_angular_c2(
+                R.dot(frames.lower.F), R.dot(frames.lower.S), circ.lower_leg
+            )
+            face_zone[fi] = f"{prefix}lower_leg_{q}"
+        else:
+            face_zone[fi] = zid
+
+    return LegCircumferentialResult(
+        side=side,
+        face_zone=face_zone,
+        frames=frames,
+        areas=dict(long_result.areas),
+        tris_by_face=dict(long_result.tris_by_face),
+        long_parent=long_parent,
+    )
+
+
+def expected_detailed_leg_zones(side: LegSide) -> list[str]:
+    return [
+        f"{side}_thigh_front",
+        f"{side}_thigh_back",
+        f"{side}_thigh_inner",
+        f"{side}_thigh_outer",
+        f"{side}_knee",
+        f"{side}_lower_leg_front",
+        f"{side}_lower_leg_back",
+        f"{side}_lower_leg_inner",
+        f"{side}_lower_leg_outer",
+        f"{side}_ankle",
+        f"{side}_foot",
+    ]
+
+
+def angular_cfg_dict(cfg: AngularConfig) -> dict:
+    return {
+        "front_deg": cfg.front_deg,
+        "outer_deg": cfg.outer_deg,
+        "back_deg": cfg.back_deg,
+        "inner_deg": cfg.inner_deg,
+        "sum": cfg.front_deg + cfg.outer_deg + cfg.back_deg + cfg.inner_deg,
+    }

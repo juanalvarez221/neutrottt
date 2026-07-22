@@ -31,6 +31,12 @@ from .config import (
     LEG_LONGITUDINAL_ZONE_IDS,
     LEG_ZONE_COLORS,
     LEG_ISLAND_CLEANUP,
+    LEG_FINAL_LONGITUDINAL_CONFIG,
+    LEG_G1_CONFIG,
+    LEG_G2_CONFIG,
+    LEG_CIRC_ISLAND_CLEANUP,
+    LEG_DETAILED_ZONE_IDS,
+    LEG_DETAILED_ZONE_COLORS,
 )
 from .geometry import (
     angle_deg,
@@ -79,6 +85,9 @@ from .leg_segmentation import (
     expected_leg_zones,
     segment_leg_faces,
     default_leg_config,
+    build_leg_frames,
+    apply_leg_circumferential,
+    expected_detailed_leg_zones,
 )
 
 __all__ = [
@@ -142,6 +151,12 @@ __all__ = [
     "LEG_LONGITUDINAL_ZONE_IDS",
     "LEG_ZONE_COLORS",
     "LEG_ISLAND_CLEANUP",
+    "LEG_FINAL_LONGITUDINAL_CONFIG",
+    "LEG_G1_CONFIG",
+    "LEG_G2_CONFIG",
+    "LEG_CIRC_ISLAND_CLEANUP",
+    "LEG_DETAILED_ZONE_IDS",
+    "LEG_DETAILED_ZONE_COLORS",
     "LegSide",
     "LegBoneNames",
     "LegLandmarks",
@@ -152,4 +167,7 @@ __all__ = [
     "expected_leg_zones",
     "segment_leg_faces",
     "default_leg_config",
+    "build_leg_frames",
+    "apply_leg_circumferential",
+    "expected_detailed_leg_zones",
 ]
