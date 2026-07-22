@@ -10,16 +10,16 @@ import {
   type MeshStandardMaterial,
 } from "three";
 import {
-  INTERACTION_DEBUG_MODELS,
-  type InteractionDebugModelId,
+  DETAILED_ARMS_INTERACTION_MODEL_SRC,
+  type ArmDebugVisibility,
 } from "@/widgets/body-3d/domain/bodyZones";
 
 type InteractionZonesDebugProps = Omit<ThreeElements["group"], "children"> & {
   rotation?: [number, number, number];
   scale?: number;
   visualization?: "surface" | "edges";
-  /** Qué asset de interacción cargar (laboratorio). */
-  debugModel?: InteractionDebugModelId;
+  /** Laboratorio: filtrar meshes por lado. */
+  armVisibility?: ArmDebugVisibility;
 };
 
 function disposeMaterial(material: Material | Material[]) {
@@ -29,19 +29,24 @@ function disposeMaterial(material: Material | Material[]) {
   }
 }
 
-function InteractionZonesDebugScene({
-  src,
-  visualization,
-  rotation,
-  scale,
+function sideVisible(name: string, visibility: ArmDebugVisibility): boolean {
+  if (visibility === "both") return true;
+  if (visibility === "right") return name.includes("zone_right_");
+  return name.includes("zone_left_");
+}
+
+/**
+ * Superpone el InteractionModel bilateral sobre el BodyVisual.
+ * Solo laboratorio — sin hover/click/selección.
+ */
+export function InteractionZonesDebug({
+  rotation = [0, 0, 0],
+  scale = 1,
+  visualization = "surface",
+  armVisibility = "both",
   ...props
-}: {
-  src: string;
-  visualization: "surface" | "edges";
-  rotation: [number, number, number];
-  scale: number;
-} & Omit<ThreeElements["group"], "children" | "rotation" | "scale">) {
-  const { scene } = useGLTF(src);
+}: InteractionZonesDebugProps) {
+  const { scene } = useGLTF(DETAILED_ARMS_INTERACTION_MODEL_SRC);
 
   const prepared = useMemo(() => {
     const cloned = scene.clone(true);
@@ -52,6 +57,7 @@ function InteractionZonesDebugScene({
       if (!mesh.isMesh) return;
       mesh.frustumCulled = false;
       mesh.renderOrder = 2;
+      mesh.visible = sideVisible(mesh.name, armVisibility);
 
       const mats = Array.isArray(mesh.material)
         ? mesh.material
@@ -85,7 +91,7 @@ function InteractionZonesDebugScene({
     });
 
     return { cloned, materials };
-  }, [scene, visualization]);
+  }, [scene, visualization, armVisibility]);
 
   useLayoutEffect(() => {
     return () => {
@@ -102,33 +108,4 @@ function InteractionZonesDebugScene({
   );
 }
 
-/**
- * Superpone el InteractionModel de laboratorio sobre el BodyVisual.
- * Sin hover, click ni selección.
- */
-export function InteractionZonesDebug({
-  rotation = [0, 0, 0],
-  scale = 1,
-  visualization = "surface",
-  debugModel = "longitudinal",
-  ...props
-}: InteractionZonesDebugProps) {
-  const src = INTERACTION_DEBUG_MODELS[debugModel].src;
-
-  return (
-    <InteractionZonesDebugScene
-      {...props}
-      src={src}
-      visualization={visualization}
-      rotation={rotation}
-      scale={scale}
-    />
-  );
-}
-
-useGLTF.preload(INTERACTION_DEBUG_MODELS.longitudinal.src);
-useGLTF.preload(INTERACTION_DEBUG_MODELS.c1.src);
-useGLTF.preload(INTERACTION_DEBUG_MODELS.c2.src);
-useGLTF.preload(INTERACTION_DEBUG_MODELS.d1.src);
-useGLTF.preload(INTERACTION_DEBUG_MODELS.d2.src);
-useGLTF.preload(INTERACTION_DEBUG_MODELS.d3.src);
+useGLTF.preload(DETAILED_ARMS_INTERACTION_MODEL_SRC);

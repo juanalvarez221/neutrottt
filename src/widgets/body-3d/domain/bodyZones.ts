@@ -1,203 +1,194 @@
 import type {
+  AtomicBodyZoneDefinition,
   BodyZoneDefinition,
   BodyZoneGroupDefinition,
   BodyZoneHierarchy,
+  ParentBodyZoneDefinition,
 } from "@/widgets/body-3d/domain/bodyZoneTypes";
 
-/**
- * Piloto brazo derecho — zonas longitudinales gruesas (R2) + hijas circunferenciales experimentales.
- */
+type Side = "left" | "right";
+type Quad = "front" | "back" | "inner" | "outer";
 
-export const RIGHT_SHOULDER: BodyZoneDefinition = {
-  id: "right_shoulder",
-  label: "Hombro derecho",
-  region: "arms",
-  side: "right",
-  interactionMeshName: "zone_right_shoulder",
-  kind: "atomic",
+const SIDE_LABEL: Record<Side, string> = {
+  right: "derecho",
+  left: "izquierdo",
 };
 
-export const RIGHT_UPPER_ARM: BodyZoneDefinition = {
-  id: "right_upper_arm",
-  label: "Brazo superior derecho",
-  region: "arms",
-  side: "right",
-  interactionMeshName: "zone_right_upper_arm",
-  kind: "coarse",
+const QUAD_LABEL: Record<Quad, string> = {
+  front: "frente",
+  back: "espalda",
+  inner: "interior",
+  outer: "exterior",
 };
 
-export const RIGHT_ELBOW: BodyZoneDefinition = {
-  id: "right_elbow",
-  label: "Codo derecho",
-  region: "arms",
-  side: "right",
-  interactionMeshName: "zone_right_elbow",
-  kind: "atomic",
-};
-
-export const RIGHT_FOREARM: BodyZoneDefinition = {
-  id: "right_forearm",
-  label: "Antebrazo derecho",
-  region: "arms",
-  side: "right",
-  interactionMeshName: "zone_right_forearm",
-  kind: "coarse",
-};
-
-export const RIGHT_WRIST: BodyZoneDefinition = {
-  id: "right_wrist",
-  label: "Muñeca derecha",
-  region: "arms",
-  side: "right",
-  interactionMeshName: "zone_right_wrist",
-  kind: "atomic",
-};
-
-export const RIGHT_HAND: BodyZoneDefinition = {
-  id: "right_hand",
-  label: "Mano derecha",
-  region: "hands",
-  side: "right",
-  interactionMeshName: "zone_right_hand",
-  kind: "atomic",
-};
-
-/** Zonas longitudinales gruesas del piloto (producción). */
-export const PILOT_BODY_ZONES: readonly BodyZoneDefinition[] = [
-  RIGHT_SHOULDER,
-  RIGHT_UPPER_ARM,
-  RIGHT_ELBOW,
-  RIGHT_FOREARM,
-  RIGHT_WRIST,
-  RIGHT_HAND,
-] as const;
-
-function makeArmQuad(
-  parent: "right_upper_arm" | "right_forearm",
-  quad: "front" | "back" | "inner" | "outer",
+function atomicJoint(
+  side: Side,
+  part: "shoulder" | "elbow" | "wrist" | "hand",
   label: string,
-): BodyZoneDefinition {
-  const id = `${parent}_${quad}` as const;
+  region: "arms" | "hands",
+): AtomicBodyZoneDefinition {
+  const id = `${side}_${part}`;
   return {
     id,
     label,
-    region: "arms",
-    side: "right",
-    interactionMeshName: `zone_${id}`,
+    region,
+    side,
     kind: "atomic",
-    parentId: parent,
+    interactionMeshName: `zone_${id}`,
   };
 }
 
-/** Subdivisiones circunferenciales experimentales (Paso 21). */
-export const RIGHT_UPPER_ARM_FRONT = makeArmQuad(
-  "right_upper_arm",
-  "front",
-  "Brazo superior derecho — frente",
-);
-export const RIGHT_UPPER_ARM_BACK = makeArmQuad(
-  "right_upper_arm",
-  "back",
-  "Brazo superior derecho — espalda",
-);
-export const RIGHT_UPPER_ARM_INNER = makeArmQuad(
-  "right_upper_arm",
-  "inner",
-  "Brazo superior derecho — interior",
-);
-export const RIGHT_UPPER_ARM_OUTER = makeArmQuad(
-  "right_upper_arm",
-  "outer",
-  "Brazo superior derecho — exterior",
-);
+function atomicQuad(
+  side: Side,
+  segment: "upper_arm" | "forearm",
+  quad: Quad,
+): AtomicBodyZoneDefinition {
+  const parentId = `${side}_${segment}`;
+  const id = `${parentId}_${quad}`;
+  const segLabel =
+    segment === "upper_arm" ? "Brazo superior" : "Antebrazo";
+  return {
+    id,
+    label: `${segLabel} ${SIDE_LABEL[side]} — ${QUAD_LABEL[quad]}`,
+    region: "arms",
+    side,
+    kind: "atomic",
+    interactionMeshName: `zone_${id}`,
+    parentId,
+  };
+}
 
-export const RIGHT_FOREARM_FRONT = makeArmQuad(
-  "right_forearm",
-  "front",
-  "Antebrazo derecho — frente",
-);
-export const RIGHT_FOREARM_BACK = makeArmQuad(
-  "right_forearm",
-  "back",
-  "Antebrazo derecho — espalda",
-);
-export const RIGHT_FOREARM_INNER = makeArmQuad(
-  "right_forearm",
-  "inner",
-  "Antebrazo derecho — interior",
-);
-export const RIGHT_FOREARM_OUTER = makeArmQuad(
-  "right_forearm",
-  "outer",
-  "Antebrazo derecho — exterior",
-);
+function parentSegment(
+  side: Side,
+  segment: "upper_arm" | "forearm",
+  childIds: readonly string[],
+): ParentBodyZoneDefinition {
+  const id = `${side}_${segment}`;
+  const segLabel =
+    segment === "upper_arm" ? "Brazo superior" : "Antebrazo";
+  return {
+    id,
+    label: `${segLabel} ${SIDE_LABEL[side]}`,
+    region: "arms",
+    side,
+    kind: "parent",
+    childIds,
+  };
+}
 
-export const CIRCUMFERENTIAL_EXPERIMENTAL_ZONES: readonly BodyZoneDefinition[] =
-  [
-    RIGHT_UPPER_ARM_FRONT,
-    RIGHT_UPPER_ARM_BACK,
-    RIGHT_UPPER_ARM_INNER,
-    RIGHT_UPPER_ARM_OUTER,
-    RIGHT_FOREARM_FRONT,
-    RIGHT_FOREARM_BACK,
-    RIGHT_FOREARM_INNER,
-    RIGHT_FOREARM_OUTER,
-  ] as const;
+const QUADS: readonly Quad[] = ["front", "back", "inner", "outer"];
 
-export const BODY_ZONES_BY_ID: Readonly<Record<string, BodyZoneDefinition>> =
-  Object.fromEntries(
-    [...PILOT_BODY_ZONES, ...CIRCUMFERENTIAL_EXPERIMENTAL_ZONES].map((z) => [
-      z.id,
-      z,
-    ]),
+function buildSide(side: Side) {
+  const shoulder = atomicJoint(
+    side,
+    "shoulder",
+    `Hombro ${SIDE_LABEL[side]}`,
+    "arms",
+  );
+  const elbow = atomicJoint(side, "elbow", `Codo ${SIDE_LABEL[side]}`, "arms");
+  const wrist = atomicJoint(
+    side,
+    "wrist",
+    `Muñeca ${SIDE_LABEL[side]}`,
+    "arms",
+  );
+  const hand = atomicJoint(side, "hand", `Mano ${SIDE_LABEL[side]}`, "hands");
+
+  const upperQuads = QUADS.map((q) => atomicQuad(side, "upper_arm", q));
+  const forearmQuads = QUADS.map((q) => atomicQuad(side, "forearm", q));
+
+  const upperParent = parentSegment(
+    side,
+    "upper_arm",
+    upperQuads.map((z) => z.id),
+  );
+  const forearmParent = parentSegment(
+    side,
+    "forearm",
+    forearmQuads.map((z) => z.id),
   );
 
-export const RIGHT_UPPER_ARM_HIERARCHY: BodyZoneHierarchy = {
-  parentId: RIGHT_UPPER_ARM.id,
-  childIds: [
-    RIGHT_UPPER_ARM_FRONT.id,
-    RIGHT_UPPER_ARM_BACK.id,
-    RIGHT_UPPER_ARM_INNER.id,
-    RIGHT_UPPER_ARM_OUTER.id,
-  ],
-};
+  const atomics: AtomicBodyZoneDefinition[] = [
+    shoulder,
+    ...upperQuads,
+    elbow,
+    ...forearmQuads,
+    wrist,
+    hand,
+  ];
 
-export const RIGHT_FOREARM_HIERARCHY: BodyZoneHierarchy = {
-  parentId: RIGHT_FOREARM.id,
-  childIds: [
-    RIGHT_FOREARM_FRONT.id,
-    RIGHT_FOREARM_BACK.id,
-    RIGHT_FOREARM_INNER.id,
-    RIGHT_FOREARM_OUTER.id,
-  ],
-};
+  const hierarchy: BodyZoneHierarchy[] = [
+    { parentId: upperParent.id, childIds: upperParent.childIds },
+    { parentId: forearmParent.id, childIds: forearmParent.childIds },
+  ];
 
-export const EXPERIMENTAL_ZONE_HIERARCHIES: readonly BodyZoneHierarchy[] = [
-  RIGHT_UPPER_ARM_HIERARCHY,
-  RIGHT_FOREARM_HIERARCHY,
+  const fullArm: BodyZoneGroupDefinition = {
+    id: `${side}_full_arm`,
+    label: `Brazo ${SIDE_LABEL[side]} completo`,
+    zoneIds: [
+      shoulder.id,
+      upperParent.id,
+      elbow.id,
+      forearmParent.id,
+      wrist.id,
+      hand.id,
+    ],
+  };
+
+  return {
+    atomics,
+    parents: [upperParent, forearmParent] as ParentBodyZoneDefinition[],
+    hierarchy,
+    fullArm,
+  };
+}
+
+const RIGHT = buildSide("right");
+const LEFT = buildSide("left");
+
+/** 24 zonas atómicas seleccionables (12 por brazo). */
+export const ATOMIC_ARM_ZONES: readonly AtomicBodyZoneDefinition[] = [
+  ...RIGHT.atomics,
+  ...LEFT.atomics,
 ] as const;
 
-/** Grupo piloto: brazo derecho completo (coarse). Sin mesh propio. */
-export const RIGHT_FULL_ARM_GROUP: BodyZoneGroupDefinition = {
-  id: "right_full_arm",
-  label: "Brazo derecho completo",
-  zoneIds: [
-    RIGHT_SHOULDER.id,
-    RIGHT_UPPER_ARM.id,
-    RIGHT_ELBOW.id,
-    RIGHT_FOREARM.id,
-    RIGHT_WRIST.id,
-    RIGHT_HAND.id,
-  ],
+/** Parents lógicos (sin mesh en el InteractionModel detallado). */
+export const PARENT_ARM_ZONES: readonly ParentBodyZoneDefinition[] = [
+  ...RIGHT.parents,
+  ...LEFT.parents,
+] as const;
+
+export const ALL_BODY_ZONES: readonly BodyZoneDefinition[] = [
+  ...ATOMIC_ARM_ZONES,
+  ...PARENT_ARM_ZONES,
+] as const;
+
+export const BODY_ZONES_BY_ID: Readonly<Record<string, BodyZoneDefinition>> =
+  Object.fromEntries(ALL_BODY_ZONES.map((z) => [z.id, z]));
+
+export const ARM_ZONE_HIERARCHIES: readonly BodyZoneHierarchy[] = [
+  ...RIGHT.hierarchy,
+  ...LEFT.hierarchy,
+] as const;
+
+export const RIGHT_FULL_ARM_GROUP = RIGHT.fullArm;
+export const LEFT_FULL_ARM_GROUP = LEFT.fullArm;
+
+export const BOTH_ARMS_GROUP: BodyZoneGroupDefinition = {
+  id: "both_arms",
+  label: "Ambos brazos",
+  zoneIds: [RIGHT_FULL_ARM_GROUP.id, LEFT_FULL_ARM_GROUP.id],
 };
 
-export const PILOT_BODY_ZONE_GROUPS: readonly BodyZoneGroupDefinition[] = [
+export const ARM_ZONE_GROUPS: readonly BodyZoneGroupDefinition[] = [
   RIGHT_FULL_ARM_GROUP,
+  LEFT_FULL_ARM_GROUP,
+  BOTH_ARMS_GROUP,
 ] as const;
 
 export const BODY_ZONE_GROUPS_BY_ID: Readonly<
   Record<string, BodyZoneGroupDefinition>
-> = Object.fromEntries(PILOT_BODY_ZONE_GROUPS.map((g) => [g.id, g]));
+> = Object.fromEntries(ARM_ZONE_GROUPS.map((g) => [g.id, g]));
 
 export function getBodyZone(id: string): BodyZoneDefinition | undefined {
   return BODY_ZONES_BY_ID[id];
@@ -209,51 +200,22 @@ export function getBodyZoneGroup(
   return BODY_ZONE_GROUPS_BY_ID[id];
 }
 
-/** GLB longitudinal oficial (R2). */
+/** InteractionModel bilateral oficial (24 meshes). */
+export const DETAILED_ARMS_INTERACTION_MODEL_SRC =
+  "/models/interaction/neutro_body_v1_detailed_arms_interaction.glb";
+
+/** Legacy longitudinal R2 (6 meshes derecho) — referencia. */
 export const RIGHT_ARM_INTERACTION_MODEL_SRC =
   "/models/interaction/neutro_body_v1_right_arm_interaction.glb";
 
-/** GLBs diagnóstico circunferencial (laboratorio). */
-export const RIGHT_ARM_C1_INTERACTION_MODEL_SRC =
-  "/models/interaction/pilot/right_arm_c1.glb";
+export type ArmDebugVisibility = "right" | "left" | "both";
 
-export const RIGHT_ARM_C2_INTERACTION_MODEL_SRC =
-  "/models/interaction/pilot/right_arm_c2.glb";
-
-export type InteractionDebugModelId =
-  | "longitudinal"
-  | "c1"
-  | "c2"
-  | "d1"
-  | "d2"
-  | "d3";
-
-export const INTERACTION_DEBUG_MODELS: Record<
-  InteractionDebugModelId,
-  { src: string; label: string }
-> = {
-  longitudinal: {
-    src: RIGHT_ARM_INTERACTION_MODEL_SRC,
-    label: "Longitudinal",
-  },
-  c1: {
-    src: RIGHT_ARM_C1_INTERACTION_MODEL_SRC,
-    label: "Circunferencial C1",
-  },
-  c2: {
-    src: RIGHT_ARM_C2_INTERACTION_MODEL_SRC,
-    label: "Circunferencial C2",
-  },
-  d1: {
-    src: "/models/interaction/pilot/right_arm_d1.glb",
-    label: "Frame D1",
-  },
-  d2: {
-    src: "/models/interaction/pilot/right_arm_d2.glb",
-    label: "Frame D2",
-  },
-  d3: {
-    src: "/models/interaction/pilot/right_arm_d3.glb",
-    label: "Frame D3",
-  },
-};
+/** @deprecated aliases conservados para código experimental previo */
+export const PILOT_BODY_ZONES = PARENT_ARM_ZONES.filter((z) =>
+  z.id.startsWith("right_"),
+);
+export const CIRCUMFERENTIAL_EXPERIMENTAL_ZONES = ATOMIC_ARM_ZONES.filter((z) =>
+  z.id.includes("upper_arm_") || z.id.includes("forearm_"),
+);
+export const PILOT_BODY_ZONE_GROUPS = [RIGHT_FULL_ARM_GROUP] as const;
+export const EXPERIMENTAL_ZONE_HIERARCHIES = RIGHT.hierarchy;

@@ -16,7 +16,7 @@ import type {
   BodyAppearanceMode,
   BodyCameraView,
 } from "@/widgets/body-3d/bodyViewerTypes";
-import type { InteractionDebugModelId } from "@/widgets/body-3d/domain/bodyZones";
+import type { ArmDebugVisibility } from "@/widgets/body-3d/domain/bodyZones";
 
 const BG = "#17110d";
 
@@ -31,12 +31,9 @@ type Body3DViewerProps = {
   wireframe?: boolean;
   cameraView?: BodyCameraView;
   cameraViewToken?: number;
-  /** Laboratorio: superpone zonas piloto del InteractionModel. */
   showInteractionZones?: boolean;
-  /** Laboratorio: relleno vs wireframe de fronteras. */
   zonesVisualization?: "surface" | "edges";
-  /** Laboratorio: longitudinal R2 / C1 / C2. */
-  interactionDebugModel?: InteractionDebugModelId;
+  armVisibility?: ArmDebugVisibility;
   className?: string;
   height?: string;
 };
@@ -59,14 +56,14 @@ function BodyScene({
   wireframe,
   showInteractionZones,
   zonesVisualization,
-  interactionDebugModel,
+  armVisibility,
 }: {
   model: BodyModelDefinition;
   appearance: BodyAppearanceMode;
   wireframe: boolean;
   showInteractionZones: boolean;
   zonesVisualization: "surface" | "edges";
-  interactionDebugModel: InteractionDebugModelId;
+  armVisibility: ArmDebugVisibility;
 }) {
   const canShowZones =
     showInteractionZones && model.role === "production";
@@ -83,7 +80,7 @@ function BodyScene({
           rotation={model.rotation}
           scale={model.scale ?? 1}
           visualization={zonesVisualization}
-          debugModel={interactionDebugModel}
+          armVisibility={armVisibility}
         />
       ) : null}
     </Center>
@@ -112,7 +109,7 @@ export function Body3DViewer({
   cameraViewToken = 0,
   showInteractionZones = false,
   zonesVisualization = "surface",
-  interactionDebugModel = "longitudinal",
+  armVisibility = "both",
   className = "",
   height = "min(72dvh, 720px)",
 }: Body3DViewerProps) {
@@ -210,7 +207,7 @@ export function Body3DViewer({
               wireframe={wireframe}
               showInteractionZones={showInteractionZones}
               zonesVisualization={zonesVisualization}
-              interactionDebugModel={interactionDebugModel}
+              armVisibility={armVisibility}
             />
           </Suspense>
 

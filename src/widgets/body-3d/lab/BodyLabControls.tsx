@@ -5,7 +5,7 @@ import type {
   BodyAppearanceMode,
   BodyCameraView,
 } from "@/widgets/body-3d/bodyViewerTypes";
-import type { InteractionDebugModelId } from "@/widgets/body-3d/domain/bodyZones";
+import type { ArmDebugVisibility } from "@/widgets/body-3d/domain/bodyZones";
 import { CAMERA_VIEW_LABELS } from "@/widgets/body-3d/lab/bodyLabTypes";
 
 type BodyLabControlsProps = {
@@ -22,8 +22,8 @@ type BodyLabControlsProps = {
   onShowInteractionZonesChange: (value: boolean) => void;
   zonesVisualization: "surface" | "edges";
   onZonesVisualizationChange: (value: "surface" | "edges") => void;
-  interactionDebugModel: InteractionDebugModelId;
-  onInteractionDebugModelChange: (value: InteractionDebugModelId) => void;
+  armVisibility: ArmDebugVisibility;
+  onArmVisibilityChange: (value: ArmDebugVisibility) => void;
 };
 
 const CAMERA_VIEWS: BodyCameraView[] = ["front", "back", "left", "right"];
@@ -50,8 +50,8 @@ export function BodyLabControls({
   onShowInteractionZonesChange,
   zonesVisualization,
   onZonesVisualizationChange,
-  interactionDebugModel,
-  onInteractionDebugModelChange,
+  armVisibility,
+  onArmVisibilityChange,
 }: BodyLabControlsProps) {
   const stats = activeModel.labStats;
   const zonesAvailable = activeModel.role === "production";
@@ -149,7 +149,7 @@ export function BodyLabControls({
       </section>
 
       <section className={controlShellClassName()}>
-        <p className={labelClassName()}>Zonas piloto</p>
+        <p className={labelClassName()}>Zonas de interacción</p>
         <label
           className={[
             "flex min-h-[40px] items-center gap-2.5 rounded-lg border border-white/8 bg-white/[0.03] px-3 py-2 text-sm text-zinc-200 transition",
@@ -176,21 +176,18 @@ export function BodyLabControls({
         ) : (
           <>
             <p className="mt-2 text-[11px] leading-relaxed text-zinc-500">
-              Diagnóstico del InteractionModel (brazo derecho). Sin selección.
+              InteractionModel bilateral (24 meshes). Sin selección.
             </p>
             {showInteractionZones ? (
               <div className="mt-3 space-y-2">
                 <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-500">
-                  Modelo de zonas
+                  Visibilidad
                 </p>
                 {(
                   [
-                    { id: "longitudinal", label: "Longitudinal" },
-                    { id: "c1", label: "Circunferencial C1" },
-                    { id: "c2", label: "Circunferencial C2" },
-                    { id: "d1", label: "Frame D1" },
-                    { id: "d2", label: "Frame D2" },
-                    { id: "d3", label: "Frame D3" },
+                    { id: "right", label: "Brazo derecho" },
+                    { id: "left", label: "Brazo izquierdo" },
+                    { id: "both", label: "Ambos brazos" },
                   ] as const
                 ).map((option) => (
                   <label
@@ -199,19 +196,17 @@ export function BodyLabControls({
                   >
                     <input
                       type="radio"
-                      name="interaction-debug-model"
+                      name="arm-visibility"
                       value={option.id}
-                      checked={interactionDebugModel === option.id}
-                      onChange={() =>
-                        onInteractionDebugModelChange(option.id)
-                      }
+                      checked={armVisibility === option.id}
+                      onChange={() => onArmVisibilityChange(option.id)}
                       className="accent-stone-400"
                     />
                     {option.label}
                   </label>
                 ))}
                 <p className="pt-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-500">
-                  Visualización de zonas
+                  Visualización
                 </p>
                 {(
                   [
