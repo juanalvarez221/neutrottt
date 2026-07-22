@@ -205,6 +205,8 @@ class PelvisGridConfig:
     thigh_exclude_weight: float = 0.28
     thigh_start_margin: float = 0.08  # along thigh bone from hip
     max_dist_from_pelvis: float = 0.22
+    # If True, sacrum claims its band before lower_back (F1 taller growth).
+    sacrum_priority: bool = False
 
 
 PELVIS_P1_CONFIG = PelvisGridConfig(
@@ -232,6 +234,35 @@ PELVIS_P2_CONFIG = PelvisGridConfig(
     front_thresh=0.12,
     back_thresh=0.10,
 )
+
+# F1A — Wider Sacrum (from P1): grow laterally into central LBC / medial glute
+PELVIS_F1A_CONFIG = PelvisGridConfig(
+    lower_back_lo=0.44,
+    sacrum_hi=0.50,
+    sacrum_lo=0.16,
+    glute_hi=0.50,
+    hip_hi=0.70,
+    abdomen_lo=0.18,
+    sacrum_half=0.50,
+    abdomen_half=0.52,
+    sacrum_priority=True,
+)
+
+# F1B — Taller Sacrum (from P1): grow into lower_back_center + slight upper glute
+PELVIS_F1B_CONFIG = PelvisGridConfig(
+    lower_back_lo=0.50,
+    sacrum_hi=0.56,
+    sacrum_lo=0.14,
+    glute_hi=0.50,
+    hip_hi=0.70,
+    abdomen_lo=0.18,
+    sacrum_half=0.36,
+    abdomen_half=0.52,
+    sacrum_priority=True,
+)
+
+# Official frozen torso+pelvis map (Paso 26): F1A Wider Sacrum on P1 base.
+PELVIS_FINAL_CONFIG = PELVIS_F1A_CONFIG
 
 PELVIS_ZONE_IDS: tuple[str, ...] = (
     "left_hip",

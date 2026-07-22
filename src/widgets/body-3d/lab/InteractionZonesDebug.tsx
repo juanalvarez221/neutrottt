@@ -12,6 +12,7 @@ import {
 } from "three";
 import {
   DETAILED_ARMS_INTERACTION_MODEL_SRC,
+  TORSO_PELVIS_FINAL_INTERACTION_MODEL_SRC,
   TORSO_PELVIS_P1_INTERACTION_MODEL_SRC,
   TORSO_PELVIS_P2_INTERACTION_MODEL_SRC,
   TORSO_T1_INTERACTION_MODEL_SRC,
@@ -125,13 +126,18 @@ export function InteractionZonesDebug({
   ...props
 }: InteractionZonesDebugProps) {
   const showArms =
-    debugLayer === "arms" || debugLayer === "arms_and_torso_pelvis_p2";
+    debugLayer === "arms" ||
+    debugLayer === "arms_and_torso_pelvis_p2" ||
+    debugLayer === "arms_and_torso_pelvis_final";
   const showTorsoT1 = debugLayer === "torso_t1";
   const showTorsoT2 = debugLayer === "torso_t2";
   const showPelvisP1 = debugLayer === "torso_pelvis_p1";
   const showPelvisP2 =
     debugLayer === "torso_pelvis_p2" ||
     debugLayer === "arms_and_torso_pelvis_p2";
+  const showPelvisFinal =
+    debugLayer === "torso_pelvis_final" ||
+    debugLayer === "arms_and_torso_pelvis_final";
 
   const armFilter = useMemo(
     () => (name: string) => sideVisible(name, armVisibility),
@@ -171,6 +177,12 @@ export function InteractionZonesDebug({
           visualization={visualization}
         />
       ) : null}
+      {showPelvisFinal ? (
+        <InteractionGlbLayer
+          src={TORSO_PELVIS_FINAL_INTERACTION_MODEL_SRC}
+          visualization={visualization}
+        />
+      ) : null}
     </group>
   );
 }
@@ -180,3 +192,4 @@ useGLTF.preload(TORSO_T1_INTERACTION_MODEL_SRC);
 useGLTF.preload(TORSO_T2_INTERACTION_MODEL_SRC);
 useGLTF.preload(TORSO_PELVIS_P1_INTERACTION_MODEL_SRC);
 useGLTF.preload(TORSO_PELVIS_P2_INTERACTION_MODEL_SRC);
+useGLTF.preload(TORSO_PELVIS_FINAL_INTERACTION_MODEL_SRC);

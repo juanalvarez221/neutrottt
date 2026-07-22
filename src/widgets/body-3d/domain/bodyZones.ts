@@ -399,6 +399,10 @@ export const TORSO_PELVIS_P1_INTERACTION_MODEL_SRC =
 export const TORSO_PELVIS_P2_INTERACTION_MODEL_SRC =
   "/models/interaction/pilot/neutro_body_v1_torso_pelvis_p2.glb";
 
+/** Mapa oficial congelado torso + pelvis (23 meshes atómicos). */
+export const TORSO_PELVIS_FINAL_INTERACTION_MODEL_SRC =
+  "/models/interaction/neutro_body_v1_torso_pelvis_interaction.glb";
+
 /** Legacy longitudinal R2 (6 meshes derecho) — referencia. */
 export const RIGHT_ARM_INTERACTION_MODEL_SRC =
   "/models/interaction/neutro_body_v1_right_arm_interaction.glb";
@@ -411,7 +415,9 @@ export type InteractionDebugLayer =
   | "torso_t2"
   | "torso_pelvis_p1"
   | "torso_pelvis_p2"
-  | "arms_and_torso_pelvis_p2";
+  | "torso_pelvis_final"
+  | "arms_and_torso_pelvis_p2"
+  | "arms_and_torso_pelvis_final";
 
 export function interactionModelSrcForLayer(
   layer: InteractionDebugLayer,
@@ -421,6 +427,12 @@ export function interactionModelSrcForLayer(
   if (layer === "torso_pelvis_p1") return TORSO_PELVIS_P1_INTERACTION_MODEL_SRC;
   if (layer === "torso_pelvis_p2" || layer === "arms_and_torso_pelvis_p2") {
     return TORSO_PELVIS_P2_INTERACTION_MODEL_SRC;
+  }
+  if (
+    layer === "torso_pelvis_final" ||
+    layer === "arms_and_torso_pelvis_final"
+  ) {
+    return TORSO_PELVIS_FINAL_INTERACTION_MODEL_SRC;
   }
   return DETAILED_ARMS_INTERACTION_MODEL_SRC;
 }

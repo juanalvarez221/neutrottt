@@ -214,6 +214,10 @@ def classify_lower_and_pelvis(
 
     # BACK
     if fb <= -cfg.back_thresh:
+        # Optional: claim sacrum before lower_back so taller variants can grow upward.
+        if getattr(cfg, "sacrum_priority", False):
+            if cfg.sacrum_lo <= v_pelvis <= cfg.sacrum_hi and abs_lr <= cfg.sacrum_half:
+                return "sacrum"
         if v_pelvis >= cfg.lower_back_lo:
             if abs_lr <= cfg.sacrum_half * 0.85:
                 return "lower_back_center"

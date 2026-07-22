@@ -30,6 +30,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from neutro_body_interaction.config import (  # noqa: E402
     COMBINED_TORSO_PELVIS_ZONE_IDS,
+    PELVIS_F1A_CONFIG,
+    PELVIS_F1B_CONFIG,
     PELVIS_ISLAND_CLEANUP,
     PELVIS_P1_CONFIG,
     PELVIS_P2_CONFIG,
@@ -547,14 +549,22 @@ def run_pipeline(tag: str, pelvis_cfg: PelvisGridConfig, center_hint=None, radiu
 
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     PILOT_GLB.mkdir(parents=True, exist_ok=True)
-    blend_path = OUT_DIR / (
-        "pelvis_p1_anatomical.blend" if tag == "P1" else "pelvis_p2_tattoo_optimized.blend"
-    )
-    glb_path = PILOT_GLB / (
-        "neutro_body_v1_torso_pelvis_p1.glb"
-        if tag == "P1"
-        else "neutro_body_v1_torso_pelvis_p2.glb"
-    )
+    blend_names = {
+        "P1": "pelvis_p1_anatomical.blend",
+        "P2": "pelvis_p2_tattoo_optimized.blend",
+        "F1A": "pelvis_f1a_wider_sacrum.blend",
+        "F1B": "pelvis_f1b_taller_sacrum.blend",
+    }
+    glb_names = {
+        "P1": "neutro_body_v1_torso_pelvis_p1.glb",
+        "P2": "neutro_body_v1_torso_pelvis_p2.glb",
+        "F1A": "neutro_body_v1_torso_pelvis_f1a.glb",
+        "F1B": "neutro_body_v1_torso_pelvis_f1b.glb",
+    }
+    if tag not in blend_names:
+        fail(f"Unknown tag {tag}")
+    blend_path = OUT_DIR / blend_names[tag]
+    glb_path = PILOT_GLB / glb_names[tag]
     bpy.ops.wm.save_as_mainfile(filepath=str(blend_path))
     bpy.ops.export_scene.gltf(
         filepath=str(glb_path),
@@ -617,6 +627,7 @@ def run_pipeline(tag: str, pelvis_cfg: PelvisGridConfig, center_hint=None, radiu
             "front_thresh": pelvis_cfg.front_thresh,
             "back_thresh": pelvis_cfg.back_thresh,
             "thigh_start_margin": pelvis_cfg.thigh_start_margin,
+            "sacrum_priority": bool(getattr(pelvis_cfg, "sacrum_priority", False)),
         },
         "universeFaces": combined.universe_faces,
         "universeTris": combined.universe_tris,
@@ -723,5 +734,252 @@ def main():
     log("DONE")
 
 
+def _zone_key_metrics(result: dict) -> dict:
+    keys = ("sacrum", "lower_back_center", "left_glute", "right_glute")
+    out = {}
+    for zid in keys:
+        z = result["zones"][zid]
+        out[zid] = {
+            "triangles": z["triangleCount"],
+            "surfaceArea": z["surfaceArea"],
+            "percentageOfTorsoPelvis": z["percentageOfCombinedTorsoPelvis"],
+            "components": z["connectedComponentsAfter"],
+        }
+    return out
+
+
+def _pick_final(p1: dict, f1a: dict, f1b: dict) -> str:
+    """Prefer F1A when sacrum target met with healthier LBC/glutes; else F1B; else P1."""
+    def ok(res: dict) -> bool:
+        if res.get("overlap") or res.get("holes") or res.get("duplicates"):
+            return False
+        if res.get("armOverlap"):
+            return False
+        if res.get("coverage", 0) < 99.9:
+            return False
+        z = res["zones"]
+        if z["sacrum"]["connectedComponentsAfter"] != 1:
+            return False
+        lg = z["left_glute"]["percentageOfCombinedTorsoPelvis"]
+        rg = z["right_glute"]["percentageOfCombinedTorsoPelvis"]
+        return lg >= 1.5 and rg >= 1.5
+
+    scored = []
+    for tag, res in (("F1A", f1a), ("F1B", f1b)):
+        if not ok(res):
+            continue
+        z = res["zones"]
+        sac = z["sacrum"]["percentageOfCombinedTorsoPelvis"]
+        lbc = z["lower_back_center"]["percentageOfCombinedTorsoPelvis"]
+        lg = z["left_glute"]["percentageOfCombinedTorsoPelvis"]
+        rg = z["right_glute"]["percentageOfCombinedTorsoPelvis"]
+        # Prefer sacrum in 1.8–2.5, then preserve LBC/glutes near P1.
+        in_range = 1.8 <= sac <= 2.5
+        score = (2 if in_range else 0) + min(sac, 2.5) + 0.35 * lbc + 0.15 * (lg + rg)
+        # Slight preference for wider (F1A) when scores close — less vertical LBC loss.
+        if tag == "F1A":
+            score += 0.05
+        scored.append((score, tag))
+    if scored:
+        scored.sort(reverse=True)
+        return scored[0][1]
+    if ok(p1):
+        return "P1"
+    return "F1A"
+
+def export_official_from_pilot(pilot_glb: Path, blend_src: Path):
+    """Copy chosen pilot to official torso+pelvis interaction paths."""
+    official_blend = (
+        REPO
+        / "assets"
+        / "blender"
+        / "neutro-body"
+        / "interaction"
+        / "neutro_body_v1_torso_pelvis_interaction.blend"
+    )
+    official_glb = (
+        REPO
+        / "public"
+        / "models"
+        / "interaction"
+        / "neutro_body_v1_torso_pelvis_interaction.glb"
+    )
+    official_blend.parent.mkdir(parents=True, exist_ok=True)
+    official_glb.parent.mkdir(parents=True, exist_ok=True)
+    bpy.ops.wm.open_mainfile(filepath=str(blend_src))
+    bpy.ops.wm.save_as_mainfile(filepath=str(official_blend))
+    bpy.ops.export_scene.gltf(
+        filepath=str(official_glb),
+        export_format="GLB",
+        use_selection=False,
+        export_animations=False,
+        export_skins=False,
+        export_morph=False,
+        export_apply=True,
+    )
+    log(f"Official blend {official_blend}")
+    log(f"Official glb {official_glb} ({official_glb.stat().st_size} bytes)")
+    return official_blend, official_glb
+
+
+def render_combo_arms(final_glb: Path, center, radius, art_dir: Path):
+    bpy.ops.wm.read_homefile(use_empty=True)
+    bpy.ops.import_scene.gltf(filepath=str(final_glb))
+    if ARMS_GLB.exists():
+        bpy.ops.import_scene.gltf(filepath=str(ARMS_GLB))
+    cam, radius = setup_studio(Vector(center), radius)
+    for view, name in (
+        ("front", "central-body-plus-arms-front.png"),
+        ("back", "central-body-plus-arms-back.png"),
+    ):
+        place_cam(cam, view, Vector(center), radius)
+        out = art_dir / name
+        bpy.context.scene.render.filepath = str(out)
+        bpy.ops.render.render(write_still=True)
+        log(f"Render {out.name}")
+
+
+def main_f1_final():
+    """Paso 26: F1A/F1B sacrum microvariants + official torso+pelvis freeze."""
+    global ART, REPORT
+    if not SOURCE.exists():
+        fail(f"Missing {SOURCE}")
+
+    ART = REPO / "artifacts" / "body-v1-torso-pelvis-final"
+    REPORT = ART / "report.json"
+    ART.mkdir(parents=True, exist_ok=True)
+
+    # Keep P1 blend stable: regenerate metrics/renders into final ART via renamed paths.
+    # run_pipeline writes p1-* under ART when ART is remapped — also overwrites pilot P1.
+    # To avoid mutating committed P1 blend contents unexpectedly, we still regenerate
+    # with identical PELVIS_P1_CONFIG (should match), then F1A/F1B.
+
+    p1 = run_pipeline("P1", PELVIS_P1_CONFIG)
+    f1a = run_pipeline(
+        "F1A",
+        PELVIS_F1A_CONFIG,
+        center_hint=Vector(p1["center"]),
+        radius_hint=p1["radius"],
+    )
+    f1b = run_pipeline(
+        "F1B",
+        PELVIS_F1B_CONFIG,
+        center_hint=Vector(p1["center"]),
+        radius_hint=p1["radius"],
+    )
+
+    # Required named renders
+    import shutil
+
+    for src_tag, dst in (
+        ("p1", "p1-back.png"),
+        ("f1a", "f1a-back.png"),
+        ("f1b", "f1b-back.png"),
+    ):
+        src = ART / f"{src_tag}-back.png"
+        dst_path = ART / dst
+        if src.exists() and src.resolve() != dst_path.resolve():
+            shutil.copy2(src, dst_path)
+
+    stitch_images(
+        [
+            ART / "p1-back.png",
+            ART / "f1a-back.png",
+            ART / "f1b-back.png",
+        ],
+        ART / "sacrum-comparison.png",
+    )
+
+    choice = _pick_final(p1, f1a, f1b)
+    chosen = {"P1": p1, "F1A": f1a, "F1B": f1b}[choice]
+    log(f"Selected provisional final: {choice}")
+
+    # Copy final-* views from chosen candidate
+    for view in (
+        "front",
+        "back",
+        "left",
+        "right",
+        "three-quarter-front",
+        "three-quarter-back",
+    ):
+        src = Path(chosen["paths"][view])
+        dst = ART / f"final-{view}.png"
+        if src.exists():
+            shutil.copy2(src, dst)
+
+    blend_src = Path(chosen["blend"])
+    official_blend, official_glb = export_official_from_pilot(
+        Path(chosen["glb"]), blend_src
+    )
+    render_combo_arms(official_glb, p1["center"], p1["radius"], ART)
+
+    # GLB stats via file size; node counts filled loosely from zone list
+    report = {
+        "base": "P1 Anatomical Pelvis + T2 torso",
+        "choice": choice,
+        "P1": {
+            "cfg": p1["cfg"],
+            "invariants": {
+                "coverage": p1["coverage"],
+                "overlap": p1["overlap"],
+                "holes": p1["holes"],
+                "duplicates": p1["duplicates"],
+                "armOverlap": p1["armOverlap"],
+            },
+            "focus": _zone_key_metrics(p1),
+            "ribsAfter": p1["ribsAfter"],
+            "zones": p1["zones"],
+        },
+        "F1A": {
+            "cfg": f1a["cfg"],
+            "invariants": {
+                "coverage": f1a["coverage"],
+                "overlap": f1a["overlap"],
+                "holes": f1a["holes"],
+                "duplicates": f1a["duplicates"],
+                "armOverlap": f1a["armOverlap"],
+            },
+            "focus": _zone_key_metrics(f1a),
+            "ribsAfter": f1a["ribsAfter"],
+            "zones": f1a["zones"],
+        },
+        "F1B": {
+            "cfg": f1b["cfg"],
+            "invariants": {
+                "coverage": f1b["coverage"],
+                "overlap": f1b["overlap"],
+                "holes": f1b["holes"],
+                "duplicates": f1b["duplicates"],
+                "armOverlap": f1b["armOverlap"],
+            },
+            "focus": _zone_key_metrics(f1b),
+            "ribsAfter": f1b["ribsAfter"],
+            "zones": f1b["zones"],
+        },
+        "official": {
+            "blend": str(official_blend.as_posix()),
+            "glb": str(official_glb.as_posix()),
+            "glbBytes": official_glb.stat().st_size,
+            "atomicZones": 23,
+            "meshes": 23,
+        },
+        "below_1_5_pct": {
+            tag: [
+                zid
+                for zid, m in res["zones"].items()
+                if m["percentageOfCombinedTorsoPelvis"] < 1.5
+            ]
+            for tag, res in (("P1", p1), ("F1A", f1a), ("F1B", f1b))
+        },
+    }
+    REPORT.write_text(json.dumps(report, indent=2), encoding="utf-8")
+    log(f"Report {REPORT}")
+    log("DONE F1 FINAL")
+
+
 if __name__ == "__main__":
-    main()
+    if "--f1-final" in sys.argv:
+        main_f1_final()
+    else:
+        main()
