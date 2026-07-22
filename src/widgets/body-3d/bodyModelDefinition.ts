@@ -59,8 +59,37 @@ export const TRIPO_PROTOTYPE_MODEL: BodyModelDefinition = {
   },
 };
 
+/**
+ * Neutro Body V1 — anatomía y pose Q2 Relaxed Selector.
+ *
+ * Export: malla estática horneada (sin rig / helpers / shape keys).
+ * Frente anatómico en +Z mundo tras remapeo glTF (Blender -Y → glTF +Z).
+ * Pies en Y = 0; altura ≈ 1.734 m.
+ */
+export const NEUTRO_BODY_V1_MODEL: BodyModelDefinition = {
+  id: "neutroBodyV1",
+  displayName: "Neutro Body V1",
+  src: "/models/production/neutro_body_v1.glb",
+  role: "production",
+  rotation: [0, 0, 0],
+  scale: 1,
+  camera: {
+    distance: 2.15,
+    target: [0, 0.87, 0],
+    minDistance: 1.15,
+    maxDistance: 4.2,
+  },
+  labStats: {
+    verticesLabel: "13.380 vértices",
+    trianglesLabel: "26.756 triángulos",
+    meshesLabel: "1 mesh",
+    rigLabel: "Sin rig (pose Q2 horneada)",
+  },
+};
+
 /** Catálogo de definiciones conocidas (extensible). */
 export const BODY_MODELS_BY_ID: Record<string, BodyModelDefinition> = {
+  [NEUTRO_BODY_V1_MODEL.id]: NEUTRO_BODY_V1_MODEL,
   [TRIPO_PROTOTYPE_MODEL.id]: TRIPO_PROTOTYPE_MODEL,
 };
 
