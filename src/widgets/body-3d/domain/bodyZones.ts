@@ -5,6 +5,10 @@ import type {
   BodyZoneHierarchy,
   ParentBodyZoneDefinition,
 } from "@/widgets/body-3d/domain/bodyZoneTypes";
+import {
+  isAtomicZone,
+  isParentZone,
+} from "@/widgets/body-3d/domain/bodyZoneTypes";
 
 type Side = "left" | "right";
 type Quad = "front" | "back" | "inner" | "outer";
@@ -219,11 +223,133 @@ export const ATOMIC_PELVIS_ZONES: readonly AtomicBodyZoneDefinition[] = [
   pelvisAtomic("sacrum", "Sacro", "center"),
 ] as const;
 
+function legAtomic(
+  id: string,
+  label: string,
+  side: "left" | "right",
+): AtomicBodyZoneDefinition {
+  return {
+    id,
+    label,
+    region: "legs",
+    side,
+    kind: "atomic",
+    interactionMeshName: `zone_${id}`,
+  };
+}
+
+function legParent(
+  id: string,
+  label: string,
+  side: "left" | "right",
+  childIds: readonly string[],
+): ParentBodyZoneDefinition {
+  return {
+    id,
+    label,
+    region: "legs",
+    side,
+    kind: "parent",
+    childIds,
+  };
+}
+
+/** 22 zonas atómicas oficiales de piernas (G2 + L2). */
+export const ATOMIC_LEG_ZONES: readonly AtomicBodyZoneDefinition[] = [
+  legAtomic("right_thigh_front", "Muslo derecho frente", "right"),
+  legAtomic("right_thigh_back", "Muslo derecho espalda", "right"),
+  legAtomic("right_thigh_inner", "Muslo derecho interior", "right"),
+  legAtomic("right_thigh_outer", "Muslo derecho exterior", "right"),
+  legAtomic("right_knee", "Rodilla derecha", "right"),
+  legAtomic("right_lower_leg_front", "Pierna derecha frente", "right"),
+  legAtomic("right_lower_leg_back", "Pierna derecha espalda", "right"),
+  legAtomic("right_lower_leg_inner", "Pierna derecha interior", "right"),
+  legAtomic("right_lower_leg_outer", "Pierna derecha exterior", "right"),
+  legAtomic("right_ankle", "Tobillo derecho", "right"),
+  legAtomic("right_foot", "Pie derecho", "right"),
+  legAtomic("left_thigh_front", "Muslo izquierdo frente", "left"),
+  legAtomic("left_thigh_back", "Muslo izquierdo espalda", "left"),
+  legAtomic("left_thigh_inner", "Muslo izquierdo interior", "left"),
+  legAtomic("left_thigh_outer", "Muslo izquierdo exterior", "left"),
+  legAtomic("left_knee", "Rodilla izquierda", "left"),
+  legAtomic("left_lower_leg_front", "Pierna izquierda frente", "left"),
+  legAtomic("left_lower_leg_back", "Pierna izquierda espalda", "left"),
+  legAtomic("left_lower_leg_inner", "Pierna izquierda interior", "left"),
+  legAtomic("left_lower_leg_outer", "Pierna izquierda exterior", "left"),
+  legAtomic("left_ankle", "Tobillo izquierdo", "left"),
+  legAtomic("left_foot", "Pie izquierdo", "left"),
+] as const;
+
+export const PARENT_LEG_ZONES: readonly ParentBodyZoneDefinition[] = [
+  legParent("right_thigh", "Muslo derecho", "right", [
+    "right_thigh_front",
+    "right_thigh_back",
+    "right_thigh_inner",
+    "right_thigh_outer",
+  ]),
+  legParent("left_thigh", "Muslo izquierdo", "left", [
+    "left_thigh_front",
+    "left_thigh_back",
+    "left_thigh_inner",
+    "left_thigh_outer",
+  ]),
+  legParent("right_lower_leg", "Pierna derecha", "right", [
+    "right_lower_leg_front",
+    "right_lower_leg_back",
+    "right_lower_leg_inner",
+    "right_lower_leg_outer",
+  ]),
+  legParent("left_lower_leg", "Pierna izquierda", "left", [
+    "left_lower_leg_front",
+    "left_lower_leg_back",
+    "left_lower_leg_inner",
+    "left_lower_leg_outer",
+  ]),
+] as const;
+
+export const LEG_ZONE_HIERARCHIES: readonly BodyZoneHierarchy[] =
+  PARENT_LEG_ZONES.map((p) => ({
+    parentId: p.id,
+    childIds: p.childIds,
+  }));
+
+export const RIGHT_FULL_LEG_GROUP: BodyZoneGroupDefinition = {
+  id: "right_full_leg",
+  label: "Pierna derecha completa",
+  zoneIds: [
+    "right_thigh",
+    "right_knee",
+    "right_lower_leg",
+    "right_ankle",
+    "right_foot",
+  ],
+};
+
+export const LEFT_FULL_LEG_GROUP: BodyZoneGroupDefinition = {
+  id: "left_full_leg",
+  label: "Pierna izquierda completa",
+  zoneIds: [
+    "left_thigh",
+    "left_knee",
+    "left_lower_leg",
+    "left_ankle",
+    "left_foot",
+  ],
+};
+
+export const BOTH_LEGS_GROUP: BodyZoneGroupDefinition = {
+  id: "both_legs",
+  label: "Ambas piernas",
+  zoneIds: [RIGHT_FULL_LEG_GROUP.id, LEFT_FULL_LEG_GROUP.id],
+};
+
 export const ALL_BODY_ZONES: readonly BodyZoneDefinition[] = [
   ...ATOMIC_ARM_ZONES,
   ...PARENT_ARM_ZONES,
   ...ATOMIC_TORSO_ZONES,
   ...ATOMIC_PELVIS_ZONES,
+  ...ATOMIC_LEG_ZONES,
+  ...PARENT_LEG_ZONES,
 ] as const;
 
 export const BODY_ZONES_BY_ID: Readonly<Record<string, BodyZoneDefinition>> =
@@ -363,10 +489,17 @@ export const PELVIS_ZONE_GROUPS: readonly BodyZoneGroupDefinition[] = [
   PELVIS_REGION_GROUP,
 ] as const;
 
+export const LEG_ZONE_GROUPS: readonly BodyZoneGroupDefinition[] = [
+  RIGHT_FULL_LEG_GROUP,
+  LEFT_FULL_LEG_GROUP,
+  BOTH_LEGS_GROUP,
+] as const;
+
 export const ALL_ZONE_GROUPS: readonly BodyZoneGroupDefinition[] = [
   ...ARM_ZONE_GROUPS,
   ...TORSO_ZONE_GROUPS,
   ...PELVIS_ZONE_GROUPS,
+  ...LEG_ZONE_GROUPS,
 ] as const;
 
 export const BODY_ZONE_GROUPS_BY_ID: Readonly<
@@ -415,104 +548,84 @@ export const LEGS_G1_INTERACTION_MODEL_SRC =
 export const LEGS_G2_INTERACTION_MODEL_SRC =
   "/models/interaction/pilot/neutro_body_v1_legs_g2.glb";
 
-/** 16 subzonas experimentales thigh/lower_leg (no atómicas definitivas aún). */
-export const LEG_EXPERIMENTAL_DETAILED_ZONE_IDS = [
-  "right_thigh_front",
-  "right_thigh_back",
-  "right_thigh_inner",
-  "right_thigh_outer",
-  "left_thigh_front",
-  "left_thigh_back",
-  "left_thigh_inner",
-  "left_thigh_outer",
-  "right_lower_leg_front",
-  "right_lower_leg_back",
-  "right_lower_leg_inner",
-  "right_lower_leg_outer",
-  "left_lower_leg_front",
-  "left_lower_leg_back",
-  "left_lower_leg_inner",
-  "left_lower_leg_outer",
-] as const;
+/** Mapa oficial de piernas detalladas (22 meshes). */
+export const DETAILED_LEGS_INTERACTION_MODEL_SRC =
+  "/models/interaction/neutro_body_v1_detailed_legs_interaction.glb";
 
-/** Parents lógicos (sin mesh coarse en candidatos G*). */
-export const LEG_LOGICAL_PARENT_IDS = [
-  "right_thigh",
-  "left_thigh",
-  "right_lower_leg",
-  "left_lower_leg",
-] as const;
+/** Mapa corporal integrado sin cabeza/cuello (69 meshes atómicos). */
+export const BODY_69_INTERACTION_MODEL_SRC =
+  "/models/interaction/neutro_body_v1_body_interaction.glb";
 
-export const LEG_LOGICAL_HIERARCHIES = [
-  {
-    parentId: "right_thigh",
-    childIds: [
-      "right_thigh_front",
-      "right_thigh_back",
-      "right_thigh_inner",
-      "right_thigh_outer",
-    ],
-  },
-  {
-    parentId: "left_thigh",
-    childIds: [
-      "left_thigh_front",
-      "left_thigh_back",
-      "left_thigh_inner",
-      "left_thigh_outer",
-    ],
-  },
-  {
-    parentId: "right_lower_leg",
-    childIds: [
-      "right_lower_leg_front",
-      "right_lower_leg_back",
-      "right_lower_leg_inner",
-      "right_lower_leg_outer",
-    ],
-  },
-  {
-    parentId: "left_lower_leg",
-    childIds: [
-      "left_lower_leg_front",
-      "left_lower_leg_back",
-      "left_lower_leg_inner",
-      "left_lower_leg_outer",
-    ],
-  },
-] as const;
+/** Alias de compatibilidad — IDs atómicos detallados de piernas. */
+export const LEG_EXPERIMENTAL_DETAILED_ZONE_IDS =
+  ATOMIC_LEG_ZONES.filter((z) =>
+    z.id.includes("thigh_") || z.id.includes("lower_leg_"),
+  ).map((z) => z.id);
 
-/** Grupos conceptuales de piernas (0 meshes). */
-export const RIGHT_FULL_LEG_GROUP: BodyZoneGroupDefinition = {
-  id: "right_full_leg",
-  label: "Right full leg",
-  zoneIds: [
-    "right_thigh",
-    "right_knee",
-    "right_lower_leg",
-    "right_ankle",
-    "right_foot",
-  ],
-};
-export const LEFT_FULL_LEG_GROUP: BodyZoneGroupDefinition = {
-  id: "left_full_leg",
-  label: "Left full leg",
-  zoneIds: [
-    "left_thigh",
-    "left_knee",
-    "left_lower_leg",
-    "left_ankle",
-    "left_foot",
-  ],
-};
-export const BOTH_LEGS_GROUP: BodyZoneGroupDefinition = {
-  id: "both_legs",
-  label: "Both legs",
-  zoneIds: [
-    ...RIGHT_FULL_LEG_GROUP.zoneIds,
-    ...LEFT_FULL_LEG_GROUP.zoneIds,
-  ],
-};
+export const LEG_LOGICAL_PARENT_IDS = PARENT_LEG_ZONES.map((z) => z.id);
+export const LEG_LOGICAL_HIERARCHIES = LEG_ZONE_HIERARCHIES;
+
+/** Validación automática del dominio de 69 zonas atómicas. */
+export function validateBodyZoneDomain(): {
+  ok: boolean;
+  atomicArms: number;
+  atomicTorsoPelvis: number;
+  atomicLegs: number;
+  totalAtomic: number;
+  duplicateIds: string[];
+  duplicateMeshNames: string[];
+  parentsWithMesh: string[];
+  groupsWithMesh: string[];
+  atomicsMissingMesh: string[];
+} {
+  const atomics = ALL_BODY_ZONES.filter(isAtomicZone);
+  const parents = ALL_BODY_ZONES.filter(isParentZone);
+  const atomicArms = atomics.filter((z) => z.region === "arms" || z.region === "hands").length;
+  const atomicLegs = atomics.filter((z) => z.region === "legs" || z.region === "feet").length;
+  const atomicTorsoPelvis = atomics.filter((z) => z.region === "torso").length;
+
+  const ids = ALL_BODY_ZONES.map((z) => z.id);
+  const duplicateIds = ids.filter((id, i) => ids.indexOf(id) !== i);
+
+  const meshNames = atomics.map((z) => z.interactionMeshName);
+  const duplicateMeshNames = meshNames.filter(
+    (n, i) => meshNames.indexOf(n) !== i,
+  );
+
+  const parentsWithMesh = parents
+    .filter((p) => "interactionMeshName" in p && Boolean((p as { interactionMeshName?: string }).interactionMeshName))
+    .map((p) => p.id);
+
+  const groupsWithMesh = ALL_ZONE_GROUPS.filter((g) =>
+    Boolean((g as { interactionMeshName?: string }).interactionMeshName),
+  ).map((g) => g.id);
+
+  const atomicsMissingMesh = atomics
+    .filter((z) => !z.interactionMeshName)
+    .map((z) => z.id);
+
+  return {
+    ok:
+      atomicArms === 24 &&
+      atomicTorsoPelvis === 23 &&
+      atomicLegs === 22 &&
+      atomics.length === 69 &&
+      duplicateIds.length === 0 &&
+      duplicateMeshNames.length === 0 &&
+      parentsWithMesh.length === 0 &&
+      groupsWithMesh.length === 0 &&
+      atomicsMissingMesh.length === 0,
+    atomicArms,
+    atomicTorsoPelvis,
+    atomicLegs,
+    totalAtomic: atomics.length,
+    duplicateIds: [...new Set(duplicateIds)],
+    duplicateMeshNames: [...new Set(duplicateMeshNames)],
+    parentsWithMesh,
+    groupsWithMesh,
+    atomicsMissingMesh,
+  };
+}
 
 /** Legacy longitudinal R2 (6 meshes derecho) — referencia. */
 export const RIGHT_ARM_INTERACTION_MODEL_SRC =
@@ -533,10 +646,18 @@ export type InteractionDebugLayer =
   | "legs_l2"
   | "legs_g1"
   | "legs_g2"
+  | "detailed_legs"
   | "central_plus_arms_legs_l1"
   | "central_plus_arms_legs_l2"
   | "central_plus_arms_legs_g1"
-  | "central_plus_arms_legs_g2";
+  | "central_plus_arms_legs_g2"
+  | "body_69";
+
+export type BodyRegionFilter =
+  | "all"
+  | "arms"
+  | "torso_pelvis"
+  | "legs";
 
 export function interactionModelSrcForLayer(
   layer: InteractionDebugLayer,
@@ -561,6 +682,8 @@ export function interactionModelSrcForLayer(
   if (layer === "legs_l2") return LEGS_L2_INTERACTION_MODEL_SRC;
   if (layer === "legs_g1") return LEGS_G1_INTERACTION_MODEL_SRC;
   if (layer === "legs_g2") return LEGS_G2_INTERACTION_MODEL_SRC;
+  if (layer === "detailed_legs") return DETAILED_LEGS_INTERACTION_MODEL_SRC;
+  if (layer === "body_69") return BODY_69_INTERACTION_MODEL_SRC;
   return DETAILED_ARMS_INTERACTION_MODEL_SRC;
 }
 

@@ -13,6 +13,7 @@ import type {
 } from "@/widgets/body-3d/bodyViewerTypes";
 import type {
   ArmDebugVisibility,
+  BodyRegionFilter,
   InteractionDebugLayer,
 } from "@/widgets/body-3d/domain/bodyZones";
 
@@ -29,7 +30,8 @@ export function BodyLabWorkbench() {
   const [armVisibility, setArmVisibility] =
     useState<ArmDebugVisibility>("both");
   const [debugLayer, setDebugLayer] =
-    useState<InteractionDebugLayer>("arms");
+    useState<InteractionDebugLayer>("body_69");
+  const [regionFilter, setRegionFilter] = useState<BodyRegionFilter>("all");
 
   const activeModel = useMemo(
     () =>
@@ -52,7 +54,8 @@ export function BodyLabWorkbench() {
     setShowInteractionZones(false);
     setZonesVisualization("surface");
     setArmVisibility("both");
-    setDebugLayer("arms");
+    setDebugLayer("body_69");
+    setRegionFilter("all");
   }
 
   return (
@@ -68,6 +71,7 @@ export function BodyLabWorkbench() {
           zonesVisualization={zonesVisualization}
           armVisibility={armVisibility}
           debugLayer={debugLayer}
+          regionFilter={regionFilter}
           height="min(70dvh, 680px)"
         />
         <p className="mt-3 text-center text-xs text-zinc-500 sm:text-left">
@@ -93,6 +97,8 @@ export function BodyLabWorkbench() {
         onArmVisibilityChange={setArmVisibility}
         debugLayer={debugLayer}
         onDebugLayerChange={setDebugLayer}
+        regionFilter={regionFilter}
+        onRegionFilterChange={setRegionFilter}
       />
     </div>
   );

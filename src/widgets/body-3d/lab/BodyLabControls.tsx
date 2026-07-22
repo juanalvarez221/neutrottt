@@ -7,6 +7,7 @@ import type {
 } from "@/widgets/body-3d/bodyViewerTypes";
 import type {
   ArmDebugVisibility,
+  BodyRegionFilter,
   InteractionDebugLayer,
 } from "@/widgets/body-3d/domain/bodyZones";
 import { CAMERA_VIEW_LABELS } from "@/widgets/body-3d/lab/bodyLabTypes";
@@ -29,6 +30,8 @@ type BodyLabControlsProps = {
   onArmVisibilityChange: (value: ArmDebugVisibility) => void;
   debugLayer: InteractionDebugLayer;
   onDebugLayerChange: (value: InteractionDebugLayer) => void;
+  regionFilter: BodyRegionFilter;
+  onRegionFilterChange: (value: BodyRegionFilter) => void;
 };
 
 const CAMERA_VIEWS: BodyCameraView[] = ["front", "back", "left", "right"];
@@ -59,6 +62,8 @@ export function BodyLabControls({
   onArmVisibilityChange,
   debugLayer,
   onDebugLayerChange,
+  regionFilter,
+  onRegionFilterChange,
 }: BodyLabControlsProps) {
   const stats = activeModel.labStats;
   const zonesAvailable = activeModel.role === "production";
@@ -70,6 +75,7 @@ export function BodyLabControls({
     debugLayer === "central_plus_arms_legs_l2" ||
     debugLayer === "central_plus_arms_legs_g1" ||
     debugLayer === "central_plus_arms_legs_g2";
+  const showRegionFilter = debugLayer === "body_69";
 
   return (
     <aside className="flex w-full flex-col gap-3 lg:w-[240px] lg:shrink-0">
@@ -200,15 +206,13 @@ export function BodyLabControls({
                 </p>
                 {(
                   [
+                    { id: "body_69", label: "Body Map — 69 zones" },
+                    { id: "detailed_legs", label: "Detailed Legs" },
                     { id: "arms", label: "Detailed Arms" },
                     { id: "torso_pelvis_final", label: "Torso + Pelvis Final" },
                     { id: "legs_l2", label: "Legs L2" },
                     { id: "legs_g1", label: "Legs G1" },
-                    { id: "legs_g2", label: "Legs G2" },
-                    {
-                      id: "central_plus_arms_legs_g1",
-                      label: "Central + arms + G1",
-                    },
+                    { id: "legs_g2", label: "Legs G2 (pilot)" },
                     {
                       id: "central_plus_arms_legs_g2",
                       label: "Central + arms + G2",
@@ -230,6 +234,36 @@ export function BodyLabControls({
                     {option.label}
                   </label>
                 ))}
+                {showRegionFilter ? (
+                  <>
+                    <p className="pt-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-500">
+                      Filtro región
+                    </p>
+                    {(
+                      [
+                        { id: "all", label: "Mostrar todas" },
+                        { id: "arms", label: "Mostrar brazos" },
+                        { id: "torso_pelvis", label: "Mostrar torso/pelvis" },
+                        { id: "legs", label: "Mostrar piernas" },
+                      ] as const
+                    ).map((option) => (
+                      <label
+                        key={option.id}
+                        className="flex min-h-[36px] cursor-pointer items-center gap-2.5 rounded-lg border border-white/8 bg-white/[0.03] px-3 py-1.5 text-sm text-zinc-200 transition hover:bg-white/[0.05]"
+                      >
+                        <input
+                          type="radio"
+                          name="region-filter"
+                          value={option.id}
+                          checked={regionFilter === option.id}
+                          onChange={() => onRegionFilterChange(option.id)}
+                          className="accent-stone-400"
+                        />
+                        {option.label}
+                      </label>
+                    ))}
+                  </>
+                ) : null}
                 {showArmFilter ? (
                   <>
                     <p className="pt-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-500">

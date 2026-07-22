@@ -11,7 +11,9 @@ import {
   type Object3D,
 } from "three";
 import {
+  BODY_69_INTERACTION_MODEL_SRC,
   DETAILED_ARMS_INTERACTION_MODEL_SRC,
+  DETAILED_LEGS_INTERACTION_MODEL_SRC,
   LEGS_G1_INTERACTION_MODEL_SRC,
   LEGS_G2_INTERACTION_MODEL_SRC,
   LEGS_L1_INTERACTION_MODEL_SRC,
@@ -22,6 +24,7 @@ import {
   TORSO_T1_INTERACTION_MODEL_SRC,
   TORSO_T2_INTERACTION_MODEL_SRC,
   type ArmDebugVisibility,
+  type BodyRegionFilter,
   type InteractionDebugLayer,
 } from "@/widgets/body-3d/domain/bodyZones";
 
@@ -31,6 +34,7 @@ type InteractionZonesDebugProps = Omit<ThreeElements["group"], "children"> & {
   visualization?: "surface" | "edges";
   armVisibility?: ArmDebugVisibility;
   debugLayer?: InteractionDebugLayer;
+  regionFilter?: BodyRegionFilter;
 };
 
 function disposeMaterial(material: Material | Material[]) {
@@ -44,6 +48,44 @@ function sideVisible(name: string, visibility: ArmDebugVisibility): boolean {
   if (visibility === "both") return true;
   if (visibility === "right") return name.includes("zone_right_");
   return name.includes("zone_left_");
+}
+
+function regionVisible(name: string, filter: BodyRegionFilter): boolean {
+  if (filter === "all") return true;
+  const n = name.toLowerCase();
+  if (filter === "arms") {
+    return (
+      n.includes("upper_arm") ||
+      n.includes("forearm") ||
+      n.includes("elbow") ||
+      n.includes("wrist") ||
+      n.includes("hand") ||
+      n.includes("shoulder")
+    );
+  }
+  if (filter === "legs") {
+    return (
+      n.includes("thigh") ||
+      n.includes("knee") ||
+      n.includes("lower_leg") ||
+      n.includes("ankle") ||
+      n.includes("foot")
+    );
+  }
+  // torso_pelvis
+  return !(
+    n.includes("upper_arm") ||
+    n.includes("forearm") ||
+    n.includes("elbow") ||
+    n.includes("wrist") ||
+    n.includes("hand") ||
+    n.includes("shoulder") ||
+    n.includes("thigh") ||
+    n.includes("knee") ||
+    n.includes("lower_leg") ||
+    n.includes("ankle") ||
+    n.includes("foot")
+  );
 }
 
 function prepareScene(
@@ -127,45 +169,75 @@ export function InteractionZonesDebug({
   visualization = "surface",
   armVisibility = "both",
   debugLayer = "arms",
+  regionFilter = "all",
   ...props
 }: InteractionZonesDebugProps) {
+  const showBody69 = debugLayer === "body_69";
+  const showDetailedLegs = debugLayer === "detailed_legs";
   const showArms =
-    debugLayer === "arms" ||
-    debugLayer === "arms_and_torso_pelvis_p2" ||
-    debugLayer === "arms_and_torso_pelvis_final" ||
-    debugLayer === "central_plus_arms_legs_l1" ||
-    debugLayer === "central_plus_arms_legs_l2" ||
-    debugLayer === "central_plus_arms_legs_g1" ||
-    debugLayer === "central_plus_arms_legs_g2";
-  const showTorsoT1 = debugLayer === "torso_t1";
-  const showTorsoT2 = debugLayer === "torso_t2";
-  const showPelvisP1 = debugLayer === "torso_pelvis_p1";
+    !showBody69 &&
+    !showDetailedLegs &&
+    (debugLayer === "arms" ||
+      debugLayer === "arms_and_torso_pelvis_p2" ||
+      debugLayer === "arms_and_torso_pelvis_final" ||
+      debugLayer === "central_plus_arms_legs_l1" ||
+      debugLayer === "central_plus_arms_legs_l2" ||
+      debugLayer === "central_plus_arms_legs_g1" ||
+      debugLayer === "central_plus_arms_legs_g2");
+  const showTorsoT1 = !showBody69 && debugLayer === "torso_t1";
+  const showTorsoT2 = !showBody69 && debugLayer === "torso_t2";
+  const showPelvisP1 = !showBody69 && debugLayer === "torso_pelvis_p1";
   const showPelvisP2 =
-    debugLayer === "torso_pelvis_p2" ||
-    debugLayer === "arms_and_torso_pelvis_p2";
+    !showBody69 &&
+    (debugLayer === "torso_pelvis_p2" ||
+      debugLayer === "arms_and_torso_pelvis_p2");
   const showPelvisFinal =
-    debugLayer === "torso_pelvis_final" ||
-    debugLayer === "arms_and_torso_pelvis_final" ||
-    debugLayer === "central_plus_arms_legs_l1" ||
-    debugLayer === "central_plus_arms_legs_l2" ||
-    debugLayer === "central_plus_arms_legs_g1" ||
-    debugLayer === "central_plus_arms_legs_g2";
+    !showBody69 &&
+    (debugLayer === "torso_pelvis_final" ||
+      debugLayer === "arms_and_torso_pelvis_final" ||
+      debugLayer === "central_plus_arms_legs_l1" ||
+      debugLayer === "central_plus_arms_legs_l2" ||
+      debugLayer === "central_plus_arms_legs_g1" ||
+      debugLayer === "central_plus_arms_legs_g2");
   const showLegsL1 =
-    debugLayer === "legs_l1" || debugLayer === "central_plus_arms_legs_l1";
+    !showBody69 &&
+    (debugLayer === "legs_l1" || debugLayer === "central_plus_arms_legs_l1");
   const showLegsL2 =
-    debugLayer === "legs_l2" || debugLayer === "central_plus_arms_legs_l2";
+    !showBody69 &&
+    (debugLayer === "legs_l2" || debugLayer === "central_plus_arms_legs_l2");
   const showLegsG1 =
-    debugLayer === "legs_g1" || debugLayer === "central_plus_arms_legs_g1";
+    !showBody69 &&
+    (debugLayer === "legs_g1" || debugLayer === "central_plus_arms_legs_g1");
   const showLegsG2 =
-    debugLayer === "legs_g2" || debugLayer === "central_plus_arms_legs_g2";
+    !showBody69 &&
+    !showDetailedLegs &&
+    (debugLayer === "legs_g2" || debugLayer === "central_plus_arms_legs_g2");
 
   const armFilter = useMemo(
     () => (name: string) => sideVisible(name, armVisibility),
     [armVisibility],
   );
 
+  const body69Filter = useMemo(
+    () => (name: string) => regionVisible(name, regionFilter),
+    [regionFilter],
+  );
+
   return (
     <group {...props} rotation={rotation} scale={[scale, scale, scale]}>
+      {showBody69 ? (
+        <InteractionGlbLayer
+          src={BODY_69_INTERACTION_MODEL_SRC}
+          visualization={visualization}
+          filter={body69Filter}
+        />
+      ) : null}
+      {showDetailedLegs ? (
+        <InteractionGlbLayer
+          src={DETAILED_LEGS_INTERACTION_MODEL_SRC}
+          visualization={visualization}
+        />
+      ) : null}
       {showArms ? (
         <InteractionGlbLayer
           src={DETAILED_ARMS_INTERACTION_MODEL_SRC}
@@ -241,3 +313,5 @@ useGLTF.preload(LEGS_L1_INTERACTION_MODEL_SRC);
 useGLTF.preload(LEGS_L2_INTERACTION_MODEL_SRC);
 useGLTF.preload(LEGS_G1_INTERACTION_MODEL_SRC);
 useGLTF.preload(LEGS_G2_INTERACTION_MODEL_SRC);
+useGLTF.preload(DETAILED_LEGS_INTERACTION_MODEL_SRC);
+useGLTF.preload(BODY_69_INTERACTION_MODEL_SRC);

@@ -398,13 +398,15 @@ LEG_G1_CONFIG = LegCircumferentialPair(
     lower_leg=AngularConfig(front_deg=90.0, outer_deg=90.0, back_deg=90.0, inner_deg=90.0),
 )
 
-# G2 — Tattoo Optimized Legs
-# Thigh: generous front + outer; back/inner remain usable (>= ~20% target intent)
-# Lower: front/outer/back emphasized; inner not minimal
+# G2 — Tattoo Optimized Legs (official circumferential)
 LEG_G2_CONFIG = LegCircumferentialPair(
     thigh=AngularConfig(front_deg=105.0, outer_deg=100.0, back_deg=80.0, inner_deg=75.0),
     lower_leg=AngularConfig(front_deg=100.0, outer_deg=95.0, back_deg=90.0, inner_deg=75.0),
 )
+
+# Canonical finals (Paso 29)
+LEG_FINAL_CIRCUMFERENTIAL_CONFIG = LEG_G2_CONFIG
+
 
 LEG_CIRC_ISLAND_CLEANUP = IslandCleanupConfig(
     max_fraction_of_parent=0.03,

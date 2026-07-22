@@ -18,6 +18,7 @@ import type {
 } from "@/widgets/body-3d/bodyViewerTypes";
 import type {
   ArmDebugVisibility,
+  BodyRegionFilter,
   InteractionDebugLayer,
 } from "@/widgets/body-3d/domain/bodyZones";
 
@@ -38,6 +39,7 @@ type Body3DViewerProps = {
   zonesVisualization?: "surface" | "edges";
   armVisibility?: ArmDebugVisibility;
   debugLayer?: InteractionDebugLayer;
+  regionFilter?: BodyRegionFilter;
   className?: string;
   height?: string;
 };
@@ -62,6 +64,7 @@ function BodyScene({
   zonesVisualization,
   armVisibility,
   debugLayer,
+  regionFilter,
 }: {
   model: BodyModelDefinition;
   appearance: BodyAppearanceMode;
@@ -70,6 +73,7 @@ function BodyScene({
   zonesVisualization: "surface" | "edges";
   armVisibility: ArmDebugVisibility;
   debugLayer: InteractionDebugLayer;
+  regionFilter: BodyRegionFilter;
 }) {
   const canShowZones =
     showInteractionZones && model.role === "production";
@@ -88,6 +92,7 @@ function BodyScene({
           visualization={zonesVisualization}
           armVisibility={armVisibility}
           debugLayer={debugLayer}
+          regionFilter={regionFilter}
         />
       ) : null}
     </Center>
@@ -118,6 +123,7 @@ export function Body3DViewer({
   zonesVisualization = "surface",
   armVisibility = "both",
   debugLayer = "arms",
+  regionFilter = "all",
   className = "",
   height = "min(72dvh, 720px)",
 }: Body3DViewerProps) {
@@ -217,6 +223,7 @@ export function Body3DViewer({
               zonesVisualization={zonesVisualization}
               armVisibility={armVisibility}
               debugLayer={debugLayer}
+              regionFilter={regionFilter}
             />
           </Suspense>
 
