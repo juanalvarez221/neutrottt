@@ -220,7 +220,13 @@ export const RIGHT_ARM_C1_INTERACTION_MODEL_SRC =
 export const RIGHT_ARM_C2_INTERACTION_MODEL_SRC =
   "/models/interaction/pilot/right_arm_c2.glb";
 
-export type InteractionDebugModelId = "longitudinal" | "c1" | "c2";
+export type InteractionDebugModelId =
+  | "longitudinal"
+  | "c1"
+  | "c2"
+  | "d1"
+  | "d2"
+  | "d3";
 
 export const INTERACTION_DEBUG_MODELS: Record<
   InteractionDebugModelId,
@@ -237,5 +243,17 @@ export const INTERACTION_DEBUG_MODELS: Record<
   c2: {
     src: RIGHT_ARM_C2_INTERACTION_MODEL_SRC,
     label: "Circunferencial C2",
+  },
+  d1: {
+    src: "/models/interaction/pilot/right_arm_d1.glb",
+    label: "Frame D1",
+  },
+  d2: {
+    src: "/models/interaction/pilot/right_arm_d2.glb",
+    label: "Frame D2",
+  },
+  d3: {
+    src: "/models/interaction/pilot/right_arm_d3.glb",
+    label: "Frame D3",
   },
 };

@@ -188,6 +188,9 @@ export function BodyLabControls({
                     { id: "longitudinal", label: "Longitudinal" },
                     { id: "c1", label: "Circunferencial C1" },
                     { id: "c2", label: "Circunferencial C2" },
+                    { id: "d1", label: "Frame D1" },
+                    { id: "d2", label: "Frame D2" },
+                    { id: "d3", label: "Frame D3" },
                   ] as const
                 ).map((option) => (
                   <label

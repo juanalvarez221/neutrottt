@@ -129,3 +129,6 @@ export function InteractionZonesDebug({
 useGLTF.preload(INTERACTION_DEBUG_MODELS.longitudinal.src);
 useGLTF.preload(INTERACTION_DEBUG_MODELS.c1.src);
 useGLTF.preload(INTERACTION_DEBUG_MODELS.c2.src);
+useGLTF.preload(INTERACTION_DEBUG_MODELS.d1.src);
+useGLTF.preload(INTERACTION_DEBUG_MODELS.d2.src);
+useGLTF.preload(INTERACTION_DEBUG_MODELS.d3.src);
