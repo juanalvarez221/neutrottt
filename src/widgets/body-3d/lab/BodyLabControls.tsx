@@ -65,7 +65,9 @@ export function BodyLabControls({
   const showArmFilter =
     debugLayer === "arms" ||
     debugLayer === "arms_and_torso_pelvis_p2" ||
-    debugLayer === "arms_and_torso_pelvis_final";
+    debugLayer === "arms_and_torso_pelvis_final" ||
+    debugLayer === "central_plus_arms_legs_l1" ||
+    debugLayer === "central_plus_arms_legs_l2";
 
   return (
     <aside className="flex w-full flex-col gap-3 lg:w-[240px] lg:shrink-0">
@@ -197,15 +199,16 @@ export function BodyLabControls({
                 {(
                   [
                     { id: "arms", label: "Detailed Arms" },
-                    { id: "torso_t2", label: "Torso T2" },
-                    { id: "torso_pelvis_p1", label: "Torso + Pelvis P1" },
+                    { id: "torso_pelvis_final", label: "Torso + Pelvis Final" },
+                    { id: "legs_l1", label: "Legs L1" },
+                    { id: "legs_l2", label: "Legs L2" },
                     {
-                      id: "torso_pelvis_final",
-                      label: "Torso + Pelvis Final",
+                      id: "central_plus_arms_legs_l1",
+                      label: "Central + arms + L1",
                     },
                     {
-                      id: "arms_and_torso_pelvis_final",
-                      label: "Brazos + torso + pelvis",
+                      id: "central_plus_arms_legs_l2",
+                      label: "Central + arms + L2",
                     },
                   ] as const
                 ).map((option) => (

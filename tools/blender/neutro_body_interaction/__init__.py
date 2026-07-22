@@ -25,6 +25,12 @@ from .config import (
     MUTABLE_LOWER_TORSO_IDS,
     PELVIS_ISLAND_CLEANUP,
     RIBS_ISLAND_CLEANUP,
+    LEG_L1_CONFIG,
+    LEG_L2_CONFIG,
+    LEG_MEMBERSHIP_CONFIG,
+    LEG_LONGITUDINAL_ZONE_IDS,
+    LEG_ZONE_COLORS,
+    LEG_ISLAND_CLEANUP,
 )
 from .geometry import (
     angle_deg,
@@ -61,6 +67,18 @@ from .pelvis_segmentation import (
     resolve_pelvis_landmarks,
     integrate_pelvis_with_torso,
     ribs_secondary_ok,
+)
+from .leg_segmentation import (
+    LegSide,
+    LegBoneNames,
+    LegLandmarks,
+    resolve_leg_landmarks,
+    resolve_leg_longitudinal_bands,
+    is_leg_member,
+    classify_leg_longitudinal,
+    expected_leg_zones,
+    segment_leg_faces,
+    default_leg_config,
 )
 
 __all__ = [
@@ -118,4 +136,20 @@ __all__ = [
     "MUTABLE_LOWER_TORSO_IDS",
     "PELVIS_ISLAND_CLEANUP",
     "RIBS_ISLAND_CLEANUP",
+    "LEG_L1_CONFIG",
+    "LEG_L2_CONFIG",
+    "LEG_MEMBERSHIP_CONFIG",
+    "LEG_LONGITUDINAL_ZONE_IDS",
+    "LEG_ZONE_COLORS",
+    "LEG_ISLAND_CLEANUP",
+    "LegSide",
+    "LegBoneNames",
+    "LegLandmarks",
+    "resolve_leg_landmarks",
+    "resolve_leg_longitudinal_bands",
+    "is_leg_member",
+    "classify_leg_longitudinal",
+    "expected_leg_zones",
+    "segment_leg_faces",
+    "default_leg_config",
 ]

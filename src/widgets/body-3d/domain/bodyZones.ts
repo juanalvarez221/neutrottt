@@ -403,6 +403,12 @@ export const TORSO_PELVIS_P2_INTERACTION_MODEL_SRC =
 export const TORSO_PELVIS_FINAL_INTERACTION_MODEL_SRC =
   "/models/interaction/neutro_body_v1_torso_pelvis_interaction.glb";
 
+/** Pilotos longitudinales de piernas (10 meshes). */
+export const LEGS_L1_INTERACTION_MODEL_SRC =
+  "/models/interaction/pilot/neutro_body_v1_legs_l1.glb";
+export const LEGS_L2_INTERACTION_MODEL_SRC =
+  "/models/interaction/pilot/neutro_body_v1_legs_l2.glb";
+
 /** Legacy longitudinal R2 (6 meshes derecho) — referencia. */
 export const RIGHT_ARM_INTERACTION_MODEL_SRC =
   "/models/interaction/neutro_body_v1_right_arm_interaction.glb";
@@ -417,7 +423,11 @@ export type InteractionDebugLayer =
   | "torso_pelvis_p2"
   | "torso_pelvis_final"
   | "arms_and_torso_pelvis_p2"
-  | "arms_and_torso_pelvis_final";
+  | "arms_and_torso_pelvis_final"
+  | "legs_l1"
+  | "legs_l2"
+  | "central_plus_arms_legs_l1"
+  | "central_plus_arms_legs_l2";
 
 export function interactionModelSrcForLayer(
   layer: InteractionDebugLayer,
@@ -430,10 +440,14 @@ export function interactionModelSrcForLayer(
   }
   if (
     layer === "torso_pelvis_final" ||
-    layer === "arms_and_torso_pelvis_final"
+    layer === "arms_and_torso_pelvis_final" ||
+    layer === "central_plus_arms_legs_l1" ||
+    layer === "central_plus_arms_legs_l2"
   ) {
     return TORSO_PELVIS_FINAL_INTERACTION_MODEL_SRC;
   }
+  if (layer === "legs_l1") return LEGS_L1_INTERACTION_MODEL_SRC;
+  if (layer === "legs_l2") return LEGS_L2_INTERACTION_MODEL_SRC;
   return DETAILED_ARMS_INTERACTION_MODEL_SRC;
 }
 

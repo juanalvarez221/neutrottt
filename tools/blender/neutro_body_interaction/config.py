@@ -304,3 +304,74 @@ RIBS_ISLAND_CLEANUP = IslandCleanupConfig(
     max_fraction_of_parent=0.18,
     min_faces=2,
 )
+
+
+@dataclass(frozen=True)
+class LegLongitudinalConfig:
+    """Fractions of thigh / lower-leg / foot bone lengths (longitudinal only)."""
+
+    knee_prox_of_thigh: float = 0.11
+    knee_dist_of_lower: float = 0.11
+    ankle_prox_of_lower: float = 0.11
+    ankle_dist_of_foot: float = 0.14
+    thigh_start_margin: float = 0.08  # frozen pelvis frontier (same as PELVIS)
+
+
+@dataclass(frozen=True)
+class LegMembershipConfig:
+    leg_weight_thresh: float = 0.12
+    lateral_bias: float = 0.02
+    pelvis_bias: float = 0.04
+    outlier_dist: float = 0.16
+    outlier_w_min: float = 0.35
+    distal_override_weight: float = 0.28
+
+
+# L1 — Proportional Baseline (arm-like fractions)
+LEG_L1_CONFIG = LegLongitudinalConfig(
+    knee_prox_of_thigh=0.11,
+    knee_dist_of_lower=0.11,
+    ankle_prox_of_lower=0.11,
+    ankle_dist_of_foot=0.14,
+)
+
+# L2 — Leg Anatomical Balanced (larger selectable knee, slightly larger ankle)
+LEG_L2_CONFIG = LegLongitudinalConfig(
+    knee_prox_of_thigh=0.15,
+    knee_dist_of_lower=0.14,
+    ankle_prox_of_lower=0.13,
+    ankle_dist_of_foot=0.16,
+)
+
+LEG_MEMBERSHIP_CONFIG = LegMembershipConfig()
+
+LEG_LONGITUDINAL_ZONE_IDS: tuple[str, ...] = (
+    "right_thigh",
+    "right_knee",
+    "right_lower_leg",
+    "right_ankle",
+    "right_foot",
+    "left_thigh",
+    "left_knee",
+    "left_lower_leg",
+    "left_ankle",
+    "left_foot",
+)
+
+LEG_ZONE_COLORS: dict[str, tuple[float, float, float, float]] = {
+    "right_thigh": (0.18, 0.72, 0.78, 1.0),
+    "left_thigh": (0.18, 0.72, 0.78, 1.0),
+    "right_knee": (0.95, 0.82, 0.18, 1.0),
+    "left_knee": (0.95, 0.82, 0.18, 1.0),
+    "right_lower_leg": (0.35, 0.48, 0.92, 1.0),
+    "left_lower_leg": (0.35, 0.48, 0.92, 1.0),
+    "right_ankle": (0.55, 0.78, 0.95, 1.0),
+    "left_ankle": (0.55, 0.78, 0.95, 1.0),
+    "right_foot": (0.72, 0.38, 0.88, 1.0),
+    "left_foot": (0.72, 0.38, 0.88, 1.0),
+}
+
+LEG_ISLAND_CLEANUP = IslandCleanupConfig(
+    max_fraction_of_parent=0.06,
+    min_faces=2,
+)
