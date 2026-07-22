@@ -32,6 +32,8 @@ type Body3DViewerProps = {
   cameraViewToken?: number;
   /** Laboratorio: superpone zonas piloto del InteractionModel. */
   showInteractionZones?: boolean;
+  /** Laboratorio: relleno vs wireframe de fronteras. */
+  zonesVisualization?: "surface" | "edges";
   className?: string;
   height?: string;
 };
@@ -53,11 +55,13 @@ function BodyScene({
   appearance,
   wireframe,
   showInteractionZones,
+  zonesVisualization,
 }: {
   model: BodyModelDefinition;
   appearance: BodyAppearanceMode;
   wireframe: boolean;
   showInteractionZones: boolean;
+  zonesVisualization: "surface" | "edges";
 }) {
   const canShowZones =
     showInteractionZones && model.role === "production";
@@ -73,6 +77,7 @@ function BodyScene({
         <InteractionZonesDebug
           rotation={model.rotation}
           scale={model.scale ?? 1}
+          visualization={zonesVisualization}
         />
       ) : null}
     </Center>
@@ -100,6 +105,7 @@ export function Body3DViewer({
   cameraView = "front",
   cameraViewToken = 0,
   showInteractionZones = false,
+  zonesVisualization = "surface",
   className = "",
   height = "min(72dvh, 720px)",
 }: Body3DViewerProps) {
@@ -196,6 +202,7 @@ export function Body3DViewer({
               appearance={appearance}
               wireframe={wireframe}
               showInteractionZones={showInteractionZones}
+              zonesVisualization={zonesVisualization}
             />
           </Suspense>
 

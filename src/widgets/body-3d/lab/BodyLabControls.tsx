@@ -19,6 +19,8 @@ type BodyLabControlsProps = {
   onWireframeChange: (value: boolean) => void;
   showInteractionZones: boolean;
   onShowInteractionZonesChange: (value: boolean) => void;
+  zonesVisualization: "surface" | "edges";
+  onZonesVisualizationChange: (value: "surface" | "edges") => void;
 };
 
 const CAMERA_VIEWS: BodyCameraView[] = ["front", "back", "left", "right"];
@@ -43,6 +45,8 @@ export function BodyLabControls({
   onWireframeChange,
   showInteractionZones,
   onShowInteractionZonesChange,
+  zonesVisualization,
+  onZonesVisualizationChange,
 }: BodyLabControlsProps) {
   const stats = activeModel.labStats;
   const zonesAvailable = activeModel.role === "production";
@@ -165,9 +169,39 @@ export function BodyLabControls({
             Disponible solo con Neutro Body V1.
           </p>
         ) : (
-          <p className="mt-2 text-[11px] leading-relaxed text-zinc-500">
-            Diagnóstico del InteractionModel (brazo derecho). Sin selección.
-          </p>
+          <>
+            <p className="mt-2 text-[11px] leading-relaxed text-zinc-500">
+              Diagnóstico del InteractionModel (brazo derecho). Sin selección.
+            </p>
+            {showInteractionZones ? (
+              <div className="mt-3 space-y-2">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-500">
+                  Visualización de zonas
+                </p>
+                {(
+                  [
+                    { id: "surface", label: "Superficie" },
+                    { id: "edges", label: "Bordes" },
+                  ] as const
+                ).map((option) => (
+                  <label
+                    key={option.id}
+                    className="flex min-h-[36px] cursor-pointer items-center gap-2.5 rounded-lg border border-white/8 bg-white/[0.03] px-3 py-1.5 text-sm text-zinc-200 transition hover:bg-white/[0.05]"
+                  >
+                    <input
+                      type="radio"
+                      name="zones-visualization"
+                      value={option.id}
+                      checked={zonesVisualization === option.id}
+                      onChange={() => onZonesVisualizationChange(option.id)}
+                      className="accent-stone-400"
+                    />
+                    {option.label}
+                  </label>
+                ))}
+              </div>
+            ) : null}
+          </>
         )}
       </section>
 

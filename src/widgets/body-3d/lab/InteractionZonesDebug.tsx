@@ -18,6 +18,8 @@ type InteractionZonesDebugProps = Omit<ThreeElements["group"], "children"> & {
   /** Rotación del BodyVisual activo (misma orientación espacial). */
   rotation?: [number, number, number];
   scale?: number;
+  /** Laboratorio: `surface` = relleno debug; `edges` = wireframe de fronteras. */
+  visualization?: "surface" | "edges";
 };
 
 const EXPECTED_MESH_NAMES = new Set(
@@ -38,6 +40,7 @@ function disposeMaterial(material: Material | Material[]) {
 export function InteractionZonesDebug({
   rotation = [0, 0, 0],
   scale = 1,
+  visualization = "surface",
   ...props
 }: InteractionZonesDebugProps) {
   const { scene } = useGLTF(RIGHT_ARM_INTERACTION_MODEL_SRC);
@@ -52,7 +55,6 @@ export function InteractionZonesDebug({
       mesh.frustumCulled = false;
       mesh.renderOrder = 2;
 
-      // Evitar z-fighting sin desplazar geometría.
       const mats = Array.isArray(mesh.material)
         ? mesh.material
         : mesh.material
@@ -61,9 +63,18 @@ export function InteractionZonesDebug({
 
       const next = mats.map((mat) => {
         const std = (mat as MeshStandardMaterial).clone() as MeshStandardMaterial;
-        std.transparent = true;
-        std.opacity = 0.42;
-        std.depthWrite = false;
+        if (visualization === "edges") {
+          std.transparent = false;
+          std.opacity = 1;
+          std.depthWrite = true;
+          std.wireframe = true;
+          std.wireframeLinewidth = 1;
+        } else {
+          std.transparent = true;
+          std.opacity = 0.42;
+          std.depthWrite = false;
+          std.wireframe = false;
+        }
         std.side = DoubleSide;
         std.polygonOffset = true;
         std.polygonOffsetFactor = -2;
@@ -76,7 +87,6 @@ export function InteractionZonesDebug({
       mesh.material = next.length === 1 ? next[0] : next;
 
       if (mesh.name && !EXPECTED_MESH_NAMES.has(mesh.name)) {
-        // Nombres inesperados: seguir visibles para diagnóstico.
         console.warn(
           `[InteractionZonesDebug] mesh inesperado: ${mesh.name}`,
         );
@@ -84,7 +94,7 @@ export function InteractionZonesDebug({
     });
 
     return { cloned, materials };
-  }, [scene]);
+  }, [scene, visualization]);
 
   useLayoutEffect(() => {
     return () => {
