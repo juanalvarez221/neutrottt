@@ -30,7 +30,7 @@ export function BodyLabWorkbench() {
   const [armVisibility, setArmVisibility] =
     useState<ArmDebugVisibility>("both");
   const [debugLayer, setDebugLayer] =
-    useState<InteractionDebugLayer>("body_69");
+    useState<InteractionDebugLayer>("body_81");
   const [regionFilter, setRegionFilter] = useState<BodyRegionFilter>("all");
 
   const activeModel = useMemo(
@@ -54,7 +54,7 @@ export function BodyLabWorkbench() {
     setShowInteractionZones(false);
     setZonesVisualization("surface");
     setArmVisibility("both");
-    setDebugLayer("body_69");
+    setDebugLayer("body_81");
     setRegionFilter("all");
   }
 

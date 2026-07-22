@@ -452,3 +452,60 @@ LEG_DETAILED_ZONE_COLORS: dict[str, tuple[float, float, float, float]] = {
     "right_foot": (0.72, 0.38, 0.88, 1.0),
     "left_foot": (0.72, 0.38, 0.88, 1.0),
 }
+
+# ---------------------------------------------------------------------------
+# Head / neck / face / ears (Paso 31)
+# ---------------------------------------------------------------------------
+
+HEAD_ZONE_IDS: tuple[str, ...] = (
+    "neck_front",
+    "neck_back",
+    "neck_left",
+    "neck_right",
+    "face_left",
+    "face_right",
+    "head_top",
+    "head_back",
+    "head_left_side",
+    "head_right_side",
+    "left_ear",
+    "right_ear",
+)
+
+HEAD_ZONE_COLORS: dict[str, tuple[float, float, float, float]] = {
+    "neck_front": (0.25, 0.85, 0.55, 1.0),
+    "neck_back": (0.15, 0.65, 0.45, 1.0),
+    "neck_left": (0.45, 0.90, 0.70, 1.0),
+    "neck_right": (0.10, 0.75, 0.60, 1.0),
+    "face_left": (0.95, 0.75, 0.25, 1.0),
+    "face_right": (0.90, 0.55, 0.15, 1.0),
+    "head_top": (0.35, 0.55, 0.95, 1.0),
+    "head_back": (0.25, 0.35, 0.85, 1.0),
+    "head_left_side": (0.55, 0.70, 0.95, 1.0),
+    "head_right_side": (0.20, 0.45, 0.90, 1.0),
+    "left_ear": (0.95, 0.35, 0.85, 1.0),
+    "right_ear": (0.85, 0.25, 0.55, 1.0),
+}
+
+HEAD_HELPER_VG_SUBSTRINGS: tuple[str, ...] = (
+    "helper-l-eye",
+    "helper-r-eye",
+    "helper-l-eyelashes-1",
+    "helper-l-eyelashes-2",
+    "helper-r-eyelashes-1",
+    "helper-r-eyelashes-2",
+    "helper-tongue",
+    "helper-upper-teeth",
+    "helper-lower-teeth",
+    "joint-tongue-1",
+    "joint-tongue-2",
+    "joint-tongue-3",
+    "joint-tongue-4",
+    "joint-l-eye-target",
+    "joint-r-eye-target",
+)
+
+HEAD_ISLAND_CLEANUP = IslandCleanupConfig(
+    max_fraction_of_parent=0.06,
+    min_faces=2,
+)

@@ -75,7 +75,8 @@ export function BodyLabControls({
     debugLayer === "central_plus_arms_legs_l2" ||
     debugLayer === "central_plus_arms_legs_g1" ||
     debugLayer === "central_plus_arms_legs_g2";
-  const showRegionFilter = debugLayer === "body_69";
+  const showRegionFilter =
+    debugLayer === "body_69" || debugLayer === "body_81";
 
   return (
     <aside className="flex w-full flex-col gap-3 lg:w-[240px] lg:shrink-0">
@@ -206,7 +207,8 @@ export function BodyLabControls({
                 </p>
                 {(
                   [
-                    { id: "body_69", label: "Body Map — 69 zones" },
+                    { id: "body_81", label: "Body Map — 81 zones" },
+                    { id: "head_neck", label: "Head / Neck" },
                     { id: "detailed_legs", label: "Detailed Legs" },
                     { id: "arms", label: "Detailed Arms" },
                     { id: "torso_pelvis_final", label: "Torso + Pelvis Final" },
@@ -245,6 +247,7 @@ export function BodyLabControls({
                         { id: "arms", label: "Mostrar brazos" },
                         { id: "torso_pelvis", label: "Mostrar torso/pelvis" },
                         { id: "legs", label: "Mostrar piernas" },
+                        { id: "head_neck", label: "Mostrar cabeza/cuello" },
                       ] as const
                     ).map((option) => (
                       <label

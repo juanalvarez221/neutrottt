@@ -38,6 +38,10 @@ from .config import (
     LEG_CIRC_ISLAND_CLEANUP,
     LEG_DETAILED_ZONE_IDS,
     LEG_DETAILED_ZONE_COLORS,
+    HEAD_ZONE_IDS,
+    HEAD_ZONE_COLORS,
+    HEAD_ISLAND_CLEANUP,
+    HEAD_HELPER_VG_SUBSTRINGS,
 )
 from .geometry import (
     angle_deg,
@@ -61,6 +65,7 @@ from .arm_segmentation import (
     classify_angular_c2,
     angular_sector_scores,
     segment_arm_faces,
+    absorb_distal_digit_tips,
 )
 from .island_cleanup import cleanup_islands, connected_components
 from .island_cleanup_generic import cleanup_islands_generic
@@ -90,6 +95,15 @@ from .leg_segmentation import (
     apply_leg_circumferential,
     expected_detailed_leg_zones,
 )
+from .head_segmentation import (
+    HeadLandmarks,
+    HeadFrame,
+    HeadSegmentationResult,
+    build_head_frame,
+    resolve_head_landmarks,
+    collect_cephalic_universe,
+    segment_head_faces,
+)
 
 __all__ = [
     "ARM_ANGULAR_CONFIG",
@@ -116,6 +130,7 @@ __all__ = [
     "classify_angular_c2",
     "angular_sector_scores",
     "segment_arm_faces",
+    "absorb_distal_digit_tips",
     "cleanup_islands",
     "connected_components",
     "cleanup_islands_generic",
@@ -172,4 +187,16 @@ __all__ = [
     "build_leg_frames",
     "apply_leg_circumferential",
     "expected_detailed_leg_zones",
+    "HEAD_ZONE_IDS",
+    "HEAD_ZONE_COLORS",
+    "HEAD_ISLAND_CLEANUP",
+    "HEAD_HELPER_VG_SUBSTRINGS",
+    "HeadLandmarks",
+    "HeadFrame",
+    "HeadSegmentationResult",
+    "build_head_frame",
+    "resolve_head_landmarks",
+    "collect_cephalic_universe",
+    "segment_head_faces",
+    "absorb_distal_digit_tips",
 ]

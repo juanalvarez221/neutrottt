@@ -11,9 +11,10 @@ import {
   type Object3D,
 } from "three";
 import {
-  BODY_69_INTERACTION_MODEL_SRC,
+  BODY_81_INTERACTION_MODEL_SRC,
   DETAILED_ARMS_INTERACTION_MODEL_SRC,
   DETAILED_LEGS_INTERACTION_MODEL_SRC,
+  HEAD_NECK_INTERACTION_MODEL_SRC,
   LEGS_G1_INTERACTION_MODEL_SRC,
   LEGS_G2_INTERACTION_MODEL_SRC,
   LEGS_L1_INTERACTION_MODEL_SRC,
@@ -72,6 +73,14 @@ function regionVisible(name: string, filter: BodyRegionFilter): boolean {
       n.includes("foot")
     );
   }
+  if (filter === "head_neck") {
+    return (
+      n.includes("neck_") ||
+      n.includes("face_") ||
+      n.includes("head_") ||
+      n.includes("_ear")
+    );
+  }
   // torso_pelvis
   return !(
     n.includes("upper_arm") ||
@@ -84,7 +93,11 @@ function regionVisible(name: string, filter: BodyRegionFilter): boolean {
     n.includes("knee") ||
     n.includes("lower_leg") ||
     n.includes("ankle") ||
-    n.includes("foot")
+    n.includes("foot") ||
+    n.includes("neck_") ||
+    n.includes("face_") ||
+    n.includes("head_") ||
+    n.includes("_ear")
   );
 }
 
@@ -172,10 +185,13 @@ export function InteractionZonesDebug({
   regionFilter = "all",
   ...props
 }: InteractionZonesDebugProps) {
-  const showBody69 = debugLayer === "body_69";
-  const showDetailedLegs = debugLayer === "detailed_legs";
+  const showBodyMap =
+    debugLayer === "body_69" || debugLayer === "body_81";
+  const showHeadNeck = debugLayer === "head_neck";
+  const showDetailedLegs = !showBodyMap && debugLayer === "detailed_legs";
   const showArms =
-    !showBody69 &&
+    !showBodyMap &&
+    !showHeadNeck &&
     !showDetailedLegs &&
     (debugLayer === "arms" ||
       debugLayer === "arms_and_torso_pelvis_p2" ||
@@ -184,15 +200,18 @@ export function InteractionZonesDebug({
       debugLayer === "central_plus_arms_legs_l2" ||
       debugLayer === "central_plus_arms_legs_g1" ||
       debugLayer === "central_plus_arms_legs_g2");
-  const showTorsoT1 = !showBody69 && debugLayer === "torso_t1";
-  const showTorsoT2 = !showBody69 && debugLayer === "torso_t2";
-  const showPelvisP1 = !showBody69 && debugLayer === "torso_pelvis_p1";
+  const showTorsoT1 = !showBodyMap && !showHeadNeck && debugLayer === "torso_t1";
+  const showTorsoT2 = !showBodyMap && !showHeadNeck && debugLayer === "torso_t2";
+  const showPelvisP1 =
+    !showBodyMap && !showHeadNeck && debugLayer === "torso_pelvis_p1";
   const showPelvisP2 =
-    !showBody69 &&
+    !showBodyMap &&
+    !showHeadNeck &&
     (debugLayer === "torso_pelvis_p2" ||
       debugLayer === "arms_and_torso_pelvis_p2");
   const showPelvisFinal =
-    !showBody69 &&
+    !showBodyMap &&
+    !showHeadNeck &&
     (debugLayer === "torso_pelvis_final" ||
       debugLayer === "arms_and_torso_pelvis_final" ||
       debugLayer === "central_plus_arms_legs_l1" ||
@@ -200,16 +219,20 @@ export function InteractionZonesDebug({
       debugLayer === "central_plus_arms_legs_g1" ||
       debugLayer === "central_plus_arms_legs_g2");
   const showLegsL1 =
-    !showBody69 &&
+    !showBodyMap &&
+    !showHeadNeck &&
     (debugLayer === "legs_l1" || debugLayer === "central_plus_arms_legs_l1");
   const showLegsL2 =
-    !showBody69 &&
+    !showBodyMap &&
+    !showHeadNeck &&
     (debugLayer === "legs_l2" || debugLayer === "central_plus_arms_legs_l2");
   const showLegsG1 =
-    !showBody69 &&
+    !showBodyMap &&
+    !showHeadNeck &&
     (debugLayer === "legs_g1" || debugLayer === "central_plus_arms_legs_g1");
   const showLegsG2 =
-    !showBody69 &&
+    !showBodyMap &&
+    !showHeadNeck &&
     !showDetailedLegs &&
     (debugLayer === "legs_g2" || debugLayer === "central_plus_arms_legs_g2");
 
@@ -218,18 +241,24 @@ export function InteractionZonesDebug({
     [armVisibility],
   );
 
-  const body69Filter = useMemo(
+  const bodyMapFilter = useMemo(
     () => (name: string) => regionVisible(name, regionFilter),
     [regionFilter],
   );
 
   return (
     <group {...props} rotation={rotation} scale={[scale, scale, scale]}>
-      {showBody69 ? (
+      {showBodyMap ? (
         <InteractionGlbLayer
-          src={BODY_69_INTERACTION_MODEL_SRC}
+          src={BODY_81_INTERACTION_MODEL_SRC}
           visualization={visualization}
-          filter={body69Filter}
+          filter={bodyMapFilter}
+        />
+      ) : null}
+      {showHeadNeck ? (
+        <InteractionGlbLayer
+          src={HEAD_NECK_INTERACTION_MODEL_SRC}
+          visualization={visualization}
         />
       ) : null}
       {showDetailedLegs ? (
@@ -314,4 +343,5 @@ useGLTF.preload(LEGS_L2_INTERACTION_MODEL_SRC);
 useGLTF.preload(LEGS_G1_INTERACTION_MODEL_SRC);
 useGLTF.preload(LEGS_G2_INTERACTION_MODEL_SRC);
 useGLTF.preload(DETAILED_LEGS_INTERACTION_MODEL_SRC);
-useGLTF.preload(BODY_69_INTERACTION_MODEL_SRC);
+useGLTF.preload(BODY_81_INTERACTION_MODEL_SRC);
+useGLTF.preload(HEAD_NECK_INTERACTION_MODEL_SRC);

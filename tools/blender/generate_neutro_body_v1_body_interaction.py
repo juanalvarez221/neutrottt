@@ -1,17 +1,19 @@
 """
-Assemble official Neutro Body V1 body InteractionModel (69 atomic zones).
+Assemble official Neutro Body V1 body InteractionModel (81 atomic zones).
 
 Combines without reclassification:
-  - detailed arms (24)
+  - detailed arms (24) — includes distal digit tips in hands
   - torso + pelvis final (23)
   - detailed legs (22)
+  - head / neck / face / ears (12)
 
-Also reports unassigned visible surface (head/neck/ears/other) for Paso 29.
+Coverage compares VisibleBodyExterior vs UnionOf81AtomicZones.
+Pelvic internal micro-patches (Paso 30 C03–C09) are excluded from useful exterior.
 
 Outputs:
   assets/blender/neutro-body/interaction/neutro_body_v1_body_interaction.blend
   public/models/interaction/neutro_body_v1_body_interaction.glb
-  artifacts/body-v1-69-zone-map/report.json + renders
+  artifacts/body-v1-81-zone-map/report.json + renders
 
 Run:
   blender.exe --background --python tools/blender/generate_neutro_body_v1_body_interaction.py
@@ -38,6 +40,12 @@ from neutro_body_interaction.config import (  # noqa: E402
     TORSO_T2_CONFIG,
 )
 from neutro_body_interaction.geometry import face_area, world_bbox  # noqa: E402
+from neutro_body_interaction.head_segmentation import (  # noqa: E402
+    build_head_frame,
+    collect_cephalic_universe,
+    resolve_head_landmarks,
+    segment_head_faces,
+)
 from neutro_body_interaction.leg_segmentation import (  # noqa: E402
     apply_leg_circumferential,
     resolve_leg_landmarks,
@@ -53,11 +61,13 @@ from neutro_body_interaction.torso_segmentation import (  # noqa: E402
     segment_torso_faces,
 )
 from neutro_body_interaction.arm_segmentation import vertex_weight  # noqa: E402
+import os  # noqa: E402
 
 SOURCE = REPO / "assets" / "blender" / "neutro-body" / "neutro_body_v1_complete_source.blend"
 ARMS_GLB = REPO / "public" / "models" / "interaction" / "neutro_body_v1_detailed_arms_interaction.glb"
 TORSO_GLB = REPO / "public" / "models" / "interaction" / "neutro_body_v1_torso_pelvis_interaction.glb"
 LEGS_GLB = REPO / "public" / "models" / "interaction" / "neutro_body_v1_detailed_legs_interaction.glb"
+HEAD_GLB = REPO / "public" / "models" / "interaction" / "neutro_body_v1_head_neck_interaction.glb"
 OUT_BLEND = (
     REPO
     / "assets"
@@ -67,7 +77,7 @@ OUT_BLEND = (
     / "neutro_body_v1_body_interaction.blend"
 )
 OUT_GLB = REPO / "public" / "models" / "interaction" / "neutro_body_v1_body_interaction.glb"
-ART = REPO / "artifacts" / "body-v1-69-zone-map"
+ART = REPO / "artifacts" / "body-v1-81-zone-map"
 REPORT = ART / "report.json"
 
 
@@ -152,7 +162,7 @@ def place_cam(cam, view, center, radius):
 
 
 def assemble_official_glbs():
-    for p in (ARMS_GLB, TORSO_GLB, LEGS_GLB):
+    for p in (ARMS_GLB, TORSO_GLB, LEGS_GLB, HEAD_GLB):
         if not p.exists():
             fail(f"Missing prerequisite GLB {p}")
 
@@ -161,6 +171,7 @@ def assemble_official_glbs():
     bpy.ops.import_scene.gltf(filepath=str(ARMS_GLB))
     bpy.ops.import_scene.gltf(filepath=str(TORSO_GLB))
     bpy.ops.import_scene.gltf(filepath=str(LEGS_GLB))
+    bpy.ops.import_scene.gltf(filepath=str(HEAD_GLB))
     after = [o for o in bpy.data.objects if o.name not in before or o.name.startswith("zone_")]
     zone_objs = [o for o in bpy.data.objects if o.name.startswith("zone_")]
     # Deduplicate by base zone name (gltf may suffix .001)
@@ -172,9 +183,9 @@ def assemble_official_glbs():
         else:
             bpy.data.objects.remove(o, do_unlink=True)
     zone_objs = list(by_base.values())
-    if len(zone_objs) != 69:
+    if len(zone_objs) != 81:
         names = sorted(o.name for o in zone_objs)
-        fail(f"Expected 69 zone meshes, got {len(zone_objs)}: {names[:10]}...")
+        fail(f"Expected 81 zone meshes, got {len(zone_objs)}: {names[:10]}...")
 
     # Remove non-zone leftovers
     for o in list(bpy.data.objects):
@@ -348,22 +359,46 @@ def analyze_coverage(rig, baked, baked_mesh, offset):
         )
         leg_faces |= set(circ.face_zone.keys())
 
-    assigned = arm_faces | torso_pelvis_faces | leg_faces
+    assigned69 = arm_faces | torso_pelvis_faces | leg_faces
     overlaps = {
         "arms∩torsoPelvis": len(arm_faces & torso_pelvis_faces),
         "arms∩legs": len(arm_faces & leg_faces),
         "torsoPelvis∩legs": len(torso_pelvis_faces & leg_faces),
-        "right∩left_legs": 0,  # checked in legs pipeline
+        "right∩left_legs": 0,
     }
     if overlaps["arms∩torsoPelvis"] or overlaps["arms∩legs"] or overlaps["torsoPelvis∩legs"]:
         fail(f"Universe overlaps {overlaps}")
 
-    # All mesh faces
-    all_faces = {p.index for p in baked_mesh.polygons}
+    head_tip = bone_tip(rig, "head")
+    head_tip = (head_tip + offset) if head_tip is not None else None
+    cephalic = collect_cephalic_universe(
+        baked_mesh, mw, vg_map, assigned69, bh("neck_01"), body
+    )
+    if cephalic & assigned69:
+        fail(f"headNeck ∩ 69 = {len(cephalic & assigned69)}")
+    hlm = resolve_head_landmarks(
+        baked_mesh,
+        mw,
+        vg_map,
+        cephalic,
+        bh("neck_01"),
+        bh("head"),
+        head_tip,
+        body,
+    )
+    hframe = build_head_frame(body, hlm)
+    head_seg = segment_head_faces(
+        baked_mesh, mw, vg_map, cephalic, hlm, hframe, body
+    )
+    head_faces = set(head_seg.face_zone.keys())
+    assigned = assigned69 | head_faces
+
+    all_faces = {poly.index for poly in baked_mesh.polygons}
     unassigned = sorted(all_faces - assigned)
 
     region_stats = {
-        k: {"faces": 0, "tris": 0, "area": 0.0} for k in ("neck", "head", "face", "ears", "other")
+        k: {"faces": 0, "tris": 0, "area": 0.0}
+        for k in ("neck", "head", "face", "ears", "pelvic_internal", "other")
     }
     weigh_names = [
         n
@@ -378,17 +413,22 @@ def analyze_coverage(rig, baked, baked_mesh, offset):
                 "ear",
                 "spine",
                 "pelvis",
-                "thigh",
-                "calf",
-                "foot",
-                "upperarm",
-                "lowerarm",
-                "hand",
+                "genital",
+                "index_",
+                "middle_",
+                "ring_",
+                "pinky_",
+                "thumb_",
             )
         )
+        or n in ("Left", "Right", "body")
     ]
-    unassigned_area = 0.0
     unassigned_tris = 0
+    unassigned_area = 0.0
+    useful_unassigned_faces = 0
+    useful_unassigned_area = 0.0
+    internal_faces = 0
+    internal_area = 0.0
     for fi in unassigned:
         poly = baked_mesh.polygons[fi]
         w_acc: dict[str, float] = defaultdict(float)
@@ -402,6 +442,8 @@ def analyze_coverage(rig, baked, baked_mesh, offset):
         c /= float(n)
         w = {k: val / float(n) for k, val in w_acc.items()}
         region = classify_unassigned_region(w, c, body.up, bh("pelvis"))
+        if region == "other":
+            region = "pelvic_internal"
         tris = max(0, n - 2)
         area = face_area(baked_mesh, poly, mw)
         region_stats[region]["faces"] += 1
@@ -409,6 +451,12 @@ def analyze_coverage(rig, baked, baked_mesh, offset):
         region_stats[region]["area"] += area
         unassigned_tris += tris
         unassigned_area += area
+        if region == "pelvic_internal":
+            internal_faces += 1
+            internal_area += area
+        else:
+            useful_unassigned_faces += 1
+            useful_unassigned_area += area
 
     assigned_tris = 0
     assigned_area = 0.0
@@ -420,24 +468,32 @@ def analyze_coverage(rig, baked, baked_mesh, offset):
     for k in region_stats:
         region_stats[k]["area"] = round(region_stats[k]["area"], 6)
 
-    other_significant = region_stats["other"]["area"] > 0.01 or region_stats["other"]["faces"] > 40
-
     return {
+        "visibleExteriorFaces": len(assigned) + useful_unassigned_faces,
         "assignedFaces": len(assigned),
         "assignedTris": assigned_tris,
         "assignedArea": round(assigned_area, 6),
         "unassignedFaces": len(unassigned),
         "unassignedTris": unassigned_tris,
         "unassignedArea": round(unassigned_area, 6),
+        "unassignedUsefulExteriorFaces": useful_unassigned_faces,
+        "unassignedUsefulExteriorArea": round(useful_unassigned_area, 6),
+        "internalNonInteractiveFaces": internal_faces,
+        "internalNonInteractiveArea": round(internal_area, 6),
         "armFaces": len(arm_faces),
         "torsoPelvisFaces": len(torso_pelvis_faces),
         "legFaces": len(leg_faces),
-        "overlaps": overlaps,
+        "headNeckFaces": len(head_faces),
+        "overlaps": {
+            **overlaps,
+            "head∩69": len(head_faces & assigned69),
+        },
         "unassignedByRegion": region_stats,
-        "otherSignificantOutsideHeadNeck": other_significant,
+        "unassignedFaceIndices": unassigned,
         "center": list((world_bbox(baked)[0] + world_bbox(baked)[1]) * 0.5),
         "radius": max((world_bbox(baked)[1] - world_bbox(baked)[0]).length * 0.55, 0.9),
     }
+
 
 
 def make_unassigned_highlight(baked, baked_mesh, unassigned_faces: set[int], mat_color):
@@ -503,7 +559,7 @@ def render_body_map(coverage: dict):
         "three-quarter-back",
     ):
         place_cam(cam, view, center, radius)
-        out = ART / f"body-map-{view}.png"
+        out = ART / f"full-body-81-{view}.png"
         bpy.context.scene.render.filepath = str(out)
         bpy.ops.render.render(write_still=True)
         log(f"Render {out.name}")
@@ -541,103 +597,73 @@ def render_body_map(coverage: dict):
         log(f"Render {out.name}")
 
 
-def render_unassigned(coverage_faces_info):
-    """Bake again and highlight unassigned for head/neck renders."""
-    human, rig, baked, baked_mesh, offset = open_and_bake()
-    # Recompute unassigned set quickly via coverage already known — re-run analyze
-    cov = analyze_coverage(rig, baked, baked_mesh, offset)
-    # Rebuild unassigned set
-    # For highlight we need face indices; re-run classify path inside analyze is heavy.
-    # Simpler: extract by VG dominance head/neck from all faces not in assigned counts.
-    # Use second pass: mark faces with head/neck weights.
-    vg_map = {vg.name: vg.index for vg in baked.vertex_groups}
-    mw = baked.matrix_world
-    unassigned = set()
-    # Approximate: faces with strong head/neck/ear and weak limb/torso
-    for poly in baked_mesh.polygons:
-        w_acc: dict[str, float] = defaultdict(float)
-        c = Vector((0, 0, 0))
-        n = len(poly.vertices)
-        for vi in poly.vertices:
-            v = baked_mesh.vertices[vi]
-            c += mw @ v.co
-            for name, gi in vg_map.items():
-                if any(t in name for t in ("head", "neck", "jaw", "eye", "ear", "thigh", "calf", "foot", "pelvis", "spine", "upperarm", "hand", "clavicle")):
-                    w_acc[name] += vertex_weight(v, gi)
-        c /= float(n)
-        w = {k: val / float(n) for k, val in w_acc.items()}
-        limb = max(
-            w.get("thigh_l", 0),
-            w.get("thigh_r", 0),
-            w.get("calf_l", 0),
-            w.get("calf_r", 0),
-            w.get("upperarm_l", 0),
-            w.get("upperarm_r", 0),
-            w.get("pelvis", 0),
-            w.get("spine_02", 0),
-        )
-        headish = max(
-            w.get("head", 0),
-            w.get("neck_01", 0),
-            w.get("jaw", 0),
-            w.get("ear_l", 0),
-            w.get("ear_r", 0),
-        )
-        if headish > 0.08 and headish >= limb:
-            unassigned.add(poly.index)
+def render_remaining_unassigned(coverage: dict):
+    """Highlight internal/non-interactive residual after 81-zone assignment."""
+    residual = set(coverage.get("unassignedFaceIndices") or [])
+    if not residual:
+        log("No remaining unassigned faces to highlight")
+        return coverage
 
-    # Hide body, show only highlight + faint bake
+    human, rig, baked, baked_mesh, offset = open_and_bake()
     for o in list(bpy.data.objects):
-        if o.name not in ("BodyCoverageBake",):
-            if o.type == "MESH" and o != baked:
-                bpy.data.objects.remove(o, do_unlink=True)
+        if o.type == "MESH" and o != baked:
+            bpy.data.objects.remove(o, do_unlink=True)
     baked.hide_render = True
-    hl = make_unassigned_highlight(baked, baked_mesh, unassigned, (0.95, 0.35, 0.2, 1.0))
+    hl = make_unassigned_highlight(
+        baked, baked_mesh, residual, (0.95, 0.35, 0.2, 1.0)
+    )
+    hl.name = "remaining_unassigned_surface"
     mn, mx = world_bbox(hl)
     center = (mn + mx) * 0.5
-    radius = max((mx - mn).length * 1.2, 0.35)
+    radius = max((mx - mn).length * 1.4, 0.25)
     cam = setup_studio(center, radius)
-    for view in ("front", "back"):
-        place_cam(cam, view, center, radius)
-        out = ART / f"unassigned-head-neck-{view}.png"
-        bpy.context.scene.render.filepath = str(out)
-        bpy.ops.render.render(write_still=True)
-        log(f"Render {out.name}")
-    return cov
+    place_cam(cam, "front", center, radius)
+    out = ART / "remaining-unassigned-surface.png"
+    bpy.context.scene.render.filepath = str(out)
+    bpy.ops.render.render(write_still=True)
+    log(f"Render {out.name} faces={len(residual)}")
+    return coverage
+
 
 
 def main():
     ART.mkdir(parents=True, exist_ok=True)
     assemble_official_glbs()
 
-    # Coverage analysis on source bake
     human, rig, baked, baked_mesh, offset = open_and_bake()
     coverage = analyze_coverage(rig, baked, baked_mesh, offset)
     log(
-        f"Assigned faces={coverage['assignedFaces']} unassigned={coverage['unassignedFaces']} "
-        f"otherSignificant={coverage['otherSignificantOutsideHeadNeck']}"
+        f"Assigned faces={coverage['assignedFaces']} "
+        f"usefulUnassigned={coverage['unassignedUsefulExteriorFaces']} "
+        f"internal={coverage['internalNonInteractiveFaces']}"
     )
 
-    render_body_map(coverage)
-    coverage2 = render_unassigned(coverage)
-    # Prefer second analyze if available
-    if coverage2:
-        coverage = coverage2
-
+    report_cov = {k: v for k, v in coverage.items() if k != "unassignedFaceIndices"}
     report = {
-        "atomicZones": 69,
+        "atomicZones": 81,
         "arms": 24,
         "torsoPelvis": 23,
         "legs": 22,
+        "headNeck": 12,
         "blend": str(OUT_BLEND.as_posix()),
         "glb": str(OUT_GLB.as_posix()),
         "glbBytes": OUT_GLB.stat().st_size,
-        "coverage": coverage,
+        "coverage": report_cov,
     }
     REPORT.write_text(json.dumps(report, indent=2), encoding="utf-8")
     log(f"Report {REPORT}")
+
+    if os.environ.get("NEUTRO_SKIP_RENDERS") != "1":
+        try:
+            render_body_map(coverage)
+            # Remaining unassigned = pelvic internal residual highlight
+            render_remaining_unassigned(coverage)
+        except Exception as exc:  # noqa: BLE001
+            log(f"Render skipped/failed: {exc}")
+
     log("DONE")
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

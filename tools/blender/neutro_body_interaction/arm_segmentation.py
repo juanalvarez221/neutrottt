@@ -58,7 +58,17 @@ class ArmBoneNames:
             self.thumb_01,
             self.thumb_02,
             self.thumb_03,
+            *self.digit_groups(),
         ]
+
+    def digit_groups(self) -> list[str]:
+        """All distal finger deformation groups for this side (excl. thumb listed above)."""
+        s = "r" if self.hand.endswith("_r") else "l"
+        names: list[str] = []
+        for digit in ("index", "middle", "ring", "pinky"):
+            for i in (1, 2, 3):
+                names.append(f"{digit}_{i:02d}_{s}")
+        return names
 
     def opposite_groups(self) -> list[str]:
         other = "l" if self.clavicle.endswith("_r") else "r"
@@ -107,6 +117,17 @@ def resolve_longitudinal_bands(
     )
 
 
+def digit_weight_sum(w: dict[str, float], bones: ArmBoneNames) -> float:
+    total = (
+        w.get(bones.thumb_01, 0.0)
+        + w.get(bones.thumb_02, 0.0)
+        + w.get(bones.thumb_03, 0.0)
+    )
+    for name in bones.digit_groups():
+        total += w.get(name, 0.0)
+    return total
+
+
 def is_arm_member(
     w: dict[str, float],
     dist: float,
@@ -114,25 +135,94 @@ def is_arm_member(
     cfg: MembershipConfig | None = None,
 ) -> bool:
     cfg = cfg or ARM_MEMBERSHIP_CONFIG
+    w_digits = digit_weight_sum(w, bones)
     w_side = max(
         w.get(bones.clavicle, 0.0),
         w.get(bones.upperarm, 0.0),
         w.get(bones.lowerarm, 0.0),
         w.get(bones.hand, 0.0),
-    ) + 0.25 * min(
-        1.0,
-        w.get(bones.thumb_01, 0.0)
-        + w.get(bones.thumb_02, 0.0)
-        + w.get(bones.thumb_03, 0.0),
-    )
+        # Distal finger tips may have weak hand_* but strong digit VGs.
+        min(1.0, w_digits),
+    ) + 0.25 * min(1.0, w_digits)
     w_opp = max(w.get(n, 0.0) for n in bones.opposite_groups())
     if w_side < cfg.arm_weight_thresh:
-        return False
+        # Still allow strong digital dominance on this side.
+        if w_digits < 0.18:
+            return False
     if w_opp > w_side + cfg.lateral_bias:
         return False
-    if dist > cfg.outlier_dist and w_side < cfg.outlier_w_min:
+    if dist > cfg.outlier_dist and w_side < cfg.outlier_w_min and w_digits < 0.22:
         return False
     return True
+
+
+def absorb_distal_digit_tips(
+    mesh,
+    mw,
+    vg_map: dict[str, int],
+    face_zone: dict[int, str],
+    long_faces: dict[str, list[int]],
+    side: ArmSide,
+) -> int:
+    """
+    Absorb exterior fingertip faces into {side}_hand when they:
+      - carry this side's digital vertex-group weights, and
+      - are edge-adjacent (possibly through a digital chain) to the existing hand,
+      - do not already belong to another zone.
+    """
+    from .island_cleanup import build_edge_face_map
+
+    bones = ArmBoneNames.for_side(side)
+    hand_id = f"{side}_hand"
+    digit_names = [bones.thumb_01, bones.thumb_02, bones.thumb_03, *bones.digit_groups()]
+    digit_names = [n for n in digit_names if n in vg_map]
+
+    def face_digit_w(fi: int) -> float:
+        poly = mesh.polygons[fi]
+        n = len(poly.vertices)
+        acc = 0.0
+        for vi in poly.vertices:
+            v = mesh.vertices[vi]
+            for name in digit_names:
+                acc += vertex_weight(v, vg_map[name])
+        return acc / float(n)
+
+    hand_faces = {fi for fi, z in face_zone.items() if z == hand_id}
+    if not hand_faces:
+        return 0
+
+    edge_map = build_edge_face_map(mesh)
+    # Candidates: unassigned faces with digital weight
+    candidates: set[int] = set()
+    for poly in mesh.polygons:
+        fi = poly.index
+        if fi in face_zone:
+            continue
+        if face_digit_w(fi) >= 0.12:
+            candidates.add(fi)
+
+    # Flood-fill from hand through candidate digital faces
+    frontier = list(hand_faces)
+    absorbed: set[int] = set()
+    visited = set(hand_faces)
+    while frontier:
+        cur = frontier.pop()
+        poly = mesh.polygons[cur]
+        vs = list(poly.vertices)
+        for i in range(len(vs)):
+            e = tuple(sorted((vs[i], vs[(i + 1) % len(vs)])))
+            for nb in edge_map.get(e, []):
+                if nb in visited:
+                    continue
+                visited.add(nb)
+                if nb in candidates:
+                    absorbed.add(nb)
+                    frontier.append(nb)
+
+    for fi in absorbed:
+        face_zone[fi] = hand_id
+        long_faces.setdefault(hand_id, []).append(fi)
+    return len(absorbed)
 
 
 def classify_longitudinal_r2(
@@ -307,12 +397,17 @@ def segment_arm_faces(
 
         face_zone[poly.index] = zid
 
+    # Paso 31: fold distal digit tips into hand via adjacency + digital weights.
+    absorb_distal_digit_tips(mesh, mw, vg_map, face_zone, long_faces, side)
+
     return ArmSegmentationResult(
         side=side,
         face_zone=face_zone,
         long_faces=dict(long_faces),
         universe_faces=len(face_zone),
-        universe_tris=universe_tris,
+        universe_tris=sum(
+            max(0, len(mesh.polygons[fi].vertices) - 2) for fi in face_zone
+        ),
         upper_frame=upper,
         forearm_frame=forearm,
         twist_artificial_deg=twist,

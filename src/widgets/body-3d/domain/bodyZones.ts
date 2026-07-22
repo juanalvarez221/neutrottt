@@ -223,6 +223,76 @@ export const ATOMIC_PELVIS_ZONES: readonly AtomicBodyZoneDefinition[] = [
   pelvisAtomic("sacrum", "Sacro", "center"),
 ] as const;
 
+function headAtomic(
+  id: string,
+  label: string,
+  side: "left" | "right" | "center" = "center",
+): AtomicBodyZoneDefinition {
+  return {
+    id,
+    label,
+    region: "head",
+    side,
+    kind: "atomic",
+    interactionMeshName: `zone_${id}`,
+  };
+}
+
+/** 12 zonas atómicas oficiales de cabeza / cuello / rostro / orejas. */
+export const ATOMIC_HEAD_NECK_ZONES: readonly AtomicBodyZoneDefinition[] = [
+  headAtomic("neck_front", "Cuello frente", "center"),
+  headAtomic("neck_back", "Nuca", "center"),
+  headAtomic("neck_left", "Cuello izquierdo", "left"),
+  headAtomic("neck_right", "Cuello derecho", "right"),
+  headAtomic("face_left", "Rostro izquierdo", "left"),
+  headAtomic("face_right", "Rostro derecho", "right"),
+  headAtomic("head_top", "Coronilla", "center"),
+  headAtomic("head_back", "Cabeza posterior", "center"),
+  headAtomic("head_left_side", "Cabeza lateral izquierda", "left"),
+  headAtomic("head_right_side", "Cabeza lateral derecha", "right"),
+  headAtomic("left_ear", "Oreja izquierda", "left"),
+  headAtomic("right_ear", "Oreja derecha", "right"),
+] as const;
+
+export const FULL_NECK_GROUP: BodyZoneGroupDefinition = {
+  id: "full_neck",
+  label: "Cuello completo",
+  zoneIds: ["neck_front", "neck_back", "neck_left", "neck_right"],
+};
+
+export const FULL_FACE_GROUP: BodyZoneGroupDefinition = {
+  id: "full_face",
+  label: "Rostro completo",
+  zoneIds: ["face_left", "face_right"],
+};
+
+export const FULL_SCALP_GROUP: BodyZoneGroupDefinition = {
+  id: "full_scalp",
+  label: "Cuero cabelludo",
+  zoneIds: [
+    "head_top",
+    "head_back",
+    "head_left_side",
+    "head_right_side",
+  ],
+};
+
+export const BOTH_EARS_GROUP: BodyZoneGroupDefinition = {
+  id: "both_ears",
+  label: "Ambas orejas",
+  zoneIds: ["left_ear", "right_ear"],
+};
+
+export const FULL_HEAD_GROUP: BodyZoneGroupDefinition = {
+  id: "full_head",
+  label: "Cabeza completa",
+  zoneIds: [
+    ...FULL_FACE_GROUP.zoneIds,
+    ...FULL_SCALP_GROUP.zoneIds,
+    ...BOTH_EARS_GROUP.zoneIds,
+  ],
+};
+
 function legAtomic(
   id: string,
   label: string,
@@ -350,6 +420,7 @@ export const ALL_BODY_ZONES: readonly BodyZoneDefinition[] = [
   ...ATOMIC_PELVIS_ZONES,
   ...ATOMIC_LEG_ZONES,
   ...PARENT_LEG_ZONES,
+  ...ATOMIC_HEAD_NECK_ZONES,
 ] as const;
 
 export const BODY_ZONES_BY_ID: Readonly<Record<string, BodyZoneDefinition>> =
@@ -495,11 +566,20 @@ export const LEG_ZONE_GROUPS: readonly BodyZoneGroupDefinition[] = [
   BOTH_LEGS_GROUP,
 ] as const;
 
+export const HEAD_NECK_ZONE_GROUPS: readonly BodyZoneGroupDefinition[] = [
+  FULL_NECK_GROUP,
+  FULL_FACE_GROUP,
+  FULL_SCALP_GROUP,
+  BOTH_EARS_GROUP,
+  FULL_HEAD_GROUP,
+] as const;
+
 export const ALL_ZONE_GROUPS: readonly BodyZoneGroupDefinition[] = [
   ...ARM_ZONE_GROUPS,
   ...TORSO_ZONE_GROUPS,
   ...PELVIS_ZONE_GROUPS,
   ...LEG_ZONE_GROUPS,
+  ...HEAD_NECK_ZONE_GROUPS,
 ] as const;
 
 export const BODY_ZONE_GROUPS_BY_ID: Readonly<
@@ -552,9 +632,16 @@ export const LEGS_G2_INTERACTION_MODEL_SRC =
 export const DETAILED_LEGS_INTERACTION_MODEL_SRC =
   "/models/interaction/neutro_body_v1_detailed_legs_interaction.glb";
 
-/** Mapa corporal integrado sin cabeza/cuello (69 meshes atómicos). */
-export const BODY_69_INTERACTION_MODEL_SRC =
+/** Mapa corporal integrado completo (81 meshes atómicos). */
+export const BODY_81_INTERACTION_MODEL_SRC =
   "/models/interaction/neutro_body_v1_body_interaction.glb";
+
+/** @deprecated alias — mismo asset que BODY_81 tras Paso 31 */
+export const BODY_69_INTERACTION_MODEL_SRC = BODY_81_INTERACTION_MODEL_SRC;
+
+/** Mapa oficial cabeza/cuello (12 meshes). */
+export const HEAD_NECK_INTERACTION_MODEL_SRC =
+  "/models/interaction/neutro_body_v1_head_neck_interaction.glb";
 
 /** Alias de compatibilidad — IDs atómicos detallados de piernas. */
 export const LEG_EXPERIMENTAL_DETAILED_ZONE_IDS =
@@ -565,12 +652,13 @@ export const LEG_EXPERIMENTAL_DETAILED_ZONE_IDS =
 export const LEG_LOGICAL_PARENT_IDS = PARENT_LEG_ZONES.map((z) => z.id);
 export const LEG_LOGICAL_HIERARCHIES = LEG_ZONE_HIERARCHIES;
 
-/** Validación automática del dominio de 69 zonas atómicas. */
+/** Validación automática del dominio de 81 zonas atómicas. */
 export function validateBodyZoneDomain(): {
   ok: boolean;
   atomicArms: number;
   atomicTorsoPelvis: number;
   atomicLegs: number;
+  atomicHeadNeck: number;
   totalAtomic: number;
   duplicateIds: string[];
   duplicateMeshNames: string[];
@@ -582,6 +670,7 @@ export function validateBodyZoneDomain(): {
   const parents = ALL_BODY_ZONES.filter(isParentZone);
   const atomicArms = atomics.filter((z) => z.region === "arms" || z.region === "hands").length;
   const atomicLegs = atomics.filter((z) => z.region === "legs" || z.region === "feet").length;
+  const atomicHeadNeck = atomics.filter((z) => z.region === "head").length;
   const atomicTorsoPelvis = atomics.filter((z) => z.region === "torso").length;
 
   const ids = ALL_BODY_ZONES.map((z) => z.id);
@@ -609,7 +698,8 @@ export function validateBodyZoneDomain(): {
       atomicArms === 24 &&
       atomicTorsoPelvis === 23 &&
       atomicLegs === 22 &&
-      atomics.length === 69 &&
+      atomicHeadNeck === 12 &&
+      atomics.length === 81 &&
       duplicateIds.length === 0 &&
       duplicateMeshNames.length === 0 &&
       parentsWithMesh.length === 0 &&
@@ -618,6 +708,7 @@ export function validateBodyZoneDomain(): {
     atomicArms,
     atomicTorsoPelvis,
     atomicLegs,
+    atomicHeadNeck,
     totalAtomic: atomics.length,
     duplicateIds: [...new Set(duplicateIds)],
     duplicateMeshNames: [...new Set(duplicateMeshNames)],
@@ -651,13 +742,16 @@ export type InteractionDebugLayer =
   | "central_plus_arms_legs_l2"
   | "central_plus_arms_legs_g1"
   | "central_plus_arms_legs_g2"
-  | "body_69";
+  | "body_69"
+  | "body_81"
+  | "head_neck";
 
 export type BodyRegionFilter =
   | "all"
   | "arms"
   | "torso_pelvis"
-  | "legs";
+  | "legs"
+  | "head_neck";
 
 export function interactionModelSrcForLayer(
   layer: InteractionDebugLayer,
@@ -683,7 +777,8 @@ export function interactionModelSrcForLayer(
   if (layer === "legs_g1") return LEGS_G1_INTERACTION_MODEL_SRC;
   if (layer === "legs_g2") return LEGS_G2_INTERACTION_MODEL_SRC;
   if (layer === "detailed_legs") return DETAILED_LEGS_INTERACTION_MODEL_SRC;
-  if (layer === "body_69") return BODY_69_INTERACTION_MODEL_SRC;
+  if (layer === "head_neck") return HEAD_NECK_INTERACTION_MODEL_SRC;
+  if (layer === "body_69" || layer === "body_81") return BODY_81_INTERACTION_MODEL_SRC;
   return DETAILED_ARMS_INTERACTION_MODEL_SRC;
 }
 
