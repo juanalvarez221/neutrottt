@@ -18,6 +18,7 @@ export function BodyLabWorkbench() {
   const [cameraViewToken, setCameraViewToken] = useState(0);
   const [appearance, setAppearance] = useState<BodyAppearanceMode>("original");
   const [wireframe, setWireframe] = useState(false);
+  const [showInteractionZones, setShowInteractionZones] = useState(false);
 
   const activeModel = useMemo(
     () =>
@@ -37,6 +38,7 @@ export function BodyLabWorkbench() {
     setCameraViewToken((token) => token + 1);
     setAppearance("original");
     setWireframe(false);
+    setShowInteractionZones(false);
   }
 
   return (
@@ -48,6 +50,7 @@ export function BodyLabWorkbench() {
           wireframe={wireframe}
           cameraView={cameraView}
           cameraViewToken={cameraViewToken}
+          showInteractionZones={showInteractionZones}
           height="min(70dvh, 680px)"
         />
         <p className="mt-3 text-center text-xs text-zinc-500 sm:text-left">
@@ -65,6 +68,8 @@ export function BodyLabWorkbench() {
         onAppearanceChange={setAppearance}
         wireframe={wireframe}
         onWireframeChange={setWireframe}
+        showInteractionZones={showInteractionZones}
+        onShowInteractionZonesChange={setShowInteractionZones}
       />
     </div>
   );

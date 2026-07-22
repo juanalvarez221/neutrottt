@@ -17,6 +17,8 @@ type BodyLabControlsProps = {
   onAppearanceChange: (mode: BodyAppearanceMode) => void;
   wireframe: boolean;
   onWireframeChange: (value: boolean) => void;
+  showInteractionZones: boolean;
+  onShowInteractionZonesChange: (value: boolean) => void;
 };
 
 const CAMERA_VIEWS: BodyCameraView[] = ["front", "back", "left", "right"];
@@ -39,8 +41,11 @@ export function BodyLabControls({
   onAppearanceChange,
   wireframe,
   onWireframeChange,
+  showInteractionZones,
+  onShowInteractionZonesChange,
 }: BodyLabControlsProps) {
   const stats = activeModel.labStats;
+  const zonesAvailable = activeModel.role === "production";
 
   return (
     <aside className="flex w-full flex-col gap-3 lg:w-[240px] lg:shrink-0">
@@ -132,6 +137,38 @@ export function BodyLabControls({
           />
           Mostrar wireframe
         </label>
+      </section>
+
+      <section className={controlShellClassName()}>
+        <p className={labelClassName()}>Zonas piloto</p>
+        <label
+          className={[
+            "flex min-h-[40px] items-center gap-2.5 rounded-lg border border-white/8 bg-white/[0.03] px-3 py-2 text-sm text-zinc-200 transition",
+            zonesAvailable
+              ? "cursor-pointer hover:bg-white/[0.05]"
+              : "cursor-not-allowed opacity-50",
+          ].join(" ")}
+        >
+          <input
+            type="checkbox"
+            checked={showInteractionZones && zonesAvailable}
+            disabled={!zonesAvailable}
+            onChange={(event) =>
+              onShowInteractionZonesChange(event.target.checked)
+            }
+            className="accent-stone-400"
+          />
+          Mostrar zonas
+        </label>
+        {!zonesAvailable ? (
+          <p className="mt-2 text-[11px] leading-relaxed text-zinc-500">
+            Disponible solo con Neutro Body V1.
+          </p>
+        ) : (
+          <p className="mt-2 text-[11px] leading-relaxed text-zinc-500">
+            Diagnóstico del InteractionModel (brazo derecho). Sin selección.
+          </p>
+        )}
       </section>
 
       {stats ? (

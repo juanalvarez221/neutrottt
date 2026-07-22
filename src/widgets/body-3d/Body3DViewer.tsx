@@ -6,6 +6,7 @@ import { Center, OrbitControls, useGLTF } from "@react-three/drei";
 import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
 import { HumanBodyModel } from "@/widgets/body-3d/HumanBodyModel";
 import { BodyCameraController } from "@/widgets/body-3d/BodyCameraController";
+import { InteractionZonesDebug } from "@/widgets/body-3d/lab/InteractionZonesDebug";
 import type { BodyModelDefinition } from "@/widgets/body-3d/bodyModelDefinition";
 import {
   getCameraLookTarget,
@@ -29,6 +30,8 @@ type Body3DViewerProps = {
   wireframe?: boolean;
   cameraView?: BodyCameraView;
   cameraViewToken?: number;
+  /** Laboratorio: superpone zonas piloto del InteractionModel. */
+  showInteractionZones?: boolean;
   className?: string;
   height?: string;
 };
@@ -49,11 +52,16 @@ function BodyScene({
   model,
   appearance,
   wireframe,
+  showInteractionZones,
 }: {
   model: BodyModelDefinition;
   appearance: BodyAppearanceMode;
   wireframe: boolean;
+  showInteractionZones: boolean;
 }) {
+  const canShowZones =
+    showInteractionZones && model.role === "production";
+
   return (
     <Center>
       <HumanBodyModel
@@ -61,6 +69,12 @@ function BodyScene({
         appearance={appearance}
         wireframe={wireframe}
       />
+      {canShowZones ? (
+        <InteractionZonesDebug
+          rotation={model.rotation}
+          scale={model.scale ?? 1}
+        />
+      ) : null}
     </Center>
   );
 }
@@ -85,6 +99,7 @@ export function Body3DViewer({
   wireframe = false,
   cameraView = "front",
   cameraViewToken = 0,
+  showInteractionZones = false,
   className = "",
   height = "min(72dvh, 720px)",
 }: Body3DViewerProps) {
@@ -180,6 +195,7 @@ export function Body3DViewer({
               model={model}
               appearance={appearance}
               wireframe={wireframe}
+              showInteractionZones={showInteractionZones}
             />
           </Suspense>
 
