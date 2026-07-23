@@ -21,12 +21,30 @@ function disposeMaterial(material: Material | Material[]) {
   }
 }
 
-const HOVER_COLOR = "#c4a574";
-const SELECTED_COLOR = "#e8d2a8";
+/** Neutro camel / sand — premium, no neón */
+const HOVER_COLOR = "#b88958";
+const PREVIEW_COLOR = "#d4a066";
+const SELECTED_COLOR = "#e8a840";
+
+type HighlightKind = "hover" | "preview" | "selected" | null;
+
+function kindFor(
+  atomicId: string | null,
+  hoveredId: string | null,
+  previewIds: ReadonlySet<string>,
+  selectedIds: ReadonlySet<string>,
+): HighlightKind {
+  if (!atomicId) return null;
+  if (selectedIds.has(atomicId)) return "selected";
+  if (previewIds.has(atomicId)) return "preview";
+  if (atomicId === hoveredId) return "hover";
+  return null;
+}
 
 function prepareHighlightScene(
   scene: Object3D,
   hoveredId: string | null,
+  previewIds: ReadonlySet<string>,
   selectedIds: ReadonlySet<string>,
 ) {
   const cloned = scene.clone(true);
@@ -37,13 +55,12 @@ function prepareHighlightScene(
     if (!mesh.isMesh) return;
 
     const atomicId = interactionMeshNameToAtomicId(mesh.name);
-    const isSelected = atomicId ? selectedIds.has(atomicId) : false;
-    const isHovered = atomicId !== null && atomicId === hoveredId;
+    const kind = kindFor(atomicId, hoveredId, previewIds, selectedIds);
 
     mesh.frustumCulled = false;
-    mesh.visible = isSelected || isHovered;
-    // Selected dominates over hover visually
-    mesh.renderOrder = isSelected ? 4 : isHovered ? 3 : 2;
+    mesh.visible = kind !== null;
+    mesh.renderOrder =
+      kind === "selected" ? 5 : kind === "preview" ? 4 : kind === "hover" ? 3 : 2;
 
     if (!mesh.visible) {
       mesh.material = new ThreeMeshBasicMaterial({ visible: false });
@@ -51,10 +68,19 @@ function prepareHighlightScene(
       return;
     }
 
+    const color =
+      kind === "selected"
+        ? SELECTED_COLOR
+        : kind === "preview"
+          ? PREVIEW_COLOR
+          : HOVER_COLOR;
+    const opacity =
+      kind === "selected" ? 0.48 : kind === "preview" ? 0.36 : 0.22;
+
     const mat = new ThreeMeshBasicMaterial({
-      color: isSelected ? SELECTED_COLOR : HOVER_COLOR,
+      color,
       transparent: true,
-      opacity: isSelected ? 0.42 : 0.28,
+      opacity,
       depthWrite: false,
       depthTest: true,
       side: DoubleSide,
@@ -65,7 +91,6 @@ function prepareHighlightScene(
     mat.polygonOffsetUnits = -2;
     materials.push(mat);
     mesh.material = mat;
-    // Highlights must not steal pointer events from the invisible raycast layer
     mesh.raycast = () => undefined;
   });
 
@@ -76,17 +101,18 @@ export type BodyZoneHighlightProps = {
   rotation?: [number, number, number];
   scale?: number;
   hoveredAtomicZoneId: string | null;
+  previewAtomicZoneIds?: readonly string[];
   selectedAtomicZoneIds: readonly string[];
 };
 
 /**
- * Overlay visual independiente (hover + selected).
- * Usa geometría del InteractionModel; no muta BodyVisual ni useGLTF cache.
+ * Overlay visual: SELECTED > PREVIEW > HOVER.
  */
 export function BodyZoneHighlight({
   rotation = [0, 0, 0],
   scale = 1,
   hoveredAtomicZoneId,
+  previewAtomicZoneIds = [],
   selectedAtomicZoneIds,
 }: BodyZoneHighlightProps) {
   const { scene } = useGLTF(BODY_81_INTERACTION_MODEL_SRC);
@@ -94,10 +120,20 @@ export function BodyZoneHighlight({
     () => new Set(selectedAtomicZoneIds),
     [selectedAtomicZoneIds],
   );
+  const previewSet = useMemo(
+    () => new Set(previewAtomicZoneIds),
+    [previewAtomicZoneIds],
+  );
 
   const prepared = useMemo(
-    () => prepareHighlightScene(scene, hoveredAtomicZoneId, selectedSet),
-    [scene, hoveredAtomicZoneId, selectedSet],
+    () =>
+      prepareHighlightScene(
+        scene,
+        hoveredAtomicZoneId,
+        previewSet,
+        selectedSet,
+      ),
+    [scene, hoveredAtomicZoneId, previewSet, selectedSet],
   );
 
   useLayoutEffect(() => {

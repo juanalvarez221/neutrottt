@@ -158,10 +158,10 @@ export const ANATOMICAL_SELECTION_TARGETS: readonly SelectionTarget[] = [
   ]),
   anatomical("right_thigh", "Muslo derecho completo", ["right_thigh"]),
   anatomical("left_thigh", "Muslo izquierdo completo", ["left_thigh"]),
-  anatomical("right_lower_leg", "Pierna inferior derecha completa", [
+  anatomical("right_lower_leg", "Pierna derecha completa", [
     "right_lower_leg",
   ]),
-  anatomical("left_lower_leg", "Pierna inferior izquierda completa", [
+  anatomical("left_lower_leg", "Pierna izquierda completa", [
     "left_lower_leg",
   ]),
   anatomical(RIGHT_FULL_LEG_GROUP.id, RIGHT_FULL_LEG_GROUP.label, [

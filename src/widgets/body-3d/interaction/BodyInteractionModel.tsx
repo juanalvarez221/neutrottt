@@ -72,6 +72,8 @@ export type BodyInteractionModelProps = {
   enabled?: boolean;
   onHoverAtomicZone: (atomicId: string | null) => void;
   onActivateAtomicZone: (atomicId: string) => void;
+  /** Coordenadas de pantalla para tooltip (desktop). */
+  onHoverPointer?: (point: { x: number; y: number } | null) => void;
 };
 
 /**
@@ -84,6 +86,7 @@ export function BodyInteractionModel({
   enabled = true,
   onHoverAtomicZone,
   onActivateAtomicZone,
+  onHoverPointer,
 }: BodyInteractionModelProps) {
   const { scene } = useGLTF(BODY_81_INTERACTION_MODEL_SRC);
   const prepared = useMemo(() => prepareInvisibleRaycastScene(scene), [scene]);
@@ -105,11 +108,13 @@ export function BodyInteractionModel({
     if (!enabled) return;
     event.stopPropagation();
     onHoverAtomicZone(atomicFromEvent(event));
+    onHoverPointer?.({ x: event.clientX, y: event.clientY });
   }
 
   function handlePointerOut() {
     if (!enabled) return;
     onHoverAtomicZone(null);
+    onHoverPointer?.(null);
   }
 
   function handlePointerDown(event: ThreeEvent<PointerEvent>) {

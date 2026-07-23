@@ -8,9 +8,12 @@ export default function LabBody3DPage() {
           <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-zinc-500">
             Laboratorio · Selector corporal 3D
           </p>
-          <p className="max-w-2xl text-sm text-zinc-500">
-            Evaluación visual del modelo base. Controles exclusivos de laboratorio;
-            no afectan el cotizador.
+          <h1 className="text-xl font-semibold tracking-tight text-[rgba(255,242,228,0.96)] sm:text-2xl">
+            Prototipo de experiencia
+          </h1>
+          <p className="max-w-2xl text-sm leading-relaxed text-zinc-500">
+            Valida la UX premium antes de integrar el cotizador. El modo
+            técnico permanece disponible para diagnóstico.
           </p>
         </header>
 

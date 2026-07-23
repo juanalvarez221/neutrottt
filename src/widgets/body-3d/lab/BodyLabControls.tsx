@@ -185,7 +185,7 @@ export function BodyLabControls({
             [
               { id: "off" as const, label: "Apagado" },
               { id: "debug" as const, label: "Debug zones" },
-              { id: "interaction" as const, label: "Interaction UX" },
+              { id: "interaction" as const, label: "Interaction engine" },
             ] as const
           ).map((option) => (
             <label

@@ -12,8 +12,8 @@ const SIDE_ES: Record<string, string> = {
 };
 
 const FACE_ES: Record<string, string> = {
-  front: "Cara frontal",
-  back: "Cara posterior",
+  front: "Parte frontal",
+  back: "Parte posterior",
   inner: "Cara interna",
   outer: "Cara externa",
 };
@@ -68,6 +68,15 @@ const ATOMIC_LABEL_OVERRIDES: Record<string, string> = {
   head_right_side: "Cabeza · Lateral derecho",
   left_ear: "Oreja izquierda",
   right_ear: "Oreja derecha",
+  // Pierna inferior: frontal ≈ espinilla; posterior ≈ pantorrilla
+  right_lower_leg_front: "Pierna derecha · Parte frontal",
+  right_lower_leg_back: "Pantorrilla derecha · Parte posterior",
+  right_lower_leg_inner: "Pierna derecha · Cara interna",
+  right_lower_leg_outer: "Pierna derecha · Cara externa",
+  left_lower_leg_front: "Pierna izquierda · Parte frontal",
+  left_lower_leg_back: "Pantorrilla izquierda · Parte posterior",
+  left_lower_leg_inner: "Pierna izquierda · Cara interna",
+  left_lower_leg_outer: "Pierna izquierda · Cara externa",
 };
 
 function formatLimbQuad(
@@ -75,6 +84,10 @@ function formatLimbQuad(
   segment: "upper_arm" | "forearm" | "thigh" | "lower_leg",
   face: string,
 ): string | null {
+  if (segment === "lower_leg") {
+    // Handled by overrides for natural pantorrilla/espinilla copy
+    return null;
+  }
   const faceLabel = FACE_ES[face];
   if (!faceLabel) return null;
   const sideLabel = SIDE_ES[side];
@@ -83,9 +96,7 @@ function formatLimbQuad(
       ? "Brazo superior"
       : segment === "forearm"
         ? "Antebrazo"
-        : segment === "thigh"
-          ? "Muslo"
-          : "Pierna inferior";
+        : "Muslo";
   return `${segmentLabel} ${sideLabel} · ${faceLabel}`;
 }
 

@@ -25,10 +25,12 @@ import type {
   BodyRegionFilter,
   InteractionDebugLayer,
 } from "@/widgets/body-3d/domain/bodyZones";
+import type { CameraFocusPose } from "@/widgets/body-3d/ux/bodyCameraFocus";
 
 const BG = "#17110d";
 
-export type LabInteractionMode = "off" | "debug" | "interaction";
+/** off | debug zones | technical interaction | premium UX */
+export type LabInteractionMode = "off" | "debug" | "interaction" | "premium";
 
 type ViewerSize = {
   width: number;
@@ -46,12 +48,18 @@ type Body3DViewerProps = {
   armVisibility?: ArmDebugVisibility;
   debugLayer?: InteractionDebugLayer;
   regionFilter?: BodyRegionFilter;
-  /** Modo lab: debug de colores de zona vs UX de interacción. */
   labInteractionMode?: LabInteractionMode;
   hoveredAtomicZoneId?: string | null;
+  previewAtomicZoneIds?: readonly string[];
   selectedAtomicZoneIds?: readonly string[];
   onHoverAtomicZone?: (atomicId: string | null) => void;
+  onHoverPointer?: (point: { x: number; y: number } | null) => void;
   onActivateAtomicZone?: (atomicId: string) => void;
+  focusPose?: CameraFocusPose | null;
+  focusToken?: number;
+  reducedMotion?: boolean;
+  /** Si false, el host no aplica borde/radio (chrome del shell premium). */
+  chrome?: boolean;
   className?: string;
   height?: string;
 };
@@ -68,6 +76,10 @@ function StudioLights() {
   );
 }
 
+function isSpatialInteraction(mode: LabInteractionMode) {
+  return mode === "interaction" || mode === "premium";
+}
+
 function BodyScene({
   model,
   appearance,
@@ -79,8 +91,10 @@ function BodyScene({
   regionFilter,
   labInteractionMode,
   hoveredAtomicZoneId,
+  previewAtomicZoneIds,
   selectedAtomicZoneIds,
   onHoverAtomicZone,
+  onHoverPointer,
   onActivateAtomicZone,
 }: {
   model: BodyModelDefinition;
@@ -93,15 +107,17 @@ function BodyScene({
   regionFilter: BodyRegionFilter;
   labInteractionMode: LabInteractionMode;
   hoveredAtomicZoneId: string | null;
+  previewAtomicZoneIds: readonly string[];
   selectedAtomicZoneIds: readonly string[];
   onHoverAtomicZone: (atomicId: string | null) => void;
+  onHoverPointer: (point: { x: number; y: number } | null) => void;
   onActivateAtomicZone: (atomicId: string) => void;
 }) {
   const isProduction = model.role === "production";
   const showDebug =
     isProduction && showInteractionZones && labInteractionMode === "debug";
   const showInteraction =
-    isProduction && labInteractionMode === "interaction";
+    isProduction && isSpatialInteraction(labInteractionMode);
 
   return (
     <Center>
@@ -127,6 +143,7 @@ function BodyScene({
             rotation={model.rotation}
             scale={model.scale ?? 1}
             hoveredAtomicZoneId={hoveredAtomicZoneId}
+            previewAtomicZoneIds={previewAtomicZoneIds}
             selectedAtomicZoneIds={selectedAtomicZoneIds}
           />
           <BodyInteractionModel
@@ -134,6 +151,7 @@ function BodyScene({
             scale={model.scale ?? 1}
             enabled
             onHoverAtomicZone={onHoverAtomicZone}
+            onHoverPointer={onHoverPointer}
             onActivateAtomicZone={onActivateAtomicZone}
           />
         </>
@@ -169,9 +187,15 @@ export function Body3DViewer({
   regionFilter = "all",
   labInteractionMode = "off",
   hoveredAtomicZoneId = null,
+  previewAtomicZoneIds = [],
   selectedAtomicZoneIds = [],
   onHoverAtomicZone,
+  onHoverPointer,
   onActivateAtomicZone,
+  focusPose = null,
+  focusToken = 0,
+  reducedMotion = false,
+  chrome = true,
   className = "",
   height = "min(72dvh, 720px)",
 }: Body3DViewerProps) {
@@ -227,7 +251,8 @@ export function Body3DViewer({
     <div
       ref={hostRef}
       className={[
-        "relative w-full overflow-hidden rounded-2xl border border-white/10 bg-[#17110d]",
+        "relative w-full overflow-hidden bg-[#17110d]",
+        chrome ? "rounded-2xl border border-white/10" : "",
         className,
       ]
         .filter(Boolean)
@@ -274,8 +299,10 @@ export function Body3DViewer({
               regionFilter={regionFilter}
               labInteractionMode={labInteractionMode}
               hoveredAtomicZoneId={hoveredAtomicZoneId}
+              previewAtomicZoneIds={previewAtomicZoneIds}
               selectedAtomicZoneIds={selectedAtomicZoneIds}
               onHoverAtomicZone={onHoverAtomicZone ?? (() => undefined)}
+              onHoverPointer={onHoverPointer ?? (() => undefined)}
               onActivateAtomicZone={onActivateAtomicZone ?? (() => undefined)}
             />
           </Suspense>
@@ -285,6 +312,9 @@ export function Body3DViewer({
             framing={model.camera}
             viewToken={cameraViewToken}
             orbitRef={orbitRef}
+            focusPose={focusPose}
+            focusToken={focusToken}
+            reducedMotion={reducedMotion}
           />
 
           <OrbitControls

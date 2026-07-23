@@ -23,6 +23,8 @@ export type ContextualSelectionOption = {
   label: string;
   /** Etiqueta corta para el botón del panel. */
   shortLabel: string;
+  /** Agrupación visual: exacta → región → amplia. */
+  tier: "exact" | "region" | "broad";
 };
 
 export type BodyInteractionSelectionState = {

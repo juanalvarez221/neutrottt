@@ -10,21 +10,18 @@ import { BODY_ZONES_BY_ID } from "@/widgets/body-3d/domain/bodyZones";
 import { isAtomicZone } from "@/widgets/body-3d/domain/bodyZoneTypes";
 import { getSelectionDisplayLabel } from "@/widgets/body-3d/interaction/bodyInteractionLabels";
 import type { ContextualSelectionOption } from "@/widgets/body-3d/interaction/bodyInteractionTypes";
+import { exactOptionShortLabel } from "@/widgets/body-3d/ux/bodyUxCopy";
 
 type Candidate = {
   targetId: string;
   kind: ContextualSelectionOption["kind"];
   shortLabel: string;
-  /** Ranking: lower = more specific. */
   rank: number;
+  tier: ContextualSelectionOption["tier"];
 };
 
-function atomicSet(targetId: string): Set<string> {
-  return new Set(resolveTargetToAtomicZoneIds(targetId));
-}
-
 function containsAtomic(targetId: string, atomicId: string): boolean {
-  return atomicSet(targetId).has(atomicId);
+  return resolveTargetToAtomicZoneIds(targetId).includes(atomicId);
 }
 
 /**
@@ -49,8 +46,9 @@ export function getSelectionOptionsForAtomicZone(
     {
       targetId: atomicZoneId,
       kind: "atomic",
-      shortLabel: "Esta cara",
+      shortLabel: exactOptionShortLabel(atomicZoneId),
       rank: 0,
+      tier: "exact",
     },
   ];
 
@@ -62,6 +60,7 @@ export function getSelectionOptionsForAtomicZone(
         .replace(/\s+completo$/i, "")
         .trim(),
       rank: 10,
+      tier: "region",
     });
   }
 
@@ -83,6 +82,7 @@ export function getSelectionOptionsForAtomicZone(
         kind: "commercial",
         shortLabel: "Media manga inferior",
         rank: 20,
+        tier: "broad",
       });
     }
     if (
@@ -94,6 +94,7 @@ export function getSelectionOptionsForAtomicZone(
         kind: "commercial",
         shortLabel: "Media manga superior",
         rank: 21,
+        tier: "broad",
       });
     }
     if (
@@ -105,6 +106,7 @@ export function getSelectionOptionsForAtomicZone(
         kind: "commercial",
         shortLabel: "Manga completa",
         rank: 30,
+        tier: "broad",
       });
     }
     if (containsAtomic(fullArm, atomicZoneId)) {
@@ -113,6 +115,7 @@ export function getSelectionOptionsForAtomicZone(
         kind: "anatomical",
         shortLabel: "Brazo completo",
         rank: 40,
+        tier: "broad",
       });
     }
     if (containsAtomic(fullLeg, atomicZoneId)) {
@@ -121,6 +124,7 @@ export function getSelectionOptionsForAtomicZone(
         kind: "anatomical",
         shortLabel: "Pierna completa",
         rank: 40,
+        tier: "broad",
       });
     }
   }
@@ -129,22 +133,23 @@ export function getSelectionOptionsForAtomicZone(
     id: string;
     short: string;
     rank: number;
+    tier: ContextualSelectionOption["tier"];
   }> = [
-    { id: "full_chest", short: "Pecho completo", rank: 10 },
-    { id: "full_abdomen", short: "Abdomen completo", rank: 10 },
-    { id: "full_ribs", short: "Costillas", rank: 10 },
-    { id: "full_flanks", short: "Costados", rank: 10 },
-    { id: "upper_back", short: "Espalda superior", rank: 10 },
-    { id: "mid_back", short: "Espalda media", rank: 10 },
-    { id: "lower_back", short: "Espalda baja", rank: 10 },
-    { id: "front_torso", short: "Torso frontal", rank: 20 },
-    { id: "full_back", short: "Espalda completa", rank: 20 },
-    { id: "back_torso", short: "Torso posterior", rank: 21 },
-    { id: "full_torso", short: "Torso completo", rank: 30 },
-    { id: "full_neck", short: "Cuello completo", rank: 10 },
-    { id: "full_face", short: "Rostro completo", rank: 10 },
-    { id: "full_scalp", short: "Cuero cabelludo", rank: 10 },
-    { id: "full_head", short: "Cabeza completa", rank: 20 },
+    { id: "full_chest", short: "Pecho completo", rank: 10, tier: "region" },
+    { id: "full_abdomen", short: "Abdomen completo", rank: 10, tier: "region" },
+    { id: "full_ribs", short: "Costillas", rank: 10, tier: "region" },
+    { id: "full_flanks", short: "Costados", rank: 10, tier: "region" },
+    { id: "upper_back", short: "Espalda superior", rank: 10, tier: "region" },
+    { id: "mid_back", short: "Espalda media", rank: 10, tier: "region" },
+    { id: "lower_back", short: "Espalda baja", rank: 10, tier: "region" },
+    { id: "front_torso", short: "Torso frontal", rank: 20, tier: "broad" },
+    { id: "full_back", short: "Espalda completa", rank: 20, tier: "broad" },
+    { id: "back_torso", short: "Torso posterior", rank: 21, tier: "broad" },
+    { id: "full_torso", short: "Torso completo", rank: 30, tier: "broad" },
+    { id: "full_neck", short: "Cuello completo", rank: 10, tier: "region" },
+    { id: "full_face", short: "Rostro completo", rank: 10, tier: "region" },
+    { id: "full_scalp", short: "Cuero cabelludo", rank: 10, tier: "region" },
+    { id: "full_head", short: "Cabeza completa", rank: 20, tier: "broad" },
   ];
 
   for (const c of torsoHeadCandidates) {
@@ -157,6 +162,7 @@ export function getSelectionOptionsForAtomicZone(
       kind: SELECTION_TARGETS_BY_ID[c.id]?.kind ?? "anatomical",
       shortLabel: c.short,
       rank: c.rank,
+      tier: c.tier,
     });
   }
 
@@ -173,5 +179,6 @@ export function getSelectionOptionsForAtomicZone(
       kind: c.kind,
       label: getSelectionDisplayLabel(c.targetId),
       shortLabel: c.shortLabel,
+      tier: c.tier,
     }));
 }
