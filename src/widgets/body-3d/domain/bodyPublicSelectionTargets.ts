@@ -62,11 +62,11 @@ export const PUBLIC_COMPOSITE_SELECTION_TARGETS: readonly SelectionTarget[] = [
     "right_mid_back",
     "mid_back_center",
   ]),
+  // Lumbar sin sacro: evita invadir glúteos / pelvis posterior
   region("lower_back_large", [
     "left_lower_back",
     "right_lower_back",
     "lower_back_center",
-    "sacrum",
   ]),
   region("head_left_region", ["head_left_side", "left_ear"]),
   region("head_right_region", ["head_right_side", "right_ear"]),
@@ -150,7 +150,18 @@ export const PUBLIC_EXISTING_TARGET_OVERRIDES: readonly SelectionTarget[] = [
   region("full_neck", ["neck_front", "neck_back", "neck_left", "neck_right"]),
   region("full_head", ["full_scalp", "full_face"]),
   region("full_glutes", ["left_glute", "right_glute"]),
-  commercial("full_back", ["upper_back_large", "lower_back_large"]),
+  // Espalda completa = alta + baja (sin sacro). Lista plana para highlight continuo.
+  commercial("full_back", [
+    "left_scapula",
+    "right_scapula",
+    "upper_back_center",
+    "left_mid_back",
+    "right_mid_back",
+    "mid_back_center",
+    "left_lower_back",
+    "right_lower_back",
+    "lower_back_center",
+  ]),
   commercial("right_full_sleeve", [
     "right_shoulder",
     "right_upper_arm_front",

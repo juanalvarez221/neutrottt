@@ -26,3 +26,12 @@ export {
   replaceContainingSelection,
   findContainingSelections,
 } from "@/widgets/body-3d/ux/bodyContainedSelection";
+
+export {
+  getPreferredBodyView,
+  getPreferredFocusSection,
+  getCameraPoseForPublicTarget,
+  toCardinalCameraView,
+  isPreferredViewAlreadyActive,
+} from "@/widgets/body-3d/ux/bodyPreferredCamera";
+export type { PreferredBodyView } from "@/widgets/body-3d/ux/bodyPreferredCamera";

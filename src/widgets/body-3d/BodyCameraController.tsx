@@ -80,7 +80,7 @@ export function BodyCameraController({
     if (!animating.current) return;
 
     const orbit = orbitRef.current;
-    const alpha = 1 - Math.exp(-3.6 * delta);
+    const alpha = 1 - Math.exp(-4.2 * delta);
 
     camera.position.lerp(targetPos.current, alpha);
     if (orbit) {
