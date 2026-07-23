@@ -21,7 +21,7 @@ import {
 import { getAdvisoryDurationMin } from "@/shared/lib/advisoryConfig";
 import type { AdvisoryMode, AdvisorySlot } from "@/shared/lib/advisoryTypes";
 import { formatDayLabel } from "@/shared/lib/advisorySlots";
-import { formatZoneDisplay, getZoneRefinementFromDraft } from "@/shared/lib/quoteZones";
+import { formatQuoteLocationLabel } from "@/widgets/quote/quoteBodyLocation";
 import { buildAdvisoryWhatsAppMessage, whatsappUrl } from "@/shared/config/brand";
 import { getStudioFullAddress } from "@/shared/config/studio";
 
@@ -159,12 +159,10 @@ export function QuoteAdvisoryBookingStep({
             connectionCollaboration: undefined,
             connectionPurpose: undefined,
           };
-      const zoneDisplay = formatZoneDisplay(
-        draft?.zone ?? "",
-        draft?.zoneOther,
-        t,
-        getZoneRefinementFromDraft(draft),
-      );
+      const zoneDisplay = formatQuoteLocationLabel(draft, t, {
+        zone: draft?.zone,
+        zoneOther: draft?.zoneOther,
+      });
 
       const response = await fetch("/api/advisory/book", {
         method: "POST",

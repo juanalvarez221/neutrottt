@@ -4,7 +4,11 @@ import { useCallback, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowRight } from "lucide-react";
 import { QuoteShell } from "@/widgets/quote/QuoteShell";
-import { BodyAreaSelector } from "@/widgets/quote/BodyAreaSelector";
+import {
+  QuoteBodyLocationSelector,
+  getInitialQuoteBodyLocationMode,
+  type QuoteBodyLocationMode,
+} from "@/widgets/quote/QuoteBodyLocationSelector";
 import { useQuoteOnboardingGate } from "@/widgets/quote/useQuoteOnboardingGate";
 import { useSiteLanguage } from "@/shared/i18n/LanguageProvider";
 import {
@@ -23,20 +27,46 @@ import {
   isLegSelectionComplete,
   type LegSelection,
 } from "@/shared/lib/legZoneParts";
+import type { BodySelectionTargetId } from "@/widgets/body-3d/ux/bodySelectionSerialization";
+import {
+  buildBody3DDraftFields,
+  isBody3DLocationComplete,
+  normalizeQuoteBodyTargets,
+  readBodyTargetsFromDraft,
+} from "@/widgets/quote/quoteBodyLocation";
+
+function readInitialTargets(): BodySelectionTargetId[] {
+  if (typeof window === "undefined") return [];
+  return readBodyTargetsFromDraft(getQuoteDraft());
+}
 
 export function QuoteLocationStep({ size }: { size: string }) {
   const router = useRouter();
   const { t, language } = useSiteLanguage();
   const gateReady = useQuoteOnboardingGate();
 
+  const [selectedBodyTargets, setSelectedBodyTargets] = useState<
+    BodySelectionTargetId[]
+  >(readInitialTargets);
+  const [selectorMode, setSelectorMode] = useState<QuoteBodyLocationMode>(
+    getInitialQuoteBodyLocationMode,
+  );
+
+  // Estado legacy — solo activo en fallback 2D
   const [zone, setZone] = useState<ZoneId | null>(null);
   const [zoneOther, setZoneOther] = useState("");
-
   const [headPart, setHeadPart] = useState<HeadPartId | null>(null);
   const [backPart, setBackPart] = useState<BackPartId | null>(null);
-
   const [armSelection, setArmSelection] = useState<ArmSelection | null>(null);
   const [legSelection, setLegSelection] = useState<LegSelection | null>(null);
+
+  const handleTargetsChange = useCallback((next: BodySelectionTargetId[]) => {
+    setSelectedBodyTargets(normalizeQuoteBodyTargets(next));
+  }, []);
+
+  const handleFallback = useCallback(() => {
+    setSelectorMode("2d-fallback");
+  }, []);
 
   const handleZoneChange = useCallback((next: ZoneId) => {
     setZone(next);
@@ -47,77 +77,61 @@ export function QuoteLocationStep({ size }: { size: string }) {
     if (next !== "otro") setZoneOther("");
   }, []);
 
-  const isLocationComplete = useMemo(() => {
+  const isLegacyComplete = useMemo(() => {
     if (!zone) return false;
     if (zone === "cabeza") return Boolean(headPart);
     if (zone === "espalda") return Boolean(backPart);
     if (zone === "brazo") return isArmSelectionComplete(armSelection);
     if (zone === "pierna") return isLegSelectionComplete(legSelection);
     if (zone === "otro") return zoneOther.trim().length >= 3;
-
     return true;
   }, [armSelection, backPart, headPart, legSelection, zone, zoneOther]);
 
-  const nextHref = useMemo(() => {
-    if (!zone) return "";
-
-    const params = new URLSearchParams();
-
-    params.set("size", size);
-    params.set("zone", zone);
-
-    if (zoneOther.trim()) {
-      params.set("zoneOther", zoneOther.trim());
-    }
-
-    if (headPart) {
-      params.set("headPart", headPart);
-    }
-
-    if (backPart) {
-      params.set("backPart", backPart);
-    }
-
-    if (armSelection?.laterality) {
-      params.set("armLaterality", armSelection.laterality);
-    }
-
-    if (armSelection?.faceScope) {
-      params.set("armFaceScope", armSelection.faceScope);
-    }
-
-    if (armSelection?.part) {
-      params.set("armPart", armSelection.part);
-    }
-
-    if (legSelection?.laterality) {
-      params.set("legLaterality", legSelection.laterality);
-    }
-
-    if (legSelection?.faceScope) {
-      params.set("legFaceScope", legSelection.faceScope);
-    }
-
-    if (legSelection?.extent) {
-      params.set("legExtent", legSelection.extent);
-    }
-
-    return `/cotizacion/estilo?${params.toString()}`;
-  }, [
-    armSelection,
-    backPart,
-    headPart,
-    legSelection,
-    size,
-    zone,
-    zoneOther,
-  ]);
+  const isLocationComplete =
+    selectorMode === "3d"
+      ? isBody3DLocationComplete(selectedBodyTargets)
+      : isLegacyComplete;
 
   function handleContinue() {
-    if (!isLocationComplete || !zone) return;
+    if (!isLocationComplete) return;
+
+    const base = getQuoteDraft() ?? { size };
+
+    if (selectorMode === "3d") {
+      const bodyFields = buildBody3DDraftFields(selectedBodyTargets);
+      saveQuoteDraft({
+        ...base,
+        size,
+        ...bodyFields,
+        headPart: undefined,
+        backPart: undefined,
+        armLaterality: undefined,
+        armFaceScope: undefined,
+        armPart: undefined,
+        legLaterality: undefined,
+        legFaceScope: undefined,
+        legExtent: undefined,
+      });
+
+      if (isLargeQuoteSize(size)) {
+        router.push(`/cotizacion/asesoria?size=${encodeURIComponent(size)}`);
+        return;
+      }
+
+      const params = new URLSearchParams();
+      params.set("size", size);
+      params.set("zone", bodyFields.zone ?? "otro");
+      if (bodyFields.zoneOther) {
+        params.set("zoneOther", bodyFields.zoneOther);
+      }
+      router.push(`/cotizacion/estilo?${params.toString()}`);
+      return;
+    }
+
+    if (!zone) return;
 
     saveQuoteDraft({
-      ...(getQuoteDraft() ?? { size }),
+      ...base,
       size,
       zone,
       zoneOther: zoneOther.trim() || undefined,
@@ -129,6 +143,7 @@ export function QuoteLocationStep({ size }: { size: string }) {
       legLaterality: legSelection?.laterality,
       legFaceScope: legSelection?.faceScope,
       legExtent: legSelection?.extent,
+      selectedBodyTargets: undefined,
     });
 
     if (isLargeQuoteSize(size)) {
@@ -136,8 +151,27 @@ export function QuoteLocationStep({ size }: { size: string }) {
       return;
     }
 
-    if (!nextHref) return;
-    router.push(nextHref);
+    const params = new URLSearchParams();
+    params.set("size", size);
+    params.set("zone", zone);
+    if (zoneOther.trim()) params.set("zoneOther", zoneOther.trim());
+    if (headPart) params.set("headPart", headPart);
+    if (backPart) params.set("backPart", backPart);
+    if (armSelection?.laterality) {
+      params.set("armLaterality", armSelection.laterality);
+    }
+    if (armSelection?.faceScope) {
+      params.set("armFaceScope", armSelection.faceScope);
+    }
+    if (armSelection?.part) params.set("armPart", armSelection.part);
+    if (legSelection?.laterality) {
+      params.set("legLaterality", legSelection.laterality);
+    }
+    if (legSelection?.faceScope) {
+      params.set("legFaceScope", legSelection.faceScope);
+    }
+    if (legSelection?.extent) params.set("legExtent", legSelection.extent);
+    router.push(`/cotizacion/estilo?${params.toString()}`);
   }
 
   if (!gateReady) {
@@ -154,7 +188,7 @@ export function QuoteLocationStep({ size }: { size: string }) {
 
   return (
     <QuoteShell>
-      <section className="relative mb-8">
+      <section className="relative mb-6">
         <div className="pointer-events-none absolute -left-10 -top-10 h-40 w-40 rounded-full bg-amber-600/15 blur-[60px]" />
 
         <p className="typo-tech mb-2 uppercase tracking-[0.16em] text-amber-200/85">
@@ -174,38 +208,45 @@ export function QuoteLocationStep({ size }: { size: string }) {
         </p>
       </section>
 
-      <section className="mb-8">
-        <div className="glass-card rounded-2xl p-5">
-          <div className="mb-4 flex items-center gap-3">
-            <div className="flex h-6 w-6 items-center justify-center rounded-full border border-amber-500/30 bg-amber-600/10">
-              <span className="text-[10px] font-bold text-white">2</span>
-            </div>
-
-            <h3 className="typo-subtitle text-sm uppercase tracking-[0.14em] text-zinc-200">
-              {language === "en" ? "Body location" : "Ubicación en el cuerpo"}
-            </h3>
+      <section className="mb-6">
+        <div className="mb-3 flex items-center gap-3">
+          <div className="flex h-6 w-6 items-center justify-center rounded-full border border-amber-500/30 bg-amber-600/10">
+            <span className="text-[10px] font-bold text-white">2</span>
           </div>
-
-          <BodyAreaSelector
-            zone={zone}
-            onZoneChange={handleZoneChange}
-            zoneOther={zoneOther}
-            onZoneOtherChange={setZoneOther}
-            headPart={headPart}
-            onHeadPartChange={setHeadPart}
-            backPart={backPart}
-            onBackPartChange={setBackPart}
-            armSelection={armSelection}
-            onArmSelectionChange={setArmSelection}
-            legSelection={legSelection}
-            onLegSelectionChange={setLegSelection}
-          />
+          <h3 className="typo-subtitle text-sm uppercase tracking-[0.14em] text-zinc-200">
+            {language === "en" ? "Body location" : "Ubicación en el cuerpo"}
+          </h3>
         </div>
+
+        <QuoteBodyLocationSelector
+          value={selectedBodyTargets}
+          onChange={handleTargetsChange}
+          mode={selectorMode}
+          onFallback={handleFallback}
+          legacy={{
+            zone,
+            onZoneChange: handleZoneChange,
+            zoneOther,
+            onZoneOtherChange: setZoneOther,
+            headPart,
+            onHeadPartChange: setHeadPart,
+            backPart,
+            onBackPartChange: setBackPart,
+            armSelection,
+            onArmSelectionChange: setArmSelection,
+            legSelection,
+            onLegSelectionChange: setLegSelection,
+          }}
+        />
       </section>
 
       {!isLocationComplete ? (
         <div className="mb-4 rounded-xl border border-amber-300/20 bg-amber-500/10 px-4 py-3 text-sm font-medium text-amber-100">
-          {t("quoteRefinementIncomplete")}
+          {selectorMode === "3d"
+            ? language === "en"
+              ? "Select at least one area on the body to continue."
+              : "Selecciona al menos una zona del cuerpo para continuar."
+            : t("quoteRefinementIncomplete")}
         </div>
       ) : null}
 

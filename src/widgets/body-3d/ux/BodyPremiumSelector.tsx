@@ -58,6 +58,8 @@ export type BodyPremiumSelectorProps = {
   onContinue?: (targets: BodySelectionTargetId[]) => void;
   initialView?: BodyCameraView;
   className?: string;
+  /** Altura del marco del visor (CSS). Default lab. */
+  frameHeight?: string;
   /** Muestra botón Continuar + payload demo (solo laboratorio). */
   showLabContinue?: boolean;
 };
@@ -70,6 +72,7 @@ export function BodyPremiumSelector({
   onContinue,
   initialView = "front",
   className = "",
+  frameHeight = "min(82dvh, 760px)",
   showLabContinue = false,
 }: BodyPremiumSelectorProps) {
   const controlled = isControlledSelection(value);
@@ -273,14 +276,15 @@ export function BodyPremiumSelector({
   return (
     <div
       className={[
-        "relative flex min-h-[min(82dvh,760px)] flex-col gap-3",
+        "relative flex flex-col gap-3",
         className,
       ]
         .filter(Boolean)
         .join(" ")}
     >
       <div
-        className="relative h-[min(82dvh,760px)] min-h-[420px] flex-1 overflow-hidden rounded-2xl border border-white/10 bg-[#17110d]"
+        className="relative min-h-[360px] flex-1 overflow-hidden rounded-2xl border border-white/10 bg-[#17110d]"
+        style={{ height: frameHeight }}
         onPointerDown={(e) => {
           dragStartRef.current = { x: e.clientX, y: e.clientY };
           setIsOrbitDragging(false);
