@@ -416,14 +416,24 @@ export const SITE_COPY = {
     quoteThanksAdvisorySlot: "Horario",
     quoteThanksAdvisoryWhatsapp: "Escribir por WhatsApp",
     quoteLocationStep: "Paso 4 · Zona",
-    quoteLocationTitle: "Elige",
+    quoteLocationTitle: "Selecciona la zona del cuerpo",
     quoteLocationTitle2: "la zona",
-    quoteLocationBody: "Toca el mapa o elige una zona.",
+    quoteLocationBody:
+      "Gira el modelo y toca una zona para elegir con precisión.",
     quoteLocationBodyLarge:
       "Cuéntanos dónde va tu pieza. Usa el mapa o los botones de abajo para señalar la zona con el mayor detalle posible.",
     quoteLocationHintQuote: "Primero elige la zona. Si hace falta, afiná el detalle en los pasos de abajo.",
     quoteLocationHintAdvisory: "Cuanto más precisa la zona, mejor planificamos la asesoría.",
     quoteLocationCardTitle: "Zona del cuerpo",
+    quoteBody3dLoading: "Preparando el modelo…",
+    quoteBody3dIntroTitle: "Selecciona la zona del cuerpo",
+    quoteBody3dIntroBody:
+      "Gira el modelo y toca una zona para elegir con precisión.",
+    quoteBody3dIntroHint:
+      "Puedes elegir una zona exacta, una región anatómica o una selección comercial.",
+    quoteBody3dEmptyContinue: "Selecciona al menos una zona del cuerpo para continuar.",
+    quoteBody3dFallbackTitle: "No pudimos cargar el selector 3D.",
+    quoteBody3dFallbackBody: "Puedes continuar seleccionando la zona desde el mapa.",
     quoteFlowStep1: "1 · Elige la zona",
     quoteFlowStep1Hint: "Toca un botón o una zona resaltada en el mapa.",
     quoteFlowStep2: "2 · Ubica en el mapa",
@@ -1035,14 +1045,24 @@ export const SITE_COPY = {
     quoteThanksAdvisorySlot: "Time",
     quoteThanksAdvisoryWhatsapp: "Message on WhatsApp",
     quoteLocationStep: "Step 4 · Area",
-    quoteLocationTitle: "Choose",
+    quoteLocationTitle: "Select the body area",
     quoteLocationTitle2: "the area",
-    quoteLocationBody: "Tap the map or pick an area.",
+    quoteLocationBody:
+      "Rotate the model and tap an area to choose with precision.",
     quoteLocationBodyLarge:
       "Tell us where your piece will go. Use the map or the buttons below to mark the area as precisely as you can.",
     quoteLocationHintQuote: "First pick the area. Refine below if needed.",
     quoteLocationHintAdvisory: "The more precise the area, the better we plan the advisory.",
     quoteLocationCardTitle: "Body area",
+    quoteBody3dLoading: "Preparing the model…",
+    quoteBody3dIntroTitle: "Select the body area",
+    quoteBody3dIntroBody:
+      "Rotate the model and tap an area to choose with precision.",
+    quoteBody3dIntroHint:
+      "You can pick an exact surface, an anatomical region, or a commercial selection.",
+    quoteBody3dEmptyContinue: "Select at least one body area to continue.",
+    quoteBody3dFallbackTitle: "We couldn't load the 3D selector.",
+    quoteBody3dFallbackBody: "You can keep going by choosing the area on the map.",
     quoteFlowStep1: "1 · Choose the area",
     quoteFlowStep1Hint: "Tap a button or a highlighted zone on the map.",
     quoteFlowStep2: "2 · Locate on the map",

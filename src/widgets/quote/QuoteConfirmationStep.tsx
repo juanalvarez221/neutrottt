@@ -13,7 +13,7 @@ import {
   type SmartQuoteRequest,
 } from "@/shared/lib/smartQuotes";
 import { receivesOnlinePricing, getQuoteDraft, setQuoteCompletionType } from "@/shared/lib/quoteDraft";
-import { formatZoneDisplay, getZoneRefinementFromDraft } from "@/shared/lib/quoteZones";
+import { formatQuoteLocationLabel } from "@/widgets/quote/quoteBodyLocation";
 import { buildQuoteSessionEstimate } from "@/shared/lib/quoteSessionPricing";
 
 const DEFAULT_QUOTE_STYLE = "Neutrottt Style";
@@ -106,12 +106,10 @@ export function QuoteConfirmationStep({
     [sizeRaw, language],
   );
 
-  const zoneLabel = formatZoneDisplay(
+  const zoneLabel = formatQuoteLocationLabel(getQuoteDraft(), t, {
     zone,
     zoneOther,
-    t,
-    getZoneRefinementFromDraft(getQuoteDraft()),
-  );
+  });
 
   const pricingSummary = `${t("quotePricingConsecutiveTitle")}: ${estimate.consecutivePerSession} · ${t("quotePricingSeparateTitle")}: ${estimate.separatePerSession}`;
 

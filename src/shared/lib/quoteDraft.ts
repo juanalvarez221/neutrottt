@@ -19,6 +19,11 @@ export type QuoteDraft = {
   legLaterality?: string;
   legFaceScope?: string;
   legExtent?: string;
+  /**
+   * Selección conceptual del selector 3D (fuente de verdad de ubicación).
+   * Vacío / ausente = sin selección 3D. Nunca guardar atomics aquí.
+   */
+  selectedBodyTargets?: string[];
   /** @deprecated */
   armSide?: string;
   /** @deprecated */

@@ -1,0 +1,120 @@
+/**
+ * Selector de ubicación corporal para cotización.
+ * 3D principal; 2D solo como fallback técnico (sin toggle visible).
+ */
+
+"use client";
+
+import { useId } from "react";
+import { NEUTRO_BODY_V1_MODEL } from "@/widgets/body-3d/bodyModelDefinition";
+import { BodyPremiumSelector } from "@/widgets/body-3d/ux/BodyPremiumSelector";
+import type { BodySelectionTargetId } from "@/widgets/body-3d/ux/bodySelectionSerialization";
+import { BodyAreaSelector } from "@/widgets/quote/BodyAreaSelector";
+import { Body3DErrorBoundary } from "@/widgets/quote/Body3DErrorBoundary";
+import { isWebGLAvailable } from "@/widgets/quote/isWebGLAvailable";
+import { useSiteLanguage } from "@/shared/i18n/LanguageProvider";
+import type { ZoneId } from "@/shared/lib/quoteZones";
+import type { HeadPartId } from "@/shared/lib/headZoneParts";
+import type { BackPartId } from "@/shared/lib/backZoneParts";
+import type { ArmSelection } from "@/shared/lib/armZoneParts";
+import type { LegSelection } from "@/shared/lib/legZoneParts";
+
+export type QuoteBodyLocationMode = "3d" | "2d-fallback";
+
+type LegacyBodyProps = {
+  zone: ZoneId | null;
+  onZoneChange: (zone: ZoneId) => void;
+  zoneOther: string;
+  onZoneOtherChange: (value: string) => void;
+  headPart: HeadPartId | null;
+  onHeadPartChange: (value: HeadPartId | null) => void;
+  backPart: BackPartId | null;
+  onBackPartChange: (value: BackPartId | null) => void;
+  armSelection: ArmSelection | null;
+  onArmSelectionChange: (value: ArmSelection | null) => void;
+  legSelection: LegSelection | null;
+  onLegSelectionChange: (value: LegSelection | null) => void;
+};
+
+type QuoteBodyLocationSelectorProps = {
+  value: readonly BodySelectionTargetId[];
+  onChange: (next: BodySelectionTargetId[]) => void;
+  legacy: LegacyBodyProps;
+  mode: QuoteBodyLocationMode;
+  onFallback: () => void;
+  /** Cambia al remontar la ruta → limpia ErrorBoundary. */
+  resetKey?: string | number;
+};
+
+/** Inicialización de modo: WebGL ausente → fallback inmediato. */
+export function getInitialQuoteBodyLocationMode(): QuoteBodyLocationMode {
+  if (typeof window === "undefined") return "3d";
+  return isWebGLAvailable() ? "3d" : "2d-fallback";
+}
+
+export function QuoteBodyLocationSelector({
+  value,
+  onChange,
+  legacy,
+  mode,
+  onFallback,
+  resetKey,
+}: QuoteBodyLocationSelectorProps) {
+  const { t } = useSiteLanguage();
+  const autoReset = useId();
+  const boundaryResetKey = resetKey ?? autoReset;
+
+  const legacySelector = (
+    <BodyAreaSelector
+      zone={legacy.zone}
+      onZoneChange={legacy.onZoneChange}
+      zoneOther={legacy.zoneOther}
+      onZoneOtherChange={legacy.onZoneOtherChange}
+      headPart={legacy.headPart}
+      onHeadPartChange={legacy.onHeadPartChange}
+      backPart={legacy.backPart}
+      onBackPartChange={legacy.onBackPartChange}
+      armSelection={legacy.armSelection}
+      onArmSelectionChange={legacy.onArmSelectionChange}
+      legSelection={legacy.legSelection}
+      onLegSelectionChange={legacy.onLegSelectionChange}
+    />
+  );
+
+  const fallbackNotice = (
+    <div className="space-y-4">
+      <div className="rounded-xl border border-amber-300/20 bg-amber-500/10 px-4 py-3 text-sm leading-relaxed text-amber-50/95">
+        {t("quoteBody3dFallbackTitle")}
+        <br />
+        {t("quoteBody3dFallbackBody")}
+      </div>
+      {legacySelector}
+    </div>
+  );
+
+  if (mode === "2d-fallback") {
+    return fallbackNotice;
+  }
+
+  return (
+    <Body3DErrorBoundary
+      resetKey={boundaryResetKey}
+      onError={onFallback}
+      fallback={fallbackNotice}
+    >
+      <BodyPremiumSelector
+        model={NEUTRO_BODY_V1_MODEL}
+        value={value}
+        onChange={onChange}
+        showLabContinue={false}
+        showIntroOverlay={false}
+        frameHeight="clamp(400px, 62dvh, 640px)"
+        className="w-full"
+        loadingLabel={t("quoteBody3dLoading")}
+        introTitle={t("quoteBody3dIntroTitle")}
+        introBody={t("quoteBody3dIntroBody")}
+        introHintDesktop={t("quoteBody3dIntroHint")}
+      />
+    </Body3DErrorBoundary>
+  );
+}
