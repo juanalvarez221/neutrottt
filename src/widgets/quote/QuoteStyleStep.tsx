@@ -6,6 +6,7 @@ import { ArrowRight } from "lucide-react";
 import { QuoteShell } from "@/widgets/quote/QuoteShell";
 import { useSiteLanguage } from "@/shared/i18n/LanguageProvider";
 import { getQuoteDraft, isLargeQuoteSize } from "@/shared/lib/quoteDraft";
+import { draftHasLocation } from "@/widgets/quote/quoteBodyLocation";
 
 const STYLE_OPTIONS = [
   "Realismo oscuro",
@@ -27,9 +28,9 @@ export function QuoteStyleStep({ size, zone }: { size: string; zone: string }) {
       router.replace(`/cotizacion/asesoria?size=${encodeURIComponent(size)}`);
       return;
     }
-    if (draft?.zone) {
+    if (draftHasLocation(draft)) {
       router.replace(
-        `/cotizacion/confirmacion?size=${encodeURIComponent(size)}&zone=${encodeURIComponent(draft.zone)}`,
+        `/cotizacion/confirmacion?size=${encodeURIComponent(size)}&zone=${encodeURIComponent(draft?.zone ?? "otro")}`,
       );
       return;
     }

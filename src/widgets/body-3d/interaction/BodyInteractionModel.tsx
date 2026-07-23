@@ -74,6 +74,8 @@ export type BodyInteractionModelProps = {
   onActivateAtomicZone: (atomicId: string) => void;
   /** Coordenadas de pantalla para tooltip (desktop). */
   onHoverPointer?: (point: { x: number; y: number } | null) => void;
+  /** Se dispara cuando el GLB de interacción está preparado. */
+  onReady?: () => void;
 };
 
 /**
@@ -87,10 +89,15 @@ export function BodyInteractionModel({
   onHoverAtomicZone,
   onActivateAtomicZone,
   onHoverPointer,
+  onReady,
 }: BodyInteractionModelProps) {
   const { scene } = useGLTF(BODY_81_INTERACTION_MODEL_SRC);
   const prepared = useMemo(() => prepareInvisibleRaycastScene(scene), [scene]);
   const sessionRef = useRef<PointerSession | null>(null);
+
+  useLayoutEffect(() => {
+    onReady?.();
+  }, [onReady, prepared]);
 
   useLayoutEffect(() => {
     return () => {

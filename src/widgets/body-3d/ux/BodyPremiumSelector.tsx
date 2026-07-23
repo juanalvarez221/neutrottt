@@ -62,6 +62,10 @@ export type BodyPremiumSelectorProps = {
   frameHeight?: string;
   /** Muestra botón Continuar + payload demo (solo laboratorio). */
   showLabContinue?: boolean;
+  loadingLabel?: string;
+  introTitle?: string;
+  introBody?: string;
+  introHintDesktop?: string;
 };
 
 export function BodyPremiumSelector({
@@ -74,6 +78,10 @@ export function BodyPremiumSelector({
   className = "",
   frameHeight = "min(82dvh, 760px)",
   showLabContinue = false,
+  loadingLabel = "Preparando el modelo…",
+  introTitle = "¿Dónde quieres tatuarte?",
+  introBody = "Gira el modelo y toca una zona del cuerpo.",
+  introHintDesktop = "Puedes elegir una zona específica o una región completa.",
 }: BodyPremiumSelectorProps) {
   const controlled = isControlledSelection(value);
   const [internalTargets, setInternalTargets] = useState<
@@ -109,6 +117,7 @@ export function BodyPremiumSelector({
   );
   const [isOrbitDragging, setIsOrbitDragging] = useState(false);
   const [payloadPreview, setPayloadPreview] = useState<string | null>(null);
+  const [interactionReady, setInteractionReady] = useState(false);
   const dragStartRef = useRef<{ x: number; y: number } | null>(null);
 
   useEffect(() => {
@@ -318,30 +327,51 @@ export function BodyPremiumSelector({
           previewAtomicZoneIds={previewAtomicZoneIds}
           selectedAtomicZoneIds={resolvedSelectedAtomicZoneIds}
           onHoverAtomicZone={(id) => {
+            if (!interactionReady) return;
             setHoveredAtomicZoneId(id);
             if (id) markInteracted();
           }}
-          onHoverPointer={setHoverPointer}
-          onActivateAtomicZone={handleActivateZone}
+          onHoverPointer={(p) => {
+            if (!interactionReady) return;
+            setHoverPointer(p);
+          }}
+          onActivateAtomicZone={(id) => {
+            if (!interactionReady) return;
+            handleActivateZone(id);
+          }}
+          onInteractionReady={() => setInteractionReady(true)}
           focusPose={focusPose}
           focusToken={focusToken}
           reducedMotion={reducedMotion}
           className="!rounded-none !border-0"
           height="100%"
           chrome={false}
+          loadingLabel={loadingLabel}
         />
 
-        {!hasInteracted ? (
+        {!interactionReady ? (
+          <div
+            className="absolute inset-0 z-30 flex items-center justify-center bg-[rgba(23,17,13,0.55)] backdrop-blur-[2px]"
+            aria-busy
+            aria-live="polite"
+          >
+            <p className="text-sm font-medium tracking-wide text-zinc-300">
+              {loadingLabel}
+            </p>
+          </div>
+        ) : null}
+
+        {!hasInteracted && interactionReady ? (
           <div className="pointer-events-none absolute inset-x-0 top-5 z-20 flex justify-center px-4 min-[900px]:top-8 min-[900px]:justify-start min-[900px]:pl-8">
             <div className="max-w-sm rounded-2xl border border-white/10 bg-[rgba(23,17,13,0.72)] px-4 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-md">
               <p className="text-base font-semibold tracking-tight text-[rgba(255,242,228,0.96)]">
-                ¿Dónde quieres tatuarte?
+                {introTitle}
               </p>
               <p className="mt-1.5 text-sm leading-relaxed text-zinc-400">
-                Gira el modelo y toca una zona del cuerpo.
+                {introBody}
               </p>
               <p className="mt-1.5 hidden text-xs leading-relaxed text-zinc-500 min-[900px]:block">
-                Puedes elegir una zona específica o una región completa.
+                {introHintDesktop}
               </p>
             </div>
           </div>

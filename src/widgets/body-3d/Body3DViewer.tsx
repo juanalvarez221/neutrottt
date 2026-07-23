@@ -60,6 +60,10 @@ type Body3DViewerProps = {
   reducedMotion?: boolean;
   /** Si false, el host no aplica borde/radio (chrome del shell premium). */
   chrome?: boolean;
+  /** InteractionModel listo para raycast. */
+  onInteractionReady?: () => void;
+  /** Texto de carga (producción / lab). */
+  loadingLabel?: string;
   className?: string;
   height?: string;
 };
@@ -96,6 +100,7 @@ function BodyScene({
   onHoverAtomicZone,
   onHoverPointer,
   onActivateAtomicZone,
+  onInteractionReady,
 }: {
   model: BodyModelDefinition;
   appearance: BodyAppearanceMode;
@@ -112,6 +117,7 @@ function BodyScene({
   onHoverAtomicZone: (atomicId: string | null) => void;
   onHoverPointer: (point: { x: number; y: number } | null) => void;
   onActivateAtomicZone: (atomicId: string) => void;
+  onInteractionReady?: () => void;
 }) {
   const isProduction = model.role === "production";
   const showDebug =
@@ -153,6 +159,7 @@ function BodyScene({
             onHoverAtomicZone={onHoverAtomicZone}
             onHoverPointer={onHoverPointer}
             onActivateAtomicZone={onActivateAtomicZone}
+            onReady={onInteractionReady}
           />
         </>
       ) : null}
@@ -196,6 +203,8 @@ export function Body3DViewer({
   focusToken = 0,
   reducedMotion = false,
   chrome = true,
+  onInteractionReady,
+  loadingLabel = "Cargando visor…",
   className = "",
   height = "min(72dvh, 720px)",
 }: Body3DViewerProps) {
@@ -304,6 +313,7 @@ export function Body3DViewer({
               onHoverAtomicZone={onHoverAtomicZone ?? (() => undefined)}
               onHoverPointer={onHoverPointer ?? (() => undefined)}
               onActivateAtomicZone={onActivateAtomicZone ?? (() => undefined)}
+              onInteractionReady={onInteractionReady}
             />
           </Suspense>
 
@@ -335,7 +345,7 @@ export function Body3DViewer({
       ) : (
         <div className="absolute inset-0 flex items-center justify-center">
           <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-zinc-500">
-            Cargando visor…
+            {loadingLabel}
           </p>
         </div>
       )}

@@ -29,7 +29,8 @@ import {
 } from "@/shared/lib/legZoneParts";
 import type { BodySelectionTargetId } from "@/widgets/body-3d/ux/bodySelectionSerialization";
 import {
-  buildBody3DDraftFields,
+  buildBody3DNavigationParams,
+  buildLegacyQuoteLocationFromBodyTargets,
   isBody3DLocationComplete,
   normalizeQuoteBodyTargets,
   readBodyTargetsFromDraft,
@@ -42,7 +43,7 @@ function readInitialTargets(): BodySelectionTargetId[] {
 
 export function QuoteLocationStep({ size }: { size: string }) {
   const router = useRouter();
-  const { t, language } = useSiteLanguage();
+  const { t } = useSiteLanguage();
   const gateReady = useQuoteOnboardingGate();
 
   const [selectedBodyTargets, setSelectedBodyTargets] = useState<
@@ -98,7 +99,9 @@ export function QuoteLocationStep({ size }: { size: string }) {
     const base = getQuoteDraft() ?? { size };
 
     if (selectorMode === "3d") {
-      const bodyFields = buildBody3DDraftFields(selectedBodyTargets);
+      const bodyFields = buildLegacyQuoteLocationFromBodyTargets(
+        selectedBodyTargets,
+      );
       saveQuoteDraft({
         ...base,
         size,
@@ -118,12 +121,7 @@ export function QuoteLocationStep({ size }: { size: string }) {
         return;
       }
 
-      const params = new URLSearchParams();
-      params.set("size", size);
-      params.set("zone", bodyFields.zone ?? "otro");
-      if (bodyFields.zoneOther) {
-        params.set("zoneOther", bodyFields.zoneOther);
-      }
+      const params = buildBody3DNavigationParams(size, selectedBodyTargets);
       router.push(`/cotizacion/estilo?${params.toString()}`);
       return;
     }
@@ -214,7 +212,7 @@ export function QuoteLocationStep({ size }: { size: string }) {
             <span className="text-[10px] font-bold text-white">2</span>
           </div>
           <h3 className="typo-subtitle text-sm uppercase tracking-[0.14em] text-zinc-200">
-            {language === "en" ? "Body location" : "Ubicación en el cuerpo"}
+            {t("quoteLocationCardTitle")}
           </h3>
         </div>
 
@@ -223,6 +221,7 @@ export function QuoteLocationStep({ size }: { size: string }) {
           onChange={handleTargetsChange}
           mode={selectorMode}
           onFallback={handleFallback}
+          resetKey={size}
           legacy={{
             zone,
             onZoneChange: handleZoneChange,
@@ -243,9 +242,7 @@ export function QuoteLocationStep({ size }: { size: string }) {
       {!isLocationComplete ? (
         <div className="mb-4 rounded-xl border border-amber-300/20 bg-amber-500/10 px-4 py-3 text-sm font-medium text-amber-100">
           {selectorMode === "3d"
-            ? language === "en"
-              ? "Select at least one area on the body to continue."
-              : "Selecciona al menos una zona del cuerpo para continuar."
+            ? t("quoteBody3dEmptyContinue")
             : t("quoteRefinementIncomplete")}
         </div>
       ) : null}

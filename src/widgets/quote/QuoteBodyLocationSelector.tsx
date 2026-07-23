@@ -5,12 +5,14 @@
 
 "use client";
 
+import { useId } from "react";
 import { NEUTRO_BODY_V1_MODEL } from "@/widgets/body-3d/bodyModelDefinition";
 import { BodyPremiumSelector } from "@/widgets/body-3d/ux/BodyPremiumSelector";
 import type { BodySelectionTargetId } from "@/widgets/body-3d/ux/bodySelectionSerialization";
 import { BodyAreaSelector } from "@/widgets/quote/BodyAreaSelector";
 import { Body3DErrorBoundary } from "@/widgets/quote/Body3DErrorBoundary";
 import { isWebGLAvailable } from "@/widgets/quote/isWebGLAvailable";
+import { useSiteLanguage } from "@/shared/i18n/LanguageProvider";
 import type { ZoneId } from "@/shared/lib/quoteZones";
 import type { HeadPartId } from "@/shared/lib/headZoneParts";
 import type { BackPartId } from "@/shared/lib/backZoneParts";
@@ -40,6 +42,8 @@ type QuoteBodyLocationSelectorProps = {
   legacy: LegacyBodyProps;
   mode: QuoteBodyLocationMode;
   onFallback: () => void;
+  /** Cambia al remontar la ruta → limpia ErrorBoundary. */
+  resetKey?: string | number;
 };
 
 /** Inicialización de modo: WebGL ausente → fallback inmediato. */
@@ -48,26 +52,18 @@ export function getInitialQuoteBodyLocationMode(): QuoteBodyLocationMode {
   return isWebGLAvailable() ? "3d" : "2d-fallback";
 }
 
-function FallbackNotice({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="space-y-4">
-      <div className="rounded-xl border border-amber-300/20 bg-amber-500/10 px-4 py-3 text-sm leading-relaxed text-amber-50/95">
-        No pudimos cargar el selector 3D.
-        <br />
-        Puedes continuar seleccionando la zona desde el mapa.
-      </div>
-      {children}
-    </div>
-  );
-}
-
 export function QuoteBodyLocationSelector({
   value,
   onChange,
   legacy,
   mode,
   onFallback,
+  resetKey,
 }: QuoteBodyLocationSelectorProps) {
+  const { t } = useSiteLanguage();
+  const autoReset = useId();
+  const boundaryResetKey = resetKey ?? autoReset;
+
   const legacySelector = (
     <BodyAreaSelector
       zone={legacy.zone}
@@ -85,14 +81,26 @@ export function QuoteBodyLocationSelector({
     />
   );
 
+  const fallbackNotice = (
+    <div className="space-y-4">
+      <div className="rounded-xl border border-amber-300/20 bg-amber-500/10 px-4 py-3 text-sm leading-relaxed text-amber-50/95">
+        {t("quoteBody3dFallbackTitle")}
+        <br />
+        {t("quoteBody3dFallbackBody")}
+      </div>
+      {legacySelector}
+    </div>
+  );
+
   if (mode === "2d-fallback") {
-    return <FallbackNotice>{legacySelector}</FallbackNotice>;
+    return fallbackNotice;
   }
 
   return (
     <Body3DErrorBoundary
+      resetKey={boundaryResetKey}
       onError={onFallback}
-      fallback={<FallbackNotice>{legacySelector}</FallbackNotice>}
+      fallback={fallbackNotice}
     >
       <BodyPremiumSelector
         model={NEUTRO_BODY_V1_MODEL}
@@ -101,6 +109,10 @@ export function QuoteBodyLocationSelector({
         showLabContinue={false}
         frameHeight="min(58dvh, 560px)"
         className="w-full"
+        loadingLabel={t("quoteBody3dLoading")}
+        introTitle={t("quoteBody3dIntroTitle")}
+        introBody={t("quoteBody3dIntroBody")}
+        introHintDesktop={t("quoteBody3dIntroHint")}
       />
     </Body3DErrorBoundary>
   );

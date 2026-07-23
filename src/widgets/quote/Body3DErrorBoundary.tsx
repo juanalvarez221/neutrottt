@@ -1,5 +1,6 @@
 /**
  * Error boundary específico del selector 3D → fallback 2D.
+ * resetKey permite remount limpio al volver a la ruta.
  */
 
 "use client";
@@ -10,6 +11,8 @@ type Body3DErrorBoundaryProps = {
   children: ReactNode;
   fallback: ReactNode;
   onError?: () => void;
+  /** Al cambiar, limpia el estado de error (remount lógico). */
+  resetKey?: string | number;
 };
 
 type Body3DErrorBoundaryState = {
@@ -30,6 +33,15 @@ export class Body3DErrorBoundary extends Component<
     this.props.onError?.();
     if (process.env.NODE_ENV === "development") {
       console.error("[Body3DErrorBoundary]", error, info.componentStack);
+    }
+  }
+
+  componentDidUpdate(prevProps: Body3DErrorBoundaryProps) {
+    if (
+      prevProps.resetKey !== this.props.resetKey &&
+      this.state.hasError
+    ) {
+      this.setState({ hasError: false });
     }
   }
 
