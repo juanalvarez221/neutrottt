@@ -5,10 +5,7 @@
 
 import type { ContextualSelectionOption } from "@/widgets/body-3d/interaction/bodyInteractionTypes";
 import adjacencyData from "@/widgets/body-3d/domain/generated/publicRegionAdjacency.json";
-import {
-  resolvePublicTargetHighlightRegions,
-  type PublicHighlightRegionId,
-} from "@/widgets/body-3d/domain/bodyPublicHighlightRegions";
+import { resolvePublicTargetHighlightRegions } from "@/widgets/body-3d/domain/bodyPublicHighlightRegions";
 import type { SelectionTargetId } from "@/widgets/body-3d/interaction/bodyInteractionTypes";
 import { normalizeSelectedTargetIds } from "@/widgets/body-3d/interaction/bodySelectionEngine";
 
@@ -64,6 +61,12 @@ export function arePublicTargetsAdjacent(
  * Selection is contiguous when every target shares adjacency (directly or via
  * routing bridges) with at least one other — i.e. one connected component.
  */
+export function isConnectedBodySelection(
+  targetIds: readonly string[],
+): boolean {
+  return isPublicSelectionContiguous(targetIds);
+}
+
 export function isPublicSelectionContiguous(
   targetIds: readonly string[],
 ): boolean {

@@ -21,7 +21,6 @@ import {
 } from "@/widgets/body-3d/interaction";
 import type { BodyModelDefinition } from "@/widgets/body-3d/bodyModelDefinition";
 import {
-  getCameraLookTarget,
   getCameraPositionForView,
   type BodyCameraFraming,
 } from "@/widgets/body-3d/cameraViewHelpers";
@@ -282,10 +281,6 @@ export function Body3DViewer({
     () => getCameraPositionForView("front", model.camera),
     [model.camera],
   );
-  const lookTarget = useMemo(
-    () => getCameraLookTarget(activeFraming),
-    [activeFraming],
-  );
 
   const verticalFill = verticalFillForViewport(size.width || 1024);
 
@@ -454,7 +449,8 @@ export function Body3DViewer({
             maxDistance={maxDistance}
             minPolarAngle={Math.PI * 0.12}
             maxPolarAngle={Math.PI * 0.88}
-            target={[lookTarget.x, lookTarget.y, lookTarget.z]}
+            // No pasar `target` controlado: pelea con BodyCameraController
+            // y puede dejar la órbita en un frontal-diagonal al enfocar espalda.
           />
         </Canvas>
       ) : (

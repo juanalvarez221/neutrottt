@@ -7,6 +7,10 @@ import { Vector3 } from "three";
 import type { BodyCameraView } from "@/widgets/body-3d/bodyViewerTypes";
 import type { BodyCameraFraming } from "@/widgets/body-3d/cameraViewHelpers";
 import {
+  resolveCanonicalAzimuth,
+  type CanonicalBodyView,
+} from "@/widgets/body-3d/domain/bodyModelCoordinateSystem";
+import {
   getPublicRegionMeta,
   type PublicRegionCategory,
   type PublicRegionMeta,
@@ -262,26 +266,26 @@ function clamp(n: number, min: number, max: number) {
   return Math.min(max, Math.max(min, n));
 }
 
-/** Azimuth en radianes desde +Z (frente). */
+const PREFERRED_TO_CANONICAL: Record<PreferredBodyView, CanonicalBodyView> = {
+  front: "FRONT",
+  back: "BACK",
+  left: "LEFT",
+  right: "RIGHT",
+  "front-left": "FRONT_LEFT",
+  "front-right": "FRONT_RIGHT",
+  "back-left": "BACK_LEFT",
+  "back-right": "BACK_RIGHT",
+};
+
+/** Azimuth canónico desde el contrato único (frente +Z, left +X). */
 function azimuthForView(view: PreferredBodyView): number {
-  switch (view) {
-    case "front":
-      return 0;
-    case "back":
-      return Math.PI;
-    case "left":
-      return -Math.PI / 2;
-    case "right":
-      return Math.PI / 2;
-    case "front-left":
-      return -Math.PI / 4;
-    case "front-right":
-      return Math.PI / 4;
-    case "back-left":
-      return (-3 * Math.PI) / 4;
-    case "back-right":
-      return (3 * Math.PI) / 4;
-  }
+  return resolveCanonicalAzimuth(PREFERRED_TO_CANONICAL[view]);
+}
+
+export function preferredViewToCanonical(
+  view: PreferredBodyView,
+): CanonicalBodyView {
+  return PREFERRED_TO_CANONICAL[view];
 }
 
 /**

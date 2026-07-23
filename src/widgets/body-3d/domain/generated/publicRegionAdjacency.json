@@ -60,45 +60,42 @@
   ],
   "adjacency": {
     "full_abdomen_region": [
-      "left_hip_surface",
       "left_pectoral_region",
       "left_ribs_region",
+      "left_shoulder_surface",
       "left_thigh_front_surface",
-      "left_thigh_inner_surface",
-      "lower_back_region",
-      "right_hip_surface",
+      "neck_front_surface",
       "right_pectoral_region",
       "right_ribs_region",
-      "right_thigh_front_surface",
-      "right_thigh_inner_surface",
-      "upper_back_region"
+      "right_shoulder_surface",
+      "right_thigh_front_surface"
     ],
     "head_back_surface": [
       "head_left_surface",
       "head_right_surface",
-      "head_top_surface",
-      "neck_back_surface",
-      "neck_left_surface",
-      "neck_right_surface"
+      "head_top_surface"
     ],
     "head_left_surface": [
       "head_back_surface",
+      "head_right_surface",
       "head_top_surface",
-      "left_pectoral_region",
+      "neck_back_surface",
       "neck_front_surface",
       "neck_left_surface"
     ],
     "head_right_surface": [
       "head_back_surface",
+      "head_left_surface",
       "head_top_surface",
+      "neck_back_surface",
       "neck_front_surface",
-      "neck_right_surface",
-      "right_pectoral_region"
+      "neck_right_surface"
     ],
     "head_top_surface": [
       "head_back_surface",
       "head_left_surface",
-      "head_right_surface"
+      "head_right_surface",
+      "neck_back_surface"
     ],
     "left_ankle_transition": [
       "left_calf_surface",
@@ -107,7 +104,6 @@
     ],
     "left_biceps_surface": [
       "left_elbow_transition",
-      "left_pectoral_region",
       "left_ribs_region",
       "left_shoulder_surface",
       "left_triceps_surface",
@@ -122,6 +118,7 @@
       "left_biceps_surface",
       "left_forearm_inner_surface",
       "left_forearm_outer_surface",
+      "left_ribs_region",
       "left_triceps_surface"
     ],
     "left_foot_surface": [
@@ -140,8 +137,7 @@
     "left_glute_surface": [
       "left_hip_surface",
       "left_thigh_back_surface",
-      "left_thigh_inner_surface",
-      "left_thigh_outer_surface",
+      "left_wrist_transition",
       "lower_back_region",
       "right_glute_surface"
     ],
@@ -149,38 +145,35 @@
       "left_wrist_transition"
     ],
     "left_hip_surface": [
-      "full_abdomen_region",
       "left_glute_surface",
-      "left_thigh_front_surface",
-      "left_thigh_inner_surface",
-      "left_thigh_outer_surface",
-      "lower_back_region",
-      "right_hip_surface"
+      "left_wrist_transition"
     ],
     "left_knee_transition": [
       "left_calf_surface",
       "left_shin_surface",
       "left_thigh_back_surface",
       "left_thigh_front_surface",
-      "left_thigh_inner_surface",
-      "left_thigh_outer_surface"
+      "left_thigh_inner_surface"
     ],
     "left_pectoral_region": [
       "full_abdomen_region",
-      "head_left_surface",
-      "left_biceps_surface",
       "left_ribs_region",
-      "left_shoulder_surface",
       "left_triceps_surface",
-      "neck_front_surface",
-      "neck_left_surface",
       "right_pectoral_region",
       "upper_back_region"
     ],
     "left_ribs_region": [
       "full_abdomen_region",
       "left_biceps_surface",
+      "left_elbow_transition",
       "left_pectoral_region",
+      "left_shoulder_surface",
+      "left_thigh_front_surface",
+      "left_thigh_outer_surface",
+      "left_triceps_surface",
+      "lower_back_region",
+      "neck_front_surface",
+      "neck_left_surface",
       "upper_back_region"
     ],
     "left_shin_surface": [
@@ -189,37 +182,34 @@
       "left_knee_transition"
     ],
     "left_shoulder_surface": [
+      "full_abdomen_region",
       "left_biceps_surface",
-      "left_pectoral_region",
+      "left_ribs_region",
       "left_triceps_surface",
-      "upper_back_region"
+      "neck_front_surface"
     ],
     "left_thigh_back_surface": [
       "left_glute_surface",
       "left_knee_transition",
-      "left_thigh_inner_surface",
-      "left_thigh_outer_surface"
+      "left_thigh_front_surface",
+      "left_thigh_outer_surface",
+      "lower_back_region"
     ],
     "left_thigh_front_surface": [
       "full_abdomen_region",
-      "left_hip_surface",
       "left_knee_transition",
+      "left_ribs_region",
+      "left_thigh_back_surface",
       "left_thigh_inner_surface",
-      "left_thigh_outer_surface"
+      "left_thigh_outer_surface",
+      "right_thigh_front_surface"
     ],
     "left_thigh_inner_surface": [
-      "full_abdomen_region",
-      "left_glute_surface",
-      "left_hip_surface",
       "left_knee_transition",
-      "left_thigh_back_surface",
-      "left_thigh_front_surface",
-      "lower_back_region"
+      "left_thigh_front_surface"
     ],
     "left_thigh_outer_surface": [
-      "left_glute_surface",
-      "left_hip_surface",
-      "left_knee_transition",
+      "left_ribs_region",
       "left_thigh_back_surface",
       "left_thigh_front_surface"
     ],
@@ -227,51 +217,56 @@
       "left_biceps_surface",
       "left_elbow_transition",
       "left_pectoral_region",
+      "left_ribs_region",
       "left_shoulder_surface"
     ],
     "left_wrist_transition": [
       "left_forearm_inner_surface",
       "left_forearm_outer_surface",
-      "left_hand_surface"
+      "left_glute_surface",
+      "left_hand_surface",
+      "left_hip_surface"
     ],
     "lower_back_region": [
-      "full_abdomen_region",
       "left_glute_surface",
-      "left_hip_surface",
-      "left_thigh_inner_surface",
+      "left_ribs_region",
+      "left_thigh_back_surface",
       "right_glute_surface",
-      "right_hip_surface",
-      "right_thigh_inner_surface",
+      "right_ribs_region",
+      "right_thigh_back_surface",
       "upper_back_region"
     ],
     "neck_back_surface": [
-      "head_back_surface",
+      "head_left_surface",
+      "head_right_surface",
+      "head_top_surface",
       "neck_left_surface",
       "neck_right_surface",
       "upper_back_region"
     ],
     "neck_front_surface": [
+      "full_abdomen_region",
       "head_left_surface",
       "head_right_surface",
-      "left_pectoral_region",
+      "left_ribs_region",
+      "left_shoulder_surface",
       "neck_left_surface",
       "neck_right_surface",
-      "right_pectoral_region"
+      "right_ribs_region",
+      "right_shoulder_surface"
     ],
     "neck_left_surface": [
-      "head_back_surface",
       "head_left_surface",
-      "left_pectoral_region",
+      "left_ribs_region",
       "neck_back_surface",
       "neck_front_surface",
       "upper_back_region"
     ],
     "neck_right_surface": [
-      "head_back_surface",
       "head_right_surface",
       "neck_back_surface",
       "neck_front_surface",
-      "right_pectoral_region",
+      "right_ribs_region",
       "upper_back_region"
     ],
     "right_ankle_transition": [
@@ -281,7 +276,6 @@
     ],
     "right_biceps_surface": [
       "right_elbow_transition",
-      "right_pectoral_region",
       "right_ribs_region",
       "right_shoulder_surface",
       "right_triceps_surface",
@@ -296,6 +290,7 @@
       "right_biceps_surface",
       "right_forearm_inner_surface",
       "right_forearm_outer_surface",
+      "right_ribs_region",
       "right_triceps_surface"
     ],
     "right_foot_surface": [
@@ -316,45 +311,41 @@
       "lower_back_region",
       "right_hip_surface",
       "right_thigh_back_surface",
-      "right_thigh_inner_surface",
-      "right_thigh_outer_surface"
+      "right_wrist_transition"
     ],
     "right_hand_surface": [
       "right_wrist_transition"
     ],
     "right_hip_surface": [
-      "full_abdomen_region",
-      "left_hip_surface",
-      "lower_back_region",
       "right_glute_surface",
-      "right_thigh_front_surface",
-      "right_thigh_inner_surface",
-      "right_thigh_outer_surface"
+      "right_wrist_transition"
     ],
     "right_knee_transition": [
       "right_calf_surface",
       "right_shin_surface",
       "right_thigh_back_surface",
       "right_thigh_front_surface",
-      "right_thigh_inner_surface",
-      "right_thigh_outer_surface"
+      "right_thigh_inner_surface"
     ],
     "right_pectoral_region": [
       "full_abdomen_region",
-      "head_right_surface",
       "left_pectoral_region",
-      "neck_front_surface",
-      "neck_right_surface",
-      "right_biceps_surface",
       "right_ribs_region",
-      "right_shoulder_surface",
       "right_triceps_surface",
       "upper_back_region"
     ],
     "right_ribs_region": [
       "full_abdomen_region",
+      "lower_back_region",
+      "neck_front_surface",
+      "neck_right_surface",
       "right_biceps_surface",
+      "right_elbow_transition",
       "right_pectoral_region",
+      "right_shoulder_surface",
+      "right_thigh_front_surface",
+      "right_thigh_outer_surface",
+      "right_triceps_surface",
       "upper_back_region"
     ],
     "right_shin_surface": [
@@ -363,37 +354,34 @@
       "right_knee_transition"
     ],
     "right_shoulder_surface": [
+      "full_abdomen_region",
+      "neck_front_surface",
       "right_biceps_surface",
-      "right_pectoral_region",
-      "right_triceps_surface",
-      "upper_back_region"
+      "right_ribs_region",
+      "right_triceps_surface"
     ],
     "right_thigh_back_surface": [
+      "lower_back_region",
       "right_glute_surface",
       "right_knee_transition",
-      "right_thigh_inner_surface",
+      "right_thigh_front_surface",
       "right_thigh_outer_surface"
     ],
     "right_thigh_front_surface": [
       "full_abdomen_region",
-      "right_hip_surface",
+      "left_thigh_front_surface",
       "right_knee_transition",
+      "right_ribs_region",
+      "right_thigh_back_surface",
       "right_thigh_inner_surface",
       "right_thigh_outer_surface"
     ],
     "right_thigh_inner_surface": [
-      "full_abdomen_region",
-      "lower_back_region",
-      "right_glute_surface",
-      "right_hip_surface",
       "right_knee_transition",
-      "right_thigh_back_surface",
       "right_thigh_front_surface"
     ],
     "right_thigh_outer_surface": [
-      "right_glute_surface",
-      "right_hip_surface",
-      "right_knee_transition",
+      "right_ribs_region",
       "right_thigh_back_surface",
       "right_thigh_front_surface"
     ],
@@ -401,1404 +389,1404 @@
       "right_biceps_surface",
       "right_elbow_transition",
       "right_pectoral_region",
+      "right_ribs_region",
       "right_shoulder_surface"
     ],
     "right_wrist_transition": [
       "right_forearm_inner_surface",
       "right_forearm_outer_surface",
-      "right_hand_surface"
+      "right_glute_surface",
+      "right_hand_surface",
+      "right_hip_surface"
     ],
     "upper_back_region": [
-      "full_abdomen_region",
       "left_biceps_surface",
       "left_pectoral_region",
       "left_ribs_region",
-      "left_shoulder_surface",
       "lower_back_region",
       "neck_back_surface",
       "neck_left_surface",
       "neck_right_surface",
       "right_biceps_surface",
       "right_pectoral_region",
-      "right_ribs_region",
-      "right_shoulder_surface"
+      "right_ribs_region"
     ]
   },
-  "edgeCount": 129,
+  "edgeCount": 123,
   "stats": {
     "head_top_surface": {
-      "faceCount": 470,
-      "triangleCount": 940,
-      "surfaceArea": 0.042808,
+      "faceCount": 479,
+      "triangleCount": 958,
+      "surfaceArea": 0.069864,
       "centroid": [
-        -0.0,
-        0.01516,
-        1.65875
+        -0.00113,
+        0.09789,
+        1.64
       ],
       "bbox": [
         [
-          -0.0694,
-          -0.0203,
-          1.629
+          -0.0834,
+          -0.007,
+          1.5423
         ],
         [
-          0.0694,
-          0.1662,
+          0.084,
+          0.1764,
           1.7323
         ]
       ],
-      "widthX": 0.1388,
-      "connectedComponents": 3,
+      "widthX": 0.1673,
+      "connectedComponents": 2,
       "classification": "selectable"
     },
     "head_left_surface": {
-      "faceCount": 491,
-      "triangleCount": 982,
-      "surfaceArea": 0.017696,
+      "faceCount": 1406,
+      "triangleCount": 2812,
+      "surfaceArea": 0.029512,
       "centroid": [
-        0.07029,
-        0.08154,
-        1.60498
+        0.03998,
+        0.02036,
+        1.60061
       ],
       "bbox": [
         [
-          0.0169,
-          0.0169,
-          1.5403
+          0.0007,
+          -0.0364,
+          1.477
         ],
         [
           0.0848,
-          0.1471,
-          1.6676
+          0.108,
+          1.6856
         ]
       ],
-      "widthX": 0.0678,
+      "widthX": 0.0841,
       "connectedComponents": 2,
       "classification": "selectable"
     },
     "head_right_surface": {
-      "faceCount": 491,
-      "triangleCount": 982,
-      "surfaceArea": 0.017696,
+      "faceCount": 1532,
+      "triangleCount": 3064,
+      "surfaceArea": 0.04254,
       "centroid": [
-        -0.07029,
-        0.08154,
-        1.60498
+        -0.03722,
+        0.02277,
+        1.5977
       ],
       "bbox": [
         [
           -0.0848,
-          0.0169,
-          1.5403
-        ],
-        [
-          -0.0169,
-          0.1471,
-          1.6676
-        ]
-      ],
-      "widthX": 0.0678,
-      "connectedComponents": 2,
-      "classification": "selectable"
-    },
-    "head_back_surface": {
-      "faceCount": 96,
-      "triangleCount": 192,
-      "surfaceArea": 0.013969,
-      "centroid": [
-        0.0,
-        0.15715,
-        1.61115
-      ],
-      "bbox": [
-        [
-          -0.0524,
-          0.1371,
-          1.5607
-        ],
-        [
-          0.0524,
-          0.1764,
-          1.6801
-        ]
-      ],
-      "widthX": 0.1049,
-      "connectedComponents": 1,
-      "classification": "selectable"
-    },
-    "neck_front_surface": {
-      "faceCount": 118,
-      "triangleCount": 236,
-      "surfaceArea": 0.008538,
-      "centroid": [
-        -0.0,
-        0.04823,
-        1.50689
-      ],
-      "bbox": [
-        [
-          -0.05,
-          0.0134,
+          -0.0364,
           1.477
         ],
         [
-          0.05,
-          0.0802,
-          1.535
+          0.0303,
+          0.108,
+          1.6856
         ]
       ],
-      "widthX": 0.1,
+      "widthX": 0.115,
+      "connectedComponents": 3,
+      "classification": "selectable"
+    },
+    "head_back_surface": {
+      "faceCount": 466,
+      "triangleCount": 932,
+      "surfaceArea": 0.01423,
+      "centroid": [
+        0.00277,
+        -0.00028,
+        1.58385
+      ],
+      "bbox": [
+        [
+          -0.0448,
+          -0.0219,
+          1.5275
+        ],
+        [
+          0.0448,
+          0.0811,
+          1.6366
+        ]
+      ],
+      "widthX": 0.0897,
+      "connectedComponents": 3,
+      "classification": "selectable"
+    },
+    "neck_front_surface": {
+      "faceCount": 128,
+      "triangleCount": 256,
+      "surfaceArea": 0.02065,
+      "centroid": [
+        -0.0,
+        0.0707,
+        1.45268
+      ],
+      "bbox": [
+        [
+          -0.114,
+          0.0384,
+          1.4078
+        ],
+        [
+          0.114,
+          0.1125,
+          1.4945
+        ]
+      ],
+      "widthX": 0.228,
       "connectedComponents": 1,
       "classification": "selectable"
     },
     "neck_back_surface": {
-      "faceCount": 6,
-      "triangleCount": 12,
-      "surfaceArea": 0.000686,
+      "faceCount": 122,
+      "triangleCount": 244,
+      "surfaceArea": 0.027596,
       "centroid": [
-        0.0,
-        0.14219,
-        1.54887
+        0.00071,
+        0.15809,
+        1.47874
       ],
       "bbox": [
         [
-          -0.0188,
-          0.1403,
-          1.5486
+          -0.1207,
+          0.1152,
+          1.4088
         ],
         [
-          0.0188,
-          0.1436,
-          1.549
+          0.1207,
+          0.1977,
+          1.5448
         ]
       ],
-      "widthX": 0.0375,
+      "widthX": 0.2415,
       "connectedComponents": 1,
       "classification": "selectable"
     },
     "neck_left_surface": {
-      "faceCount": 12,
-      "triangleCount": 24,
-      "surfaceArea": 0.001623,
+      "faceCount": 20,
+      "triangleCount": 40,
+      "surfaceArea": 0.003504,
       "centroid": [
-        0.04641,
-        0.10154,
-        1.52811
+        0.07215,
+        0.12259,
+        1.48633
       ],
       "bbox": [
         [
-          0.0265,
-          0.0775,
-          1.5003
+          0.0525,
+          0.0941,
+          1.4637
         ],
         [
-          0.0523,
-          0.1365,
-          1.5477
+          0.1135,
+          0.1466,
+          1.513
         ]
       ],
-      "widthX": 0.0258,
-      "connectedComponents": 2,
+      "widthX": 0.061,
+      "connectedComponents": 1,
       "classification": "selectable"
     },
     "neck_right_surface": {
-      "faceCount": 12,
-      "triangleCount": 24,
-      "surfaceArea": 0.001623,
+      "faceCount": 20,
+      "triangleCount": 40,
+      "surfaceArea": 0.003504,
       "centroid": [
-        -0.04641,
-        0.10154,
-        1.52811
+        -0.07214,
+        0.12259,
+        1.48633
       ],
       "bbox": [
         [
-          -0.0523,
-          0.0775,
-          1.5003
+          -0.1135,
+          0.0941,
+          1.4637
         ],
         [
-          -0.0265,
-          0.1365,
-          1.5477
+          -0.0525,
+          0.1466,
+          1.513
         ]
       ],
-      "widthX": 0.0258,
-      "connectedComponents": 2,
+      "widthX": 0.061,
+      "connectedComponents": 1,
       "classification": "selectable"
     },
     "left_pectoral_region": {
-      "faceCount": 352,
-      "triangleCount": 704,
-      "surfaceArea": 0.081066,
+      "faceCount": 90,
+      "triangleCount": 180,
+      "surfaceArea": 0.015366,
       "centroid": [
-        0.10341,
-        0.02512,
-        1.31316
+        0.09438,
+        -0.01562,
+        1.24764
       ],
       "bbox": [
         [
-          0.0063,
+          0.023,
           -0.0299,
-          1.0623
+          1.1734
         ],
         [
-          0.2568,
-          0.1395,
-          1.5316
+          0.1384,
+          0.0618,
+          1.2745
         ]
       ],
-      "widthX": 0.2505,
+      "widthX": 0.1154,
       "connectedComponents": 1,
       "classification": "selectable"
     },
     "right_pectoral_region": {
-      "faceCount": 352,
-      "triangleCount": 704,
-      "surfaceArea": 0.081066,
+      "faceCount": 98,
+      "triangleCount": 196,
+      "surfaceArea": 0.018326,
       "centroid": [
-        -0.10341,
-        0.02512,
-        1.31316
+        -0.08667,
+        -0.01594,
+        1.2464
       ],
       "bbox": [
         [
-          -0.2568,
+          -0.1384,
           -0.0299,
-          1.0623
+          1.1734
         ],
         [
-          -0.0063,
-          0.1395,
-          1.5316
+          0.0079,
+          0.0618,
+          1.2745
         ]
       ],
-      "widthX": 0.2505,
+      "widthX": 0.1464,
       "connectedComponents": 1,
       "classification": "selectable"
     },
     "full_abdomen_region": {
-      "faceCount": 113,
-      "triangleCount": 226,
-      "surfaceArea": 0.053188,
+      "faceCount": 170,
+      "triangleCount": 340,
+      "surfaceArea": 0.061811,
       "centroid": [
-        -0.0003,
-        0.00986,
-        0.95099
+        -0.0,
+        -0.01018,
+        1.20023
       ],
       "bbox": [
         [
-          -0.1443,
-          -0.0271,
-          0.8204
+          -0.105,
+          -0.0282,
+          0.9707
         ],
         [
-          0.1444,
-          0.0818,
-          1.0542
+          0.105,
+          0.0337,
+          1.3961
         ]
       ],
-      "widthX": 0.2887,
-      "connectedComponents": 1,
+      "widthX": 0.2101,
+      "connectedComponents": 2,
       "classification": "selectable"
     },
     "left_ribs_region": {
-      "faceCount": 41,
-      "triangleCount": 82,
-      "surfaceArea": 0.015732,
+      "faceCount": 232,
+      "triangleCount": 464,
+      "surfaceArea": 0.064498,
       "centroid": [
-        0.13317,
-        0.04803,
-        1.16914
+        0.20086,
+        0.0996,
+        1.21507
       ],
       "bbox": [
         [
-          0.1197,
-          0.0025,
-          1.0705
+          0.084,
+          -0.0281,
+          1.0081
         ],
         [
-          0.152,
-          0.0975,
-          1.2631
+          0.3012,
+          0.1692,
+          1.4562
         ]
       ],
-      "widthX": 0.0324,
-      "connectedComponents": 1,
+      "widthX": 0.2173,
+      "connectedComponents": 4,
       "classification": "selectable"
     },
     "right_ribs_region": {
-      "faceCount": 41,
-      "triangleCount": 82,
-      "surfaceArea": 0.015732,
+      "faceCount": 232,
+      "triangleCount": 464,
+      "surfaceArea": 0.064482,
       "centroid": [
-        -0.13317,
-        0.04803,
-        1.16914
+        -0.20086,
+        0.0996,
+        1.21507
       ],
       "bbox": [
         [
-          -0.152,
-          0.0025,
-          1.0705
+          -0.3012,
+          -0.0281,
+          1.0081
         ],
         [
-          -0.1197,
-          0.0975,
-          1.2631
+          -0.084,
+          0.1692,
+          1.4562
         ]
       ],
-      "widthX": 0.0324,
-      "connectedComponents": 1,
+      "widthX": 0.2173,
+      "connectedComponents": 4,
       "classification": "selectable"
     },
     "upper_back_region": {
-      "faceCount": 502,
-      "triangleCount": 1004,
-      "surfaceArea": 0.159089,
+      "faceCount": 528,
+      "triangleCount": 1056,
+      "surfaceArea": 0.168908,
       "centroid": [
         0.0,
-        0.16746,
-        1.24174
+        0.16456,
+        1.24676
       ],
       "bbox": [
         [
-          -0.1512,
-          0.0646,
-          1.0074
+          -0.2157,
+          0.0838,
+          1.0539
         ],
         [
-          0.1512,
+          0.2157,
           0.2074,
-          1.5348
+          1.4571
         ]
       ],
-      "widthX": 0.3024,
+      "widthX": 0.4314,
       "connectedComponents": 1,
       "classification": "selectable"
     },
     "lower_back_region": {
-      "faceCount": 144,
-      "triangleCount": 288,
-      "surfaceArea": 0.074261,
+      "faceCount": 91,
+      "triangleCount": 182,
+      "surfaceArea": 0.044348,
       "centroid": [
-        0.0,
-        0.17338,
-        0.9401
+        -0.0044,
+        0.18248,
+        1.00516
       ],
       "bbox": [
         [
-          -0.1634,
-          0.0648,
-          0.8141
+          -0.1523,
+          0.1108,
+          0.9552
         ],
         [
-          0.1634,
-          0.2319,
+          0.1523,
+          0.2231,
           1.0523
         ]
       ],
-      "widthX": 0.3268,
+      "widthX": 0.3047,
       "connectedComponents": 1,
       "classification": "selectable"
     },
     "right_shoulder_surface": {
-      "faceCount": 105,
-      "triangleCount": 210,
-      "surfaceArea": 0.036658,
+      "faceCount": 62,
+      "triangleCount": 124,
+      "surfaceArea": 0.021768,
       "centroid": [
-        -0.13832,
-        0.13066,
-        1.41987
+        -0.14729,
+        0.04781,
+        1.37552
       ],
       "bbox": [
         [
-          -0.2346,
-          0.0451,
-          1.3255
+          -0.2321,
+          -0.0097,
+          1.3094
         ],
         [
-          -0.0571,
-          0.1977,
-          1.4799
+          -0.0615,
+          0.0884,
+          1.4402
         ]
       ],
-      "widthX": 0.1775,
+      "widthX": 0.1705,
       "connectedComponents": 1,
       "classification": "selectable"
     },
     "left_shoulder_surface": {
-      "faceCount": 105,
-      "triangleCount": 210,
-      "surfaceArea": 0.036658,
+      "faceCount": 62,
+      "triangleCount": 124,
+      "surfaceArea": 0.021768,
       "centroid": [
-        0.13833,
-        0.13066,
-        1.41987
+        0.14729,
+        0.04781,
+        1.37552
       ],
       "bbox": [
         [
-          0.0571,
-          0.0451,
-          1.3255
+          0.0615,
+          -0.0097,
+          1.3094
         ],
         [
-          0.2346,
-          0.1977,
-          1.4799
+          0.2321,
+          0.0884,
+          1.4402
         ]
       ],
-      "widthX": 0.1775,
+      "widthX": 0.1705,
       "connectedComponents": 1,
       "classification": "selectable"
     },
     "right_biceps_surface": {
-      "faceCount": 93,
-      "triangleCount": 186,
-      "surfaceArea": 0.022903,
+      "faceCount": 54,
+      "triangleCount": 108,
+      "surfaceArea": 0.016598,
       "centroid": [
-        -0.20264,
-        0.10701,
-        1.23399
+        -0.22055,
+        0.08305,
+        1.25381
       ],
       "bbox": [
         [
-          -0.2845,
-          0.0615,
-          1.1594
+          -0.2891,
+          0.068,
+          1.1599
         ],
         [
-          -0.1363,
-          0.1762,
-          1.3229
+          -0.1519,
+          0.1016,
+          1.3428
         ]
       ],
-      "widthX": 0.1482,
-      "connectedComponents": 1,
+      "widthX": 0.1372,
+      "connectedComponents": 2,
       "classification": "selectable"
     },
     "left_biceps_surface": {
-      "faceCount": 93,
-      "triangleCount": 186,
-      "surfaceArea": 0.022903,
+      "faceCount": 54,
+      "triangleCount": 108,
+      "surfaceArea": 0.016599,
       "centroid": [
-        0.20264,
-        0.10701,
-        1.23399
+        0.22055,
+        0.08304,
+        1.25381
       ],
       "bbox": [
         [
-          0.1363,
-          0.0615,
-          1.1594
+          0.1519,
+          0.068,
+          1.1599
         ],
         [
-          0.2845,
-          0.1762,
-          1.3229
+          0.2891,
+          0.1016,
+          1.3428
         ]
       ],
-      "widthX": 0.1482,
-      "connectedComponents": 1,
+      "widthX": 0.1372,
+      "connectedComponents": 2,
       "classification": "selectable"
     },
     "right_triceps_surface": {
-      "faceCount": 77,
-      "triangleCount": 154,
-      "surfaceArea": 0.021619,
+      "faceCount": 53,
+      "triangleCount": 106,
+      "surfaceArea": 0.011958,
       "centroid": [
-        -0.23462,
-        0.14283,
-        1.25632
+        -0.17702,
+        0.03635,
+        1.27492
       ],
       "bbox": [
         [
-          -0.2894,
-          0.0872,
-          1.1728
+          -0.2671,
+          -0.0163,
+          1.1771
         ],
         [
-          -0.1647,
-          0.1657,
-          1.3517
+          -0.1091,
+          0.0685,
+          1.3374
         ]
       ],
-      "widthX": 0.1247,
-      "connectedComponents": 1,
+      "widthX": 0.158,
+      "connectedComponents": 2,
       "classification": "selectable"
     },
     "left_triceps_surface": {
-      "faceCount": 77,
-      "triangleCount": 154,
-      "surfaceArea": 0.021621,
+      "faceCount": 53,
+      "triangleCount": 106,
+      "surfaceArea": 0.011956,
       "centroid": [
-        0.23462,
-        0.14282,
-        1.25632
+        0.17702,
+        0.03635,
+        1.27492
       ],
       "bbox": [
         [
-          0.1647,
-          0.0872,
-          1.1728
+          0.1091,
+          -0.0163,
+          1.1771
         ],
         [
-          0.2894,
-          0.1657,
-          1.3517
+          0.2671,
+          0.0685,
+          1.3375
         ]
       ],
-      "widthX": 0.1247,
-      "connectedComponents": 1,
+      "widthX": 0.158,
+      "connectedComponents": 2,
       "classification": "selectable"
     },
     "right_forearm_inner_surface": {
-      "faceCount": 74,
-      "triangleCount": 148,
-      "surfaceArea": 0.021883,
+      "faceCount": 174,
+      "triangleCount": 348,
+      "surfaceArea": 0.017907,
       "centroid": [
-        -0.28589,
-        0.00179,
-        1.08263
+        -0.31218,
+        -0.11207,
+        0.99946
       ],
       "bbox": [
         [
-          -0.3341,
-          -0.074,
-          1.0068
+          -0.3566,
+          -0.1824,
+          0.9377
         ],
         [
-          -0.2375,
-          0.0773,
-          1.162
+          -0.2806,
+          -0.002,
+          1.0703
         ]
       ],
-      "widthX": 0.0966,
+      "widthX": 0.076,
       "connectedComponents": 1,
       "classification": "selectable"
     },
     "left_forearm_inner_surface": {
-      "faceCount": 74,
-      "triangleCount": 148,
-      "surfaceArea": 0.021868,
+      "faceCount": 174,
+      "triangleCount": 348,
+      "surfaceArea": 0.017907,
       "centroid": [
-        0.28589,
-        0.00178,
-        1.08263
+        0.31218,
+        -0.11207,
+        0.99946
       ],
       "bbox": [
         [
-          0.2375,
-          -0.074,
-          1.0068
+          0.2806,
+          -0.1824,
+          0.9377
         ],
         [
-          0.3341,
-          0.077,
-          1.162
+          0.3566,
+          -0.002,
+          1.0703
         ]
       ],
-      "widthX": 0.0966,
+      "widthX": 0.076,
       "connectedComponents": 1,
       "classification": "selectable"
     },
     "right_forearm_outer_surface": {
-      "faceCount": 66,
-      "triangleCount": 132,
-      "surfaceArea": 0.019079,
+      "faceCount": 125,
+      "triangleCount": 250,
+      "surfaceArea": 0.015838,
       "centroid": [
-        -0.32388,
-        0.01373,
-        1.06573
+        -0.34682,
+        -0.0835,
+        1.01272
       ],
       "bbox": [
         [
-          -0.3514,
-          -0.0667,
-          1.0044
+          -0.3641,
+          -0.154,
+          0.9476
         ],
         [
-          -0.2733,
-          0.1044,
-          1.1564
+          -0.3037,
+          0.0108,
+          1.0858
         ]
       ],
-      "widthX": 0.0781,
+      "widthX": 0.0604,
       "connectedComponents": 1,
       "classification": "selectable"
     },
     "left_forearm_outer_surface": {
-      "faceCount": 66,
-      "triangleCount": 132,
-      "surfaceArea": 0.019071,
+      "faceCount": 125,
+      "triangleCount": 250,
+      "surfaceArea": 0.015838,
       "centroid": [
-        0.32388,
-        0.01372,
-        1.06573
+        0.34682,
+        -0.0835,
+        1.01272
       ],
       "bbox": [
         [
-          0.2732,
-          -0.0667,
-          1.0044
+          0.3037,
+          -0.154,
+          0.9476
         ],
         [
-          0.3514,
-          0.1043,
-          1.1564
+          0.3641,
+          0.0108,
+          1.0858
         ]
       ],
-      "widthX": 0.0781,
+      "widthX": 0.0604,
       "connectedComponents": 1,
       "classification": "selectable"
     },
     "right_hand_surface": {
-      "faceCount": 1593,
-      "triangleCount": 3186,
-      "surfaceArea": 0.039673,
+      "faceCount": 363,
+      "triangleCount": 726,
+      "surfaceArea": 0.004869,
       "centroid": [
-        -0.33241,
-        -0.17972,
-        0.93156
+        -0.3223,
+        -0.21739,
+        0.91682
       ],
       "bbox": [
         [
-          -0.3676,
+          -0.3523,
           -0.2347,
-          0.8695
+          0.8842
         ],
         [
-          -0.2728,
-          -0.081,
-          1.0251
+          -0.3005,
+          -0.1909,
+          0.9532
         ]
       ],
-      "widthX": 0.0948,
-      "connectedComponents": 1,
+      "widthX": 0.0518,
+      "connectedComponents": 2,
       "classification": "selectable"
     },
     "left_hand_surface": {
-      "faceCount": 1594,
-      "triangleCount": 3188,
-      "surfaceArea": 0.039737,
+      "faceCount": 363,
+      "triangleCount": 726,
+      "surfaceArea": 0.004869,
       "centroid": [
-        0.33242,
-        -0.17966,
-        0.93159
+        0.3223,
+        -0.21739,
+        0.91682
       ],
       "bbox": [
         [
-          0.2728,
+          0.3005,
           -0.2347,
-          0.8695
+          0.8842
         ],
         [
-          0.3676,
-          -0.081,
-          1.0251
+          0.3523,
+          -0.1909,
+          0.9532
         ]
       ],
-      "widthX": 0.0948,
-      "connectedComponents": 1,
+      "widthX": 0.0518,
+      "connectedComponents": 2,
       "classification": "selectable"
     },
     "right_thigh_front_surface": {
-      "faceCount": 94,
-      "triangleCount": 188,
-      "surfaceArea": 0.062893,
+      "faceCount": 173,
+      "triangleCount": 346,
+      "surfaceArea": 0.106027,
       "centroid": [
-        -0.13549,
-        0.0234,
-        0.74356
+        -0.11386,
+        0.02741,
+        0.78259
       ],
       "bbox": [
         [
-          -0.2027,
-          -0.0046,
-          0.5569
+          -0.2123,
+          -0.0181,
+          0.5282
         ],
         [
-          -0.0435,
-          0.0613,
-          0.8898
+          -0.0087,
+          0.088,
+          1.0181
         ]
       ],
-      "widthX": 0.1592,
+      "widthX": 0.2036,
       "connectedComponents": 1,
       "classification": "selectable"
     },
     "right_thigh_back_surface": {
-      "faceCount": 46,
-      "triangleCount": 92,
-      "surfaceArea": 0.03135,
+      "faceCount": 18,
+      "triangleCount": 36,
+      "surfaceArea": 0.012954,
       "centroid": [
-        -0.12398,
-        0.16696,
-        0.69403
+        -0.19131,
+        0.11223,
+        0.78669
       ],
       "bbox": [
         [
-          -0.1826,
-          0.1401,
-          0.547
+          -0.2131,
+          0.1023,
+          0.5591
         ],
         [
-          -0.0725,
-          0.2156,
-          0.8483
+          -0.1559,
+          0.121,
+          0.9872
         ]
       ],
-      "widthX": 0.1101,
+      "widthX": 0.0573,
       "connectedComponents": 1,
       "classification": "selectable"
     },
     "right_thigh_inner_surface": {
-      "faceCount": 54,
-      "triangleCount": 108,
-      "surfaceArea": 0.030605,
+      "faceCount": 12,
+      "triangleCount": 24,
+      "surfaceArea": 0.006699,
       "centroid": [
-        -0.05352,
-        0.10421,
-        0.70125
+        -0.05626,
+        0.09457,
+        0.66583
       ],
       "bbox": [
         [
-          -0.1009,
-          0.0472,
-          0.5464
+          -0.0995,
+          0.09,
+          0.5259
         ],
         [
-          -0.0146,
-          0.1697,
-          0.8175
+          -0.0187,
+          0.1001,
+          0.791
         ]
       ],
-      "widthX": 0.0863,
+      "widthX": 0.0809,
       "connectedComponents": 1,
       "classification": "selectable"
     },
     "right_thigh_outer_surface": {
-      "faceCount": 53,
-      "triangleCount": 106,
-      "surfaceArea": 0.036056,
+      "faceCount": 19,
+      "triangleCount": 38,
+      "surfaceArea": 0.012182,
       "centroid": [
-        -0.19224,
-        0.11804,
-        0.7279
+        -0.19326,
+        0.08357,
+        0.78453
       ],
       "bbox": [
         [
           -0.2106,
-          0.0598,
-          0.5563
+          0.0657,
+          0.5845
         ],
         [
-          -0.1546,
-          0.1813,
-          0.8722
+          -0.1576,
+          0.0901,
+          0.9863
         ]
       ],
-      "widthX": 0.056,
+      "widthX": 0.053,
       "connectedComponents": 1,
       "classification": "selectable"
     },
     "left_thigh_front_surface": {
-      "faceCount": 95,
-      "triangleCount": 190,
-      "surfaceArea": 0.063321,
+      "faceCount": 173,
+      "triangleCount": 346,
+      "surfaceArea": 0.106021,
       "centroid": [
-        0.13441,
-        0.02352,
-        0.74457
+        0.11386,
+        0.02741,
+        0.78258
       ],
       "bbox": [
         [
-          0.0335,
-          -0.0046,
-          0.5569
+          0.0087,
+          -0.0181,
+          0.5282
         ],
         [
-          0.2027,
-          0.0613,
-          0.8898
+          0.2123,
+          0.088,
+          1.0181
         ]
       ],
-      "widthX": 0.1692,
+      "widthX": 0.2036,
       "connectedComponents": 1,
       "classification": "selectable"
     },
     "left_thigh_back_surface": {
-      "faceCount": 46,
-      "triangleCount": 92,
-      "surfaceArea": 0.03135,
+      "faceCount": 18,
+      "triangleCount": 36,
+      "surfaceArea": 0.012954,
       "centroid": [
-        0.12399,
-        0.16696,
-        0.69403
+        0.19132,
+        0.11223,
+        0.78669
       ],
       "bbox": [
         [
-          0.0725,
-          0.1401,
-          0.547
+          0.1559,
+          0.1023,
+          0.5591
         ],
         [
-          0.1826,
-          0.2156,
-          0.8483
+          0.2131,
+          0.121,
+          0.9872
         ]
       ],
-      "widthX": 0.1101,
+      "widthX": 0.0573,
       "connectedComponents": 1,
       "classification": "selectable"
     },
     "left_thigh_inner_surface": {
-      "faceCount": 55,
-      "triangleCount": 110,
-      "surfaceArea": 0.030986,
+      "faceCount": 12,
+      "triangleCount": 24,
+      "surfaceArea": 0.006699,
       "centroid": [
-        0.05286,
-        0.10464,
-        0.70315
+        0.05626,
+        0.09457,
+        0.66583
       ],
       "bbox": [
         [
-          0.0147,
-          0.0472,
-          0.5464
+          0.0187,
+          0.09,
+          0.5259
         ],
         [
-          0.1009,
-          0.1697,
-          0.8174
+          0.0995,
+          0.1001,
+          0.791
+        ]
+      ],
+      "widthX": 0.0809,
+      "connectedComponents": 1,
+      "classification": "selectable"
+    },
+    "left_thigh_outer_surface": {
+      "faceCount": 19,
+      "triangleCount": 38,
+      "surfaceArea": 0.012182,
+      "centroid": [
+        0.19326,
+        0.08357,
+        0.78453
+      ],
+      "bbox": [
+        [
+          0.1576,
+          0.0657,
+          0.5845
+        ],
+        [
+          0.2106,
+          0.0901,
+          0.9862
+        ]
+      ],
+      "widthX": 0.053,
+      "connectedComponents": 1,
+      "classification": "selectable"
+    },
+    "right_shin_surface": {
+      "faceCount": 46,
+      "triangleCount": 92,
+      "surfaceArea": 0.02711,
+      "centroid": [
+        -0.20072,
+        0.09634,
+        0.26734
+      ],
+      "bbox": [
+        [
+          -0.2588,
+          0.0731,
+          0.1283
+        ],
+        [
+          -0.1383,
+          0.1296,
+          0.4385
+        ]
+      ],
+      "widthX": 0.1205,
+      "connectedComponents": 2,
+      "classification": "selectable"
+    },
+    "left_shin_surface": {
+      "faceCount": 46,
+      "triangleCount": 92,
+      "surfaceArea": 0.027145,
+      "centroid": [
+        0.20096,
+        0.09632,
+        0.26736
+      ],
+      "bbox": [
+        [
+          0.1383,
+          0.0731,
+          0.1284
+        ],
+        [
+          0.2591,
+          0.1295,
+          0.4385
+        ]
+      ],
+      "widthX": 0.1208,
+      "connectedComponents": 2,
+      "classification": "selectable"
+    },
+    "right_calf_surface": {
+      "faceCount": 45,
+      "triangleCount": 90,
+      "surfaceArea": 0.020641,
+      "centroid": [
+        -0.21096,
+        0.07096,
+        0.28978
+      ],
+      "bbox": [
+        [
+          -0.2445,
+          0.0567,
+          0.1292
+        ],
+        [
+          -0.1589,
+          0.0827,
+          0.4481
+        ]
+      ],
+      "widthX": 0.0856,
+      "connectedComponents": 1,
+      "classification": "selectable"
+    },
+    "left_calf_surface": {
+      "faceCount": 45,
+      "triangleCount": 90,
+      "surfaceArea": 0.020631,
+      "centroid": [
+        0.21132,
+        0.07095,
+        0.28979
+      ],
+      "bbox": [
+        [
+          0.1589,
+          0.0567,
+          0.1292
+        ],
+        [
+          0.2451,
+          0.0826,
+          0.4481
         ]
       ],
       "widthX": 0.0862,
       "connectedComponents": 1,
       "classification": "selectable"
     },
-    "left_thigh_outer_surface": {
-      "faceCount": 53,
-      "triangleCount": 106,
-      "surfaceArea": 0.036055,
-      "centroid": [
-        0.19224,
-        0.11804,
-        0.7279
-      ],
-      "bbox": [
-        [
-          0.1546,
-          0.0598,
-          0.5563
-        ],
-        [
-          0.2106,
-          0.1813,
-          0.8722
-        ]
-      ],
-      "widthX": 0.0559,
-      "connectedComponents": 1,
-      "classification": "selectable"
-    },
-    "right_shin_surface": {
-      "faceCount": 68,
-      "triangleCount": 136,
-      "surfaceArea": 0.031762,
-      "centroid": [
-        -0.1906,
-        0.08382,
-        0.27391
-      ],
-      "bbox": [
-        [
-          -0.24,
-          0.0595,
-          0.1292
-        ],
-        [
-          -0.1332,
-          0.1162,
-          0.4249
-        ]
-      ],
-      "widthX": 0.1068,
-      "connectedComponents": 1,
-      "classification": "selectable"
-    },
-    "left_shin_surface": {
-      "faceCount": 68,
-      "triangleCount": 136,
-      "surfaceArea": 0.031799,
-      "centroid": [
-        0.19091,
-        0.08378,
-        0.27395
-      ],
-      "bbox": [
-        [
-          0.1332,
-          0.0595,
-          0.1292
-        ],
-        [
-          0.2405,
-          0.1162,
-          0.4249
-        ]
-      ],
-      "widthX": 0.1073,
-      "connectedComponents": 1,
-      "classification": "selectable"
-    },
-    "right_calf_surface": {
-      "faceCount": 84,
-      "triangleCount": 168,
-      "surfaceArea": 0.065279,
-      "centroid": [
-        -0.2139,
-        0.13627,
-        0.29394
-      ],
-      "bbox": [
-        [
-          -0.2595,
-          0.0706,
-          0.1283
-        ],
-        [
-          -0.1336,
-          0.1805,
-          0.4385
-        ]
-      ],
-      "widthX": 0.1259,
-      "connectedComponents": 1,
-      "classification": "selectable"
-    },
-    "left_calf_surface": {
-      "faceCount": 84,
-      "triangleCount": 168,
-      "surfaceArea": 0.06528,
-      "centroid": [
-        0.21403,
-        0.13628,
-        0.29394
-      ],
-      "bbox": [
-        [
-          0.1336,
-          0.0706,
-          0.1284
-        ],
-        [
-          0.2598,
-          0.1805,
-          0.4385
-        ]
-      ],
-      "widthX": 0.1262,
-      "connectedComponents": 1,
-      "classification": "selectable"
-    },
     "right_foot_surface": {
-      "faceCount": 1059,
-      "triangleCount": 2118,
-      "surfaceArea": 0.055857,
+      "faceCount": 416,
+      "triangleCount": 832,
+      "surfaceArea": 0.006902,
       "centroid": [
-        -0.25343,
-        -0.01969,
-        0.01956
+        -0.24729,
+        -0.06259,
+        0.01461
       ],
       "bbox": [
         [
-          -0.2926,
+          -0.2806,
           -0.0851,
-          0.0008
+          0.0009
         ],
         [
-          -0.2007,
-          0.1603,
-          0.0901
+          -0.2081,
+          -0.0446,
+          0.0276
         ]
       ],
-      "widthX": 0.092,
-      "connectedComponents": 1,
+      "widthX": 0.0725,
+      "connectedComponents": 4,
       "classification": "selectable"
     },
     "left_foot_surface": {
-      "faceCount": 1061,
-      "triangleCount": 2122,
-      "surfaceArea": 0.056427,
+      "faceCount": 416,
+      "triangleCount": 832,
+      "surfaceArea": 0.006902,
       "centroid": [
-        0.25339,
-        -0.01949,
-        0.01969
+        0.24729,
+        -0.06259,
+        0.01461
       ],
       "bbox": [
         [
-          0.2007,
+          0.2081,
           -0.0851,
-          0.0008
+          0.0009
         ],
         [
-          0.2926,
-          0.1603,
-          0.0928
+          0.2806,
+          -0.0446,
+          0.0276
         ]
       ],
-      "widthX": 0.092,
-      "connectedComponents": 1,
+      "widthX": 0.0725,
+      "connectedComponents": 4,
       "classification": "selectable"
     },
     "left_hip_surface": {
-      "faceCount": 26,
-      "triangleCount": 52,
-      "surfaceArea": 0.015151,
+      "faceCount": 307,
+      "triangleCount": 614,
+      "surfaceArea": 0.003015,
       "centroid": [
-        0.1223,
-        0.05103,
-        0.91519
+        0.34351,
+        -0.16939,
+        0.89521
+      ],
+      "bbox": [
+        [
+          0.323,
+          -0.1973,
+          0.8695
+        ],
+        [
+          0.365,
+          -0.1409,
+          0.9288
+        ]
+      ],
+      "widthX": 0.042,
+      "connectedComponents": 2,
+      "classification": "selectable"
+    },
+    "right_hip_surface": {
+      "faceCount": 307,
+      "triangleCount": 614,
+      "surfaceArea": 0.003015,
+      "centroid": [
+        -0.34351,
+        -0.16939,
+        0.89521
+      ],
+      "bbox": [
+        [
+          -0.365,
+          -0.1973,
+          0.8695
+        ],
+        [
+          -0.323,
+          -0.1409,
+          0.9288
+        ]
+      ],
+      "widthX": 0.042,
+      "connectedComponents": 2,
+      "classification": "selectable"
+    },
+    "left_glute_surface": {
+      "faceCount": 248,
+      "triangleCount": 496,
+      "surfaceArea": 0.031252,
+      "centroid": [
+        0.29303,
+        -0.09053,
+        0.89727
       ],
       "bbox": [
         [
           0.0018,
-          -0.0209,
-          0.8157
+          -0.1895,
+          0.8407
         ],
         [
-          0.1807,
-          0.121,
-          1.008
-        ]
-      ],
-      "widthX": 0.1789,
-      "connectedComponents": 3,
-      "classification": "selectable"
-    },
-    "right_hip_surface": {
-      "faceCount": 26,
-      "triangleCount": 52,
-      "surfaceArea": 0.015148,
-      "centroid": [
-        -0.1223,
-        0.05103,
-        0.9152
-      ],
-      "bbox": [
-        [
-          -0.1807,
-          -0.0209,
-          0.8158
-        ],
-        [
-          -0.0019,
-          0.121,
-          1.008
-        ]
-      ],
-      "widthX": 0.1788,
-      "connectedComponents": 3,
-      "classification": "selectable"
-    },
-    "left_glute_surface": {
-      "faceCount": 18,
-      "triangleCount": 36,
-      "surfaceArea": 0.010719,
-      "centroid": [
-        0.06769,
-        0.19643,
-        0.86196
-      ],
-      "bbox": [
-        [
-          0.0026,
-          0.1293,
-          0.8175
-        ],
-        [
-          0.1696,
+          0.3633,
           0.2327,
-          0.8983
+          0.9598
         ]
       ],
-      "widthX": 0.167,
-      "connectedComponents": 2,
+      "widthX": 0.3615,
+      "connectedComponents": 3,
       "classification": "selectable"
     },
     "right_glute_surface": {
-      "faceCount": 19,
-      "triangleCount": 38,
-      "surfaceArea": 0.011098,
+      "faceCount": 241,
+      "triangleCount": 482,
+      "surfaceArea": 0.028457,
       "centroid": [
-        -0.06498,
-        0.19283,
-        0.85905
+        -0.29416,
+        -0.0925,
+        0.89621
       ],
       "bbox": [
         [
-          -0.1696,
-          0.1279,
-          0.8064
+          -0.3633,
+          -0.1895,
+          0.8407
         ],
         [
-          -0.0027,
+          -0.0018,
           0.2327,
-          0.8982
+          0.9341
         ]
       ],
-      "widthX": 0.167,
-      "connectedComponents": 2,
+      "widthX": 0.3615,
+      "connectedComponents": 3,
       "classification": "selectable"
     },
     "right_elbow_transition": {
-      "faceCount": 71,
-      "triangleCount": 142,
-      "surfaceArea": 0.011896,
+      "faceCount": 104,
+      "triangleCount": 208,
+      "surfaceArea": 0.030365,
       "centroid": [
-        -0.26497,
-        0.10692,
-        1.14539
+        -0.28234,
+        0.0516,
+        1.11762
       ],
       "bbox": [
         [
-          -0.3081,
-          0.0589,
-          1.1023
+          -0.3341,
+          -0.0139,
+          1.0471
         ],
         [
-          -0.2225,
-          0.1454,
+          -0.2255,
+          0.0987,
           1.1826
         ]
       ],
-      "widthX": 0.0856,
+      "widthX": 0.1085,
       "connectedComponents": 1,
       "classification": "routing_only"
     },
     "left_elbow_transition": {
-      "faceCount": 71,
-      "triangleCount": 142,
-      "surfaceArea": 0.011905,
+      "faceCount": 104,
+      "triangleCount": 208,
+      "surfaceArea": 0.030336,
       "centroid": [
-        0.26496,
-        0.1069,
-        1.14539
+        0.28234,
+        0.05158,
+        1.11762
       ],
       "bbox": [
         [
-          0.2225,
-          0.0589,
-          1.1024
+          0.2255,
+          -0.0139,
+          1.0471
         ],
         [
-          0.3081,
-          0.1454,
+          0.3341,
+          0.0987,
           1.1826
         ]
       ],
-      "widthX": 0.0856,
+      "widthX": 0.1085,
       "connectedComponents": 1,
       "classification": "routing_only"
     },
     "right_wrist_transition": {
-      "faceCount": 65,
-      "triangleCount": 130,
-      "surfaceArea": 0.00511,
+      "faceCount": 556,
+      "triangleCount": 1112,
+      "surfaceArea": 0.015112,
       "centroid": [
-        -0.33351,
-        -0.07919,
-        1.008
+        -0.33009,
+        -0.1825,
+        0.95447
       ],
       "bbox": [
         [
-          -0.3556,
-          -0.1037,
-          0.9785
+          -0.3676,
+          -0.2207,
+          0.9098
         ],
         [
-          -0.309,
-          -0.0565,
-          1.0377
+          -0.2728,
+          -0.1191,
+          0.9991
         ]
       ],
-      "widthX": 0.0466,
+      "widthX": 0.0948,
       "connectedComponents": 1,
       "classification": "routing_only"
     },
     "left_wrist_transition": {
-      "faceCount": 64,
-      "triangleCount": 128,
-      "surfaceArea": 0.005046,
+      "faceCount": 552,
+      "triangleCount": 1104,
+      "surfaceArea": 0.015049,
       "centroid": [
-        0.33319,
-        -0.07911,
-        1.00838
+        0.32998,
+        -0.18257,
+        0.95475
       ],
       "bbox": [
         [
-          0.309,
-          -0.1037,
-          0.9785
+          0.2728,
+          -0.2207,
+          0.9098
         ],
         [
-          0.3556,
-          -0.0565,
-          1.0377
+          0.3676,
+          -0.1191,
+          0.9991
         ]
       ],
-      "widthX": 0.0466,
+      "widthX": 0.0948,
       "connectedComponents": 1,
       "classification": "routing_only"
     },
     "right_knee_transition": {
-      "faceCount": 113,
-      "triangleCount": 226,
-      "surfaceArea": 0.045035,
+      "faceCount": 49,
+      "triangleCount": 98,
+      "surfaceArea": 0.018602,
       "centroid": [
-        -0.17423,
-        0.0957,
-        0.49757
+        -0.17816,
+        0.0669,
+        0.4936
       ],
       "bbox": [
         [
-          -0.2402,
-          0.0229,
-          0.4305
+          -0.2311,
+          0.0268,
+          0.4452
         ],
         [
-          -0.0995,
-          0.1669,
-          0.5607
+          -0.1062,
+          0.1052,
+          0.5384
         ]
       ],
-      "widthX": 0.1408,
+      "widthX": 0.1248,
       "connectedComponents": 1,
       "classification": "routing_only"
     },
     "left_knee_transition": {
-      "faceCount": 113,
-      "triangleCount": 226,
-      "surfaceArea": 0.045035,
+      "faceCount": 49,
+      "triangleCount": 98,
+      "surfaceArea": 0.018602,
       "centroid": [
-        0.17423,
-        0.0957,
-        0.49757
+        0.17816,
+        0.0669,
+        0.4936
       ],
       "bbox": [
         [
-          0.0995,
-          0.0229,
-          0.4305
+          0.1062,
+          0.0268,
+          0.4452
         ],
         [
-          0.2402,
-          0.1669,
-          0.5607
+          0.2311,
+          0.1052,
+          0.5384
         ]
       ],
-      "widthX": 0.1408,
+      "widthX": 0.1248,
       "connectedComponents": 1,
       "classification": "routing_only"
     },
     "right_ankle_transition": {
-      "faceCount": 44,
-      "triangleCount": 88,
-      "surfaceArea": 0.009891,
+      "faceCount": 614,
+      "triangleCount": 1228,
+      "surfaceArea": 0.046913,
       "centroid": [
-        -0.23632,
-        0.11255,
-        0.1066
+        -0.25813,
+        -0.00033,
+        0.02622
       ],
       "bbox": [
         [
-          -0.2633,
-          0.0692,
-          0.0825
+          -0.2926,
+          -0.0472,
+          0.0008
         ],
         [
-          -0.2069,
-          0.1505,
+          -0.2007,
+          0.1273,
           0.1286
         ]
       ],
-      "widthX": 0.0564,
+      "widthX": 0.092,
       "connectedComponents": 1,
       "classification": "routing_only"
     },
     "left_ankle_transition": {
-      "faceCount": 42,
-      "triangleCount": 84,
-      "surfaceArea": 0.009318,
+      "faceCount": 614,
+      "triangleCount": 1228,
+      "surfaceArea": 0.046913,
       "centroid": [
-        0.23634,
-        0.11386,
-        0.1074
+        0.25814,
+        -0.00033,
+        0.02622
       ],
       "bbox": [
         [
-          0.2071,
-          0.0692,
-          0.0825
+          0.2007,
+          -0.0472,
+          0.0008
         ],
         [
-          0.2633,
-          0.1505,
+          0.2926,
+          0.1274,
           0.1285
         ]
       ],
-      "widthX": 0.0563,
+      "widthX": 0.092,
       "connectedComponents": 1,
       "classification": "routing_only"
     },
     "face_non_selectable": {
-      "faceCount": 2490,
-      "triangleCount": 4980,
-      "surfaceArea": 0.053742,
+      "faceCount": 301,
+      "triangleCount": 602,
+      "surfaceArea": 0.001876,
       "centroid": [
-        0.0,
-        -0.00273,
-        1.58996
+        -0.00012,
+        -0.02002,
+        1.55575
       ],
       "bbox": [
         [
-          -0.0649,
-          -0.0364,
-          1.5116
+          -0.027,
+          -0.0299,
+          1.5404
         ],
         [
-          0.0649,
-          0.0803,
-          1.6327
+          0.027,
+          -0.0111,
+          1.5685
         ]
       ],
-      "widthX": 0.1298,
+      "widthX": 0.054,
       "connectedComponents": 1,
       "classification": "non_selectable"
     },
-    "helper_non_selectable": {
-      "faceCount": 38,
-      "triangleCount": 76,
-      "surfaceArea": 0.00817,
+    "genital_non_selectable": {
+      "faceCount": 598,
+      "triangleCount": 1196,
+      "surfaceArea": 0.29316,
       "centroid": [
-        -0.0,
-        0.00381,
-        1.23951
+        1e-05,
+        0.14413,
+        0.42767
       ],
       "bbox": [
         [
-          -0.0136,
-          -0.025,
-          1.056
+          -0.2674,
+          0.0375,
+          0.0008
         ],
         [
-          0.0136,
-          0.0554,
-          1.4659
+          0.2674,
+          0.2021,
+          0.8366
         ]
       ],
-      "widthX": 0.0273,
-      "connectedComponents": 2,
+      "widthX": 0.5347,
+      "connectedComponents": 1,
       "classification": "non_selectable"
     }
   },
@@ -1909,14 +1897,14 @@
       1.58483
     ],
     "nipple_l": [
-      0.01058,
-      -0.08404,
-      1.36217
+      0.10259,
+      -0.09404,
+      1.21134
     ],
     "nipple_r": [
-      -0.0,
-      -0.02446,
-      1.26886
+      -0.10259,
+      -0.09404,
+      1.21134
     ],
     "torso_center": [
       0.0,
@@ -1950,15 +1938,46 @@
       "head_top_surface",
       "head_left_surface",
       "head_right_surface",
-      "neck_left_surface",
-      "neck_right_surface",
+      "head_back_surface",
+      "full_abdomen_region",
+      "left_ribs_region",
+      "right_ribs_region",
+      "right_biceps_surface",
+      "left_biceps_surface",
+      "right_triceps_surface",
+      "left_triceps_surface",
+      "right_hand_surface",
+      "left_hand_surface",
+      "right_shin_surface",
+      "left_shin_surface",
+      "right_foot_surface",
+      "left_foot_surface",
       "left_hip_surface",
       "right_hip_surface",
       "left_glute_surface",
       "right_glute_surface"
     ],
     "leftRightMismatches": [],
-    "adjacencyEdgeCount": 129,
-    "method": "interaction_transfer_plus_anatomical_refinement"
+    "adjacencyEdgeCount": 123,
+    "method": "anatomical_bodyvisual_partition",
+    "posteriorTorsoSurfaceArea": 0.324132,
+    "fullBackSurfaceArea": 0.213256,
+    "backCoverageRatio": 0.6579,
+    "pectoralPCA": {
+      "right": {
+        "horizontalDominance": 0.9645,
+        "width": 0.1464,
+        "height": 0.1011,
+        "lambda1": 0.00131,
+        "lambda2": 0.000693
+      },
+      "left": {
+        "horizontalDominance": 0.4787,
+        "width": 0.1154,
+        "height": 0.1011,
+        "lambda1": 0.000746,
+        "lambda2": 0.000618
+      }
+    }
   }
 }

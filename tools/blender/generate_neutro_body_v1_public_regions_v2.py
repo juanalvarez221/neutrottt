@@ -1,15 +1,17 @@
 """
-Transfer proven 81-zone InteractionModel face labels onto BodyVisual bake,
-then remap into PUBLIC_BASE regions with anatomical refinements
-(pectoral region-growing, wide back absorption, forearm/leg hemi collapse).
+PublicRegionHighlightModel from BodyVisual bake + anatomical partition.
 
-This keeps BodyVisual topology as the highlight source while using the
-battle-tested limb membership from the InteractionModel pipeline.
+Authority: BodyVisual surface geometry + landmarks + local frames.
+NOT a join of the 81 technical InteractionModel zones.
+
+Run:
+  blender --background --python tools/blender/generate_neutro_body_v1_public_regions.py
 """
 
 from __future__ import annotations
 
 import json
+import math
 import sys
 from collections import defaultdict
 from pathlib import Path
@@ -17,7 +19,6 @@ from pathlib import Path
 import bpy
 import bmesh
 from mathutils import Vector
-from mathutils.kdtree import KDTree
 
 REPO = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -30,15 +31,10 @@ from neutro_body_interaction.island_cleanup import (  # noqa: E402
 from neutro_body_interaction.public_region_partition import (  # noqa: E402
     PUBLIC_BASE_SELECTABLE,
     ROUTING_ONLY_BASE,
-    build_landmarks,
-    face_centroid,
-    face_normal,
-    grow_region,
-    smooth_boundary,
+    partition_public_regions,
 )
 
 SOURCE = REPO / "assets/blender/neutro-body/neutro_body_v1_complete_source.blend"
-INTERACTION_GLB = REPO / "public/models/interaction/neutro_body_v1_body_interaction.glb"
 OUT_BLEND = REPO / "assets/blender/neutro-body/interaction/neutro_body_v1_public_regions.blend"
 OUT_GLB = REPO / "public/models/interaction/neutro_body_v1_public_regions.glb"
 ADJ_JSON = REPO / "src/widgets/body-3d/domain/generated/publicRegionAdjacency.json"
@@ -46,91 +42,6 @@ ART = REPO / "artifacts/body-v1-public-regions"
 ATLAS = REPO / "artifacts/body-public-region-atlas"
 REPORT = ART / "report.json"
 LANDMARKS_OUT = REPO / "artifacts/body-public-region-landmarks/public_region_landmarks.json"
-
-# Atomic → public base (initial map). Refined after transfer.
-ATOMIC_TO_PUBLIC = {
-    "left_chest": "left_pectoral_region",
-    "right_chest": "right_pectoral_region",
-    "sternum": "STERNUM_SPLIT",
-    "upper_abdomen": "full_abdomen_region",
-    "lower_abdomen": "full_abdomen_region",
-    "left_ribs": "left_ribs_region",
-    "right_ribs": "right_ribs_region",
-    "left_flank": "FLANK_DISTRIBUTE",
-    "right_flank": "FLANK_DISTRIBUTE",
-    "left_scapula": "upper_back_region",
-    "right_scapula": "upper_back_region",
-    "upper_back_center": "upper_back_region",
-    "left_mid_back": "upper_back_region",
-    "right_mid_back": "upper_back_region",
-    "mid_back_center": "upper_back_region",
-    "left_lower_back": "lower_back_region",
-    "right_lower_back": "lower_back_region",
-    "lower_back_center": "lower_back_region",
-    "sacrum": "ROUTING_SACRUM",
-    "left_hip": "left_hip_surface",
-    "right_hip": "right_hip_surface",
-    "left_glute": "left_glute_surface",
-    "right_glute": "right_glute_surface",
-    "right_shoulder": "right_shoulder_surface",
-    "left_shoulder": "left_shoulder_surface",
-    "right_upper_arm_front": "right_biceps_surface",
-    "right_upper_arm_inner": "right_biceps_surface",
-    "right_upper_arm_back": "right_triceps_surface",
-    "right_upper_arm_outer": "right_triceps_surface",
-    "left_upper_arm_front": "left_biceps_surface",
-    "left_upper_arm_inner": "left_biceps_surface",
-    "left_upper_arm_back": "left_triceps_surface",
-    "left_upper_arm_outer": "left_triceps_surface",
-    "right_elbow": "right_elbow_transition",
-    "left_elbow": "left_elbow_transition",
-    "right_forearm_front": "right_forearm_inner_surface",
-    "right_forearm_inner": "right_forearm_inner_surface",
-    "right_forearm_back": "right_forearm_outer_surface",
-    "right_forearm_outer": "right_forearm_outer_surface",
-    "left_forearm_front": "left_forearm_inner_surface",
-    "left_forearm_inner": "left_forearm_inner_surface",
-    "left_forearm_back": "left_forearm_outer_surface",
-    "left_forearm_outer": "left_forearm_outer_surface",
-    "right_wrist": "right_wrist_transition",
-    "left_wrist": "left_wrist_transition",
-    "right_hand": "right_hand_surface",
-    "left_hand": "left_hand_surface",
-    "right_thigh_front": "right_thigh_front_surface",
-    "right_thigh_back": "right_thigh_back_surface",
-    "right_thigh_inner": "right_thigh_inner_surface",
-    "right_thigh_outer": "right_thigh_outer_surface",
-    "left_thigh_front": "left_thigh_front_surface",
-    "left_thigh_back": "left_thigh_back_surface",
-    "left_thigh_inner": "left_thigh_inner_surface",
-    "left_thigh_outer": "left_thigh_outer_surface",
-    "right_knee": "right_knee_transition",
-    "left_knee": "left_knee_transition",
-    "right_lower_leg_front": "right_shin_surface",
-    "right_lower_leg_inner": "right_shin_surface",
-    "right_lower_leg_back": "right_calf_surface",
-    "right_lower_leg_outer": "right_calf_surface",
-    "left_lower_leg_front": "left_shin_surface",
-    "left_lower_leg_inner": "left_shin_surface",
-    "left_lower_leg_back": "left_calf_surface",
-    "left_lower_leg_outer": "left_calf_surface",
-    "right_ankle": "right_ankle_transition",
-    "left_ankle": "left_ankle_transition",
-    "right_foot": "right_foot_surface",
-    "left_foot": "left_foot_surface",
-    "head_top": "head_top_surface",
-    "head_back": "head_back_surface",
-    "head_left_side": "head_left_surface",
-    "head_right_side": "head_right_surface",
-    "left_ear": "head_left_surface",
-    "right_ear": "head_right_surface",
-    "face_left": "face_non_selectable",
-    "face_right": "face_non_selectable",
-    "neck_front": "neck_front_surface",
-    "neck_back": "neck_back_surface",
-    "neck_left": "neck_left_surface",
-    "neck_right": "neck_right_surface",
-}
 
 
 def log(msg: str) -> None:
@@ -173,29 +84,7 @@ def bake_source():
     bpy.context.view_layer.objects.active = baked
     bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
     bpy.context.view_layer.update()
-    return baked, rig
-
-
-def load_interaction_centroids():
-    """Import interaction GLB into a temp collection; return list of (centroid, atomic)."""
-    before = set(bpy.data.objects)
-    bpy.ops.import_scene.gltf(filepath=str(INTERACTION_GLB))
-    imported = [o for o in bpy.data.objects if o not in before]
-    pairs = []
-    for obj in imported:
-        if obj.type != "MESH" or not obj.name.startswith("zone_"):
-            continue
-        atomic = obj.name.split(".")[0][len("zone_") :]
-        mw = obj.matrix_world
-        for poly in obj.data.polygons:
-            c = Vector((0, 0, 0))
-            for vi in poly.vertices:
-                c += mw @ obj.data.vertices[vi].co
-            c /= float(len(poly.vertices))
-            pairs.append((c, atomic))
-    for obj in imported:
-        bpy.data.objects.remove(obj, do_unlink=True)
-    return pairs
+    return baked, rig, offset
 
 
 def extract_region_mesh(src, face_indices: set[int], name: str):
@@ -248,6 +137,49 @@ def paint_region(obj, color, *, emissive=False):
     obj.data.materials.append(mat)
 
 
+def pec_pca_ratio(mesh, mw, face_indices: set[int]) -> dict:
+    """PCA on frontal projection: principal axis should be mostly LEFT-RIGHT."""
+    if len(face_indices) < 8:
+        return {"horizontalDominance": 0.0, "width": 0.0, "height": 0.0}
+    pts = []
+    for fi in face_indices:
+        poly = mesh.polygons[fi]
+        c = Vector((0, 0, 0))
+        for vi in poly.vertices:
+            c += mw @ mesh.vertices[vi].co
+        c /= float(len(poly.vertices))
+        pts.append((c.x, c.z))  # frontal plane XZ in Blender (Y depth)
+    mx = sum(p[0] for p in pts) / len(pts)
+    mz = sum(p[1] for p in pts) / len(pts)
+    cxx = sum((p[0] - mx) ** 2 for p in pts) / len(pts)
+    czz = sum((p[1] - mz) ** 2 for p in pts) / len(pts)
+    cxz = sum((p[0] - mx) * (p[1] - mz) for p in pts) / len(pts)
+    # Eigen of 2x2 covariance
+    tr = cxx + czz
+    det = cxx * czz - cxz * cxz
+    disc = max(0.0, tr * tr - 4 * det)
+    l1 = 0.5 * (tr + math.sqrt(disc))
+    l2 = 0.5 * (tr - math.sqrt(disc))
+    # Principal eigenvector
+    if abs(cxz) > 1e-12:
+        vx, vz = l1 - czz, cxz
+    else:
+        vx, vz = (1.0, 0.0) if cxx >= czz else (0.0, 1.0)
+    nrm = math.hypot(vx, vz) or 1.0
+    vx, vz = vx / nrm, vz / nrm
+    # Horizontal dominance = |dot with X axis|
+    horiz = abs(vx)
+    xs = [p[0] for p in pts]
+    zs = [p[1] for p in pts]
+    return {
+        "horizontalDominance": round(horiz, 4),
+        "width": round(max(xs) - min(xs), 4),
+        "height": round(max(zs) - min(zs), 4),
+        "lambda1": round(l1, 6),
+        "lambda2": round(l2, 6),
+    }
+
+
 def render_qa(created):
     ART.mkdir(parents=True, exist_ok=True)
     ATLAS.mkdir(parents=True, exist_ok=True)
@@ -280,6 +212,7 @@ def render_qa(created):
     dim = (0.22, 0.19, 0.16, 1.0)
 
     def place(view):
+        # Blender: front=-Y, back=+Y, left=+X, right=-X
         offsets = {
             "front": Vector((0, -1, 0.08)),
             "back": Vector((0, 1, 0.08)),
@@ -298,13 +231,18 @@ def render_qa(created):
     shots = [
         ({"upper_back_region", "lower_back_region"}, "back", "qa-full-back.png"),
         ({"upper_back_region"}, "back", "qa-upper-back.png"),
+        ({"lower_back_region"}, "back", "qa-lower-back.png"),
         ({"left_pectoral_region", "right_pectoral_region"}, "front", "qa-full-chest.png"),
         ({"right_pectoral_region"}, "front", "qa-pectoral-right.png"),
+        ({"left_pectoral_region"}, "front", "qa-pectoral-left.png"),
         ({"full_abdomen_region"}, "front", "qa-abdomen.png"),
         ({"right_ribs_region"}, "right", "qa-ribs-right.png"),
+        ({"left_ribs_region"}, "left", "qa-ribs-left.png"),
         ({"right_biceps_surface"}, "front", "qa-biceps-right.png"),
         ({"right_triceps_surface"}, "back", "qa-triceps-right.png"),
         ({"left_shin_surface", "left_calf_surface"}, "left", "qa-lower-leg-left.png"),
+        ({"left_shin_surface"}, "front", "qa-shin-left.png"),
+        ({"left_calf_surface"}, "back", "qa-calf-left.png"),
     ]
     for ids, view, fname in shots:
         highlight(ids)
@@ -312,244 +250,96 @@ def render_qa(created):
         out = ART / fname
         scene.render.filepath = str(out)
         bpy.ops.render.render(write_still=True)
+        # Atlas copy
+        atlas_name = fname.replace("qa-", "")
+        scene.render.filepath = str(ATLAS / atlas_name)
+        bpy.ops.render.render(write_still=True)
         log(f"Render {fname}")
 
 
 def main():
     ART.mkdir(parents=True, exist_ok=True)
-    baked, rig = bake_source()
+    baked, rig, offset = bake_source()
+    # offset already applied via transform_apply → landmarks use zero offset
+    result = partition_public_regions(baked, rig, Vector((0, 0, 0)))
+    face_region = result.face_region
+    lm = result.landmarks
+    stats = result.stats
+    adjacency = result.adjacency
     mesh = baked.data
     mw = baked.matrix_world
-    lm = build_landmarks(baked, rig, Vector((0, 0, 0)))
+
     log(f"Baked faces={len(mesh.polygons)} height={lm.body_height:.3f}")
-
-    pairs = load_interaction_centroids()
-    log(f"Interaction face samples={len(pairs)}")
-    kd = KDTree(len(pairs))
-    for i, (c, _a) in enumerate(pairs):
-        kd.insert(c, i)
-    kd.balance()
-
-    centroids = {}
-    normals = {}
-    areas = {}
-    for poly in mesh.polygons:
-        centroids[poly.index] = face_centroid(mesh, mw, poly)
-        normals[poly.index] = face_normal(mesh, mw, poly)
-        areas[poly.index] = face_area(mesh, poly, mw)
-
-    edge_map = build_edge_face_map(mesh)
-    adj: dict[int, set[int]] = defaultdict(set)
-    for faces in edge_map.values():
-        for i in range(len(faces)):
-            for j in range(i + 1, len(faces)):
-                adj[faces[i]].add(faces[j])
-                adj[faces[j]].add(faces[i])
-
-    face_region: dict[int, str] = {}
-    sternum_faces: set[int] = set()
-    flank_faces: dict[str, set[int]] = {"left": set(), "right": set()}
-
-    for fi, c in centroids.items():
-        _co, idx, dist = kd.find(c)
-        atomic = pairs[idx][1]
-        mapped = ATOMIC_TO_PUBLIC.get(atomic)
-        if mapped is None:
-            face_region[fi] = "helper_non_selectable"
-        elif mapped == "STERNUM_SPLIT":
-            sternum_faces.add(fi)
-        elif mapped == "FLANK_DISTRIBUTE":
-            side = "left" if c.x > lm.sternum_x else "right"
-            flank_faces[side].add(fi)
-        elif mapped == "ROUTING_SACRUM":
-            face_region[fi] = "lower_back_region" if normals[fi].dot(lm.body_front) < -0.1 else "genital_non_selectable"
-        else:
-            face_region[fi] = mapped
-
-    # Distribute flanks: posterior → back, anterior-low → abdomen, else ribs
-    back_split_z = (lm.chest_lower.z + lm.waist_level.z) * 0.52
-    for side, faces in flank_faces.items():
-        for fi in faces:
-            c = centroids[fi]
-            n = normals[fi]
-            if n.dot(lm.body_front) < -0.05 or c.y > 0.05:
-                face_region[fi] = "upper_back_region" if c.z >= back_split_z else "lower_back_region"
-            elif n.dot(lm.body_front) > 0.15 and c.z < lm.nipple_r.z - 0.02:
-                face_region[fi] = "full_abdomen_region"
-            else:
-                face_region[fi] = f"{side}_ribs_region"
-
-    # Absorb strongly posterior ribs into wide back (keep lateral ribs public)
-    for fi, rid in list(face_region.items()):
-        if rid not in ("left_ribs_region", "right_ribs_region"):
-            continue
-        c = centroids[fi]
-        n = normals[fi]
-        if n.dot(lm.body_front) < -0.25 or (c.y > 0.08 and n.dot(lm.body_front) < 0.0):
-            if c.z >= back_split_z:
-                face_region[fi] = "upper_back_region"
-            elif c.z > lm.pelvis.z + 0.05:
-                face_region[fi] = "lower_back_region"
-
-    # Pectoral region growing seeded from chest + sternum halves
-    half_chest = max(lm.chest_width * 0.5, 0.12)
-    z_nip = (lm.nipple_r.z + lm.nipple_l.z) * 0.5
-    z_clav = min(lm.clavicle_l.z, lm.clavicle_r.z) - 0.02
-
-    def pec_floor(lr_abs: float) -> float:
-        t = min(1.0, lr_abs / (half_chest * 0.95))
-        return (z_nip - 0.04) + ((lm.axillary_z - 0.08) - (z_nip - 0.04)) * (t ** 1.1)
-
-    for side, nip, rid in (
-        ("right", lm.nipple_r, "right_pectoral_region"),
-        ("left", lm.nipple_l, "left_pectoral_region"),
-    ):
-        is_right = side == "right"
-
-        def accept(fi, _is_right=is_right):
-            c = centroids[fi]
-            n = normals[fi]
-            if n.dot(lm.body_front) < 0.05:
-                return False
-            if _is_right and c.x > lm.sternum_x + 0.015:
-                return False
-            if not _is_right and c.x < lm.sternum_x - 0.015:
-                return False
-            if c.z > z_clav + 0.02:
-                return False
-            lr = abs(c.x - lm.sternum_x)
-            if c.z < pec_floor(lr) - 0.02:
-                return False
-            if lr > half_chest * 1.08:
-                return False
-            if c.y > 0.12:
-                return False
-            return True
-
-        seeds = {fi for fi, r in face_region.items() if r == rid}
-        for fi in sternum_faces:
-            if (is_right and centroids[fi].x <= lm.sternum_x) or (
-                not is_right and centroids[fi].x > lm.sternum_x
-            ):
-                if accept(fi):
-                    seeds.add(fi)
-        # Also allow growth into nearby abdomen/ribs if they pass accept
-        allowed = set(face_region.keys())
-        grown = grow_region(seeds, allowed, adj, accept)
-        for fi in grown:
-            face_region[fi] = rid
-        for fi in sternum_faces:
-            if fi in grown or accept(fi):
-                if (is_right and centroids[fi].x <= lm.sternum_x) or (
-                    not is_right and centroids[fi].x > lm.sternum_x
-                ):
-                    face_region[fi] = rid
-
-    for fi in sternum_faces:
-        if fi not in face_region or face_region.get(fi) in (
-            "left_pectoral_region",
-            "right_pectoral_region",
-        ):
-            continue
-        # leftover sternum → nearer pec if in chest band else abdomen
-        c = centroids[fi]
-        if c.z >= pec_floor(0) - 0.02:
-            face_region[fi] = (
-                "right_pectoral_region" if c.x <= lm.sternum_x else "left_pectoral_region"
-            )
-        else:
-            face_region[fi] = "full_abdomen_region"
-
-    smooth_boundary(face_region, adj, "right_pectoral_region")
-    smooth_boundary(face_region, adj, "left_pectoral_region")
-    smooth_boundary(face_region, adj, "upper_back_region")
-
-    # Ensure every face classified
-    for fi in centroids:
-        if fi not in face_region:
-            face_region[fi] = "helper_non_selectable"
-
-    # Stats
-    stats = {}
-    for rid in list(PUBLIC_BASE_SELECTABLE) + list(ROUTING_ONLY_BASE) + [
-        "face_non_selectable",
-        "genital_non_selectable",
-        "helper_non_selectable",
-    ]:
-        faces = [i for i, r in face_region.items() if r == rid]
-        if not faces:
-            continue
-        comps = connected_components(mesh, faces)
-        xs = [centroids[i].x for i in faces]
-        ys = [centroids[i].y for i in faces]
-        zs = [centroids[i].z for i in faces]
-        stats[rid] = {
-            "faceCount": len(faces),
-            "triangleCount": sum(max(0, len(mesh.polygons[i].vertices) - 2) for i in faces),
-            "surfaceArea": round(sum(areas[i] for i in faces), 6),
-            "centroid": [
-                round(sum(xs) / len(xs), 5),
-                round(sum(ys) / len(ys), 5),
-                round(sum(zs) / len(zs), 5),
-            ],
-            "bbox": [
-                [round(min(xs), 4), round(min(ys), 4), round(min(zs), 4)],
-                [round(max(xs), 4), round(max(ys), 4), round(max(zs), 4)],
-            ],
-            "widthX": round(max(xs) - min(xs), 4),
-            "connectedComponents": len(comps),
-            "classification": (
-                "selectable"
-                if rid in PUBLIC_BASE_SELECTABLE
-                else ("routing_only" if rid in ROUTING_ONLY_BASE else "non_selectable")
-            ),
-        }
-
-    region_adj: dict[str, set[str]] = defaultdict(set)
-    for faces in edge_map.values():
-        if len(faces) < 2:
-            continue
-        regs = {
-            face_region[f]
-            for f in faces
-            if f in face_region
-            and (
-                face_region[f] in PUBLIC_BASE_SELECTABLE
-                or face_region[f] in ROUTING_ONLY_BASE
-            )
-        }
-        for a in regs:
-            for b in regs:
-                if a != b:
-                    region_adj[a].add(b)
-    adjacency = {k: sorted(v) for k, v in sorted(region_adj.items())}
+    log(f"method=anatomical_bodyvisual_partition")
 
     ub = stats.get("upper_back_region", {})
+    lb = stats.get("lower_back_region", {})
+    pec_r = stats.get("right_pectoral_region", {})
+    pec_l = stats.get("left_pectoral_region", {})
+    ribs_r = stats.get("right_ribs_region", {})
+    ribs_l = stats.get("left_ribs_region", {})
     log(f"upper_back faces={ub.get('faceCount')} w={ub.get('widthX')}")
-    log(
-        f"pectorals R={stats.get('right_pectoral_region', {}).get('faceCount')} "
-        f"L={stats.get('left_pectoral_region', {}).get('faceCount')}"
-    )
-    log(
-        f"biceps={stats.get('right_biceps_surface', {}).get('faceCount')} "
-        f"triceps={stats.get('right_triceps_surface', {}).get('faceCount')} "
-        f"shin={stats.get('left_shin_surface', {}).get('faceCount')} "
-        f"calf={stats.get('left_calf_surface', {}).get('faceCount')}"
-    )
+    log(f"lower_back faces={lb.get('faceCount')} w={lb.get('widthX')}")
+    log(f"pectorals R={pec_r.get('faceCount')} L={pec_l.get('faceCount')} w={pec_r.get('widthX')}")
+    log(f"ribs R={ribs_r.get('faceCount')} L={ribs_l.get('faceCount')} w={ribs_r.get('widthX')}")
 
+    # PCA orientation sanity for pectorals
+    pec_faces_r = {i for i, r in face_region.items() if r == "right_pectoral_region"}
+    pec_faces_l = {i for i, r in face_region.items() if r == "left_pectoral_region"}
+    pca_r = pec_pca_ratio(mesh, mw, pec_faces_r)
+    pca_l = pec_pca_ratio(mesh, mw, pec_faces_l)
+    log(f"pec PCA R horiz={pca_r.get('horizontalDominance')} w/h={pca_r.get('width')}/{pca_r.get('height')}")
+    log(f"pec PCA L horiz={pca_l.get('horizontalDominance')} w/h={pca_l.get('width')}/{pca_l.get('height')}")
+
+    # Posterior coverage
+    edge_map = build_edge_face_map(mesh)
+    posterior_area = 0.0
+    back_area = 0.0
+    for fi, rid in face_region.items():
+        poly = mesh.polygons[fi]
+        # Approximate posterior by Y in Blender (+Y = back)
+        c = Vector((0, 0, 0))
+        for vi in poly.vertices:
+            c += mw @ mesh.vertices[vi].co
+        c /= float(len(poly.vertices))
+        area = face_area(mesh, poly, mw)
+        if c.y > 0.02 and lm.pelvis.z + 0.05 < c.z < lm.neck_base.z - 0.02:
+            if abs(c.x) < lm.shoulder_width * 0.52:
+                posterior_area += area
+        if rid in ("upper_back_region", "lower_back_region"):
+            back_area += area
+
+    # Hard gates
     if ub.get("widthX", 0) < 0.28:
         fail(f"upper_back too narrow {ub.get('widthX')}")
+    if ribs_r.get("faceCount", 0) < 80 or ribs_r.get("widthX", 0) < 0.06:
+        fail(f"right_ribs too small faces={ribs_r.get('faceCount')} w={ribs_r.get('widthX')}")
+    if pca_r.get("width", 0) < pca_r.get("height", 1) * 0.85:
+        log(f"WARN pec still taller than wide w={pca_r.get('width')} h={pca_r.get('height')}")
     for rid, mn_f in (
-        ("right_pectoral_region", 60),
+        ("right_pectoral_region", 70),
+        ("left_pectoral_region", 70),
         ("right_biceps_surface", 40),
         ("right_triceps_surface", 40),
         ("left_shin_surface", 40),
         ("left_calf_surface", 40),
-        ("right_ribs_region", 20),
+        ("full_abdomen_region", 40),
+        ("upper_back_region", 200),
+        ("lower_back_region", 60),
+        ("right_ribs_region", 120),
+        ("left_ribs_region", 120),
     ):
         fc = stats.get(rid, {}).get("faceCount", 0)
         if fc < mn_f:
             fail(f"{rid} too small {fc}")
+    # Orientation sanity: pec must be horizontally dominant (width >= height)
+    if pca_r.get("width", 0) + 1e-6 < pca_r.get("height", 1):
+        fail(
+            f"right pec still vertical w={pca_r.get('width')} h={pca_r.get('height')} "
+            f"horiz={pca_r.get('horizontalDominance')}"
+        )
+    if pca_r.get("horizontalDominance", 0) < 0.55:
+        fail(f"right pec PCA not left-right aligned horiz={pca_r.get('horizontalDominance')}")
 
     # Extract meshes
     by_region: dict[str, set[int]] = defaultdict(set)
@@ -579,24 +369,32 @@ def main():
     )
     log(f"Exported {OUT_GLB}")
 
+    # Left/right centroid audit
+    left_right_errors = []
+    for rid, s in stats.items():
+        cx = s["centroid"][0]
+        if rid.startswith("left_") and cx < lm.sternum_x - 0.02:
+            left_right_errors.append(rid)
+        if rid.startswith("right_") and cx > lm.sternum_x + 0.02:
+            left_right_errors.append(rid)
+
     validation = {
-        "totalFaces": len(centroids),
+        "totalFaces": len(face_region),
         "classifiedFaces": len(face_region),
         "unclassified": 0,
         "overlaps": 0,
         "disconnectedSelectable": [
             r
             for r, s in stats.items()
-            if s.get("classification") == "selectable" and s["connectedComponents"] != 1
+            if r in PUBLIC_BASE_SELECTABLE and s.get("connectedComponents", 1) != 1
         ],
-        "leftRightMismatches": [
-            r
-            for r, s in stats.items()
-            if (r.startswith("left_") and s["centroid"][0] < lm.sternum_x - 0.02)
-            or (r.startswith("right_") and s["centroid"][0] > lm.sternum_x + 0.02)
-        ],
+        "leftRightMismatches": left_right_errors,
         "adjacencyEdgeCount": sum(len(v) for v in adjacency.values()) // 2,
-        "method": "interaction_transfer_plus_anatomical_refinement",
+        "method": "anatomical_bodyvisual_partition",
+        "posteriorTorsoSurfaceArea": round(posterior_area, 6),
+        "fullBackSurfaceArea": round(back_area, 6),
+        "backCoverageRatio": round(back_area / max(posterior_area, 1e-9), 4),
+        "pectoralPCA": {"right": pca_r, "left": pca_l},
     }
 
     ADJ_JSON.parent.mkdir(parents=True, exist_ok=True)
@@ -619,7 +417,21 @@ def main():
     )
     LANDMARKS_OUT.parent.mkdir(parents=True, exist_ok=True)
     LANDMARKS_OUT.write_text(
-        json.dumps({"landmarks": lm.to_dict(), "source": str(SOURCE.relative_to(REPO)).replace("\\", "/")}, indent=2),
+        json.dumps(
+            {
+                "landmarks": lm.to_dict(),
+                "source": str(SOURCE.relative_to(REPO)).replace("\\", "/"),
+                "runtimeContract": {
+                    "blenderFront": [0, -1, 0],
+                    "blenderUp": [0, 0, 1],
+                    "gltfFront": [0, 0, 1],
+                    "gltfUp": [0, 1, 0],
+                    "gltfLeft": [1, 0, 0],
+                    "gltfRight": [-1, 0, 0],
+                },
+            },
+            indent=2,
+        ),
         encoding="utf-8",
     )
     REPORT.write_text(
@@ -629,11 +441,23 @@ def main():
                 "method": validation["method"],
                 "stats": stats,
                 "validation": validation,
-                "back": {"upper_back_widthX": ub.get("widthX"), "upper_back_faces": ub.get("faceCount")},
+                "back": {
+                    "upper_back_widthX": ub.get("widthX"),
+                    "upper_back_faces": ub.get("faceCount"),
+                    "lower_back_widthX": lb.get("widthX"),
+                    "lower_back_faces": lb.get("faceCount"),
+                    "coverageRatio": validation["backCoverageRatio"],
+                },
                 "pectorals": {
-                    "right_faces": stats.get("right_pectoral_region", {}).get("faceCount"),
-                    "left_faces": stats.get("left_pectoral_region", {}).get("faceCount"),
-                    "right_widthX": stats.get("right_pectoral_region", {}).get("widthX"),
+                    "right_faces": pec_r.get("faceCount"),
+                    "left_faces": pec_l.get("faceCount"),
+                    "right_widthX": pec_r.get("widthX"),
+                    "pca": validation["pectoralPCA"],
+                },
+                "ribs": {
+                    "right_faces": ribs_r.get("faceCount"),
+                    "left_faces": ribs_l.get("faceCount"),
+                    "right_widthX": ribs_r.get("widthX"),
                 },
             },
             indent=2,

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Body3DViewer,
   type LabInteractionMode,
@@ -31,12 +31,25 @@ import {
 import { BodyPremiumSelector } from "@/widgets/body-3d/ux/BodyPremiumSelector";
 import { PublicRegionAuditPanel } from "@/widgets/body-3d/lab/PublicRegionAuditPanel";
 import { resolvePublicTargetHighlightRegions } from "@/widgets/body-3d/domain/bodyPublicHighlightRegions";
+import {
+  getCameraPoseForPublicTarget,
+  toCardinalCameraView,
+  getPreferredBodyView,
+} from "@/widgets/body-3d/ux/bodyPreferredCamera";
+import type { CameraFocusPose } from "@/widgets/body-3d/ux/bodyCameraFocus";
 
 export type LabExperienceMode = "premium" | "technical" | "audit";
 
 export function BodyLabWorkbench() {
   const [labExperience, setLabExperience] =
     useState<LabExperienceMode>("premium");
+
+  useEffect(() => {
+    const mode = new URLSearchParams(window.location.search).get("mode");
+    if (mode === "audit" || mode === "technical" || mode === "premium") {
+      setLabExperience(mode);
+    }
+  }, []);
   const [modelId, setModelId] = useState(DEFAULT_LAB_BODY_MODEL.id);
   const [cameraView, setCameraView] = useState<BodyCameraView>("front");
   const [cameraViewToken, setCameraViewToken] = useState(0);
@@ -62,6 +75,8 @@ export function BodyLabWorkbench() {
   );
   const [selectedTargetIds, setSelectedTargetIds] = useState<string[]>([]);
   const [auditTargetId, setAuditTargetId] = useState<string | null>(null);
+  const [focusPose, setFocusPose] = useState<CameraFocusPose | null>(null);
+  const [focusToken, setFocusToken] = useState(0);
 
   const resolvedSelectedAtomicZoneIds = useMemo(
     () => resolveSelectedAtomicZoneIds(selectedTargetIds),
@@ -86,6 +101,18 @@ export function BodyLabWorkbench() {
   function handleCameraViewChange(view: BodyCameraView) {
     setCameraView(view);
     setCameraViewToken((token) => token + 1);
+    setFocusPose(null);
+    setFocusToken((token) => token + 1);
+  }
+
+  function handleAuditSelectTarget(id: string) {
+    setAuditTargetId(id);
+    if (!id) return;
+    const preferred = getPreferredBodyView(id);
+    setCameraView(toCardinalCameraView(preferred));
+    setCameraViewToken((token) => token + 1);
+    setFocusPose(getCameraPoseForPublicTarget(id, activeModel.camera));
+    setFocusToken((token) => token + 1);
   }
 
   function handleModelChange(nextId: string) {
@@ -199,6 +226,8 @@ export function BodyLabWorkbench() {
               cameraView={cameraView}
               cameraViewToken={cameraViewToken}
               labInteractionMode="premium"
+              focusPose={focusPose}
+              focusToken={focusToken}
               selectedPublicRegionIds={
                 auditTargetId
                   ? resolvePublicTargetHighlightRegions(auditTargetId)
@@ -211,7 +240,8 @@ export function BodyLabWorkbench() {
           <div className="w-full shrink-0 lg:w-[340px]">
             <PublicRegionAuditPanel
               selectedTargetId={auditTargetId}
-              onSelectTarget={setAuditTargetId}
+              onSelectTarget={handleAuditSelectTarget}
+              onCameraViewChange={handleCameraViewChange}
               highlightedRegions={
                 auditTargetId
                   ? resolvePublicTargetHighlightRegions(auditTargetId)

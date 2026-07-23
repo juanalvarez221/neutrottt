@@ -55,7 +55,9 @@ export function BodyViewControls({
     >
       <div className="inline-flex items-center rounded-full border border-white/12 bg-black/45 p-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-md">
         {VIEWS.map((view) => {
-          const active = cameraView === view.id && !focused;
+          // Con focus regional, el botón cardinal debe seguir reflejando la
+          // vista canónica (p. ej. Espalda alta → Espalda activo).
+          const active = cameraView === view.id;
           return (
             <button
               key={view.id}

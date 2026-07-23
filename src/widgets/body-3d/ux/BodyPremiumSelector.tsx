@@ -44,7 +44,6 @@ import {
 import {
   getCameraPoseForPublicTarget,
   getPreferredBodyView,
-  isPreferredViewAlreadyActive,
   toCardinalCameraView,
 } from "@/widgets/body-3d/ux/bodyPreferredCamera";
 import type { FittedBodyFraming } from "@/widgets/body-3d/ux/bodyFitFraming";
@@ -353,10 +352,11 @@ export function BodyPremiumSelector({
 
   function orientCameraToPublicTarget(targetId: string) {
     const preferred = getPreferredBodyView(targetId);
-    if (!isPreferredViewAlreadyActive(cameraView, preferred)) {
-      setCameraView(toCardinalCameraView(preferred));
-      setCameraViewToken((t) => t + 1);
-    }
+    const cardinal = toCardinalCameraView(preferred);
+    // Siempre forzar token de vista + pose canónica en el mismo evento
+    // de click/tap (panel puede abrir ya; la cámara debe empezar a girar).
+    setCameraView(cardinal);
+    setCameraViewToken((t) => t + 1);
     setFocusPose(getCameraPoseForPublicTarget(targetId, activeFraming));
     setFocusToken((t) => t + 1);
     setCameraFocused(true);

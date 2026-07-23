@@ -1,19 +1,16 @@
 /**
  * Framing escalable por región/lado — no hardcodea 81 cámaras.
  *
- * Estrategia:
- * 1. Mapear atomic → bodySection (head|upperBody|arms|torso|pelvis|legs|feet)
- * 2. Aplicar offset de target según section + side
- * 3. Elegir azimuth suave (front/side) según laterality
- * 4. Acercar distancia moderadamente con límites globales
- *
- * Límites globales (Paso 34):
- * - MIN_FOCUS_DIST_SCALE / MAX_FOCUS_DIST_SCALE respecto a framing.distance
- * - MAX_YAW_DELTA radianos (nunca rotar de más)
+ * Las vistas posteriores usan el hemisferio BACK real del contrato
+ * `bodyModelCoordinateSystem` — nunca un bias ~68°.
  */
 
 import { Vector3 } from "three";
 import type { BodyCameraFraming } from "@/widgets/body-3d/cameraViewHelpers";
+import {
+  resolveCanonicalAzimuth,
+  type CanonicalBodyView,
+} from "@/widgets/body-3d/domain/bodyModelCoordinateSystem";
 import { BODY_ZONES_BY_ID } from "@/widgets/body-3d/domain/bodyZones";
 
 export type BodySection =
@@ -34,10 +31,6 @@ export type CameraFocusPose = {
 export const MIN_FOCUS_DIST_SCALE = 0.62;
 /** Distancia máxima relativa (sigue viéndose contexto corporal). */
 export const MAX_FOCUS_DIST_SCALE = 0.92;
-/** Yaw automático máximo en radianes (~18°). */
-export const MAX_YAW_DELTA = 0.32;
-/** Bias posterior máximo (espalda/nuca) — moderado, no 180°. */
-export const MAX_BACK_BIAS = Math.PI * 0.38;
 
 function sectionForAtomic(atomicId: string): BodySection {
   if (
@@ -104,24 +97,52 @@ function clamp(n: number, min: number, max: number) {
   return Math.min(max, Math.max(min, n));
 }
 
+function isPosteriorAtomic(atomicId: string): boolean {
+  return (
+    atomicId.includes("_back") ||
+    atomicId.includes("nuca") ||
+    atomicId.includes("head_back") ||
+    atomicId.includes("scapula") ||
+    atomicId.includes("glute") ||
+    atomicId.includes("triceps") ||
+    atomicId.includes("calf") ||
+    atomicId.includes("lower_leg_back") ||
+    atomicId.includes("thigh_back")
+  );
+}
+
+function canonicalViewForAtomic(atomicId: string): CanonicalBodyView {
+  const zone = BODY_ZONES_BY_ID[atomicId];
+  const side = zone?.side ?? "center";
+  const posterior = isPosteriorAtomic(atomicId);
+
+  if (posterior) {
+    if (side === "left") return "BACK_LEFT";
+    if (side === "right") return "BACK_RIGHT";
+    return "BACK";
+  }
+  if (side === "left") return "FRONT_LEFT";
+  if (side === "right") return "FRONT_RIGHT";
+  return "FRONT";
+}
+
 /**
- * Pose de cámara suave para enfocar una zona atómica activa.
- * El usuario sigue pudiendo orbitar inmediatamente después.
+ * Pose de cámara para enfocar una zona atómica activa.
+ * Vistas posteriores = BACK canónico real (no bias parcial).
  */
 export function getCameraFocusForAtomicZone(
   atomicId: string,
   framing: BodyCameraFraming,
 ): CameraFocusPose {
-  const zone = BODY_ZONES_BY_ID[atomicId];
   const section = sectionForAtomic(atomicId);
-  const side = zone?.side ?? "center";
+  const side = BODY_ZONES_BY_ID[atomicId]?.side ?? "center";
 
   const [bx, by, bz] = framing.target;
   const baseDist = framing.distance;
 
   const yOff = SECTION_Y[section] * baseDist * 0.35;
   const xOff =
-    side === "left" ? -0.16 * baseDist : side === "right" ? 0.16 * baseDist : 0;
+    side === "left" ? 0.16 * baseDist : side === "right" ? -0.16 * baseDist : 0;
 
   const target = new Vector3(bx + xOff, by + yOff, bz);
   const dist =
@@ -132,23 +153,13 @@ export function getCameraFocusForAtomicZone(
       MAX_FOCUS_DIST_SCALE,
     );
 
-  const yawRaw = side === "left" ? -0.32 : side === "right" ? 0.32 : 0;
-  const yaw = clamp(yawRaw, -MAX_YAW_DELTA, MAX_YAW_DELTA);
-
+  const az = resolveCanonicalAzimuth(canonicalViewForAtomic(atomicId));
   const pitchBoost = section === "head" ? 0.06 : 0;
-  const backBiasRaw =
-    atomicId.includes("_back") ||
-    atomicId.includes("nuca") ||
-    atomicId.includes("head_back")
-      ? MAX_BACK_BIAS
-      : 0;
-
-  const angle = yaw + backBiasRaw;
   const elev = 0.1 + pitchBoost;
   const position = new Vector3(
-    target.x + Math.sin(angle) * dist,
+    target.x + Math.sin(az) * dist,
     target.y + elev * dist,
-    target.z + Math.cos(angle) * dist,
+    target.z + Math.cos(az) * dist,
   );
 
   return { position, target };
@@ -158,8 +169,13 @@ export function getFullBodyCameraPose(
   framing: BodyCameraFraming,
 ): CameraFocusPose {
   const [tx, ty, tz] = framing.target;
+  const az = resolveCanonicalAzimuth("FRONT");
   return {
-    position: new Vector3(tx, ty, tz + framing.distance),
+    position: new Vector3(
+      tx + Math.sin(az) * framing.distance,
+      ty,
+      tz + Math.cos(az) * framing.distance,
+    ),
     target: new Vector3(tx, ty, tz),
   };
 }

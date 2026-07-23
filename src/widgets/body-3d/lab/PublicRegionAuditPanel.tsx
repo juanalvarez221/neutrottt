@@ -11,6 +11,13 @@ import {
   PUBLIC_REGION_ADJACENCY_EDGE_COUNT,
 } from "@/widgets/body-3d/domain/bodyPublicAdjacency";
 import {
+  MODEL_BACK,
+  MODEL_FORWARD,
+  MODEL_LEFT,
+  MODEL_RIGHT,
+  viewHemisphereScore,
+} from "@/widgets/body-3d/domain/bodyModelCoordinateSystem";
+import {
   PUBLIC_HIGHLIGHT_REGION_IDS,
   resolvePublicTargetHighlightRegions,
   type PublicHighlightRegionId,
@@ -21,11 +28,16 @@ import {
 } from "@/widgets/body-3d/domain/bodyPublicRegionMeta";
 import { PUBLIC_SELECTABLE_BODY_TARGET_IDS } from "@/widgets/body-3d/domain/bodyPublicSelectionTargets";
 import {
+  getCameraPoseForPublicTarget,
   getFramingScale,
-  getPreferredBodyView,
   getPreferredFocusSection,
+  preferredViewToCanonical,
+  toCardinalCameraView,
+  getPreferredBodyView,
 } from "@/widgets/body-3d/ux/bodyPreferredCamera";
 import adjacencyData from "@/widgets/body-3d/domain/generated/publicRegionAdjacency.json";
+import { NEUTRO_BODY_V1_MODEL } from "@/widgets/body-3d/bodyModelDefinition";
+import type { BodyCameraView } from "@/widgets/body-3d/bodyViewerTypes";
 
 type StatsEntry = {
   faceCount?: number;
@@ -42,10 +54,12 @@ export function PublicRegionAuditPanel({
   selectedTargetId,
   onSelectTarget,
   highlightedRegions,
+  onCameraViewChange,
 }: {
   selectedTargetId: string | null;
   onSelectTarget: (id: string) => void;
   highlightedRegions: readonly PublicHighlightRegionId[];
+  onCameraViewChange?: (view: BodyCameraView) => void;
 }) {
   const [query, setQuery] = useState("");
 
@@ -68,15 +82,60 @@ export function PublicRegionAuditPanel({
     adjacent: getAdjacentPublicBaseRegions(rid),
   }));
 
+  const cameraAudit = useMemo(() => {
+    if (!selectedTargetId) return null;
+    const preferred = getPreferredBodyView(selectedTargetId);
+    const pose = getCameraPoseForPublicTarget(
+      selectedTargetId,
+      NEUTRO_BODY_V1_MODEL.camera,
+    );
+    const axes = {
+      front: viewHemisphereScore(pose.position, pose.target, MODEL_FORWARD),
+      back: viewHemisphereScore(pose.position, pose.target, MODEL_BACK),
+      left: viewHemisphereScore(pose.position, pose.target, MODEL_LEFT),
+      right: viewHemisphereScore(pose.position, pose.target, MODEL_RIGHT),
+    };
+    const dominant = (
+      Object.entries(axes) as Array<[keyof typeof axes, number]>
+    ).sort((a, b) => b[1] - a[1])[0]!;
+    return {
+      preferred,
+      canonical: preferredViewToCanonical(preferred),
+      cardinal: toCardinalCameraView(preferred),
+      actualHemisphere: dominant[0],
+      scores: axes,
+      position: pose.position.toArray().map((n) => Number(n.toFixed(3))),
+    };
+  }, [selectedTargetId]);
+
   return (
     <div className="rounded-2xl border border-white/10 bg-black/40 p-4 backdrop-blur-sm">
       <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-500">
-        QA · PublicRegionHighlightModel
+        Public Anatomy QA
       </p>
       <p className="mt-1 text-xs text-zinc-500">
         Solo laboratorio · adjacency edges: {PUBLIC_REGION_ADJACENCY_EDGE_COUNT} ·
         base meshes: {PUBLIC_HIGHLIGHT_REGION_IDS.length}
       </p>
+      <div className="mt-3 flex flex-wrap gap-1.5">
+        {(
+          [
+            ["front", "Front"],
+            ["back", "Back"],
+            ["left", "Left"],
+            ["right", "Right"],
+          ] as const
+        ).map(([id, label]) => (
+          <button
+            key={id}
+            type="button"
+            onClick={() => onCameraViewChange?.(id)}
+            className="rounded-md border border-white/10 bg-black/35 px-2.5 py-1.5 font-mono text-[10px] uppercase tracking-wider text-zinc-300 transition hover:border-[rgba(232,168,64,0.35)] hover:text-[rgba(255,230,200,0.95)] active:scale-[0.98]"
+          >
+            {label}
+          </button>
+        ))}
+      </div>
 
       <label className="mt-4 block">
         <span className="mb-1.5 block text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
@@ -124,7 +183,7 @@ export function PublicRegionAuditPanel({
                 preferredView
               </p>
               <p className="mt-1 font-mono text-zinc-200">
-                {getPreferredBodyView(selectedTargetId)}
+                {cameraAudit?.preferred}
               </p>
             </div>
             <div className="rounded-lg border border-white/8 bg-black/30 p-2">
@@ -135,6 +194,41 @@ export function PublicRegionAuditPanel({
                 {getPreferredFocusSection(selectedTargetId)} ·{" "}
                 {getFramingScale(selectedTargetId)}
               </p>
+            </div>
+            <div className="rounded-lg border border-white/8 bg-black/30 p-2 col-span-2">
+              <p className="text-[10px] uppercase tracking-wider text-zinc-500">
+                camera actual orientation
+              </p>
+              <p className="mt-1 font-mono text-zinc-200">
+                canonical={cameraAudit?.canonical} · hemisferio=
+                {cameraAudit?.actualHemisphere} · cardinal=
+                {cameraAudit?.cardinal}
+              </p>
+              <p className="mt-1 font-mono text-[10px] text-zinc-500">
+                scores f/b/l/r=
+                {cameraAudit
+                  ? [
+                      cameraAudit.scores.front,
+                      cameraAudit.scores.back,
+                      cameraAudit.scores.left,
+                      cameraAudit.scores.right,
+                    ]
+                      .map((n) => n.toFixed(2))
+                      .join(" / ")
+                  : "—"}
+              </p>
+              <p className="mt-1 font-mono text-[10px] text-zinc-500">
+                pos=[{cameraAudit?.position.join(", ")}]
+              </p>
+              <button
+                type="button"
+                className="mt-2 rounded-md border border-[rgba(232,168,64,0.35)] bg-[rgba(232,168,64,0.12)] px-2.5 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-[rgba(255,230,200,0.95)] active:scale-[0.98]"
+                onClick={() => {
+                  if (cameraAudit) onCameraViewChange?.(cameraAudit.cardinal);
+                }}
+              >
+                Select target view
+              </button>
             </div>
           </div>
           <div>
