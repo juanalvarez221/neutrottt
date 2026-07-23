@@ -11,6 +11,8 @@
     "type-check": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:e2e": "playwright test",
+    "test:e2e:body": "playwright test e2e/body-public-anatomy-qa.spec.ts",
     "perf:assets": "node scripts/perf-budget.mjs",
     "responsive:audit": "node scripts/responsive-audit.mjs",
     "advisory:health": "node scripts/advisory-health.mjs"
@@ -32,6 +34,7 @@
     "three": "^0.185.1"
   },
   "devDependencies": {
+    "@playwright/test": "^1.61.1",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",

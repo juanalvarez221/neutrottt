@@ -37,9 +37,9 @@ export type PublicRegionMeta = {
 };
 
 /**
- * preferredView / focusSection viven en `bodyPreferredCamera.ts`
- * (overrides + inferencia desde side/surface/category).
- * Importar desde allí para no duplicar diccionarios.
+ * preferredView / focusSection / framingScale: fuente operativa en
+ * `bodyPreferredCamera.ts` (getPreferredBodyView, getPreferredFocusSection,
+ * getFramingScale). No duplicar diccionarios aquí.
  */
 
 function meta(

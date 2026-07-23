@@ -10,7 +10,11 @@ import { Body3DViewer } from "@/widgets/body-3d/Body3DViewer";
 import type { BodyModelDefinition } from "@/widgets/body-3d/bodyModelDefinition";
 import type { BodyCameraView } from "@/widgets/body-3d/bodyViewerTypes";
 import {
-  addSelectionTarget,
+  filterContextualOptionsToContiguous,
+  normalizeConnectedBodySelection,
+  tryAddContiguousPublicTarget,
+} from "@/widgets/body-3d/domain/bodyPublicAdjacency";
+import {
   clearSelectionTargets,
   removeSelectionTarget,
   resolveSelectedAtomicZoneIds,
@@ -24,6 +28,10 @@ import {
 } from "@/widgets/body-3d/domain/bodyPublicSelectionRouting";
 import { isPublicSelectableBodyTarget } from "@/widgets/body-3d/domain/bodyPublicSelectionTargets";
 import {
+  resolvePublicTargetHighlightRegions,
+  resolvePublicTargetsHighlightRegions,
+} from "@/widgets/body-3d/domain/bodyPublicHighlightRegions";
+import {
   getPublicDescription,
   getPublicShortLabel,
 } from "@/widgets/body-3d/domain/bodyPublicRegionMeta";
@@ -36,7 +44,6 @@ import {
 import {
   getCameraPoseForPublicTarget,
   getPreferredBodyView,
-  isPreferredViewAlreadyActive,
   toCardinalCameraView,
 } from "@/widgets/body-3d/ux/bodyPreferredCamera";
 import type { FittedBodyFraming } from "@/widgets/body-3d/ux/bodyFitFraming";
@@ -154,6 +161,9 @@ export function BodyPremiumSelector({
   const [interactionReady, setInteractionReady] = useState(false);
   const [fitFraming, setFitFraming] = useState<FittedBodyFraming | null>(null);
   const [surfaceNotice, setSurfaceNotice] = useState<string | null>(null);
+  const [distantCandidateId, setDistantCandidateId] = useState<string | null>(
+    null,
+  );
   const surfaceNoticeTimerRef = useRef<number | null>(null);
   const [confirmedTargetId, setConfirmedTargetId] = useState<string | null>(
     null,
@@ -221,6 +231,22 @@ export function BodyPremiumSelector({
     [selectedTargetIds],
   );
 
+  const selectedPublicRegionIds = useMemo(
+    () => resolvePublicTargetsHighlightRegions(selectedTargetIds),
+    [selectedTargetIds],
+  );
+
+  const previewPublicRegionIds = useMemo(() => {
+    if (previewTargetId && isPublicSelectableBodyTarget(previewTargetId)) {
+      return [...resolvePublicTargetHighlightRegions(previewTargetId)];
+    }
+    const source = activeAtomicZoneId ?? hoveredAtomicZoneId;
+    if (!source) return [];
+    const primary = getPrimaryPublicSelectionTarget(source);
+    return primary ? [...resolvePublicTargetHighlightRegions(primary)] : [];
+  }, [activeAtomicZoneId, hoveredAtomicZoneId, previewTargetId]);
+
+  // Legacy atomic highlight path kept for contained-selection helpers only.
   const regionHighlightIds = useMemo(() => {
     if (previewTargetId && isPublicSelectableBodyTarget(previewTargetId)) {
       return resolveTargetToAtomicZoneIds(previewTargetId);
@@ -231,13 +257,11 @@ export function BodyPremiumSelector({
     return primary ? resolveTargetToAtomicZoneIds(primary) : [];
   }, [activeAtomicZoneId, hoveredAtomicZoneId, previewTargetId]);
 
-  const contextualOptions = useMemo(
-    () =>
-      activeAtomicZoneId
-        ? getPublicSelectionOptionsForAtomicZone(activeAtomicZoneId)
-        : [],
-    [activeAtomicZoneId],
-  );
+  const contextualOptions = useMemo(() => {
+    if (!activeAtomicZoneId) return [];
+    const raw = getPublicSelectionOptionsForAtomicZone(activeAtomicZoneId);
+    return filterContextualOptionsToContiguous(raw, selectedTargetIds);
+  }, [activeAtomicZoneId, selectedTargetIds]);
 
   const panelPrimaryLabel = useMemo(() => {
     if (!activeAtomicZoneId) return null;
@@ -283,10 +307,11 @@ export function BodyPremiumSelector({
   }, [activeAtomicZoneId, selectedTargetIds, showContainedOverride]);
 
   function commitTargets(next: BodySelectionTargetId[]) {
-    const publicOnly = upgradeBodySelectionToPublicTargets(next).filter(
-      isPublicSelectableBodyTarget,
-    );
-    applySelectionChange(publicOnly, {
+    const publicOnly = upgradeBodySelectionToPublicTargets(next)
+      .filter(isPublicSelectableBodyTarget)
+      .filter((id) => id !== "left_flank" && id !== "right_flank");
+    const normalized = normalizeConnectedBodySelection(publicOnly);
+    applySelectionChange(normalized, {
       controlled,
       onChange,
       setInternal: setInternalTargets,
@@ -327,10 +352,11 @@ export function BodyPremiumSelector({
 
   function orientCameraToPublicTarget(targetId: string) {
     const preferred = getPreferredBodyView(targetId);
-    if (!isPreferredViewAlreadyActive(cameraView, preferred)) {
-      setCameraView(toCardinalCameraView(preferred));
-      setCameraViewToken((t) => t + 1);
-    }
+    const cardinal = toCardinalCameraView(preferred);
+    // Siempre forzar token de vista + pose canónica en el mismo evento
+    // de click/tap (panel puede abrir ya; la cámara debe empezar a girar).
+    setCameraView(cardinal);
+    setCameraViewToken((t) => t + 1);
     setFocusPose(getCameraPoseForPublicTarget(targetId, activeFraming));
     setFocusToken((t) => t + 1);
     setCameraFocused(true);
@@ -345,6 +371,7 @@ export function BodyPremiumSelector({
       setPreviewTargetId(null);
       setShowContainedOverride(false);
       setReplacingTargetId(null);
+      setDistantCandidateId(null);
       setSheetMode("zone");
       setSheetState(isCoarsePointer ? "peek" : "closed");
       showNonSelectableNotice();
@@ -352,6 +379,7 @@ export function BodyPremiumSelector({
     }
 
     setSurfaceNotice(null);
+    setDistantCandidateId(null);
     setConfirmedTargetId(null);
     setActiveAtomicZoneId(atomicId);
     setShowContainedOverride(false);
@@ -360,15 +388,9 @@ export function BodyPremiumSelector({
     setSheetMode("zone");
     setSheetState("peek");
 
+    // Orient camera toward the zone AS the options open (not only on confirm)
     const primary = getPrimaryPublicSelectionTarget(atomicId);
-    const preferred = primary ? getPreferredBodyView(primary) : null;
-    const clearlyOpposite =
-      preferred != null &&
-      ((cameraView === "front" && preferred.startsWith("back")) ||
-        (cameraView === "back" && preferred.startsWith("front")));
-
-    if (clearlyOpposite && primary) {
-      // Vista claramente mala para la región → ajuste hacia preferred (aún sutil vía lerp)
+    if (primary) {
       orientCameraToPublicTarget(primary);
     } else {
       const pose = getCameraFocusForAtomicZone(atomicId, activeFraming);
@@ -379,25 +401,58 @@ export function BodyPremiumSelector({
   }
 
   function handleSelectOption(targetId: string) {
-    let next: BodySelectionTargetId[];
     if (replacingTargetId) {
-      next = replaceContainingSelection(
+      const next = replaceContainingSelection(
         selectedTargetIds,
         replacingTargetId,
         targetId,
       );
-    } else {
-      next = addSelectionTarget(selectedTargetIds, targetId);
+      commitTargets(normalizeConnectedBodySelection(next));
+      setActiveAtomicZoneId(null);
+      setPreviewTargetId(null);
+      setShowContainedOverride(false);
+      setReplacingTargetId(null);
+      setDistantCandidateId(null);
+      setConfirmedTargetId(targetId);
+      setSheetMode("zone");
+      setSheetState(isCoarsePointer ? "peek" : "closed");
+      orientCameraToPublicTarget(targetId);
+      return;
     }
-    commitTargets(next);
+
+    const result = tryAddContiguousPublicTarget(selectedTargetIds, targetId);
+    if (!result.ok) {
+      setDistantCandidateId(targetId);
+      setSurfaceNotice(result.message);
+      return;
+    }
+
+    commitTargets(result.next);
     setActiveAtomicZoneId(null);
     setPreviewTargetId(null);
     setShowContainedOverride(false);
     setReplacingTargetId(null);
+    setDistantCandidateId(null);
     setConfirmedTargetId(targetId);
     setSheetMode("zone");
     setSheetState(isCoarsePointer ? "peek" : "closed");
     orientCameraToPublicTarget(targetId);
+  }
+
+  function handleSwitchToDistantZone() {
+    if (!distantCandidateId) return;
+    commitTargets(normalizeConnectedBodySelection([distantCandidateId]));
+    setConfirmedTargetId(distantCandidateId);
+    orientCameraToPublicTarget(distantCandidateId);
+    setDistantCandidateId(null);
+    setSurfaceNotice(null);
+    setActiveAtomicZoneId(null);
+    setSheetState(isCoarsePointer ? "peek" : "closed");
+  }
+
+  function handleKeepCurrentSelection() {
+    setDistantCandidateId(null);
+    setSurfaceNotice(null);
   }
 
   function handleCloseActive() {
@@ -514,6 +569,8 @@ export function BodyPremiumSelector({
           hoveredAtomicZoneId={selectableHoveredAtomicId}
           previewAtomicZoneIds={regionHighlightIds}
           selectedAtomicZoneIds={resolvedSelectedAtomicZoneIds}
+          previewPublicRegionIds={previewPublicRegionIds}
+          selectedPublicRegionIds={selectedPublicRegionIds}
           onHoverAtomicZone={(id) => {
             if (!interactionReady) return;
             setHoveredAtomicZoneId(id);
@@ -569,13 +626,31 @@ export function BodyPremiumSelector({
 
         {surfaceNotice ? (
           <div
-            className="pointer-events-none absolute inset-x-0 top-4 z-30 flex justify-center px-4 min-[900px]:top-5"
+            className="absolute inset-x-0 top-4 z-30 flex justify-center px-4 min-[900px]:top-5"
             role="status"
             aria-live="polite"
           >
-            <p className="max-w-sm rounded-xl border border-white/10 bg-[rgba(23,17,13,0.88)] px-4 py-2.5 text-center text-sm leading-snug text-zinc-300 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-md">
-              {surfaceNotice}
-            </p>
+            <div className="max-w-sm rounded-xl border border-white/10 bg-[rgba(23,17,13,0.92)] px-4 py-3 text-center shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-md">
+              <p className="text-sm leading-snug text-zinc-300">{surfaceNotice}</p>
+              {distantCandidateId ? (
+                <div className="mt-3 flex flex-wrap justify-center gap-2">
+                  <button
+                    type="button"
+                    onClick={handleSwitchToDistantZone}
+                    className="inline-flex min-h-10 items-center rounded-lg border border-[rgba(232,168,64,0.35)] bg-[rgba(232,168,64,0.14)] px-3 text-xs font-semibold text-[rgba(255,230,200,0.95)] transition hover:bg-[rgba(232,168,64,0.22)] active:scale-[0.98]"
+                  >
+                    Cambiar a esta zona
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleKeepCurrentSelection}
+                    className="inline-flex min-h-10 items-center rounded-lg border border-white/12 bg-black/35 px-3 text-xs font-semibold text-zinc-200 transition hover:bg-black/50 active:scale-[0.98]"
+                  >
+                    Mantener selección
+                  </button>
+                </div>
+              ) : null}
+            </div>
           </div>
         ) : null}
 

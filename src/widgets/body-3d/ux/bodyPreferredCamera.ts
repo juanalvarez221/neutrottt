@@ -7,6 +7,10 @@ import { Vector3 } from "three";
 import type { BodyCameraView } from "@/widgets/body-3d/bodyViewerTypes";
 import type { BodyCameraFraming } from "@/widgets/body-3d/cameraViewHelpers";
 import {
+  resolveCanonicalAzimuth,
+  type CanonicalBodyView,
+} from "@/widgets/body-3d/domain/bodyModelCoordinateSystem";
+import {
   getPublicRegionMeta,
   type PublicRegionCategory,
   type PublicRegionMeta,
@@ -166,6 +170,60 @@ export function getPreferredFocusSection(targetId: string): BodySection {
   return inferFocusSection(meta.category, meta.surface);
 }
 
+export type FramingScale = "tight" | "medium" | "wide";
+
+const FRAMING_SCALE_OVERRIDES: Readonly<Record<string, FramingScale>> = {
+  full_back: "wide",
+  upper_back_large: "wide",
+  lower_back_large: "medium",
+  full_chest: "wide",
+  full_abdomen: "medium",
+  right_full_sleeve: "wide",
+  left_full_sleeve: "wide",
+  right_upper_half_sleeve: "medium",
+  left_upper_half_sleeve: "medium",
+  right_lower_half_sleeve: "medium",
+  left_lower_half_sleeve: "medium",
+  right_full_leg: "wide",
+  left_full_leg: "wide",
+  full_scalp: "medium",
+  full_neck: "medium",
+  full_glutes: "medium",
+  right_biceps_region: "medium",
+  left_biceps_region: "medium",
+  right_triceps_region: "medium",
+  left_triceps_region: "medium",
+};
+
+const FRAMING_DIST_MULT: Record<FramingScale, number> = {
+  tight: 0.88,
+  medium: 1,
+  wide: 1.12,
+};
+
+export function getFramingScale(targetId: string): FramingScale {
+  if (FRAMING_SCALE_OVERRIDES[targetId]) {
+    return FRAMING_SCALE_OVERRIDES[targetId];
+  }
+  const meta = getPublicRegionMeta(targetId);
+  if (!meta) return "medium";
+  if (meta.surface === "full" || meta.category === "back") return "wide";
+  return "medium";
+}
+
+/** Metadata de cámara pública (fuente única consumible por UI / auditoría). */
+export function getPublicCameraPoseMeta(targetId: string): {
+  preferredView: PreferredBodyView;
+  focusSection: BodySection;
+  framingScale: FramingScale;
+} {
+  return {
+    preferredView: getPreferredBodyView(targetId),
+    focusSection: getPreferredFocusSection(targetId),
+    framingScale: getFramingScale(targetId),
+  };
+}
+
 /** Mapea vista preferida → botón cardinal más cercano. */
 export function toCardinalCameraView(view: PreferredBodyView): BodyCameraView {
   switch (view) {
@@ -208,26 +266,26 @@ function clamp(n: number, min: number, max: number) {
   return Math.min(max, Math.max(min, n));
 }
 
-/** Azimuth en radianes desde +Z (frente). */
+const PREFERRED_TO_CANONICAL: Record<PreferredBodyView, CanonicalBodyView> = {
+  front: "FRONT",
+  back: "BACK",
+  left: "LEFT",
+  right: "RIGHT",
+  "front-left": "FRONT_LEFT",
+  "front-right": "FRONT_RIGHT",
+  "back-left": "BACK_LEFT",
+  "back-right": "BACK_RIGHT",
+};
+
+/** Azimuth canónico desde el contrato único (frente +Z, left +X). */
 function azimuthForView(view: PreferredBodyView): number {
-  switch (view) {
-    case "front":
-      return 0;
-    case "back":
-      return Math.PI;
-    case "left":
-      return -Math.PI / 2;
-    case "right":
-      return Math.PI / 2;
-    case "front-left":
-      return -Math.PI / 4;
-    case "front-right":
-      return Math.PI / 4;
-    case "back-left":
-      return (-3 * Math.PI) / 4;
-    case "back-right":
-      return (3 * Math.PI) / 4;
-  }
+  return resolveCanonicalAzimuth(PREFERRED_TO_CANONICAL[view]);
+}
+
+export function preferredViewToCanonical(
+  view: PreferredBodyView,
+): CanonicalBodyView {
+  return PREFERRED_TO_CANONICAL[view];
 }
 
 /**
@@ -238,6 +296,7 @@ export function getCameraPoseForPreferredView(
   preferredView: PreferredBodyView,
   framing: BodyCameraFraming,
   focusSection: BodySection = "torso",
+  framingScale: FramingScale = "medium",
 ): CameraFocusPose {
   const [bx, by, bz] = framing.target;
   const baseDist = framing.distance;
@@ -246,7 +305,7 @@ export function getCameraPoseForPreferredView(
   const dist =
     baseDist *
     clamp(
-      SECTION_DIST[focusSection],
+      SECTION_DIST[focusSection] * FRAMING_DIST_MULT[framingScale],
       MIN_FOCUS_DIST_SCALE,
       MAX_FOCUS_DIST_SCALE,
     );
@@ -270,6 +329,7 @@ export function getCameraPoseForPublicTarget(
     getPreferredBodyView(targetId),
     framing,
     getPreferredFocusSection(targetId),
+    getFramingScale(targetId),
   );
 }
 
@@ -303,10 +363,12 @@ export function enrichMetaWithCamera(
 ): PublicRegionMeta & {
   preferredView: PreferredBodyView;
   focusSection: BodySection;
+  framingScale: FramingScale;
 } {
   return {
     ...meta,
     preferredView: getPreferredBodyView(meta.id),
     focusSection: getPreferredFocusSection(meta.id),
+    framingScale: getFramingScale(meta.id),
   };
 }

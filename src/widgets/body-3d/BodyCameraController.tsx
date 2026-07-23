@@ -26,6 +26,9 @@ type BodyCameraControllerProps = {
 /**
  * Interpola cámara hacia presets o focus regional.
  * Tras animar, re-habilita OrbitControls — no lucha con el usuario.
+ *
+ * Importante: no depender del prop `target` controlado de OrbitControls;
+ * este controller es la única autoridad del look-at durante la animación.
  */
 export function BodyCameraController({
   view,
@@ -40,6 +43,26 @@ export function BodyCameraController({
   const targetPos = useRef(getCameraPositionForView(view, framing));
   const targetLook = useRef(getCameraLookTarget(framing));
   const animating = useRef(false);
+
+  // Sembrar look-at inicial cuando OrbitControls monta (sin prop controlado).
+  useEffect(() => {
+    let frames = 0;
+    let raf = 0;
+    const seed = () => {
+      const orbit = orbitRef.current;
+      if (orbit) {
+        if (!animating.current) {
+          orbit.target.copy(getCameraLookTarget(framing));
+          orbit.update();
+        }
+        return;
+      }
+      frames += 1;
+      if (frames < 30) raf = requestAnimationFrame(seed);
+    };
+    raf = requestAnimationFrame(seed);
+    return () => cancelAnimationFrame(raf);
+  }, [framing, orbitRef]);
 
   useEffect(() => {
     if (focusPose) {
@@ -62,6 +85,8 @@ export function BodyCameraController({
         orbit.target.copy(targetLook.current);
         orbit.enabled = true;
         orbit.update();
+      } else {
+        camera.lookAt(targetLook.current);
       }
       animating.current = false;
     }
@@ -80,7 +105,9 @@ export function BodyCameraController({
     if (!animating.current) return;
 
     const orbit = orbitRef.current;
-    const alpha = 1 - Math.exp(-4.2 * delta);
+    // Más agresivo para llegar a vistas canónicas (BACK real) sin quedarse
+    // en un frontal-diagonal a mitad de camino.
+    const alpha = 1 - Math.exp(-6.5 * delta);
 
     camera.position.lerp(targetPos.current, alpha);
     if (orbit) {
@@ -90,9 +117,9 @@ export function BodyCameraController({
       camera.lookAt(targetLook.current);
     }
 
-    const posDone = camera.position.distanceTo(targetPos.current) < 0.012;
+    const posDone = camera.position.distanceTo(targetPos.current) < 0.008;
     const lookDone =
-      !orbit || orbit.target.distanceTo(targetLook.current) < 0.012;
+      !orbit || orbit.target.distanceTo(targetLook.current) < 0.008;
 
     if (posDone && lookDone) {
       camera.position.copy(targetPos.current);
