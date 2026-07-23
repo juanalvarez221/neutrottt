@@ -28,12 +28,17 @@ import {
   getPublicShortLabel,
 } from "@/widgets/body-3d/domain/bodyPublicRegionMeta";
 import { resolveTargetToAtomicZoneIds } from "@/widgets/body-3d/domain/bodySelectionTargets";
-
 import {
   getCameraFocusForAtomicZone,
   getFullBodyCameraPose,
   type CameraFocusPose,
 } from "@/widgets/body-3d/ux/bodyCameraFocus";
+import {
+  getCameraPoseForPublicTarget,
+  getPreferredBodyView,
+  isPreferredViewAlreadyActive,
+  toCardinalCameraView,
+} from "@/widgets/body-3d/ux/bodyPreferredCamera";
 import type { FittedBodyFraming } from "@/widgets/body-3d/ux/bodyFitFraming";
 import type { BodyCameraFraming } from "@/widgets/body-3d/cameraViewHelpers";
 import {
@@ -150,6 +155,9 @@ export function BodyPremiumSelector({
   const [fitFraming, setFitFraming] = useState<FittedBodyFraming | null>(null);
   const [surfaceNotice, setSurfaceNotice] = useState<string | null>(null);
   const surfaceNoticeTimerRef = useRef<number | null>(null);
+  const [confirmedTargetId, setConfirmedTargetId] = useState<string | null>(
+    null,
+  );
   const [layoutMode, setLayoutMode] =
     useState<SelectorLayoutMode>("desktop-medium");
   const [viewportWidth, setViewportWidth] = useState(1280);
@@ -245,9 +253,19 @@ export function BodyPremiumSelector({
 
   const ariaZoneAnnouncement = useMemo(() => {
     if (surfaceNotice) return surfaceNotice;
+    if (confirmedTargetId) {
+      return `Zona seleccionada: ${getPublicShortLabel(confirmedTargetId)}`;
+    }
     if (!panelPrimaryLabel) return "";
     return `Zona seleccionada: ${panelPrimaryLabel}`;
-  }, [panelPrimaryLabel, surfaceNotice]);
+  }, [confirmedTargetId, panelPrimaryLabel, surfaceNotice]);
+
+  const confirmedShort = confirmedTargetId
+    ? getPublicShortLabel(confirmedTargetId)
+    : null;
+  const confirmedDescription = confirmedTargetId
+    ? getPublicDescription(confirmedTargetId)
+    : null;
 
   const panelSide = useMemo(
     () => resolveContextualPanelSide(hoverPointer?.x ?? null, viewportWidth),
@@ -307,11 +325,23 @@ export function BodyPremiumSelector({
     }, 2400);
   }
 
+  function orientCameraToPublicTarget(targetId: string) {
+    const preferred = getPreferredBodyView(targetId);
+    if (!isPreferredViewAlreadyActive(cameraView, preferred)) {
+      setCameraView(toCardinalCameraView(preferred));
+      setCameraViewToken((t) => t + 1);
+    }
+    setFocusPose(getCameraPoseForPublicTarget(targetId, activeFraming));
+    setFocusToken((t) => t + 1);
+    setCameraFocused(true);
+  }
+
   function handleActivateZone(atomicId: string) {
     markInteracted();
 
     if (isNonSelectableSurfaceAtomic(atomicId)) {
       setActiveAtomicZoneId(null);
+      setConfirmedTargetId(null);
       setPreviewTargetId(null);
       setShowContainedOverride(false);
       setReplacingTargetId(null);
@@ -322,6 +352,7 @@ export function BodyPremiumSelector({
     }
 
     setSurfaceNotice(null);
+    setConfirmedTargetId(null);
     setActiveAtomicZoneId(atomicId);
     setShowContainedOverride(false);
     setReplacingTargetId(null);
@@ -329,10 +360,22 @@ export function BodyPremiumSelector({
     setSheetMode("zone");
     setSheetState("peek");
 
-    const pose = getCameraFocusForAtomicZone(atomicId, activeFraming);
-    setFocusPose(pose);
-    setFocusToken((t) => t + 1);
-    setCameraFocused(true);
+    const primary = getPrimaryPublicSelectionTarget(atomicId);
+    const preferred = primary ? getPreferredBodyView(primary) : null;
+    const clearlyOpposite =
+      preferred != null &&
+      ((cameraView === "front" && preferred.startsWith("back")) ||
+        (cameraView === "back" && preferred.startsWith("front")));
+
+    if (clearlyOpposite && primary) {
+      // Vista claramente mala para la región → ajuste hacia preferred (aún sutil vía lerp)
+      orientCameraToPublicTarget(primary);
+    } else {
+      const pose = getCameraFocusForAtomicZone(atomicId, activeFraming);
+      setFocusPose(pose);
+      setFocusToken((t) => t + 1);
+      setCameraFocused(true);
+    }
   }
 
   function handleSelectOption(targetId: string) {
@@ -349,13 +392,17 @@ export function BodyPremiumSelector({
     commitTargets(next);
     setActiveAtomicZoneId(null);
     setPreviewTargetId(null);
-    setSheetState("closed");
     setShowContainedOverride(false);
     setReplacingTargetId(null);
+    setConfirmedTargetId(targetId);
+    setSheetMode("zone");
+    setSheetState(isCoarsePointer ? "peek" : "closed");
+    orientCameraToPublicTarget(targetId);
   }
 
   function handleCloseActive() {
     setActiveAtomicZoneId(null);
+    setConfirmedTargetId(null);
     setPreviewTargetId(null);
     setSheetState("closed");
     setShowContainedOverride(false);
@@ -549,6 +596,36 @@ export function BodyPremiumSelector({
               </button>
             </div>
           </aside>
+        ) : confirmedTargetId && confirmedShort ? (
+          <aside
+            className={floatingPanelClass}
+            aria-live="polite"
+            style={{ width: `min(100%, ${panelMaxWidth}px)` }}
+          >
+            <div className="rounded-2xl border border-[rgba(232,168,64,0.28)] bg-[rgba(23,17,13,0.92)] p-4 shadow-[0_20px_60px_rgba(0,0,0,0.45),inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-xl">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[rgba(184,137,88,0.85)]">
+                Selección confirmada
+              </p>
+              <h2 className="mt-1 text-base font-semibold uppercase tracking-[0.04em] text-[rgba(255,242,228,0.97)]">
+                {confirmedShort}
+              </h2>
+              {confirmedDescription ? (
+                <p className="mt-1.5 text-sm leading-snug text-zinc-400">
+                  {confirmedDescription}
+                </p>
+              ) : null}
+              <p className="mt-3 text-xs font-medium text-[rgba(212,160,102,0.95)]">
+                Seleccionada
+              </p>
+              <button
+                type="button"
+                onClick={() => setConfirmedTargetId(null)}
+                className="mt-4 inline-flex min-h-11 w-full items-center justify-center rounded-xl border border-white/10 text-xs font-semibold text-zinc-400 transition hover:bg-black/30 hover:text-zinc-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[rgba(232,168,64,0.7)] active:scale-[0.98]"
+              >
+                Cerrar
+              </button>
+            </div>
+          </aside>
         ) : null}
 
         <div className="pointer-events-none absolute bottom-3 left-3 z-20 right-3 flex items-end justify-between gap-3 min-[900px]:bottom-4 min-[900px]:left-4 min-[900px]:right-auto">
@@ -586,17 +663,20 @@ export function BodyPremiumSelector({
                 ? sheetState === "closed"
                   ? "peek"
                   : sheetState
-                : surfaceNotice && sheetState !== "closed"
+                : confirmedTargetId && sheetState !== "closed"
                   ? "peek"
-                  : sheetState === "expanded" && sheetMode === "selection"
-                    ? "expanded"
-                    : "closed"
+                  : surfaceNotice && sheetState !== "closed"
+                    ? "peek"
+                    : sheetState === "expanded" && sheetMode === "selection"
+                      ? "expanded"
+                      : "closed"
           }
           onStateChange={(next) => {
             setSheetState(next);
             if (next === "closed") {
               setSheetMode("zone");
               setSurfaceNotice(null);
+              setConfirmedTargetId(null);
               if (!activeAtomicZoneId) return;
               setActiveAtomicZoneId(null);
               setPreviewTargetId(null);
@@ -609,6 +689,20 @@ export function BodyPremiumSelector({
               <p className="px-1 py-2 text-sm leading-relaxed text-zinc-300">
                 {surfaceNotice}
               </p>
+            ) : confirmedTargetId && confirmedShort && !activeAtomicZoneId ? (
+              <div className="px-1 py-1">
+                <p className="text-base font-semibold uppercase tracking-[0.04em] text-[rgba(255,242,228,0.97)]">
+                  {confirmedShort}
+                </p>
+                {confirmedDescription ? (
+                  <p className="mt-1 text-sm text-zinc-400">
+                    {confirmedDescription}
+                  </p>
+                ) : null}
+                <p className="mt-2 text-xs font-medium text-[rgba(212,160,102,0.95)]">
+                  Seleccionada
+                </p>
+              </div>
             ) : sharedOptionProps ? (
               <BodyContextOptions {...sharedOptionProps} mode="peek" />
             ) : null

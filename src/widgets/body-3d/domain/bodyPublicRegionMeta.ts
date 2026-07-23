@@ -36,6 +36,12 @@ export type PublicRegionMeta = {
   category: PublicRegionCategory;
 };
 
+/**
+ * preferredView / focusSection viven en `bodyPreferredCamera.ts`
+ * (overrides + inferencia desde side/surface/category).
+ * Importar desde allí para no duplicar diccionarios.
+ */
+
 function meta(
   id: string,
   shortLabel: string,
