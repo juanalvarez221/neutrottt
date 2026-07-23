@@ -24,6 +24,10 @@ import {
 } from "@/widgets/body-3d/domain/bodyPublicSelectionRouting";
 import { isPublicSelectableBodyTarget } from "@/widgets/body-3d/domain/bodyPublicSelectionTargets";
 import {
+  resolvePublicTargetHighlightRegions,
+  resolvePublicTargetsHighlightRegions,
+} from "@/widgets/body-3d/domain/bodyPublicHighlightRegions";
+import {
   getPublicDescription,
   getPublicShortLabel,
 } from "@/widgets/body-3d/domain/bodyPublicRegionMeta";
@@ -221,6 +225,22 @@ export function BodyPremiumSelector({
     [selectedTargetIds],
   );
 
+  const selectedPublicRegionIds = useMemo(
+    () => resolvePublicTargetsHighlightRegions(selectedTargetIds),
+    [selectedTargetIds],
+  );
+
+  const previewPublicRegionIds = useMemo(() => {
+    if (previewTargetId && isPublicSelectableBodyTarget(previewTargetId)) {
+      return [...resolvePublicTargetHighlightRegions(previewTargetId)];
+    }
+    const source = activeAtomicZoneId ?? hoveredAtomicZoneId;
+    if (!source) return [];
+    const primary = getPrimaryPublicSelectionTarget(source);
+    return primary ? [...resolvePublicTargetHighlightRegions(primary)] : [];
+  }, [activeAtomicZoneId, hoveredAtomicZoneId, previewTargetId]);
+
+  // Legacy atomic highlight path kept for contained-selection helpers only.
   const regionHighlightIds = useMemo(() => {
     if (previewTargetId && isPublicSelectableBodyTarget(previewTargetId)) {
       return resolveTargetToAtomicZoneIds(previewTargetId);
@@ -514,6 +534,8 @@ export function BodyPremiumSelector({
           hoveredAtomicZoneId={selectableHoveredAtomicId}
           previewAtomicZoneIds={regionHighlightIds}
           selectedAtomicZoneIds={resolvedSelectedAtomicZoneIds}
+          previewPublicRegionIds={previewPublicRegionIds}
+          selectedPublicRegionIds={selectedPublicRegionIds}
           onHoverAtomicZone={(id) => {
             if (!interactionReady) return;
             setHoveredAtomicZoneId(id);

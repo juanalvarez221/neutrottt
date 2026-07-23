@@ -166,6 +166,60 @@ export function getPreferredFocusSection(targetId: string): BodySection {
   return inferFocusSection(meta.category, meta.surface);
 }
 
+export type FramingScale = "tight" | "medium" | "wide";
+
+const FRAMING_SCALE_OVERRIDES: Readonly<Record<string, FramingScale>> = {
+  full_back: "wide",
+  upper_back_large: "wide",
+  lower_back_large: "medium",
+  full_chest: "wide",
+  full_abdomen: "medium",
+  right_full_sleeve: "wide",
+  left_full_sleeve: "wide",
+  right_upper_half_sleeve: "medium",
+  left_upper_half_sleeve: "medium",
+  right_lower_half_sleeve: "medium",
+  left_lower_half_sleeve: "medium",
+  right_full_leg: "wide",
+  left_full_leg: "wide",
+  full_scalp: "medium",
+  full_neck: "medium",
+  full_glutes: "medium",
+  right_biceps_region: "medium",
+  left_biceps_region: "medium",
+  right_triceps_region: "medium",
+  left_triceps_region: "medium",
+};
+
+const FRAMING_DIST_MULT: Record<FramingScale, number> = {
+  tight: 0.88,
+  medium: 1,
+  wide: 1.12,
+};
+
+export function getFramingScale(targetId: string): FramingScale {
+  if (FRAMING_SCALE_OVERRIDES[targetId]) {
+    return FRAMING_SCALE_OVERRIDES[targetId];
+  }
+  const meta = getPublicRegionMeta(targetId);
+  if (!meta) return "medium";
+  if (meta.surface === "full" || meta.category === "back") return "wide";
+  return "medium";
+}
+
+/** Metadata de cámara pública (fuente única consumible por UI / auditoría). */
+export function getPublicCameraPoseMeta(targetId: string): {
+  preferredView: PreferredBodyView;
+  focusSection: BodySection;
+  framingScale: FramingScale;
+} {
+  return {
+    preferredView: getPreferredBodyView(targetId),
+    focusSection: getPreferredFocusSection(targetId),
+    framingScale: getFramingScale(targetId),
+  };
+}
+
 /** Mapea vista preferida → botón cardinal más cercano. */
 export function toCardinalCameraView(view: PreferredBodyView): BodyCameraView {
   switch (view) {
@@ -238,6 +292,7 @@ export function getCameraPoseForPreferredView(
   preferredView: PreferredBodyView,
   framing: BodyCameraFraming,
   focusSection: BodySection = "torso",
+  framingScale: FramingScale = "medium",
 ): CameraFocusPose {
   const [bx, by, bz] = framing.target;
   const baseDist = framing.distance;
@@ -246,7 +301,7 @@ export function getCameraPoseForPreferredView(
   const dist =
     baseDist *
     clamp(
-      SECTION_DIST[focusSection],
+      SECTION_DIST[focusSection] * FRAMING_DIST_MULT[framingScale],
       MIN_FOCUS_DIST_SCALE,
       MAX_FOCUS_DIST_SCALE,
     );
@@ -270,6 +325,7 @@ export function getCameraPoseForPublicTarget(
     getPreferredBodyView(targetId),
     framing,
     getPreferredFocusSection(targetId),
+    getFramingScale(targetId),
   );
 }
 
@@ -303,10 +359,12 @@ export function enrichMetaWithCamera(
 ): PublicRegionMeta & {
   preferredView: PreferredBodyView;
   focusSection: BodySection;
+  framingScale: FramingScale;
 } {
   return {
     ...meta,
     preferredView: getPreferredBodyView(meta.id),
     focusSection: getPreferredFocusSection(meta.id),
+    framingScale: getFramingScale(meta.id),
   };
 }

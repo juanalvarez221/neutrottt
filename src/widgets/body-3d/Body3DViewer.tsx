@@ -16,6 +16,7 @@ import { BodyCameraController } from "@/widgets/body-3d/BodyCameraController";
 import { InteractionZonesDebug } from "@/widgets/body-3d/lab/InteractionZonesDebug";
 import {
   BodyInteractionModel,
+  BodyPublicRegionHighlight,
   BodyZoneHighlight,
 } from "@/widgets/body-3d/interaction";
 import type { BodyModelDefinition } from "@/widgets/body-3d/bodyModelDefinition";
@@ -67,6 +68,9 @@ type Body3DViewerProps = {
   hoveredAtomicZoneId?: string | null;
   previewAtomicZoneIds?: readonly string[];
   selectedAtomicZoneIds?: readonly string[];
+  /** Highlights del PublicRegionHighlightModel (premium). */
+  previewPublicRegionIds?: readonly string[];
+  selectedPublicRegionIds?: readonly string[];
   onHoverAtomicZone?: (atomicId: string | null) => void;
   onHoverPointer?: (point: { x: number; y: number } | null) => void;
   onActivateAtomicZone?: (atomicId: string) => void;
@@ -116,6 +120,8 @@ function BodyScene({
   hoveredAtomicZoneId,
   previewAtomicZoneIds,
   selectedAtomicZoneIds,
+  previewPublicRegionIds,
+  selectedPublicRegionIds,
   onHoverAtomicZone,
   onHoverPointer,
   onActivateAtomicZone,
@@ -137,6 +143,8 @@ function BodyScene({
   hoveredAtomicZoneId: string | null;
   previewAtomicZoneIds: readonly string[];
   selectedAtomicZoneIds: readonly string[];
+  previewPublicRegionIds: readonly string[];
+  selectedPublicRegionIds: readonly string[];
   onHoverAtomicZone: (atomicId: string | null) => void;
   onHoverPointer: (point: { x: number; y: number } | null) => void;
   onActivateAtomicZone: (atomicId: string) => void;
@@ -151,6 +159,7 @@ function BodyScene({
     isProduction && showInteractionZones && labInteractionMode === "debug";
   const showInteraction =
     isProduction && isSpatialInteraction(labInteractionMode);
+  const usePublicHighlight = labInteractionMode === "premium";
 
   const content = (
     <Center>
@@ -172,13 +181,22 @@ function BodyScene({
       ) : null}
       {showInteraction ? (
         <>
-          <BodyZoneHighlight
-            rotation={model.rotation}
-            scale={model.scale ?? 1}
-            hoveredAtomicZoneId={hoveredAtomicZoneId}
-            previewAtomicZoneIds={previewAtomicZoneIds}
-            selectedAtomicZoneIds={selectedAtomicZoneIds}
-          />
+          {usePublicHighlight ? (
+            <BodyPublicRegionHighlight
+              rotation={model.rotation}
+              scale={model.scale ?? 1}
+              previewPublicRegionIds={previewPublicRegionIds}
+              selectedPublicRegionIds={selectedPublicRegionIds}
+            />
+          ) : (
+            <BodyZoneHighlight
+              rotation={model.rotation}
+              scale={model.scale ?? 1}
+              hoveredAtomicZoneId={hoveredAtomicZoneId}
+              previewAtomicZoneIds={previewAtomicZoneIds}
+              selectedAtomicZoneIds={selectedAtomicZoneIds}
+            />
+          )}
           <BodyInteractionModel
             rotation={model.rotation}
             scale={model.scale ?? 1}
@@ -236,6 +254,8 @@ export function Body3DViewer({
   hoveredAtomicZoneId = null,
   previewAtomicZoneIds = [],
   selectedAtomicZoneIds = [],
+  previewPublicRegionIds = [],
+  selectedPublicRegionIds = [],
   onHoverAtomicZone,
   onHoverPointer,
   onActivateAtomicZone,
@@ -399,6 +419,8 @@ export function Body3DViewer({
               hoveredAtomicZoneId={hoveredAtomicZoneId}
               previewAtomicZoneIds={previewAtomicZoneIds}
               selectedAtomicZoneIds={selectedAtomicZoneIds}
+              previewPublicRegionIds={previewPublicRegionIds}
+              selectedPublicRegionIds={selectedPublicRegionIds}
               onHoverAtomicZone={onHoverAtomicZone ?? (() => undefined)}
               onHoverPointer={onHoverPointer ?? (() => undefined)}
               onActivateAtomicZone={onActivateAtomicZone ?? (() => undefined)}

@@ -16,6 +16,7 @@ export {
 } from "@/widgets/body-3d/interaction/bodySelectionEngine";
 export { BodyInteractionModel } from "@/widgets/body-3d/interaction/BodyInteractionModel";
 export { BodyZoneHighlight } from "@/widgets/body-3d/interaction/BodyZoneHighlight";
+export { BodyPublicRegionHighlight } from "@/widgets/body-3d/interaction/BodyPublicRegionHighlight";
 export { BodyInteractionLabPanel } from "@/widgets/body-3d/interaction/BodyInteractionLabPanel";
 export { getPublicSelectionOptionsForAtomicZone } from "@/widgets/body-3d/domain/bodyPublicSelectionRouting";
 export {

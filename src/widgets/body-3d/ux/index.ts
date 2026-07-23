@@ -30,8 +30,13 @@ export {
 export {
   getPreferredBodyView,
   getPreferredFocusSection,
+  getFramingScale,
+  getPublicCameraPoseMeta,
   getCameraPoseForPublicTarget,
   toCardinalCameraView,
   isPreferredViewAlreadyActive,
 } from "@/widgets/body-3d/ux/bodyPreferredCamera";
-export type { PreferredBodyView } from "@/widgets/body-3d/ux/bodyPreferredCamera";
+export type {
+  PreferredBodyView,
+  FramingScale,
+} from "@/widgets/body-3d/ux/bodyPreferredCamera";
