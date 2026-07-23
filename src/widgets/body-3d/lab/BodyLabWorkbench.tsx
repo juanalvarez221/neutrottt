@@ -29,8 +29,10 @@ import {
   resolveSelectedAtomicZoneIds,
 } from "@/widgets/body-3d/interaction";
 import { BodyPremiumSelector } from "@/widgets/body-3d/ux/BodyPremiumSelector";
+import { PublicRegionAuditPanel } from "@/widgets/body-3d/lab/PublicRegionAuditPanel";
+import { resolvePublicTargetHighlightRegions } from "@/widgets/body-3d/domain/bodyPublicHighlightRegions";
 
-export type LabExperienceMode = "premium" | "technical";
+export type LabExperienceMode = "premium" | "technical" | "audit";
 
 export function BodyLabWorkbench() {
   const [labExperience, setLabExperience] =
@@ -59,6 +61,7 @@ export function BodyLabWorkbench() {
     null,
   );
   const [selectedTargetIds, setSelectedTargetIds] = useState<string[]>([]);
+  const [auditTargetId, setAuditTargetId] = useState<string | null>(null);
 
   const resolvedSelectedAtomicZoneIds = useMemo(
     () => resolveSelectedAtomicZoneIds(selectedTargetIds),
@@ -132,6 +135,11 @@ export function BodyLabWorkbench() {
               hint: "Experiencia de cotización",
             },
             {
+              id: "audit" as const,
+              label: "Public Region Audit",
+              hint: "QA geometría pública",
+            },
+            {
               id: "technical" as const,
               label: "Technical Debug",
               hint: "Zonas, IDs y panel técnico",
@@ -164,6 +172,54 @@ export function BodyLabWorkbench() {
 
       {labExperience === "premium" ? (
         <BodyPremiumSelector model={activeModel} showLabContinue />
+      ) : labExperience === "audit" ? (
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-start">
+          <div className="min-w-0 flex-1">
+            <div className="mb-3 flex flex-wrap gap-2">
+              {(["front", "back", "left", "right"] as const).map((view) => (
+                <button
+                  key={view}
+                  type="button"
+                  onClick={() => handleCameraViewChange(view)}
+                  className={[
+                    "min-h-10 rounded-lg border px-3 text-xs font-semibold uppercase tracking-wider transition active:scale-[0.98]",
+                    cameraView === view
+                      ? "border-[rgba(232,168,64,0.4)] bg-[rgba(232,168,64,0.14)] text-[rgba(255,236,210,0.96)]"
+                      : "border-white/10 bg-black/30 text-zinc-400 hover:text-zinc-200",
+                  ].join(" ")}
+                >
+                  {view}
+                </button>
+              ))}
+            </div>
+            <Body3DViewer
+              model={activeModel}
+              appearance="original"
+              wireframe={false}
+              cameraView={cameraView}
+              cameraViewToken={cameraViewToken}
+              labInteractionMode="premium"
+              selectedPublicRegionIds={
+                auditTargetId
+                  ? resolvePublicTargetHighlightRegions(auditTargetId)
+                  : []
+              }
+              previewPublicRegionIds={[]}
+              height="min(70dvh, 680px)"
+            />
+          </div>
+          <div className="w-full shrink-0 lg:w-[340px]">
+            <PublicRegionAuditPanel
+              selectedTargetId={auditTargetId}
+              onSelectTarget={setAuditTargetId}
+              highlightedRegions={
+                auditTargetId
+                  ? resolvePublicTargetHighlightRegions(auditTargetId)
+                  : []
+              }
+            />
+          </div>
+        </div>
       ) : (
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start">
           <div className="min-w-0 flex-1">

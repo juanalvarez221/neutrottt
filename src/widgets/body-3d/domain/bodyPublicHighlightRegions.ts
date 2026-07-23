@@ -13,8 +13,6 @@ export const PUBLIC_HIGHLIGHT_REGION_IDS = [
   "full_abdomen_region",
   "left_ribs_region",
   "right_ribs_region",
-  "left_flank_region",
-  "right_flank_region",
   "upper_back_region",
   "lower_back_region",
   "right_shoulder_surface",
@@ -101,8 +99,6 @@ const TARGET_TO_PUBLIC_HIGHLIGHT: Readonly<
   full_abdomen: ["full_abdomen_region"],
   left_ribs: ["left_ribs_region"],
   right_ribs: ["right_ribs_region"],
-  left_flank: ["left_flank_region"],
-  right_flank: ["right_flank_region"],
 
   // Brazos
   right_shoulder: ["right_shoulder_surface"],

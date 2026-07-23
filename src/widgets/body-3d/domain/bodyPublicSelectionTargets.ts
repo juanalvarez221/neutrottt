@@ -232,8 +232,6 @@ export const PUBLIC_ATOMIC_SELECTABLE_IDS = [
   "right_chest",
   "left_ribs",
   "right_ribs",
-  "left_flank",
-  "right_flank",
   "left_hip",
   "right_hip",
   "left_glute",

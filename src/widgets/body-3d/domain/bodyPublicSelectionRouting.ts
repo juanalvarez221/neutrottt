@@ -71,6 +71,8 @@ export const ROUTING_ONLY_ATOMIC_ZONE_IDS: ReadonlySet<string> = new Set([
   "left_lower_back",
   "right_lower_back",
   "lower_back_center",
+  "left_flank",
+  "right_flank",
 ]);
 
 /** Superficies detectables pero no seleccionables (salvo feature flag). */
@@ -299,10 +301,23 @@ const ATOMIC_PUBLIC_ROUTES: Record<string, RouteRule> = {
   },
   upper_abdomen: { primary: "full_abdomen" },
   lower_abdomen: { primary: "full_abdomen" },
-  left_ribs: { primary: "left_ribs" },
-  right_ribs: { primary: "right_ribs" },
-  left_flank: { primary: "left_flank" },
-  right_flank: { primary: "right_flank" },
+  left_ribs: {
+    primary: "left_ribs",
+    amplify: ["full_abdomen", "upper_back_large", "full_back"],
+  },
+  right_ribs: {
+    primary: "right_ribs",
+    amplify: ["full_abdomen", "upper_back_large", "full_back"],
+  },
+  // Flanks absorbed into ribs / abdomen / back — routing only
+  left_flank: {
+    primary: "left_ribs",
+    amplify: ["full_abdomen", "lower_back_large"],
+  },
+  right_flank: {
+    primary: "right_ribs",
+    amplify: ["full_abdomen", "lower_back_large"],
+  },
 
   // Espalda
   left_scapula: {
@@ -634,7 +649,7 @@ export function upgradeBodySelectionToPublicTargets(
       continue;
     }
     if (id === "full_flanks") {
-      out.push("left_flank", "right_flank");
+      out.push("left_ribs", "right_ribs");
       continue;
     }
 
