@@ -1,5 +1,6 @@
 /**
  * Controles de vista compactos (Frente / Espalda / laterales / cuerpo completo).
+ * Izquierda/Derecha = anatomía del modelo, no del espectador.
  */
 
 "use client";
@@ -15,11 +16,26 @@ type BodyViewControlsProps = {
   className?: string;
 };
 
-const VIEWS: Array<{ id: BodyCameraView; label: string; short: string }> = [
-  { id: "front", label: "Frente", short: "F" },
-  { id: "back", label: "Espalda", short: "E" },
-  { id: "left", label: "Izquierda", short: "I" },
-  { id: "right", label: "Derecha", short: "D" },
+const VIEWS: Array<{
+  id: BodyCameraView;
+  label: string;
+  short: string;
+  title: string;
+}> = [
+  { id: "front", label: "Frente", short: "F", title: "Ver frente del cuerpo" },
+  { id: "back", label: "Espalda", short: "E", title: "Ver espalda del cuerpo" },
+  {
+    id: "left",
+    label: "Izquierda",
+    short: "I",
+    title: "Ver lado izquierdo del cuerpo",
+  },
+  {
+    id: "right",
+    label: "Derecha",
+    short: "D",
+    title: "Ver lado derecho del cuerpo",
+  },
 ];
 
 export function BodyViewControls({
@@ -34,10 +50,7 @@ export function BodyViewControls({
     <div
       role="toolbar"
       aria-label="Controles de vista del cuerpo"
-      className={[
-        "flex flex-wrap items-center gap-1.5",
-        className,
-      ]
+      className={["flex flex-wrap items-center gap-1.5", className]
         .filter(Boolean)
         .join(" ")}
     >
@@ -47,9 +60,9 @@ export function BodyViewControls({
           <button
             key={view.id}
             type="button"
-            aria-label={view.label}
+            aria-label={view.title}
             aria-pressed={active}
-            title={view.label}
+            title={view.title}
             onClick={() => onCameraViewChange(view.id)}
             className={[
               "inline-flex min-h-11 min-w-11 items-center justify-center rounded-xl border text-xs font-semibold tracking-wide transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[rgba(232,168,64,0.7)] active:scale-[0.98]",

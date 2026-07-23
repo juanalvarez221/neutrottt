@@ -1,5 +1,5 @@
 /**
- * Resumen de selecciones conceptuales (chips / barra).
+ * Resumen de selecciones conceptuales (chips / barra / indicador compacto).
  */
 
 "use client";
@@ -10,9 +10,12 @@ type BodySelectionSummaryProps = {
   selectedTargetIds: readonly string[];
   onRemove: (targetId: string) => void;
   onClear: () => void;
-  variant?: "bar" | "stacked";
+  variant?: "bar" | "stacked" | "compact";
+  onCompactOpen?: () => void;
   className?: string;
   emptyHint?: string;
+  /** Clase para ocultar según breakpoint (p. ej. panel desktop). */
+  hideFromClassName?: string;
 };
 
 export function BodySelectionSummary({
@@ -20,16 +23,38 @@ export function BodySelectionSummary({
   onRemove,
   onClear,
   variant = "bar",
+  onCompactOpen,
   className = "",
   emptyHint = "Gira el modelo y toca una zona para comenzar.",
+  hideFromClassName = "",
 }: BodySelectionSummaryProps) {
   const count = selectedTargetIds.length;
+
+  if (variant === "compact") {
+    if (count === 0) return null;
+    return (
+      <button
+        type="button"
+        onClick={onCompactOpen}
+        className={[
+          "inline-flex min-h-11 items-center gap-2 rounded-full border border-[rgba(232,168,64,0.35)] bg-[rgba(23,17,13,0.9)] px-4 text-sm font-semibold text-[rgba(255,236,210,0.95)] shadow-[0_8px_24px_rgba(0,0,0,0.35)] backdrop-blur-md transition hover:bg-[rgba(232,168,64,0.14)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[rgba(232,168,64,0.7)] active:scale-[0.98]",
+          hideFromClassName,
+          className,
+        ]
+          .filter(Boolean)
+          .join(" ")}
+      >
+        {count} {count === 1 ? "zona seleccionada" : "zonas seleccionadas"}
+      </button>
+    );
+  }
 
   if (count === 0) {
     return (
       <div
         className={[
           "rounded-2xl border border-white/8 bg-black/25 px-4 py-3",
+          hideFromClassName,
           className,
         ]
           .filter(Boolean)
@@ -47,6 +72,7 @@ export function BodySelectionSummary({
     <div
       className={[
         "rounded-2xl border border-white/10 bg-[rgba(23,17,13,0.88)] px-4 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-md",
+        hideFromClassName,
         className,
       ]
         .filter(Boolean)
@@ -75,16 +101,18 @@ export function BodySelectionSummary({
         className={[
           "mt-2.5",
           variant === "bar"
-            ? "flex flex-wrap gap-2"
+            ? "flex max-h-[4.75rem] flex-nowrap gap-2 overflow-x-auto overscroll-x-contain pb-1 [-ms-overflow-style:none] [scrollbar-width:thin]"
             : "flex flex-col gap-1.5",
         ].join(" ")}
       >
         {selectedTargetIds.map((id) => (
-          <li key={id}>
+          <li key={id} className={variant === "bar" ? "shrink-0" : undefined}>
             <span
               className={[
                 "inline-flex max-w-full items-center gap-2 rounded-full border border-[rgba(232,168,64,0.28)] bg-[rgba(232,168,64,0.1)] pl-3 pr-1 text-sm text-[rgba(255,236,210,0.95)]",
-                variant === "stacked" ? "w-full justify-between rounded-xl py-2" : "min-h-11",
+                variant === "stacked"
+                  ? "w-full justify-between rounded-xl py-2"
+                  : "min-h-11",
               ].join(" ")}
             >
               <span className="truncate font-medium">

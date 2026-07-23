@@ -68,13 +68,13 @@ const ATOMIC_LABEL_OVERRIDES: Record<string, string> = {
   head_right_side: "Cabeza · Lateral derecho",
   left_ear: "Oreja izquierda",
   right_ear: "Oreja derecha",
-  // Pierna inferior: frontal ≈ espinilla; posterior ≈ pantorrilla
-  right_lower_leg_front: "Pierna derecha · Parte frontal",
-  right_lower_leg_back: "Pantorrilla derecha · Parte posterior",
+  // Pierna inferior: frontal = espinilla; posterior = pantorrilla (sin "Parte …")
+  right_lower_leg_front: "Espinilla derecha",
+  right_lower_leg_back: "Pantorrilla derecha",
   right_lower_leg_inner: "Pierna derecha · Cara interna",
   right_lower_leg_outer: "Pierna derecha · Cara externa",
-  left_lower_leg_front: "Pierna izquierda · Parte frontal",
-  left_lower_leg_back: "Pantorrilla izquierda · Parte posterior",
+  left_lower_leg_front: "Espinilla izquierda",
+  left_lower_leg_back: "Pantorrilla izquierda",
   left_lower_leg_inner: "Pierna izquierda · Cara interna",
   left_lower_leg_outer: "Pierna izquierda · Cara externa",
 };

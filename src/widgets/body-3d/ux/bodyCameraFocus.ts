@@ -5,7 +5,11 @@
  * 1. Mapear atomic → bodySection (head|upperBody|arms|torso|pelvis|legs|feet)
  * 2. Aplicar offset de target según section + side
  * 3. Elegir azimuth suave (front/side) según laterality
- * 4. Acercar distancia moderadamente (nunca agresivo)
+ * 4. Acercar distancia moderadamente con límites globales
+ *
+ * Límites globales (Paso 34):
+ * - MIN_FOCUS_DIST_SCALE / MAX_FOCUS_DIST_SCALE respecto a framing.distance
+ * - MAX_YAW_DELTA radianos (nunca rotar de más)
  */
 
 import { Vector3 } from "three";
@@ -25,6 +29,15 @@ export type CameraFocusPose = {
   position: Vector3;
   target: Vector3;
 };
+
+/** Distancia mínima relativa al cuerpo completo (nunca zoom excesivo). */
+export const MIN_FOCUS_DIST_SCALE = 0.58;
+/** Distancia máxima relativa (sigue viéndose contexto corporal). */
+export const MAX_FOCUS_DIST_SCALE = 0.92;
+/** Yaw automático máximo en radianes (~20°). */
+export const MAX_YAW_DELTA = 0.35;
+/** Bias posterior máximo (espalda/nuca) — moderado, no 180°. */
+export const MAX_BACK_BIAS = Math.PI * 0.42;
 
 function sectionForAtomic(atomicId: string): BodySection {
   if (
@@ -78,14 +91,18 @@ const SECTION_Y: Record<BodySection, number> = {
 };
 
 const SECTION_DIST_SCALE: Record<BodySection, number> = {
-  head: 0.62,
-  upperBody: 0.72,
-  arms: 0.7,
-  torso: 0.85,
-  pelvis: 0.78,
-  legs: 0.75,
-  feet: 0.65,
+  head: 0.68,
+  upperBody: 0.74,
+  arms: 0.72,
+  torso: 0.86,
+  pelvis: 0.8,
+  legs: 0.76,
+  feet: 0.7,
 };
+
+function clamp(n: number, min: number, max: number) {
+  return Math.min(max, Math.max(min, n));
+}
 
 /**
  * Pose de cámara suave para enfocar una zona atómica activa.
@@ -104,21 +121,30 @@ export function getCameraFocusForAtomicZone(
 
   const yOff = SECTION_Y[section] * baseDist * 0.35;
   const xOff =
-    side === "left" ? -0.18 * baseDist : side === "right" ? 0.18 * baseDist : 0;
+    side === "left" ? -0.16 * baseDist : side === "right" ? 0.16 * baseDist : 0;
 
   const target = new Vector3(bx + xOff, by + yOff, bz);
-  const dist = baseDist * SECTION_DIST_SCALE[section];
+  const dist =
+    baseDist *
+    clamp(
+      SECTION_DIST_SCALE[section],
+      MIN_FOCUS_DIST_SCALE,
+      MAX_FOCUS_DIST_SCALE,
+    );
 
-  // Azimuth: prefer front, lean slightly toward the active side
-  const yaw =
-    side === "left" ? -0.35 : side === "right" ? 0.35 : 0;
-  // Head/back zones lean toward posterior when name suggests back
-  const pitchBoost = section === "head" ? 0.08 : 0;
-  const backBias =
-    atomicId.includes("_back") || atomicId.includes("nuca") ? Math.PI * 0.55 : 0;
+  const yawRaw = side === "left" ? -0.32 : side === "right" ? 0.32 : 0;
+  const yaw = clamp(yawRaw, -MAX_YAW_DELTA, MAX_YAW_DELTA);
 
-  const angle = yaw + backBias;
-  const elev = 0.12 + pitchBoost;
+  const pitchBoost = section === "head" ? 0.06 : 0;
+  const backBiasRaw =
+    atomicId.includes("_back") ||
+    atomicId.includes("nuca") ||
+    atomicId.includes("head_back")
+      ? MAX_BACK_BIAS
+      : 0;
+
+  const angle = yaw + backBiasRaw;
+  const elev = 0.1 + pitchBoost;
   const position = new Vector3(
     target.x + Math.sin(angle) * dist,
     target.y + elev * dist,
@@ -136,4 +162,13 @@ export function getFullBodyCameraPose(
     position: new Vector3(tx, ty, tz + framing.distance),
     target: new Vector3(tx, ty, tz),
   };
+}
+
+/** Distancia de focus relativa al cuerpo completo (para tests). */
+export function getFocusDistanceScale(
+  atomicId: string,
+  framing: BodyCameraFraming,
+): number {
+  const pose = getCameraFocusForAtomicZone(atomicId, framing);
+  return pose.position.distanceTo(pose.target) / framing.distance;
 }

@@ -163,7 +163,7 @@ export function BodyLabWorkbench() {
       </div>
 
       {labExperience === "premium" ? (
-        <BodyPremiumSelector model={activeModel} />
+        <BodyPremiumSelector model={activeModel} showLabContinue />
       ) : (
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start">
           <div className="min-w-0 flex-1">

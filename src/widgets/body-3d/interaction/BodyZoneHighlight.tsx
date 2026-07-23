@@ -75,7 +75,7 @@ function prepareHighlightScene(
           ? PREVIEW_COLOR
           : HOVER_COLOR;
     const opacity =
-      kind === "selected" ? 0.48 : kind === "preview" ? 0.36 : 0.22;
+      kind === "selected" ? 0.42 : kind === "preview" ? 0.32 : 0.2;
 
     const mat = new ThreeMeshBasicMaterial({
       color,
@@ -87,8 +87,8 @@ function prepareHighlightScene(
       toneMapped: false,
     }) as MeshBasicMaterial;
     mat.polygonOffset = true;
-    mat.polygonOffsetFactor = -2;
-    mat.polygonOffsetUnits = -2;
+    mat.polygonOffsetFactor = -1;
+    mat.polygonOffsetUnits = -1;
     materials.push(mat);
     mesh.material = mat;
     mesh.raycast = () => undefined;

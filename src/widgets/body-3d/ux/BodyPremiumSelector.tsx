@@ -1,11 +1,11 @@
 /**
- * Prototipo UX premium del selector corporal 3D (lab).
- * Model-first · progressive disclosure · desktop panel + mobile sheet.
+ * Selector corporal 3D premium — API lista para integración.
+ * Soporte controlled (`value` + `onChange`) y uncontrolled (estado interno).
  */
 
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Body3DViewer } from "@/widgets/body-3d/Body3DViewer";
 import type { BodyModelDefinition } from "@/widgets/body-3d/bodyModelDefinition";
 import type { BodyCameraView } from "@/widgets/body-3d/bodyViewerTypes";
@@ -22,7 +22,15 @@ import {
   getFullBodyCameraPose,
   type CameraFocusPose,
 } from "@/widgets/body-3d/ux/bodyCameraFocus";
-import { findContainingSelections } from "@/widgets/body-3d/ux/bodyContainedSelection";
+import {
+  findContainingSelections,
+  replaceContainingSelection,
+} from "@/widgets/body-3d/ux/bodyContainedSelection";
+import {
+  applySelectionChange,
+  isControlledSelection,
+  resolveControlledTargets,
+} from "@/widgets/body-3d/ux/bodyControlledSelection";
 import { BodyContextOptions } from "@/widgets/body-3d/ux/BodyContextOptions";
 import { BodyHoverTooltip } from "@/widgets/body-3d/ux/BodyHoverTooltip";
 import {
@@ -30,15 +38,48 @@ import {
   type MobileSheetState,
 } from "@/widgets/body-3d/ux/BodyMobileSheet";
 import { BodySelectionSummary } from "@/widgets/body-3d/ux/BodySelectionSummary";
+import type { BodySelectionTargetId } from "@/widgets/body-3d/ux/bodySelectionSerialization";
+import {
+  buildBodySelectionSnapshot,
+  serializeConceptualBodySelection,
+} from "@/widgets/body-3d/ux/bodySelectionSerialization";
 import { BodyViewControls } from "@/widgets/body-3d/ux/BodyViewControls";
-import { splitZoneLabel } from "@/widgets/body-3d/ux/bodyUxCopy";
 
-type BodyPremiumSelectorProps = {
+/** Sheet / panel flotante a partir de 900px (modelo primero en tablet estrecha). */
+export const BODY_SELECTOR_DESKTOP_MIN_PX = 900;
+
+export type BodyPremiumSelectorProps = {
   model: BodyModelDefinition;
+  /** Modo controlado: targets conceptuales seleccionados. */
+  value?: readonly BodySelectionTargetId[];
+  /** Valor inicial en modo no controlado. */
+  defaultValue?: readonly BodySelectionTargetId[];
+  onChange?: (nextTargets: BodySelectionTargetId[]) => void;
+  onContinue?: (targets: BodySelectionTargetId[]) => void;
+  initialView?: BodyCameraView;
+  className?: string;
+  /** Muestra botón Continuar + payload demo (solo laboratorio). */
+  showLabContinue?: boolean;
 };
 
-export function BodyPremiumSelector({ model }: BodyPremiumSelectorProps) {
-  const [cameraView, setCameraView] = useState<BodyCameraView>("front");
+export function BodyPremiumSelector({
+  model,
+  value,
+  defaultValue,
+  onChange,
+  onContinue,
+  initialView = "front",
+  className = "",
+  showLabContinue = false,
+}: BodyPremiumSelectorProps) {
+  const controlled = isControlledSelection(value);
+  const [internalTargets, setInternalTargets] = useState<
+    BodySelectionTargetId[]
+  >(() => [...(defaultValue ?? [])]);
+
+  const selectedTargetIds = resolveControlledTargets(value, internalTargets);
+
+  const [cameraView, setCameraView] = useState<BodyCameraView>(initialView);
   const [cameraViewToken, setCameraViewToken] = useState(0);
   const [hoveredAtomicZoneId, setHoveredAtomicZoneId] = useState<string | null>(
     null,
@@ -46,7 +87,6 @@ export function BodyPremiumSelector({ model }: BodyPremiumSelectorProps) {
   const [activeAtomicZoneId, setActiveAtomicZoneId] = useState<string | null>(
     null,
   );
-  const [selectedTargetIds, setSelectedTargetIds] = useState<string[]>([]);
   const [previewTargetId, setPreviewTargetId] = useState<string | null>(null);
   const [hoverPointer, setHoverPointer] = useState<{
     x: number;
@@ -54,12 +94,19 @@ export function BodyPremiumSelector({ model }: BodyPremiumSelectorProps) {
   } | null>(null);
   const [hasInteracted, setHasInteracted] = useState(false);
   const [sheetState, setSheetState] = useState<MobileSheetState>("closed");
+  const [sheetMode, setSheetMode] = useState<"zone" | "selection">("zone");
   const [focusPose, setFocusPose] = useState<CameraFocusPose | null>(null);
   const [focusToken, setFocusToken] = useState(0);
   const [cameraFocused, setCameraFocused] = useState(false);
   const [isCoarsePointer, setIsCoarsePointer] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(false);
   const [showContainedOverride, setShowContainedOverride] = useState(false);
+  const [replacingTargetId, setReplacingTargetId] = useState<string | null>(
+    null,
+  );
+  const [isOrbitDragging, setIsOrbitDragging] = useState(false);
+  const [payloadPreview, setPayloadPreview] = useState<string | null>(null);
+  const dragStartRef = useRef<{ x: number; y: number } | null>(null);
 
   useEffect(() => {
     const mq = window.matchMedia("(pointer: coarse)");
@@ -101,9 +148,13 @@ export function BodyPremiumSelector({ model }: BodyPremiumSelectorProps) {
     return findContainingSelections(activeAtomicZoneId, selectedTargetIds);
   }, [activeAtomicZoneId, selectedTargetIds, showContainedOverride]);
 
-  const activeParts = activeAtomicZoneId
-    ? splitZoneLabel(activeAtomicZoneId)
-    : null;
+  function commitTargets(next: BodySelectionTargetId[]) {
+    applySelectionChange(next, {
+      controlled,
+      onChange,
+      setInternal: setInternalTargets,
+    });
+  }
 
   function markInteracted() {
     setHasInteracted(true);
@@ -129,7 +180,9 @@ export function BodyPremiumSelector({ model }: BodyPremiumSelectorProps) {
     markInteracted();
     setActiveAtomicZoneId(atomicId);
     setShowContainedOverride(false);
+    setReplacingTargetId(null);
     setPreviewTargetId(null);
+    setSheetMode("zone");
     setSheetState("peek");
 
     const pose = getCameraFocusForAtomicZone(atomicId, model.camera);
@@ -139,11 +192,22 @@ export function BodyPremiumSelector({ model }: BodyPremiumSelectorProps) {
   }
 
   function handleSelectOption(targetId: string) {
-    setSelectedTargetIds((prev) => addSelectionTarget(prev, targetId));
+    let next: BodySelectionTargetId[];
+    if (replacingTargetId) {
+      next = replaceContainingSelection(
+        selectedTargetIds,
+        replacingTargetId,
+        targetId,
+      );
+    } else {
+      next = addSelectionTarget(selectedTargetIds, targetId);
+    }
+    commitTargets(next);
     setActiveAtomicZoneId(null);
     setPreviewTargetId(null);
     setSheetState("closed");
     setShowContainedOverride(false);
+    setReplacingTargetId(null);
   }
 
   function handleCloseActive() {
@@ -151,32 +215,94 @@ export function BodyPremiumSelector({ model }: BodyPremiumSelectorProps) {
     setPreviewTargetId(null);
     setSheetState("closed");
     setShowContainedOverride(false);
+    setReplacingTargetId(null);
+    setSheetMode("zone");
+  }
+
+  function handleContinue() {
+    if (selectedTargetIds.length === 0) return;
+    onContinue?.(selectedTargetIds);
+    if (showLabContinue) {
+      const snap = buildBodySelectionSnapshot(selectedTargetIds);
+      setPayloadPreview(
+        JSON.stringify(
+          {
+            ...serializeConceptualBodySelection(selectedTargetIds),
+            resolvedAtomicZoneIds: snap.resolvedAtomicZoneIds,
+          },
+          null,
+          2,
+        ),
+      );
+    }
   }
 
   const showDesktopTooltip =
     !isCoarsePointer &&
+    !isOrbitDragging &&
     Boolean(hoveredAtomicZoneId) &&
     hoveredAtomicZoneId !== activeAtomicZoneId;
 
-  const contextPanel = activeAtomicZoneId ? (
-    <BodyContextOptions
-      activeAtomicZoneId={activeAtomicZoneId}
-      options={contextualOptions}
-      contained={contained}
-      selectedTargetIds={selectedTargetIds}
-      onSelectOption={handleSelectOption}
-      onPreviewOption={setPreviewTargetId}
-      onRemoveContained={(targetId) => {
-        setSelectedTargetIds((prev) => removeSelectionTarget(prev, targetId));
-      }}
-      onChangeSelection={() => setShowContainedOverride(true)}
-      enablePreview={!isCoarsePointer}
-    />
-  ) : null;
+  const sharedOptionProps = activeAtomicZoneId
+    ? {
+        activeAtomicZoneId,
+        options: contextualOptions,
+        contained,
+        selectedTargetIds,
+        onSelectOption: handleSelectOption,
+        onPreviewOption: (id: string | null) => {
+          setPreviewTargetId(id);
+        },
+        onRemoveContained: (targetId: string) => {
+          commitTargets(removeSelectionTarget(selectedTargetIds, targetId));
+          handleCloseActive();
+        },
+        onChangeSelection: () => {
+          const first = contained[0];
+          setReplacingTargetId(first?.targetId ?? null);
+          setShowContainedOverride(true);
+        },
+        replacingTargetId,
+        enablePreview: !isCoarsePointer,
+      }
+    : null;
+
+  const floatingPanelClass =
+    "pointer-events-none absolute right-4 top-4 z-20 hidden w-[min(100%,20rem)] min-[900px]:pointer-events-auto min-[900px]:block";
 
   return (
-    <div className="relative flex min-h-[min(82dvh,760px)] flex-col gap-3">
-      <div className="relative h-[min(82dvh,760px)] min-h-[420px] flex-1 overflow-hidden rounded-2xl border border-white/10 bg-[#17110d]">
+    <div
+      className={[
+        "relative flex min-h-[min(82dvh,760px)] flex-col gap-3",
+        className,
+      ]
+        .filter(Boolean)
+        .join(" ")}
+    >
+      <div
+        className="relative h-[min(82dvh,760px)] min-h-[420px] flex-1 overflow-hidden rounded-2xl border border-white/10 bg-[#17110d]"
+        onPointerDown={(e) => {
+          dragStartRef.current = { x: e.clientX, y: e.clientY };
+          setIsOrbitDragging(false);
+        }}
+        onPointerMove={(e) => {
+          const start = dragStartRef.current;
+          if (!start) return;
+          const dx = e.clientX - start.x;
+          const dy = e.clientY - start.y;
+          if (dx * dx + dy * dy > 64) {
+            setIsOrbitDragging(true);
+          }
+        }}
+        onPointerUp={() => {
+          dragStartRef.current = null;
+          setIsOrbitDragging(false);
+        }}
+        onPointerLeave={() => {
+          dragStartRef.current = null;
+          setIsOrbitDragging(false);
+        }}
+      >
         <Body3DViewer
           model={model}
           appearance="original"
@@ -201,29 +327,26 @@ export function BodyPremiumSelector({ model }: BodyPremiumSelectorProps) {
           chrome={false}
         />
 
-        {/* Intro hint */}
         {!hasInteracted ? (
-          <div className="pointer-events-none absolute inset-x-0 top-5 z-20 flex justify-center px-4 md:top-8 md:justify-start md:pl-8">
+          <div className="pointer-events-none absolute inset-x-0 top-5 z-20 flex justify-center px-4 min-[900px]:top-8 min-[900px]:justify-start min-[900px]:pl-8">
             <div className="max-w-sm rounded-2xl border border-white/10 bg-[rgba(23,17,13,0.72)] px-4 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-md">
               <p className="text-base font-semibold tracking-tight text-[rgba(255,242,228,0.96)]">
                 ¿Dónde quieres tatuarte?
               </p>
               <p className="mt-1.5 text-sm leading-relaxed text-zinc-400">
-                Gira el cuerpo y toca una zona. Puedes elegir una superficie
-                puntual o una región completa.
+                Gira el modelo y toca una zona del cuerpo.
+              </p>
+              <p className="mt-1.5 hidden text-xs leading-relaxed text-zinc-500 min-[900px]:block">
+                Puedes elegir una zona específica o una región completa.
               </p>
             </div>
           </div>
         ) : null}
 
-        {/* Desktop floating context */}
-        {activeAtomicZoneId && activeParts ? (
-          <aside
-            className="pointer-events-none absolute right-4 top-4 z-20 hidden w-[min(100%,20rem)] md:pointer-events-auto md:block"
-            aria-live="polite"
-          >
+        {activeAtomicZoneId && sharedOptionProps ? (
+          <aside className={floatingPanelClass} aria-live="polite">
             <div className="rounded-2xl border border-white/12 bg-[rgba(23,17,13,0.9)] p-4 shadow-[0_20px_60px_rgba(0,0,0,0.45),inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-xl transition-opacity duration-200">
-              {contextPanel}
+              <BodyContextOptions {...sharedOptionProps} mode="full" />
               <button
                 type="button"
                 onClick={handleCloseActive}
@@ -235,8 +358,7 @@ export function BodyPremiumSelector({ model }: BodyPremiumSelectorProps) {
           </aside>
         ) : null}
 
-        {/* View controls */}
-        <div className="pointer-events-none absolute bottom-4 left-4 z-20 md:bottom-5">
+        <div className="pointer-events-none absolute bottom-4 left-4 z-20 min-[900px]:bottom-5">
           <div className="pointer-events-auto">
             <BodyViewControls
               cameraView={cameraView}
@@ -248,55 +370,119 @@ export function BodyPremiumSelector({ model }: BodyPremiumSelectorProps) {
           </div>
         </div>
 
+        {/* Compact selection indicator (mobile/tablet sheet closed) */}
+        {!activeAtomicZoneId && selectedTargetIds.length > 0 ? (
+          <div className="pointer-events-none absolute bottom-4 right-4 z-20 min-[900px]:hidden">
+            <div className="pointer-events-auto">
+              <BodySelectionSummary
+                selectedTargetIds={selectedTargetIds}
+                onRemove={() => undefined}
+                onClear={() => undefined}
+                variant="compact"
+                onCompactOpen={() => {
+                  setSheetMode("selection");
+                  setSheetState("expanded");
+                }}
+              />
+            </div>
+          </div>
+        ) : null}
+
         <BodyMobileSheet
           state={
-            activeAtomicZoneId
-              ? sheetState === "closed"
-                ? "peek"
-                : sheetState
-              : "closed"
+            sheetMode === "selection" && sheetState !== "closed"
+              ? "expanded"
+              : activeAtomicZoneId
+                ? sheetState === "closed"
+                  ? "peek"
+                  : sheetState
+                : sheetState === "expanded" && sheetMode === "selection"
+                  ? "expanded"
+                  : "closed"
           }
-          onStateChange={setSheetState}
-          peekTitle={activeParts?.region ?? ""}
-          peekSubtitle={activeParts?.detail}
+          onStateChange={(next) => {
+            setSheetState(next);
+            if (next === "closed") {
+              setSheetMode("zone");
+              if (!activeAtomicZoneId) return;
+              setActiveAtomicZoneId(null);
+              setPreviewTargetId(null);
+              setShowContainedOverride(false);
+              setReplacingTargetId(null);
+            }
+          }}
+          peekContent={
+            sharedOptionProps ? (
+              <BodyContextOptions {...sharedOptionProps} mode="peek" />
+            ) : null
+          }
         >
-          {contextPanel}
-          <div className="mt-5 border-t border-white/8 pt-4">
+          {sheetMode === "selection" ? (
             <BodySelectionSummary
               selectedTargetIds={selectedTargetIds}
               onRemove={(id) =>
-                setSelectedTargetIds((prev) => removeSelectionTarget(prev, id))
+                commitTargets(removeSelectionTarget(selectedTargetIds, id))
               }
-              onClear={() => setSelectedTargetIds(clearSelectionTargets())}
+              onClear={() => commitTargets(clearSelectionTargets())}
               variant="stacked"
             />
-          </div>
+          ) : sharedOptionProps ? (
+            <>
+              <BodyContextOptions
+                {...sharedOptionProps}
+                mode={showContainedOverride ? "full" : "expanded"}
+              />
+              <div className="mt-5 border-t border-white/8 pt-4">
+                <BodySelectionSummary
+                  selectedTargetIds={selectedTargetIds}
+                  onRemove={(id) =>
+                    commitTargets(removeSelectionTarget(selectedTargetIds, id))
+                  }
+                  onClear={() => commitTargets(clearSelectionTargets())}
+                  variant="stacked"
+                />
+              </div>
+            </>
+          ) : null}
         </BodyMobileSheet>
       </div>
 
-      {/* Desktop selection bar */}
-      <div className="hidden md:block">
+      <div className="hidden min-[900px]:block">
         <BodySelectionSummary
           selectedTargetIds={selectedTargetIds}
           onRemove={(id) =>
-            setSelectedTargetIds((prev) => removeSelectionTarget(prev, id))
+            commitTargets(removeSelectionTarget(selectedTargetIds, id))
           }
-          onClear={() => setSelectedTargetIds(clearSelectionTargets())}
+          onClear={() => commitTargets(clearSelectionTargets())}
           variant="bar"
         />
       </div>
 
-      {/* Mobile selection peek when no active zone */}
-      {!activeAtomicZoneId ? (
-        <div className="md:hidden">
-          <BodySelectionSummary
-            selectedTargetIds={selectedTargetIds}
-            onRemove={(id) =>
-              setSelectedTargetIds((prev) => removeSelectionTarget(prev, id))
-            }
-            onClear={() => setSelectedTargetIds(clearSelectionTargets())}
-            variant="stacked"
-          />
+      {showLabContinue ? (
+        <div className="flex flex-col gap-2">
+          <button
+            type="button"
+            disabled={selectedTargetIds.length === 0}
+            onClick={handleContinue}
+            className={[
+              "inline-flex min-h-12 w-full items-center justify-center rounded-xl text-sm font-semibold tracking-wide transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[rgba(232,168,64,0.7)] active:scale-[0.98] sm:w-auto sm:min-w-[12rem] sm:self-end",
+              selectedTargetIds.length === 0
+                ? "cursor-not-allowed border border-white/8 bg-white/[0.04] text-zinc-600"
+                : "border border-[rgba(232,168,64,0.45)] bg-[rgba(232,168,64,0.2)] text-[rgba(255,240,220,0.98)] hover:bg-[rgba(232,168,64,0.28)]",
+            ].join(" ")}
+          >
+            Continuar
+          </button>
+          {payloadPreview ? (
+            <div className="rounded-xl border border-white/10 bg-black/40 p-3">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-500">
+                Selection payload preview · solo laboratorio
+              </p>
+              <pre className="mt-2 max-h-48 overflow-auto font-mono text-[11px] leading-relaxed text-zinc-400">
+                {payloadPreview}
+              </pre>
+            </div>
+          ) : null}
         </div>
       ) : null}
 
