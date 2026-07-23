@@ -25,6 +25,7 @@ import {
   RIGHT_FULL_LEG_GROUP,
   UPPER_BACK_GROUP,
 } from "@/widgets/body-3d/domain/bodyZones";
+import { PUBLIC_SELECTION_TARGETS_BY_ID } from "@/widgets/body-3d/domain/bodyPublicSelectionTargets";
 import { isAtomicZone, isParentZone } from "@/widgets/body-3d/domain/bodyZoneTypes";
 import type { SelectionTarget } from "@/widgets/body-3d/interaction/bodyInteractionTypes";
 
@@ -223,6 +224,14 @@ export function resolveTargetToAtomicZoneIds(
     }
     if (zone && isParentZone(zone)) {
       queue.push(...zone.childIds);
+      continue;
+    }
+
+    // Targets públicos (producción) tienen prioridad sobre groups legacy
+    // para geometría de highlight más precisa (p. ej. pecho sin esternón).
+    const publicTarget = PUBLIC_SELECTION_TARGETS_BY_ID[id];
+    if (publicTarget) {
+      queue.push(...publicTarget.memberIds);
       continue;
     }
 

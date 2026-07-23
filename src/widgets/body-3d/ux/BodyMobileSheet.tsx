@@ -43,7 +43,7 @@ export function BodyMobileSheet({
       <div
         className={[
           "pointer-events-auto mx-auto w-full max-w-lg overflow-hidden rounded-t-3xl border border-white/12 border-b-0 bg-[rgba(23,17,13,0.96)] shadow-[0_-16px_48px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-xl transition-[max-height] duration-250 ease-out",
-          expanded ? "max-h-[64dvh]" : "max-h-[min(34dvh,20rem)]",
+          expanded ? "max-h-[64dvh]" : "max-h-[min(30dvh,18rem)]",
         ].join(" ")}
         role="dialog"
         aria-label="Opciones de zona"
@@ -60,7 +60,7 @@ export function BodyMobileSheet({
         </div>
 
         {!expanded ? (
-          <div className="max-h-[calc(min(34dvh,20rem)-2.5rem)] overflow-y-auto overscroll-contain px-4 pb-5 pt-1">
+          <div className="max-h-[calc(min(30dvh,18rem)-2.5rem)] overflow-y-auto overscroll-contain px-4 pb-5 pt-1">
             {peekContent}
             <div className="mt-4 flex items-center justify-between gap-2">
               <button

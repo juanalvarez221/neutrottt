@@ -85,12 +85,12 @@ describe("body interaction domain", () => {
     ]);
   });
 
-  it("full_chest expands to chest + sternum", () => {
+  it("full_chest expands to pectorals only (product highlight)", () => {
     expect(resolveTargetToAtomicZoneIds("full_chest")).toEqual([
       "left_chest",
       "right_chest",
-      "sternum",
     ]);
+    expect(resolveTargetToAtomicZoneIds("full_chest")).not.toContain("sternum");
   });
 
   it("unions multiple targets without duplicate atomics", () => {
@@ -141,7 +141,6 @@ describe("body interaction domain", () => {
     expect(resolveSelectedAtomicZoneIds(["full_chest"])).toEqual([
       "left_chest",
       "right_chest",
-      "sternum",
     ]);
   });
 });

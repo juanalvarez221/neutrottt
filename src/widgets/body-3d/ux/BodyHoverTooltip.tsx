@@ -1,10 +1,13 @@
 /**
- * Tooltip flotante de hover (desktop) — máximo 2 líneas, sin IDs técnicos.
+ * Tooltip flotante de hover (desktop) — shortLabel público + placement inteligente.
  */
 
 "use client";
 
-import { splitZoneLabel } from "@/widgets/body-3d/ux/bodyUxCopy";
+import { useMemo } from "react";
+import { getPrimaryPublicSelectionTarget } from "@/widgets/body-3d/domain/bodyPublicSelectionRouting";
+import { getPublicShortLabel } from "@/widgets/body-3d/domain/bodyPublicRegionMeta";
+import { placeHoverTooltip } from "@/widgets/body-3d/ux/bodySelectorLayout";
 
 type BodyHoverTooltipProps = {
   atomicZoneId: string | null;
@@ -17,36 +20,32 @@ export function BodyHoverTooltip({
   pointer,
   visible,
 }: BodyHoverTooltipProps) {
-  if (!visible || !atomicZoneId || !pointer) return null;
+  const placement = useMemo(() => {
+    if (!pointer || typeof window === "undefined") return null;
+    return placeHoverTooltip(
+      pointer.x,
+      pointer.y,
+      window.innerWidth,
+      window.innerHeight,
+    );
+  }, [pointer]);
 
-  const parts = splitZoneLabel(atomicZoneId);
-  const left = Math.min(
-    typeof window !== "undefined" ? window.innerWidth - 180 : pointer.x + 16,
-    pointer.x + 16,
-  );
-  const top = Math.max(12, pointer.y - 52);
+  if (!visible || !atomicZoneId || !pointer || !placement) return null;
+
+  const primary =
+    getPrimaryPublicSelectionTarget(atomicZoneId) ?? atomicZoneId;
+  const label = getPublicShortLabel(primary);
 
   return (
     <div
       role="tooltip"
       aria-hidden
-      className="pointer-events-none fixed z-40 max-w-[12rem] rounded-xl border border-white/12 bg-[rgba(23,17,13,0.92)] px-3 py-2 shadow-[0_12px_40px_rgba(0,0,0,0.45),inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-md"
-      style={{ left, top }}
+      className="pointer-events-none fixed z-40 max-w-[11rem] rounded-lg border border-white/12 bg-[rgba(23,17,13,0.92)] px-2.5 py-1.5 shadow-[0_12px_40px_rgba(0,0,0,0.45),inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-md"
+      style={{ left: placement.left, top: placement.top }}
     >
-      {parts.detail ? (
-        <>
-          <p className="truncate text-[13px] font-semibold leading-tight text-[rgba(255,240,220,0.96)]">
-            {parts.region}
-          </p>
-          <p className="mt-0.5 truncate text-[11px] leading-tight text-[rgba(212,160,102,0.88)]">
-            {parts.detail}
-          </p>
-        </>
-      ) : (
-        <p className="truncate text-[13px] font-semibold leading-tight text-[rgba(255,240,220,0.96)]">
-          {parts.full}
-        </p>
-      )}
+      <p className="truncate text-[12px] font-semibold leading-tight tracking-tight text-[rgba(255,240,220,0.96)]">
+        {label}
+      </p>
     </div>
   );
 }

@@ -5,6 +5,11 @@
 
 import { BODY_ZONES_BY_ID } from "@/widgets/body-3d/domain/bodyZones";
 import { SELECTION_TARGETS_BY_ID } from "@/widgets/body-3d/domain/bodySelectionTargets";
+import { PUBLIC_SELECTION_TARGETS_BY_ID } from "@/widgets/body-3d/domain/bodyPublicSelectionTargets";
+import {
+  getPublicShortLabel,
+  PUBLIC_REGION_META_BY_ID,
+} from "@/widgets/body-3d/domain/bodyPublicRegionMeta";
 
 const SIDE_ES: Record<string, string> = {
   right: "derecho",
@@ -12,8 +17,8 @@ const SIDE_ES: Record<string, string> = {
 };
 
 const FACE_ES: Record<string, string> = {
-  front: "Parte frontal",
-  back: "Parte posterior",
+  front: "Cara anterior",
+  back: "Cara posterior",
   inner: "Cara interna",
   outer: "Cara externa",
 };
@@ -33,8 +38,8 @@ const ATOMIC_LABEL_OVERRIDES: Record<string, string> = {
   left_ankle: "Tobillo izquierdo",
   right_foot: "Pie derecho",
   left_foot: "Pie izquierdo",
-  left_chest: "Pecho izquierdo",
-  right_chest: "Pecho derecho",
+  left_chest: "Pectoral izquierdo",
+  right_chest: "Pectoral derecho",
   sternum: "Esternón",
   upper_abdomen: "Abdomen superior",
   lower_abdomen: "Abdomen inferior",
@@ -56,19 +61,19 @@ const ATOMIC_LABEL_OVERRIDES: Record<string, string> = {
   left_glute: "Glúteo izquierdo",
   right_glute: "Glúteo derecho",
   sacrum: "Sacro",
-  neck_front: "Cuello · Frente",
-  neck_back: "Nuca",
-  neck_left: "Cuello izquierdo",
-  neck_right: "Cuello derecho",
+  neck_front: "Cuello · Parte anterior",
+  neck_back: "Cuello · Parte posterior",
+  neck_left: "Cuello · Lateral izquierdo",
+  neck_right: "Cuello · Lateral derecho",
   face_left: "Rostro izquierdo",
   face_right: "Rostro derecho",
-  head_top: "Coronilla",
-  head_back: "Cabeza · Posterior",
+  head_top: "Cabeza · Parte superior",
+  head_back: "Cabeza · Parte posterior",
   head_left_side: "Cabeza · Lateral izquierdo",
   head_right_side: "Cabeza · Lateral derecho",
   left_ear: "Oreja izquierda",
   right_ear: "Oreja derecha",
-  // Pierna inferior: frontal = espinilla; posterior = pantorrilla (sin "Parte …")
+  // Pierna inferior: frontal = espinilla; posterior = pantorrilla
   right_lower_leg_front: "Espinilla derecha",
   right_lower_leg_back: "Pantorrilla derecha",
   right_lower_leg_inner: "Pierna derecha · Cara interna",
@@ -77,6 +82,15 @@ const ATOMIC_LABEL_OVERRIDES: Record<string, string> = {
   left_lower_leg_back: "Pantorrilla izquierda",
   left_lower_leg_inner: "Pierna izquierda · Cara interna",
   left_lower_leg_outer: "Pierna izquierda · Cara externa",
+  // Muslos — nomenclatura uniforme
+  right_thigh_front: "Muslo derecho · Cara anterior",
+  right_thigh_back: "Muslo derecho · Cara posterior",
+  right_thigh_inner: "Muslo derecho · Cara interna",
+  right_thigh_outer: "Muslo derecho · Cara externa",
+  left_thigh_front: "Muslo izquierdo · Cara anterior",
+  left_thigh_back: "Muslo izquierdo · Cara posterior",
+  left_thigh_inner: "Muslo izquierdo · Cara interna",
+  left_thigh_outer: "Muslo izquierdo · Cara externa",
 };
 
 function formatLimbQuad(
@@ -102,8 +116,16 @@ function formatLimbQuad(
 
 /**
  * Label de producto para atomic / parent / group / commercial target.
+ * Preferencia: shortLabel público (chips / tooltip).
  */
 export function getSelectionDisplayLabel(id: string): string {
+  if (PUBLIC_REGION_META_BY_ID[id]) {
+    return getPublicShortLabel(id);
+  }
+
+  const publicTarget = PUBLIC_SELECTION_TARGETS_BY_ID[id];
+  if (publicTarget) return publicTarget.label;
+
   const target = SELECTION_TARGETS_BY_ID[id];
   if (target) return target.label;
 

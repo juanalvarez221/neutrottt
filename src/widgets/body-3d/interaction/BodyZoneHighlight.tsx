@@ -21,8 +21,8 @@ function disposeMaterial(material: Material | Material[]) {
   }
 }
 
-/** Neutro camel / sand — premium, no neón */
-const HOVER_COLOR = "#b88958";
+/** Neutro camel / sand — piel tintada, no polígono de debug */
+const HOVER_COLOR = "#c49a6c";
 const PREVIEW_COLOR = "#d4a066";
 const SELECTED_COLOR = "#e8a840";
 
@@ -74,8 +74,9 @@ function prepareHighlightScene(
         : kind === "preview"
           ? PREVIEW_COLOR
           : HOVER_COLOR;
+    // Opacidades suaves: “pintura sobre piel”, no debug wire
     const opacity =
-      kind === "selected" ? 0.48 : kind === "preview" ? 0.34 : 0.2;
+      kind === "selected" ? 0.38 : kind === "preview" ? 0.3 : 0.18;
 
     const mat = new ThreeMeshBasicMaterial({
       color,
@@ -87,8 +88,8 @@ function prepareHighlightScene(
       toneMapped: false,
     }) as MeshBasicMaterial;
     mat.polygonOffset = true;
-    mat.polygonOffsetFactor = -1;
-    mat.polygonOffsetUnits = -1;
+    mat.polygonOffsetFactor = -3;
+    mat.polygonOffsetUnits = -3;
     materials.push(mat);
     mesh.material = mat;
     mesh.raycast = () => undefined;

@@ -10,6 +10,8 @@ import {
   formatZoneDisplay,
   getZoneRefinementFromDraft,
 } from "@/shared/lib/quoteZones";
+import { upgradeBodySelectionToPublicTargets } from "@/widgets/body-3d/domain/bodyPublicSelectionRouting";
+import { isPublicSelectableBodyTarget } from "@/widgets/body-3d/domain/bodyPublicSelectionTargets";
 import { getSelectionDisplayLabel } from "@/widgets/body-3d/interaction/bodyInteractionLabels";
 import { normalizeSelectedTargetIds } from "@/widgets/body-3d/interaction/bodySelectionEngine";
 import type { BodySelectionTargetId } from "@/widgets/body-3d/ux/bodySelectionSerialization";
@@ -22,7 +24,10 @@ export const BODY_TARGETS_QUERY_KEY = "bodyTargets";
 export function normalizeQuoteBodyTargets(
   targets: readonly BodySelectionTargetId[],
 ): BodySelectionTargetId[] {
-  return normalizeSelectedTargetIds(targets);
+  const upgraded = upgradeBodySelectionToPublicTargets(targets).filter(
+    isPublicSelectableBodyTarget,
+  );
+  return normalizeSelectedTargetIds(upgraded);
 }
 
 export function formatBodyTargetsDisplay(

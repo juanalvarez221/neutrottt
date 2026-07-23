@@ -1,5 +1,6 @@
 /**
- * Opciones contextuales jerárquicas (exacta / región / amplias).
+ * Opciones contextuales de producción: zona primaria + ampliar.
+ * También soporta tiers legacy (exact/region/broad) para el lab técnico.
  */
 
 "use client";
@@ -7,6 +8,7 @@
 import type { ContextualSelectionOption } from "@/widgets/body-3d/interaction/bodyInteractionTypes";
 import type { ContainedSelectionInfo } from "@/widgets/body-3d/ux/bodyContainedSelection";
 import { splitZoneLabel } from "@/widgets/body-3d/ux/bodyUxCopy";
+import { getSelectionDisplayLabel } from "@/widgets/body-3d/interaction/bodyInteractionLabels";
 
 export type ContextOptionsMode = "full" | "peek" | "expanded";
 
@@ -19,22 +21,18 @@ type BodyContextOptionsProps = {
   onPreviewOption: (targetId: string | null) => void;
   onRemoveContained: (targetId: string) => void;
   onChangeSelection: () => void;
-  /** Contenedor a reemplazar al elegir una opción tras "Cambiar selección". */
   replacingTargetId?: string | null;
   enablePreview?: boolean;
-  /** peek = exacta+región; expanded = amplias (+ header opcional); full = todo */
   mode?: ContextOptionsMode;
   className?: string;
+  /** Título de panel (región pública primaria). */
+  panelTitle?: string | null;
+  panelSubtitle?: string | null;
 };
 
-const TIER_META: Record<
-  ContextualSelectionOption["tier"],
-  { title: string; hint: string }
-> = {
-  exact: { title: "Zona exacta", hint: "Solo esta superficie" },
-  region: { title: "Zona anatómica", hint: "Región completa" },
-  broad: { title: "Selección comercial", hint: "Composiciones mayores" },
-};
+function isPublicTier(tier: ContextualSelectionOption["tier"]) {
+  return tier === "primary" || tier === "amplify";
+}
 
 export function BodyContextOptions({
   activeAtomicZoneId,
@@ -49,30 +47,23 @@ export function BodyContextOptions({
   enablePreview = true,
   mode = "full",
   className = "",
+  panelTitle = null,
+  panelSubtitle = null,
 }: BodyContextOptionsProps) {
   const parts = splitZoneLabel(activeAtomicZoneId);
   const selectedSet = new Set(selectedTargetIds);
+  const usesPublic = options.some((o) => isPublicTier(o.tier));
 
-  const byTier = {
-    exact: options.filter((o) => o.tier === "exact"),
-    region: options.filter((o) => o.tier === "region"),
-    broad: options.filter((o) => o.tier === "broad"),
-  } as const;
-
-  const showHeader = mode !== "expanded" || contained.length > 0;
-  const tiersToShow: ContextualSelectionOption["tier"][] =
-    mode === "peek"
-      ? ["exact", "region"]
-      : mode === "expanded"
-        ? ["broad"]
-        : ["exact", "region", "broad"];
+  const primary = options.filter((o) => o.tier === "primary");
+  const amplify = options.filter((o) => o.tier === "amplify");
 
   if (contained.length > 0 && mode !== "expanded") {
     return (
       <div className={className}>
-        {showHeader ? (
-          <Header region={parts.region} detail={parts.detail} full={parts.full} />
-        ) : null}
+        <PanelHeader
+          title={panelTitle ?? parts.full}
+          subtitle={panelSubtitle}
+        />
         <div className="mt-4 rounded-xl border border-[rgba(184,137,88,0.28)] bg-[rgba(184,137,88,0.08)] p-3">
           <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[rgba(212,160,102,0.9)]">
             Esta zona forma parte de
@@ -96,7 +87,7 @@ export function BodyContextOptions({
                     onClick={() => onRemoveContained(c.targetId)}
                     className="inline-flex min-h-11 items-center rounded-lg border border-white/12 bg-black/30 px-3 text-xs font-semibold text-zinc-200 transition hover:bg-black/45 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[rgba(232,168,64,0.7)] active:scale-[0.98]"
                   >
-                    Quitar {shortContainedVerb(c.label)}
+                    Quitar
                   </button>
                 </div>
               </li>
@@ -107,84 +98,103 @@ export function BodyContextOptions({
     );
   }
 
+  if (usesPublic) {
+    const showPrimary = mode !== "expanded";
+    const showAmplify = mode !== "peek";
+    const title =
+      panelTitle ??
+      primary[0]?.label ??
+      getSelectionDisplayLabel(activeAtomicZoneId);
+
+    return (
+      <div className={className}>
+        {mode !== "expanded" ? (
+          <PanelHeader title={title} subtitle={panelSubtitle} />
+        ) : (
+          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-500">
+            Ampliar selección
+          </p>
+        )}
+        {replacingTargetId ? (
+          <p className="mt-2 text-xs text-[rgba(212,160,102,0.9)]">
+            Elige qué reemplaza la selección actual.
+          </p>
+        ) : null}
+
+        <div className={mode === "expanded" ? "mt-2 space-y-4" : "mt-4 space-y-4"}>
+          {showPrimary && primary.length > 0 ? (
+            <OptionGroup
+              title={mode === "full" ? "Seleccionar zona" : null}
+              options={primary}
+              selectedSet={selectedSet}
+              enablePreview={enablePreview}
+              onSelectOption={onSelectOption}
+              onPreviewOption={onPreviewOption}
+              emphasizeFirst
+            />
+          ) : null}
+          {showAmplify && amplify.length > 0 ? (
+            <OptionGroup
+              title={mode === "full" ? "Ampliar selección" : null}
+              options={amplify}
+              selectedSet={selectedSet}
+              enablePreview={enablePreview}
+              onSelectOption={onSelectOption}
+              onPreviewOption={onPreviewOption}
+            />
+          ) : null}
+          {mode === "peek" && amplify.length > 0 ? (
+            <OptionGroup
+              title={null}
+              options={amplify.slice(0, 2)}
+              selectedSet={selectedSet}
+              enablePreview={enablePreview}
+              onSelectOption={onSelectOption}
+              onPreviewOption={onPreviewOption}
+            />
+          ) : null}
+        </div>
+      </div>
+    );
+  }
+
+  // Legacy lab tiers
+  const byTier = {
+    exact: options.filter((o) => o.tier === "exact"),
+    region: options.filter((o) => o.tier === "region"),
+    broad: options.filter((o) => o.tier === "broad"),
+  } as const;
+
+  const tiersToShow: Array<"exact" | "region" | "broad"> =
+    mode === "peek"
+      ? ["exact", "region"]
+      : mode === "expanded"
+        ? ["broad"]
+        : ["exact", "region", "broad"];
+
   return (
     <div className={className}>
-      {mode !== "expanded" ? (
-        <Header region={parts.region} detail={parts.detail} full={parts.full} />
-      ) : (
-        <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-500">
-          Opciones amplias
-        </p>
-      )}
-      {replacingTargetId ? (
-        <p className="mt-2 text-xs text-[rgba(212,160,102,0.9)]">
-          Elige qué reemplaza la selección actual.
-        </p>
-      ) : null}
-      <div className={mode === "expanded" ? "mt-2 space-y-4" : "mt-4 space-y-4"}>
+      <PanelHeader title={parts.full} subtitle={parts.detail} />
+      <div className="mt-4 space-y-4">
         {tiersToShow.map((tier) => {
           const list = byTier[tier];
           if (list.length === 0) return null;
-          const meta = TIER_META[tier];
           return (
-            <div key={tier}>
-              {mode === "full" ? (
-                <>
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-500">
-                    {meta.title}
-                  </p>
-                  <p className="mt-0.5 text-[11px] text-zinc-500">{meta.hint}</p>
-                </>
-              ) : null}
-              <div className={mode === "full" ? "mt-2 flex flex-col gap-1.5" : "flex flex-col gap-1.5"}>
-                {list.map((option) => {
-                  const already = selectedSet.has(option.targetId);
-                  const buttonLabel =
-                    mode === "peek" && tier === "exact"
-                      ? `Seleccionar ${option.shortLabel.toLowerCase()}`
-                      : mode === "peek" && tier === "region"
-                        ? formatPeekRegionLabel(option)
-                        : option.shortLabel;
-
-                  return (
-                    <button
-                      key={option.targetId}
-                      type="button"
-                      disabled={already}
-                      aria-label={option.label}
-                      onClick={() => onSelectOption(option.targetId)}
-                      onPointerEnter={() => {
-                        if (enablePreview) onPreviewOption(option.targetId);
-                      }}
-                      onPointerLeave={() => {
-                        if (enablePreview) onPreviewOption(null);
-                      }}
-                      onFocus={() => {
-                        if (enablePreview) onPreviewOption(option.targetId);
-                      }}
-                      onBlur={() => {
-                        if (enablePreview) onPreviewOption(null);
-                      }}
-                      className={[
-                        "min-h-11 rounded-xl border px-3 py-2.5 text-left text-sm font-semibold transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[rgba(232,168,64,0.7)] active:scale-[0.98]",
-                        already
-                          ? "cursor-default border-white/8 bg-white/[0.03] text-zinc-500"
-                          : tier === "exact"
-                            ? "border-[rgba(232,168,64,0.4)] bg-[rgba(232,168,64,0.14)] text-[rgba(255,236,210,0.96)] hover:bg-[rgba(232,168,64,0.22)]"
-                            : "border-white/10 bg-black/30 text-zinc-100 hover:border-white/18 hover:bg-black/45",
-                      ].join(" ")}
-                    >
-                      {buttonLabel}
-                      {already ? (
-                        <span className="mt-0.5 block text-[11px] font-normal text-zinc-500">
-                          Ya seleccionada
-                        </span>
-                      ) : null}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
+            <OptionGroup
+              key={tier}
+              title={
+                tier === "exact"
+                  ? "Zona exacta"
+                  : tier === "region"
+                    ? "Zona anatómica"
+                    : "Selección comercial"
+              }
+              options={list}
+              selectedSet={selectedSet}
+              enablePreview={enablePreview}
+              onSelectOption={onSelectOption}
+              onPreviewOption={onPreviewOption}
+            />
           );
         })}
       </div>
@@ -192,64 +202,94 @@ export function BodyContextOptions({
   );
 }
 
-function formatPeekRegionLabel(option: ContextualSelectionOption): string {
-  const base = option.shortLabel.replace(/\s+completo$/i, "").trim();
-  if (/completo/i.test(option.shortLabel) || /completo/i.test(option.label)) {
-    return option.shortLabel.match(/completo/i)
-      ? option.shortLabel
-      : `${base} completo`;
-  }
-  // Región anatómica: "Antebrazo derecho" → "Antebrazo completo" style
-  if (option.kind === "anatomical") {
-    // Prefer natural: "Antebrazo completo" from shortLabel without side if possible
-    const withoutSide = base
-      .replace(/\s+(derecho|izquierdo|derecha|izquierda)$/i, "")
-      .trim();
-    return `${withoutSide} completo`;
-  }
-  return option.shortLabel;
-}
-
-function shortContainedVerb(label: string): string {
-  if (/manga/i.test(label)) return "manga";
-  if (/brazo/i.test(label)) return "brazo";
-  if (/pierna/i.test(label)) return "pierna";
-  if (/espalda/i.test(label)) return "espalda";
-  if (/pecho/i.test(label)) return "pecho";
-  return "selección";
-}
-
-function Header({
-  region,
-  detail,
-  full,
+function PanelHeader({
+  title,
+  subtitle,
 }: {
-  region: string;
-  detail: string | null;
-  full: string;
+  title: string;
+  subtitle?: string | null;
 }) {
-  // Labels sin " · " (Espinilla derecha): mostrar como región única
-  if (!detail) {
-    return (
-      <div>
-        <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[rgba(184,137,88,0.85)]">
-          Zona
-        </p>
-        <h2 className="mt-1 text-lg font-semibold tracking-tight text-[rgba(255,242,228,0.97)]">
-          {full}
-        </h2>
-      </div>
-    );
-  }
-
   return (
     <div>
       <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[rgba(184,137,88,0.85)]">
-        {region}
+        Zona activa
       </p>
-      <h2 className="mt-1 text-lg font-semibold tracking-tight text-[rgba(255,242,228,0.97)]">
-        {detail}
+      <h2 className="mt-1 text-base font-semibold uppercase tracking-[0.04em] text-[rgba(255,242,228,0.97)] sm:text-lg">
+        {title}
       </h2>
+      {subtitle ? (
+        <p className="mt-1.5 text-sm leading-snug text-zinc-400">{subtitle}</p>
+      ) : null}
+    </div>
+  );
+}
+
+function OptionGroup({
+  title,
+  options,
+  selectedSet,
+  enablePreview,
+  onSelectOption,
+  onPreviewOption,
+  emphasizeFirst = false,
+}: {
+  title: string | null;
+  options: readonly ContextualSelectionOption[];
+  selectedSet: ReadonlySet<string>;
+  enablePreview: boolean;
+  onSelectOption: (id: string) => void;
+  onPreviewOption: (id: string | null) => void;
+  emphasizeFirst?: boolean;
+}) {
+  return (
+    <div>
+      {title ? (
+        <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-500">
+          {title}
+        </p>
+      ) : null}
+      <div className={title ? "mt-2 flex flex-col gap-1.5" : "flex flex-col gap-1.5"}>
+        {options.map((option, index) => {
+          const already = selectedSet.has(option.targetId);
+          const emphasize = emphasizeFirst && index === 0 && !already;
+          return (
+            <button
+              key={option.targetId}
+              type="button"
+              disabled={already}
+              aria-label={option.label}
+              onClick={() => onSelectOption(option.targetId)}
+              onPointerEnter={() => {
+                if (enablePreview) onPreviewOption(option.targetId);
+              }}
+              onPointerLeave={() => {
+                if (enablePreview) onPreviewOption(null);
+              }}
+              onFocus={() => {
+                if (enablePreview) onPreviewOption(option.targetId);
+              }}
+              onBlur={() => {
+                if (enablePreview) onPreviewOption(null);
+              }}
+              className={[
+                "min-h-11 rounded-xl border px-3 py-2.5 text-left text-sm font-semibold transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[rgba(232,168,64,0.7)] active:scale-[0.98]",
+                already
+                  ? "cursor-default border-white/8 bg-white/[0.03] text-zinc-500"
+                  : emphasize
+                    ? "border-[rgba(232,168,64,0.4)] bg-[rgba(232,168,64,0.14)] text-[rgba(255,236,210,0.96)] hover:bg-[rgba(232,168,64,0.22)]"
+                    : "border-white/10 bg-black/30 text-zinc-100 hover:border-white/18 hover:bg-black/45",
+              ].join(" ")}
+            >
+              {option.shortLabel || option.label}
+              {already ? (
+                <span className="mt-0.5 block text-[11px] font-normal text-zinc-500">
+                  Ya seleccionada
+                </span>
+              ) : null}
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 }

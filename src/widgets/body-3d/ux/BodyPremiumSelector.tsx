@@ -12,11 +12,23 @@ import type { BodyCameraView } from "@/widgets/body-3d/bodyViewerTypes";
 import {
   addSelectionTarget,
   clearSelectionTargets,
-  getSelectionOptionsForAtomicZone,
   removeSelectionTarget,
   resolveSelectedAtomicZoneIds,
 } from "@/widgets/body-3d/interaction";
+import {
+  getPrimaryPublicSelectionTarget,
+  getPublicSelectionOptionsForAtomicZone,
+  isNonSelectableSurfaceAtomic,
+  NON_SELECTABLE_SURFACE_NOTICE,
+  upgradeBodySelectionToPublicTargets,
+} from "@/widgets/body-3d/domain/bodyPublicSelectionRouting";
+import { isPublicSelectableBodyTarget } from "@/widgets/body-3d/domain/bodyPublicSelectionTargets";
+import {
+  getPublicDescription,
+  getPublicShortLabel,
+} from "@/widgets/body-3d/domain/bodyPublicRegionMeta";
 import { resolveTargetToAtomicZoneIds } from "@/widgets/body-3d/domain/bodySelectionTargets";
+
 import {
   getCameraFocusForAtomicZone,
   getFullBodyCameraPose,
@@ -45,6 +57,12 @@ import {
   buildBodySelectionSnapshot,
   serializeConceptualBodySelection,
 } from "@/widgets/body-3d/ux/bodySelectionSerialization";
+import {
+  resolveContextualPanelSide,
+  resolveDesktopPanelMaxWidth,
+  resolveSelectorLayoutMode,
+  type SelectorLayoutMode,
+} from "@/widgets/body-3d/ux/bodySelectorLayout";
 import { BodyViewControls } from "@/widgets/body-3d/ux/BodyViewControls";
 
 /** Sheet / panel flotante a partir de 900px (modelo primero en tablet estrecha). */
@@ -93,7 +111,13 @@ export function BodyPremiumSelector({
     BodySelectionTargetId[]
   >(() => [...(defaultValue ?? [])]);
 
-  const selectedTargetIds = resolveControlledTargets(value, internalTargets);
+  const selectedTargetIds = useMemo(
+    () =>
+      upgradeBodySelectionToPublicTargets(
+        resolveControlledTargets(value, internalTargets),
+      ).filter(isPublicSelectableBodyTarget),
+    [value, internalTargets],
+  );
 
   const [cameraView, setCameraView] = useState<BodyCameraView>(initialView);
   const [cameraViewToken, setCameraViewToken] = useState(0);
@@ -124,6 +148,11 @@ export function BodyPremiumSelector({
   const [payloadPreview, setPayloadPreview] = useState<string | null>(null);
   const [interactionReady, setInteractionReady] = useState(false);
   const [fitFraming, setFitFraming] = useState<FittedBodyFraming | null>(null);
+  const [surfaceNotice, setSurfaceNotice] = useState<string | null>(null);
+  const surfaceNoticeTimerRef = useRef<number | null>(null);
+  const [layoutMode, setLayoutMode] =
+    useState<SelectorLayoutMode>("desktop-medium");
+  const [viewportWidth, setViewportWidth] = useState(1280);
   const dragStartRef = useRef<{ x: number; y: number } | null>(null);
 
   const handleInteractionReady = useCallback(() => {
@@ -142,6 +171,25 @@ export function BodyPremiumSelector({
       setInteractionReady(true);
     }, 2500);
     return () => window.clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (surfaceNoticeTimerRef.current != null) {
+        window.clearTimeout(surfaceNoticeTimerRef.current);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    const sync = () => {
+      const w = window.innerWidth;
+      setViewportWidth(w);
+      setLayoutMode(resolveSelectorLayoutMode(w));
+    };
+    sync();
+    window.addEventListener("resize", sync);
+    return () => window.removeEventListener("resize", sync);
   }, []);
 
   useEffect(() => {
@@ -165,19 +213,50 @@ export function BodyPremiumSelector({
     [selectedTargetIds],
   );
 
-  const previewAtomicZoneIds = useMemo(() => {
-    if (previewTargetId) return resolveTargetToAtomicZoneIds(previewTargetId);
-    // Highlight inmediato al tocar (antes de confirmar opción)
-    if (activeAtomicZoneId) return [activeAtomicZoneId];
-    return [];
-  }, [activeAtomicZoneId, previewTargetId]);
+  const regionHighlightIds = useMemo(() => {
+    if (previewTargetId && isPublicSelectableBodyTarget(previewTargetId)) {
+      return resolveTargetToAtomicZoneIds(previewTargetId);
+    }
+    const source = activeAtomicZoneId ?? hoveredAtomicZoneId;
+    if (!source) return [];
+    const primary = getPrimaryPublicSelectionTarget(source);
+    return primary ? resolveTargetToAtomicZoneIds(primary) : [];
+  }, [activeAtomicZoneId, hoveredAtomicZoneId, previewTargetId]);
 
   const contextualOptions = useMemo(
     () =>
       activeAtomicZoneId
-        ? getSelectionOptionsForAtomicZone(activeAtomicZoneId)
+        ? getPublicSelectionOptionsForAtomicZone(activeAtomicZoneId)
         : [],
     [activeAtomicZoneId],
+  );
+
+  const panelPrimaryLabel = useMemo(() => {
+    if (!activeAtomicZoneId) return null;
+    const primary = getPrimaryPublicSelectionTarget(activeAtomicZoneId);
+    return primary ? getPublicShortLabel(primary) : null;
+  }, [activeAtomicZoneId]);
+
+  const panelSubtitle = useMemo(() => {
+    if (!activeAtomicZoneId) return null;
+    const primary = getPrimaryPublicSelectionTarget(activeAtomicZoneId);
+    return primary ? getPublicDescription(primary) : null;
+  }, [activeAtomicZoneId]);
+
+  const ariaZoneAnnouncement = useMemo(() => {
+    if (surfaceNotice) return surfaceNotice;
+    if (!panelPrimaryLabel) return "";
+    return `Zona seleccionada: ${panelPrimaryLabel}`;
+  }, [panelPrimaryLabel, surfaceNotice]);
+
+  const panelSide = useMemo(
+    () => resolveContextualPanelSide(hoverPointer?.x ?? null, viewportWidth),
+    [hoverPointer?.x, viewportWidth],
+  );
+
+  const panelMaxWidth = useMemo(
+    () => resolveDesktopPanelMaxWidth(layoutMode, viewportWidth),
+    [layoutMode, viewportWidth],
   );
 
   const contained = useMemo(() => {
@@ -186,7 +265,10 @@ export function BodyPremiumSelector({
   }, [activeAtomicZoneId, selectedTargetIds, showContainedOverride]);
 
   function commitTargets(next: BodySelectionTargetId[]) {
-    applySelectionChange(next, {
+    const publicOnly = upgradeBodySelectionToPublicTargets(next).filter(
+      isPublicSelectableBodyTarget,
+    );
+    applySelectionChange(publicOnly, {
       controlled,
       onChange,
       setInternal: setInternalTargets,
@@ -213,8 +295,33 @@ export function BodyPremiumSelector({
     setCameraFocused(false);
   }
 
+  function showNonSelectableNotice() {
+    if (surfaceNoticeTimerRef.current != null) {
+      window.clearTimeout(surfaceNoticeTimerRef.current);
+    }
+    setSurfaceNotice(NON_SELECTABLE_SURFACE_NOTICE);
+    surfaceNoticeTimerRef.current = window.setTimeout(() => {
+      setSurfaceNotice(null);
+      setSheetState("closed");
+      surfaceNoticeTimerRef.current = null;
+    }, 2400);
+  }
+
   function handleActivateZone(atomicId: string) {
     markInteracted();
+
+    if (isNonSelectableSurfaceAtomic(atomicId)) {
+      setActiveAtomicZoneId(null);
+      setPreviewTargetId(null);
+      setShowContainedOverride(false);
+      setReplacingTargetId(null);
+      setSheetMode("zone");
+      setSheetState(isCoarsePointer ? "peek" : "closed");
+      showNonSelectableNotice();
+      return;
+    }
+
+    setSurfaceNotice(null);
     setActiveAtomicZoneId(atomicId);
     setShowContainedOverride(false);
     setReplacingTargetId(null);
@@ -274,11 +381,16 @@ export function BodyPremiumSelector({
     }
   }
 
+  const selectableHoveredAtomicId =
+    hoveredAtomicZoneId && !isNonSelectableSurfaceAtomic(hoveredAtomicZoneId)
+      ? hoveredAtomicZoneId
+      : null;
+
   const showDesktopTooltip =
     !isCoarsePointer &&
     !isOrbitDragging &&
-    Boolean(hoveredAtomicZoneId) &&
-    hoveredAtomicZoneId !== activeAtomicZoneId;
+    Boolean(selectableHoveredAtomicId) &&
+    selectableHoveredAtomicId !== activeAtomicZoneId;
 
   const sharedOptionProps = activeAtomicZoneId
     ? {
@@ -301,11 +413,15 @@ export function BodyPremiumSelector({
         },
         replacingTargetId,
         enablePreview: !isCoarsePointer,
+        panelTitle: panelPrimaryLabel,
+        panelSubtitle,
       }
     : null;
 
-  const floatingPanelClass =
-    "pointer-events-none absolute right-3 top-3 z-20 hidden w-[min(100%,17.5rem)] min-[900px]:pointer-events-auto min-[900px]:block lg:right-4 lg:top-4 lg:w-[min(100%,18.5rem)]";
+  const floatingPanelClass = [
+    "pointer-events-none absolute top-3 z-20 hidden min-[900px]:pointer-events-auto min-[900px]:block",
+    panelSide === "left" ? "left-3 lg:left-4" : "right-3 lg:right-4",
+  ].join(" ");
 
   return (
     <div
@@ -313,6 +429,9 @@ export function BodyPremiumSelector({
         .filter(Boolean)
         .join(" ")}
     >
+      <div className="sr-only" aria-live="polite">
+        {ariaZoneAnnouncement}
+      </div>
       <div
         className="relative min-h-[380px] overflow-hidden rounded-2xl border border-white/10 bg-[#17110d] sm:min-h-[420px]"
         style={{ height: frameHeight }}
@@ -345,13 +464,13 @@ export function BodyPremiumSelector({
           cameraView={cameraView}
           cameraViewToken={cameraViewToken}
           labInteractionMode="premium"
-          hoveredAtomicZoneId={hoveredAtomicZoneId}
-          previewAtomicZoneIds={previewAtomicZoneIds}
+          hoveredAtomicZoneId={selectableHoveredAtomicId}
+          previewAtomicZoneIds={regionHighlightIds}
           selectedAtomicZoneIds={resolvedSelectedAtomicZoneIds}
           onHoverAtomicZone={(id) => {
             if (!interactionReady) return;
             setHoveredAtomicZoneId(id);
-            if (id) markInteracted();
+            if (id && !isNonSelectableSurfaceAtomic(id)) markInteracted();
           }}
           onHoverPointer={(p) => {
             if (!interactionReady) return;
@@ -401,8 +520,24 @@ export function BodyPremiumSelector({
           </div>
         ) : null}
 
+        {surfaceNotice ? (
+          <div
+            className="pointer-events-none absolute inset-x-0 top-4 z-30 flex justify-center px-4 min-[900px]:top-5"
+            role="status"
+            aria-live="polite"
+          >
+            <p className="max-w-sm rounded-xl border border-white/10 bg-[rgba(23,17,13,0.88)] px-4 py-2.5 text-center text-sm leading-snug text-zinc-300 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-md">
+              {surfaceNotice}
+            </p>
+          </div>
+        ) : null}
+
         {activeAtomicZoneId && sharedOptionProps ? (
-          <aside className={floatingPanelClass} aria-live="polite">
+          <aside
+            className={floatingPanelClass}
+            aria-live="polite"
+            style={{ width: `min(100%, ${panelMaxWidth}px)` }}
+          >
             <div className="rounded-2xl border border-white/12 bg-[rgba(23,17,13,0.92)] p-4 shadow-[0_20px_60px_rgba(0,0,0,0.45),inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-xl transition-opacity duration-200">
               <BodyContextOptions {...sharedOptionProps} mode="full" />
               <button
@@ -451,14 +586,17 @@ export function BodyPremiumSelector({
                 ? sheetState === "closed"
                   ? "peek"
                   : sheetState
-                : sheetState === "expanded" && sheetMode === "selection"
-                  ? "expanded"
-                  : "closed"
+                : surfaceNotice && sheetState !== "closed"
+                  ? "peek"
+                  : sheetState === "expanded" && sheetMode === "selection"
+                    ? "expanded"
+                    : "closed"
           }
           onStateChange={(next) => {
             setSheetState(next);
             if (next === "closed") {
               setSheetMode("zone");
+              setSurfaceNotice(null);
               if (!activeAtomicZoneId) return;
               setActiveAtomicZoneId(null);
               setPreviewTargetId(null);
@@ -467,7 +605,11 @@ export function BodyPremiumSelector({
             }
           }}
           peekContent={
-            sharedOptionProps ? (
+            surfaceNotice && !activeAtomicZoneId ? (
+              <p className="px-1 py-2 text-sm leading-relaxed text-zinc-300">
+                {surfaceNotice}
+              </p>
+            ) : sharedOptionProps ? (
               <BodyContextOptions {...sharedOptionProps} mode="peek" />
             ) : null
           }
@@ -543,7 +685,7 @@ export function BodyPremiumSelector({
       ) : null}
 
       <BodyHoverTooltip
-        atomicZoneId={hoveredAtomicZoneId}
+        atomicZoneId={selectableHoveredAtomicId}
         pointer={hoverPointer}
         visible={showDesktopTooltip}
       />

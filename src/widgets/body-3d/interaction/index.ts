@@ -17,3 +17,8 @@ export {
 export { BodyInteractionModel } from "@/widgets/body-3d/interaction/BodyInteractionModel";
 export { BodyZoneHighlight } from "@/widgets/body-3d/interaction/BodyZoneHighlight";
 export { BodyInteractionLabPanel } from "@/widgets/body-3d/interaction/BodyInteractionLabPanel";
+export { getPublicSelectionOptionsForAtomicZone } from "@/widgets/body-3d/domain/bodyPublicSelectionRouting";
+export {
+  isPublicSelectableBodyTarget,
+  PUBLIC_SELECTABLE_BODY_TARGET_IDS,
+} from "@/widgets/body-3d/domain/bodyPublicSelectionTargets";
