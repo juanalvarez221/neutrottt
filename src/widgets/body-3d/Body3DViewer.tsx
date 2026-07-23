@@ -1,6 +1,13 @@
 "use client";
 
-import { Suspense, useLayoutEffect, useMemo, useRef, useState } from "react";
+import {
+  Suspense,
+  useCallback,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { Canvas } from "@react-three/fiber";
 import { Center, OrbitControls, useGLTF } from "@react-three/drei";
 import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
@@ -15,6 +22,7 @@ import type { BodyModelDefinition } from "@/widgets/body-3d/bodyModelDefinition"
 import {
   getCameraLookTarget,
   getCameraPositionForView,
+  type BodyCameraFraming,
 } from "@/widgets/body-3d/cameraViewHelpers";
 import type {
   BodyAppearanceMode,
@@ -25,9 +33,16 @@ import type {
   BodyRegionFilter,
   InteractionDebugLayer,
 } from "@/widgets/body-3d/domain/bodyZones";
+import { BODY_81_INTERACTION_MODEL_SRC } from "@/widgets/body-3d/domain/bodyZones";
+import { BodyAutoFit } from "@/widgets/body-3d/ux/BodyAutoFit";
 import type { CameraFocusPose } from "@/widgets/body-3d/ux/bodyCameraFocus";
+import {
+  verticalFillForViewport,
+  type FittedBodyFraming,
+} from "@/widgets/body-3d/ux/bodyFitFraming";
 
 const BG = "#17110d";
+const CAMERA_FOV = 42;
 
 /** off | debug zones | technical interaction | premium UX */
 export type LabInteractionMode = "off" | "debug" | "interaction" | "premium";
@@ -62,6 +77,10 @@ type Body3DViewerProps = {
   chrome?: boolean;
   /** InteractionModel listo para raycast. */
   onInteractionReady?: () => void;
+  /** Framing de cuerpo completo calculado por bbox (para focus/reset del padre). */
+  onFitFraming?: (framing: FittedBodyFraming) => void;
+  /** Activa auto-fit por bounding box del BodyVisual. */
+  autoFit?: boolean;
   /** Texto de carga (producción / lab). */
   loadingLabel?: string;
   className?: string;
@@ -101,6 +120,10 @@ function BodyScene({
   onHoverPointer,
   onActivateAtomicZone,
   onInteractionReady,
+  autoFit,
+  verticalFill,
+  fitToken,
+  onFit,
 }: {
   model: BodyModelDefinition;
   appearance: BodyAppearanceMode;
@@ -118,6 +141,10 @@ function BodyScene({
   onHoverPointer: (point: { x: number; y: number } | null) => void;
   onActivateAtomicZone: (atomicId: string) => void;
   onInteractionReady?: () => void;
+  autoFit: boolean;
+  verticalFill: number;
+  fitToken: number;
+  onFit: (framing: FittedBodyFraming) => void;
 }) {
   const isProduction = model.role === "production";
   const showDebug =
@@ -125,7 +152,7 @@ function BodyScene({
   const showInteraction =
     isProduction && isSpatialInteraction(labInteractionMode);
 
-  return (
+  const content = (
     <Center>
       <HumanBodyModel
         model={model}
@@ -164,6 +191,19 @@ function BodyScene({
         </>
       ) : null}
     </Center>
+  );
+
+  if (!autoFit) return content;
+
+  return (
+    <BodyAutoFit
+      enabled
+      verticalFill={verticalFill}
+      fitToken={fitToken}
+      onFit={onFit}
+    >
+      {content}
+    </BodyAutoFit>
   );
 }
 
@@ -204,6 +244,8 @@ export function Body3DViewer({
   reducedMotion = false,
   chrome = true,
   onInteractionReady,
+  onFitFraming,
+  autoFit = true,
   loadingLabel = "Cargando visor…",
   className = "",
   height = "min(72dvh, 720px)",
@@ -211,14 +253,28 @@ export function Body3DViewer({
   const hostRef = useRef<HTMLDivElement>(null);
   const orbitRef = useRef<OrbitControlsImpl | null>(null);
   const [size, setSize] = useState<ViewerSize>({ width: 0, height: 0 });
+  const [fitFraming, setFitFraming] = useState<FittedBodyFraming | null>(null);
+  const [fitToken, setFitToken] = useState(0);
+
+  const activeFraming: BodyCameraFraming = fitFraming ?? model.camera;
 
   const initialCameraPosition = useMemo(
     () => getCameraPositionForView("front", model.camera),
     [model.camera],
   );
   const lookTarget = useMemo(
-    () => getCameraLookTarget(model.camera),
-    [model.camera],
+    () => getCameraLookTarget(activeFraming),
+    [activeFraming],
+  );
+
+  const verticalFill = verticalFillForViewport(size.width || 1024);
+
+  const handleFit = useCallback(
+    (framing: FittedBodyFraming) => {
+      setFitFraming(framing);
+      onFitFraming?.(framing);
+    },
+    [onFitFraming],
   );
 
   useLayoutEffect(() => {
@@ -227,9 +283,26 @@ export function Body3DViewer({
 
     const update = () => {
       const next = readHostSize(host);
-      setSize((prev) =>
-        prev.width === next.width && prev.height === next.height ? prev : next,
-      );
+      if (next.width <= 0) {
+        next.width = Math.max(
+          host.offsetWidth,
+          host.parentElement?.clientWidth ?? 0,
+          320,
+        );
+      }
+      if (next.height <= 0) {
+        next.height = Math.max(host.offsetHeight, 360);
+      }
+
+      setSize((prev) => {
+        if (prev.width === next.width && prev.height === next.height) {
+          return prev;
+        }
+        if (autoFit && prev.width > 0) {
+          queueMicrotask(() => setFitToken((t) => t + 1));
+        }
+        return next;
+      });
     };
 
     update();
@@ -237,7 +310,9 @@ export function Body3DViewer({
     observer.observe(host);
     window.addEventListener("resize", update);
 
-    const timers = [0, 50, 150, 400].map((ms) => window.setTimeout(update, ms));
+    const timers = [0, 50, 150, 400, 1000].map((ms) =>
+      window.setTimeout(update, ms),
+    );
     const raf = window.requestAnimationFrame(update);
 
     return () => {
@@ -246,15 +321,25 @@ export function Body3DViewer({
       window.cancelAnimationFrame(raf);
       for (const id of timers) window.clearTimeout(id);
     };
-  }, []);
+  }, [autoFit]);
 
   useLayoutEffect(() => {
     void useGLTF.preload(model.src);
-  }, [model.src]);
+    if (isSpatialInteraction(labInteractionMode)) {
+      void useGLTF.preload(BODY_81_INTERACTION_MODEL_SRC);
+    }
+  }, [labInteractionMode, model.src]);
 
   const canRender = size.width > 0 && size.height > 0;
-  const minDistance = model.camera.minDistance ?? model.camera.distance * 0.55;
-  const maxDistance = model.camera.maxDistance ?? model.camera.distance * 2.1;
+  const fitReady = !autoFit || fitFraming !== null;
+  const minDistance =
+    fitFraming?.minDistance ??
+    model.camera.minDistance ??
+    model.camera.distance * 0.55;
+  const maxDistance =
+    fitFraming?.maxDistance ??
+    model.camera.maxDistance ??
+    model.camera.distance * 2.1;
 
   return (
     <div
@@ -266,16 +351,20 @@ export function Body3DViewer({
       ]
         .filter(Boolean)
         .join(" ")}
-      style={{ height, width: "100%" }}
+      style={{ height, width: "100%", minHeight: 360 }}
     >
       {canRender ? (
         <Canvas
           key={model.id}
           dpr={[1, 1.75]}
           style={{
-            width: size.width,
-            height: size.height,
+            position: "absolute",
+            inset: 0,
+            width: "100%",
+            height: "100%",
             display: "block",
+            opacity: fitReady ? 1 : 0,
+            transition: reducedMotion ? undefined : "opacity 160ms ease-out",
           }}
           gl={{
             antialias: true,
@@ -288,7 +377,7 @@ export function Body3DViewer({
               initialCameraPosition.y,
               initialCameraPosition.z,
             ],
-            fov: 42,
+            fov: CAMERA_FOV,
             near: 0.05,
             far: 80,
           }}
@@ -314,12 +403,16 @@ export function Body3DViewer({
               onHoverPointer={onHoverPointer ?? (() => undefined)}
               onActivateAtomicZone={onActivateAtomicZone ?? (() => undefined)}
               onInteractionReady={onInteractionReady}
+              autoFit={autoFit}
+              verticalFill={verticalFill}
+              fitToken={fitToken}
+              onFit={handleFit}
             />
           </Suspense>
 
           <BodyCameraController
             view={cameraView}
-            framing={model.camera}
+            framing={activeFraming}
             viewToken={cameraViewToken}
             orbitRef={orbitRef}
             focusPose={focusPose}

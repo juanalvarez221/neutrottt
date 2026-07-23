@@ -94,10 +94,15 @@ export function BodyInteractionModel({
   const { scene } = useGLTF(BODY_81_INTERACTION_MODEL_SRC);
   const prepared = useMemo(() => prepareInvisibleRaycastScene(scene), [scene]);
   const sessionRef = useRef<PointerSession | null>(null);
+  const onReadyRef = useRef(onReady);
 
   useLayoutEffect(() => {
-    onReady?.();
-  }, [onReady, prepared]);
+    onReadyRef.current = onReady;
+  }, [onReady]);
+
+  useLayoutEffect(() => {
+    onReadyRef.current?.();
+  }, [prepared]);
 
   useLayoutEffect(() => {
     return () => {

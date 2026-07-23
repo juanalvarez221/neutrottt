@@ -31,9 +31,9 @@ const TIER_META: Record<
   ContextualSelectionOption["tier"],
   { title: string; hint: string }
 > = {
-  exact: { title: "Seleccionar", hint: "Solo esta superficie" },
-  region: { title: "Zona completa", hint: "Región anatómica" },
-  broad: { title: "Opciones amplias", hint: "Composiciones mayores" },
+  exact: { title: "Zona exacta", hint: "Solo esta superficie" },
+  region: { title: "Zona anatómica", hint: "Región completa" },
+  broad: { title: "Selección comercial", hint: "Composiciones mayores" },
 };
 
 export function BodyContextOptions({

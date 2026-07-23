@@ -42,8 +42,8 @@ export function BodyMobileSheet({
     >
       <div
         className={[
-          "pointer-events-auto mx-auto w-full max-w-lg overflow-hidden rounded-t-3xl border border-white/12 border-b-0 bg-[rgba(23,17,13,0.94)] shadow-[0_-16px_48px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-xl transition-[max-height] duration-250 ease-out",
-          expanded ? "max-h-[62dvh]" : "max-h-[22rem]",
+          "pointer-events-auto mx-auto w-full max-w-lg overflow-hidden rounded-t-3xl border border-white/12 border-b-0 bg-[rgba(23,17,13,0.96)] shadow-[0_-16px_48px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-xl transition-[max-height] duration-250 ease-out",
+          expanded ? "max-h-[64dvh]" : "max-h-[min(34dvh,20rem)]",
         ].join(" ")}
         role="dialog"
         aria-label="Opciones de zona"
@@ -60,9 +60,9 @@ export function BodyMobileSheet({
         </div>
 
         {!expanded ? (
-          <div className="max-h-[calc(22rem-2.5rem)] overflow-y-auto overscroll-contain px-4 pb-4 pt-1">
+          <div className="max-h-[calc(min(34dvh,20rem)-2.5rem)] overflow-y-auto overscroll-contain px-4 pb-5 pt-1">
             {peekContent}
-            <div className="mt-3 flex items-center justify-between gap-2">
+            <div className="mt-4 flex items-center justify-between gap-2">
               <button
                 type="button"
                 aria-label="Cerrar"
@@ -74,9 +74,9 @@ export function BodyMobileSheet({
               <button
                 type="button"
                 onClick={() => onStateChange("expanded")}
-                className="inline-flex min-h-11 items-center rounded-xl border border-white/12 bg-black/35 px-3 text-xs font-semibold text-zinc-200 transition hover:bg-black/50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[rgba(232,168,64,0.7)] active:scale-[0.98]"
+                className="inline-flex min-h-11 items-center rounded-full border border-white/12 bg-black/40 px-4 text-xs font-semibold text-zinc-100 transition hover:bg-black/55 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[rgba(232,168,64,0.7)] active:scale-[0.98]"
               >
-                Más opciones ↑
+                Más opciones
               </button>
             </div>
           </div>

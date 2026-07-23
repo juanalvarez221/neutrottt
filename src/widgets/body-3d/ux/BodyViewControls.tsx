@@ -1,5 +1,5 @@
 /**
- * Controles de vista compactos (Frente / Espalda / laterales / cuerpo completo).
+ * Controles de vista — segmented pills premium (Frente / Espalda / laterales).
  * Izquierda/Derecha = anatomía del modelo, no del espectador.
  */
 
@@ -43,42 +43,42 @@ export function BodyViewControls({
   onCameraViewChange,
   focused,
   onResetFullBody,
-  compact = false,
   className = "",
 }: BodyViewControlsProps) {
   return (
     <div
       role="toolbar"
       aria-label="Controles de vista del cuerpo"
-      className={["flex flex-wrap items-center gap-1.5", className]
+      className={["flex flex-wrap items-center gap-2", className]
         .filter(Boolean)
         .join(" ")}
     >
-      {VIEWS.map((view) => {
-        const active = cameraView === view.id && !focused;
-        return (
-          <button
-            key={view.id}
-            type="button"
-            aria-label={view.title}
-            aria-pressed={active}
-            title={view.title}
-            onClick={() => onCameraViewChange(view.id)}
-            className={[
-              "inline-flex min-h-11 min-w-11 items-center justify-center rounded-xl border text-xs font-semibold tracking-wide transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[rgba(232,168,64,0.7)] active:scale-[0.98]",
-              active
-                ? "border-[rgba(232,168,64,0.45)] bg-[rgba(232,168,64,0.18)] text-[rgba(255,236,210,0.96)]"
-                : "border-white/10 bg-black/35 text-zinc-300 hover:border-white/18 hover:bg-black/50 hover:text-zinc-100",
-              compact ? "px-2.5" : "px-3",
-            ].join(" ")}
-          >
-            <span className="hidden sm:inline">{view.label}</span>
-            <span className="sm:hidden" aria-hidden>
-              {view.short}
-            </span>
-          </button>
-        );
-      })}
+      <div className="inline-flex items-center rounded-full border border-white/12 bg-black/45 p-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-md">
+        {VIEWS.map((view) => {
+          const active = cameraView === view.id && !focused;
+          return (
+            <button
+              key={view.id}
+              type="button"
+              aria-label={view.title}
+              aria-pressed={active}
+              title={view.title}
+              onClick={() => onCameraViewChange(view.id)}
+              className={[
+                "inline-flex min-h-10 items-center justify-center rounded-full px-3 text-[11px] font-semibold tracking-wide transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[rgba(232,168,64,0.7)] active:scale-[0.97] sm:min-h-11 sm:px-3.5 sm:text-xs",
+                active
+                  ? "bg-[rgba(232,168,64,0.22)] text-[rgba(255,236,210,0.98)] shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]"
+                  : "text-zinc-400 hover:text-zinc-100",
+              ].join(" ")}
+            >
+              <span className="hidden min-[420px]:inline">{view.label}</span>
+              <span className="min-[420px]:hidden" aria-hidden>
+                {view.short}
+              </span>
+            </button>
+          );
+        })}
+      </div>
 
       {focused ? (
         <button
@@ -86,10 +86,10 @@ export function BodyViewControls({
           aria-label="Ver cuerpo completo"
           title="Ver cuerpo completo"
           onClick={onResetFullBody}
-          className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-xl border border-[rgba(184,137,88,0.35)] bg-[rgba(184,137,88,0.14)] px-3 text-xs font-semibold tracking-wide text-[rgba(255,230,200,0.95)] transition hover:bg-[rgba(184,137,88,0.22)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[rgba(232,168,64,0.7)] active:scale-[0.98]"
+          className="inline-flex min-h-10 items-center justify-center gap-1.5 rounded-full border border-[rgba(184,137,88,0.4)] bg-[rgba(184,137,88,0.16)] px-3.5 text-[11px] font-semibold tracking-wide text-[rgba(255,230,200,0.95)] shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-md transition hover:bg-[rgba(184,137,88,0.24)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[rgba(232,168,64,0.7)] active:scale-[0.97] sm:min-h-11 sm:text-xs"
         >
           <FullBodyIcon />
-          <span className="hidden sm:inline">Cuerpo completo</span>
+          <span className="hidden sm:inline">Completo</span>
         </button>
       ) : null}
     </div>

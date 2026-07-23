@@ -5,7 +5,7 @@
 
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Body3DViewer } from "@/widgets/body-3d/Body3DViewer";
 import type { BodyModelDefinition } from "@/widgets/body-3d/bodyModelDefinition";
 import type { BodyCameraView } from "@/widgets/body-3d/bodyViewerTypes";
@@ -22,6 +22,8 @@ import {
   getFullBodyCameraPose,
   type CameraFocusPose,
 } from "@/widgets/body-3d/ux/bodyCameraFocus";
+import type { FittedBodyFraming } from "@/widgets/body-3d/ux/bodyFitFraming";
+import type { BodyCameraFraming } from "@/widgets/body-3d/cameraViewHelpers";
 import {
   findContainingSelections,
   replaceContainingSelection,
@@ -58,10 +60,12 @@ export type BodyPremiumSelectorProps = {
   onContinue?: (targets: BodySelectionTargetId[]) => void;
   initialView?: BodyCameraView;
   className?: string;
-  /** Altura del marco del visor (CSS). Default lab. */
+  /** Altura del marco del visor (CSS). Default producción responsive. */
   frameHeight?: string;
   /** Muestra botón Continuar + payload demo (solo laboratorio). */
   showLabContinue?: boolean;
+  /** Overlay intro dentro del canvas. En cotización suele ir el título fuera. */
+  showIntroOverlay?: boolean;
   loadingLabel?: string;
   introTitle?: string;
   introBody?: string;
@@ -76,8 +80,9 @@ export function BodyPremiumSelector({
   onContinue,
   initialView = "front",
   className = "",
-  frameHeight = "min(82dvh, 760px)",
+  frameHeight = "clamp(420px, 64dvh, 680px)",
   showLabContinue = false,
+  showIntroOverlay = true,
   loadingLabel = "Preparando el modelo…",
   introTitle = "¿Dónde quieres tatuarte?",
   introBody = "Gira el modelo y toca una zona del cuerpo.",
@@ -118,7 +123,26 @@ export function BodyPremiumSelector({
   const [isOrbitDragging, setIsOrbitDragging] = useState(false);
   const [payloadPreview, setPayloadPreview] = useState<string | null>(null);
   const [interactionReady, setInteractionReady] = useState(false);
+  const [fitFraming, setFitFraming] = useState<FittedBodyFraming | null>(null);
   const dragStartRef = useRef<{ x: number; y: number } | null>(null);
+
+  const handleInteractionReady = useCallback(() => {
+    setInteractionReady(true);
+  }, []);
+
+  const handleFitFraming = useCallback((framing: FittedBodyFraming) => {
+    setFitFraming(framing);
+  }, []);
+
+  const activeFraming: BodyCameraFraming = fitFraming ?? model.camera;
+
+  // Failsafe: no dejar el overlay bloqueado si el callback no llega
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      setInteractionReady(true);
+    }, 2500);
+    return () => window.clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     const mq = window.matchMedia("(pointer: coarse)");
@@ -141,11 +165,12 @@ export function BodyPremiumSelector({
     [selectedTargetIds],
   );
 
-  const previewAtomicZoneIds = useMemo(
-    () =>
-      previewTargetId ? resolveTargetToAtomicZoneIds(previewTargetId) : [],
-    [previewTargetId],
-  );
+  const previewAtomicZoneIds = useMemo(() => {
+    if (previewTargetId) return resolveTargetToAtomicZoneIds(previewTargetId);
+    // Highlight inmediato al tocar (antes de confirmar opción)
+    if (activeAtomicZoneId) return [activeAtomicZoneId];
+    return [];
+  }, [activeAtomicZoneId, previewTargetId]);
 
   const contextualOptions = useMemo(
     () =>
@@ -181,7 +206,7 @@ export function BodyPremiumSelector({
   }
 
   function handleResetFullBody() {
-    setFocusPose(getFullBodyCameraPose(model.camera));
+    setFocusPose(getFullBodyCameraPose(activeFraming));
     setCameraView("front");
     setCameraViewToken((t) => t + 1);
     setFocusToken((t) => t + 1);
@@ -197,7 +222,7 @@ export function BodyPremiumSelector({
     setSheetMode("zone");
     setSheetState("peek");
 
-    const pose = getCameraFocusForAtomicZone(atomicId, model.camera);
+    const pose = getCameraFocusForAtomicZone(atomicId, activeFraming);
     setFocusPose(pose);
     setFocusToken((t) => t + 1);
     setCameraFocused(true);
@@ -280,19 +305,16 @@ export function BodyPremiumSelector({
     : null;
 
   const floatingPanelClass =
-    "pointer-events-none absolute right-4 top-4 z-20 hidden w-[min(100%,20rem)] min-[900px]:pointer-events-auto min-[900px]:block";
+    "pointer-events-none absolute right-3 top-3 z-20 hidden w-[min(100%,17.5rem)] min-[900px]:pointer-events-auto min-[900px]:block lg:right-4 lg:top-4 lg:w-[min(100%,18.5rem)]";
 
   return (
     <div
-      className={[
-        "relative flex flex-col gap-3",
-        className,
-      ]
+      className={["relative flex flex-col gap-3", className]
         .filter(Boolean)
         .join(" ")}
     >
       <div
-        className="relative min-h-[360px] flex-1 overflow-hidden rounded-2xl border border-white/10 bg-[#17110d]"
+        className="relative min-h-[380px] overflow-hidden rounded-2xl border border-white/10 bg-[#17110d] sm:min-h-[420px]"
         style={{ height: frameHeight }}
         onPointerDown={(e) => {
           dragStartRef.current = { x: e.clientX, y: e.clientY };
@@ -339,7 +361,9 @@ export function BodyPremiumSelector({
             if (!interactionReady) return;
             handleActivateZone(id);
           }}
-          onInteractionReady={() => setInteractionReady(true)}
+          onInteractionReady={handleInteractionReady}
+          onFitFraming={handleFitFraming}
+          autoFit
           focusPose={focusPose}
           focusToken={focusToken}
           reducedMotion={reducedMotion}
@@ -351,18 +375,18 @@ export function BodyPremiumSelector({
 
         {!interactionReady ? (
           <div
-            className="absolute inset-0 z-30 flex items-center justify-center bg-[rgba(23,17,13,0.55)] backdrop-blur-[2px]"
+            className="pointer-events-none absolute inset-0 z-30 flex items-center justify-center bg-[rgba(23,17,13,0.28)]"
             aria-busy
             aria-live="polite"
           >
-            <p className="text-sm font-medium tracking-wide text-zinc-300">
+            <p className="rounded-full border border-white/10 bg-black/50 px-4 py-2 text-sm font-medium tracking-wide text-zinc-300 backdrop-blur-sm">
               {loadingLabel}
             </p>
           </div>
         ) : null}
 
-        {!hasInteracted && interactionReady ? (
-          <div className="pointer-events-none absolute inset-x-0 top-5 z-20 flex justify-center px-4 min-[900px]:top-8 min-[900px]:justify-start min-[900px]:pl-8">
+        {showIntroOverlay && !hasInteracted && interactionReady ? (
+          <div className="pointer-events-none absolute inset-x-0 top-4 z-20 flex justify-center px-4 min-[900px]:top-6 min-[900px]:justify-start min-[900px]:pl-6">
             <div className="max-w-sm rounded-2xl border border-white/10 bg-[rgba(23,17,13,0.72)] px-4 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-md">
               <p className="text-base font-semibold tracking-tight text-[rgba(255,242,228,0.96)]">
                 {introTitle}
@@ -379,7 +403,7 @@ export function BodyPremiumSelector({
 
         {activeAtomicZoneId && sharedOptionProps ? (
           <aside className={floatingPanelClass} aria-live="polite">
-            <div className="rounded-2xl border border-white/12 bg-[rgba(23,17,13,0.9)] p-4 shadow-[0_20px_60px_rgba(0,0,0,0.45),inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-xl transition-opacity duration-200">
+            <div className="rounded-2xl border border-white/12 bg-[rgba(23,17,13,0.92)] p-4 shadow-[0_20px_60px_rgba(0,0,0,0.45),inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-xl transition-opacity duration-200">
               <BodyContextOptions {...sharedOptionProps} mode="full" />
               <button
                 type="button"
@@ -392,7 +416,7 @@ export function BodyPremiumSelector({
           </aside>
         ) : null}
 
-        <div className="pointer-events-none absolute bottom-4 left-4 z-20 min-[900px]:bottom-5">
+        <div className="pointer-events-none absolute bottom-3 left-3 z-20 right-3 flex items-end justify-between gap-3 min-[900px]:bottom-4 min-[900px]:left-4 min-[900px]:right-auto">
           <div className="pointer-events-auto">
             <BodyViewControls
               cameraView={cameraView}
@@ -402,12 +426,9 @@ export function BodyPremiumSelector({
               compact
             />
           </div>
-        </div>
 
-        {/* Compact selection indicator (mobile/tablet sheet closed) */}
-        {!activeAtomicZoneId && selectedTargetIds.length > 0 ? (
-          <div className="pointer-events-none absolute bottom-4 right-4 z-20 min-[900px]:hidden">
-            <div className="pointer-events-auto">
+          {!activeAtomicZoneId && selectedTargetIds.length > 0 ? (
+            <div className="pointer-events-auto min-[900px]:hidden">
               <BodySelectionSummary
                 selectedTargetIds={selectedTargetIds}
                 onRemove={() => undefined}
@@ -419,8 +440,8 @@ export function BodyPremiumSelector({
                 }}
               />
             </div>
-          </div>
-        ) : null}
+          ) : null}
+        </div>
 
         <BodyMobileSheet
           state={
@@ -489,6 +510,7 @@ export function BodyPremiumSelector({
           }
           onClear={() => commitTargets(clearSelectionTargets())}
           variant="bar"
+          emptyHint="Toca una zona del cuerpo para empezar tu selección."
         />
       </div>
 

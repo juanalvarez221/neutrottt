@@ -75,7 +75,7 @@ function prepareHighlightScene(
           ? PREVIEW_COLOR
           : HOVER_COLOR;
     const opacity =
-      kind === "selected" ? 0.42 : kind === "preview" ? 0.32 : 0.2;
+      kind === "selected" ? 0.48 : kind === "preview" ? 0.34 : 0.2;
 
     const mat = new ThreeMeshBasicMaterial({
       color,

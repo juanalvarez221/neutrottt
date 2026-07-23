@@ -186,36 +186,21 @@ export function QuoteLocationStep({ size }: { size: string }) {
 
   return (
     <QuoteShell>
-      <section className="relative mb-6">
-        <div className="pointer-events-none absolute -left-10 -top-10 h-40 w-40 rounded-full bg-amber-600/15 blur-[60px]" />
-
+      <section className="relative mb-4 sm:mb-5">
         <p className="typo-tech mb-2 uppercase tracking-[0.16em] text-amber-200/85">
           {t("quoteLocationStep")}
         </p>
 
-        <h2 className="typo-section text-[2.2rem] leading-[1.05] md:text-[3.2rem]">
+        <h2 className="typo-section text-[1.85rem] leading-[1.08] tracking-tight sm:text-[2.35rem] md:text-[2.75rem]">
           {t("quoteLocationTitle")}
-          <br />
-          <span className="bg-gradient-to-r from-white to-zinc-400 bg-clip-text text-transparent">
-            {t("quoteLocationTitle2")}
-          </span>
         </h2>
 
-        <p className="typo-body mt-3 max-w-xl leading-relaxed">
+        <p className="typo-body mt-2 max-w-xl text-[0.95rem] leading-relaxed text-stone-300/90 sm:mt-2.5">
           {t("quoteLocationBody")}
         </p>
       </section>
 
-      <section className="mb-6">
-        <div className="mb-3 flex items-center gap-3">
-          <div className="flex h-6 w-6 items-center justify-center rounded-full border border-amber-500/30 bg-amber-600/10">
-            <span className="text-[10px] font-bold text-white">2</span>
-          </div>
-          <h3 className="typo-subtitle text-sm uppercase tracking-[0.14em] text-zinc-200">
-            {t("quoteLocationCardTitle")}
-          </h3>
-        </div>
-
+      <section className="mb-4 sm:mb-5">
         <QuoteBodyLocationSelector
           value={selectedBodyTargets}
           onChange={handleTargetsChange}
@@ -240,14 +225,14 @@ export function QuoteLocationStep({ size }: { size: string }) {
       </section>
 
       {!isLocationComplete ? (
-        <div className="mb-4 rounded-xl border border-amber-300/20 bg-amber-500/10 px-4 py-3 text-sm font-medium text-amber-100">
+        <div className="mb-3 rounded-xl border border-amber-300/20 bg-amber-500/10 px-4 py-3 text-sm font-medium text-amber-100">
           {selectorMode === "3d"
             ? t("quoteBody3dEmptyContinue")
             : t("quoteRefinementIncomplete")}
         </div>
       ) : null}
 
-      <div className="quote-step-footer mt-6">
+      <div className="quote-step-footer mt-4 sm:mt-5">
         <button
           type="button"
           onClick={() => router.push("/cotizacion/tamano")}

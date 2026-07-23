@@ -5,6 +5,11 @@
 export { BodyPremiumSelector } from "@/widgets/body-3d/ux/BodyPremiumSelector";
 export type { BodyPremiumSelectorProps } from "@/widgets/body-3d/ux/BodyPremiumSelector";
 export { BODY_SELECTOR_DESKTOP_MIN_PX } from "@/widgets/body-3d/ux/BodyPremiumSelector";
+export {
+  computeFitFramingFromBox,
+  verticalFillForViewport,
+} from "@/widgets/body-3d/ux/bodyFitFraming";
+export type { FittedBodyFraming } from "@/widgets/body-3d/ux/bodyFitFraming";
 
 export type {
   BodySelectionTargetId,

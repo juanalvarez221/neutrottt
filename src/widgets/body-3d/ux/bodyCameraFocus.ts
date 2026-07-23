@@ -31,13 +31,13 @@ export type CameraFocusPose = {
 };
 
 /** Distancia mínima relativa al cuerpo completo (nunca zoom excesivo). */
-export const MIN_FOCUS_DIST_SCALE = 0.58;
+export const MIN_FOCUS_DIST_SCALE = 0.62;
 /** Distancia máxima relativa (sigue viéndose contexto corporal). */
 export const MAX_FOCUS_DIST_SCALE = 0.92;
-/** Yaw automático máximo en radianes (~20°). */
-export const MAX_YAW_DELTA = 0.35;
+/** Yaw automático máximo en radianes (~18°). */
+export const MAX_YAW_DELTA = 0.32;
 /** Bias posterior máximo (espalda/nuca) — moderado, no 180°. */
-export const MAX_BACK_BIAS = Math.PI * 0.42;
+export const MAX_BACK_BIAS = Math.PI * 0.38;
 
 function sectionForAtomic(atomicId: string): BodySection {
   if (
@@ -91,13 +91,13 @@ const SECTION_Y: Record<BodySection, number> = {
 };
 
 const SECTION_DIST_SCALE: Record<BodySection, number> = {
-  head: 0.68,
-  upperBody: 0.74,
-  arms: 0.72,
+  head: 0.72,
+  upperBody: 0.76,
+  arms: 0.74,
   torso: 0.86,
-  pelvis: 0.8,
-  legs: 0.76,
-  feet: 0.7,
+  pelvis: 0.82,
+  legs: 0.78,
+  feet: 0.74,
 };
 
 function clamp(n: number, min: number, max: number) {
