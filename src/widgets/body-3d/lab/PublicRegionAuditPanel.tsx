@@ -111,11 +111,12 @@ export function PublicRegionAuditPanel({
   return (
     <div className="rounded-2xl border border-white/10 bg-black/40 p-4 backdrop-blur-sm">
       <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-500">
-        Public Anatomy QA
+        Anatomical Region Review
       </p>
       <p className="mt-1 text-xs text-zinc-500">
-        Solo laboratorio · adjacency edges: {PUBLIC_REGION_ADJACENCY_EDGE_COUNT} ·
-        base meshes: {PUBLIC_HIGHLIGHT_REGION_IDS.length}
+        Public Anatomy QA · debug-only · adjacency:{" "}
+        {PUBLIC_REGION_ADJACENCY_EDGE_COUNT} · meshes:{" "}
+        {PUBLIC_HIGHLIGHT_REGION_IDS.length}
       </p>
       <div className="mt-3 flex flex-wrap gap-1.5">
         {(

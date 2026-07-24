@@ -305,8 +305,15 @@ def build_landmarks(baked, rig, offset: Vector) -> PublicLandmarks:
     body_height = mx.z - mn.z
 
     shoulder_width = (sh_l - sh_r).length
-    chest_width = measure_width_at_z(mesh, mw, upper_chest.z - 0.04, 0.035) or shoulder_width * 0.85
-    waist_width = measure_width_at_z(mesh, mw, waist_level.z, 0.04) or shoulder_width * 0.65
+    # Front-only width (exclude lateral/back wrap that inflates chest_width)
+    chest_width = (
+        measure_width_at_z(mesh, mw, upper_chest.z - 0.05, 0.03, front_only=True)
+        or measure_width_at_z(mesh, mw, upper_chest.z - 0.04, 0.035)
+        or shoulder_width * 0.75
+    )
+    # Guard: anterior chest cannot exceed shoulder span much
+    chest_width = min(chest_width, shoulder_width * 0.95)
+    waist_width = measure_width_at_z(mesh, mw, waist_level.z, 0.04, front_only=True) or shoulder_width * 0.55
     hip_width = measure_width_at_z(mesh, mw, pelvis.z + 0.05, 0.04) or shoulder_width * 0.75
 
     axillary_z = (sh_l.z + sh_r.z) * 0.5 - 0.02
@@ -743,31 +750,20 @@ def partition_public_regions(baked, rig, offset: Vector) -> PartitionResult:
             )
             remaining.discard(fi)
 
-        # Thigh quadrants: driven by surface normal vs body_front / body side
-        # (more stable than radial atan2 on A-pose limbs).
-        S_use = S_th.normalized()
-        # Ensure S points laterally outward (away from sternum)
-        if thigh_items:
-            sample_rel = thigh_items[len(thigh_items) // 2][3]
-            # Outer should correlate with increasing |x| away from center
-            outer_sign = 1.0 if (prefix == "left") else -1.0
-            if S_use.x * outer_sign < 0:
-                S_use = -S_use
+        # Thigh quadrants: local circumferential frame (balanced ~90° sectors)
+        from public_regions.thigh_masks import assign_thigh_faces, build_thigh_frame
 
-        for fi, _seg, _closest, rel in thigh_items:
-            n = normals[fi]
-            nf = n.dot(lm.body_front)
-            ns = n.dot(S_use)
-            # Explicit posterior / anterior bands first, then laterals
-            if nf <= -0.12:
-                quad = "back"
-            elif nf >= 0.18:
-                quad = "front"
-            elif ns >= 0.0:
-                quad = "outer"
-            else:
-                quad = "inner"
-            face_region[fi] = f"{prefix}_thigh_{quad}_surface"
+        _L, F_bal, S_bal = build_thigh_frame(hip, knee, lm, side)
+        thigh_assign = assign_thigh_faces(
+            [(fi, rel) for fi, _seg, _c, rel in thigh_items],
+            F=F_bal,
+            S=S_bal,
+            normals=normals,
+            lm=lm,
+            prefix=prefix,
+        )
+        for fi, rid in thigh_assign.items():
+            face_region[fi] = rid
             remaining.discard(fi)
 
     # --- head / neck ---
@@ -855,160 +851,71 @@ def partition_public_regions(baked, rig, offset: Vector) -> PartitionResult:
         right = Vector((lm.body_right.x, lm.body_right.y, 0.0)).normalized()
         return math.atan2(rel.dot(right), rel.dot(fwd))
 
-    # --- torso: pectorals via region growing ---
-    half_chest = max(lm.chest_width * 0.5, 0.12)
-    nip_r = lm.nipple_r
-    nip_l = lm.nipple_l
-    z_nip = (nip_r.z + nip_l.z) * 0.5
-    # Clavicle / superior: start BELOW clavicular joint (infraclavicular only)
-    z_clav = min(lm.clavicle_l.z, lm.clavicle_r.z) - 0.015
-    z_pec_hi = z_clav * 0.35 + z_nip * 0.65  # do not climb to clavicle
-    # Inferior pectoral CURVE — short vertical span, wider laterally
-    z_pec_lo_mid = z_nip - 0.018
-    z_pec_lo_lat = z_nip - 0.04
+    # --- torso: pectorals via geodesic breast boundaries (authoritative) ---
+    import sys
+    from pathlib import Path
 
-    def pectoral_z_floor(lr_abs: float) -> float:
-        t = min(1.0, lr_abs / (half_chest * 0.98))
-        return z_pec_lo_mid + (z_pec_lo_lat - z_pec_lo_mid) * (t ** 0.55)
+    _pr = str(Path(__file__).resolve().parents[1])
+    if _pr not in sys.path:
+        sys.path.insert(0, _pr)
+    from public_regions.pectoral_masks import build_pectoral_masks
 
-    def pectoral_accept(side: str):
-        is_right = side == "right"
-
-        def _fn(fi: int) -> bool:
-            c = centroids[fi]
-            n = normals[fi]
-            if n.dot(lm.body_front) < 0.08:
-                return False
-            if is_right and c.x > lm.sternum_x + 0.012:
-                return False
-            if not is_right and c.x < lm.sternum_x - 0.012:
-                return False
-            if c.z > z_pec_hi:
-                return False
-            lr_abs = abs(c.x - lm.sternum_x)
-            if c.z < pectoral_z_floor(lr_abs) - 0.006:
-                return False
-            if c.z < z_nip - 0.042:
-                return False
-            if lr_abs > half_chest * 1.35:
-                return False
-            az = abs(surface_azimuth(c))
-            if az > math.radians(82):
-                return False
-            if c.y > 0.10:
-                return False
-            return True
-
-        return _fn
-
-    # Seeds: nipple neighborhood + infraclavicular band
-    for side, nip, rid in (
-        ("right", nip_r, "right_pectoral_region"),
-        ("left", nip_l, "left_pectoral_region"),
-    ):
-        accept = pectoral_accept(side)
-        seeds = set()
-        for fi in remaining:
-            c = centroids[fi]
-            if not accept(fi):
-                continue
-            near_nip = (c - nip).length < 0.16
-            infraclav = abs(c.z - (z_clav + z_nip) * 0.5) < 0.07 and abs(
-                c.x - nip.x
-            ) < half_chest * 0.55
-            if near_nip or infraclav:
-                seeds.add(fi)
-        if not seeds:
-            ranked = sorted(
-                (fi for fi in remaining if accept(fi)),
-                key=lambda fi: (centroids[fi] - nip).length,
-            )
-            seeds.update(ranked[:12])
-        grown = grow_region(seeds, remaining, adj, accept)
-        for fi in grown:
-            face_region[fi] = rid
-            remaining.discard(fi)
-
-    # Limited sternal bridge within the SAME vertical pec band
-    for fi in list(remaining):
-        c = centroids[fi]
-        n = normals[fi]
-        if abs(c.x - lm.sternum_x) > half_chest * 0.16:
-            continue
-        if n.dot(lm.body_front) < 0.15:
-            continue
-        if c.z > z_pec_hi or c.z < z_pec_lo_mid - 0.008:
-            continue
-        face_region[fi] = (
-            "right_pectoral_region" if c.x <= lm.sternum_x else "left_pectoral_region"
-        )
+    pec_r, pec_l, pec_meta = build_pectoral_masks(
+        mesh,
+        mw,
+        lm=lm,
+        centroids=centroids,
+        normals=normals,
+        remaining=remaining,
+    )
+    for fi in pec_r:
+        face_region[fi] = "right_pectoral_region"
         remaining.discard(fi)
+    for fi in pec_l:
+        face_region[fi] = "left_pectoral_region"
+        remaining.discard(fi)
+    smooth_boundary(face_region, adj, "right_pectoral_region", passes=2)
+    smooth_boundary(face_region, adj, "left_pectoral_region", passes=2)
 
-    # Expand pecs into adjacent anterior torso faces (geodesic rings)
-    def expand_pec(rid: str, accept_fn):
-        frontier = {i for i, r in face_region.items() if r == rid}
-        for _ in range(2):
-            nxt = set()
-            for fi in frontier:
-                for nb in adj.get(fi, ()):
-                    if nb not in remaining:
-                        continue
-                    if not accept_fn(nb):
-                        continue
-                    face_region[nb] = rid
-                    remaining.discard(nb)
-                    nxt.add(nb)
-            if not nxt:
-                break
-            frontier = nxt
+    # Pec inferior envelope for abdomen (per lateral distance)
+    pec_faces = pec_r | pec_l
+    pec_z_min_global = (
+        min(centroids[i].z for i in pec_faces) if pec_faces else lm.upper_chest.z - 0.12
+    )
 
-    expand_pec("right_pectoral_region", pectoral_accept("right"))
-    expand_pec("left_pectoral_region", pectoral_accept("left"))
+    def pec_inferior_at_x(x: float) -> float:
+        """Lowest pec z near this x — abdomen must stay below."""
+        band = []
+        for fi in pec_faces:
+            c = centroids[fi]
+            if abs(c.x - x) < 0.035:
+                band.append(c.z)
+        if band:
+            return min(band)
+        return pec_z_min_global
 
-    # Hard clip: strip any pec face outside the anatomical band
-    for fi, rid in list(face_region.items()):
-        if rid not in ("right_pectoral_region", "left_pectoral_region"):
-            continue
-        c = centroids[fi]
-        n = normals[fi]
-        lr_abs = abs(c.x - lm.sternum_x)
-        if (
-            c.z > z_pec_hi
-            or c.z < pectoral_z_floor(lr_abs) - 0.006
-            or c.z < z_nip - 0.042
-            or n.dot(lm.body_front) < 0.05
-            or lr_abs > half_chest * 1.35
-        ):
-            del face_region[fi]
-            remaining.add(fi)
-
-    smooth_boundary(face_region, adj, "right_pectoral_region")
-    smooth_boundary(face_region, adj, "left_pectoral_region")
-
-    # --- abdomen (front continuous, immediately below pectoral inferior curve) ---
+    # --- abdomen (front continuous, immediately below real pec inferior) ---
     for fi in list(remaining):
         c = centroids[fi]
         n = normals[fi]
         if n.dot(lm.body_front) < 0.12:
             continue
-        lr_abs = abs(c.x - lm.sternum_x)
-        # Start just under the pec floor at this lateral distance
-        if c.z > pectoral_z_floor(lr_abs) + 0.01:
+        if c.z > pec_inferior_at_x(c.x) - 0.004:
             continue
         if c.z < lm.pelvis.z + 0.02:
             continue
-        if abs(surface_azimuth(c)) > math.radians(50):
+        if abs(surface_azimuth(c)) > math.radians(52):
             continue
-        if abs(c.x - lm.sternum_x) > lm.waist_width * 0.50:
+        if abs(c.x - lm.sternum_x) > lm.waist_width * 0.52:
             continue
         if c.y > 0.08:
             continue
         face_region[fi] = "full_abdomen_region"
         remaining.discard(fi)
 
-    # --- back (wide dorsal — azimuth posterior cone) ---
+    # --- back (wide dorsal; exclude posterior deltoid / arm) ---
     back_split_z = (lm.chest_lower.z + lm.waist_level.z) * 0.52
-    max_back_lr = lm.shoulder_width * 0.55
+    max_back_lr = lm.shoulder_width * 0.52
     for fi in list(remaining):
         c = centroids[fi]
         n = normals[fi]
@@ -1021,6 +928,10 @@ def partition_public_regions(baked, rig, offset: Vector) -> PartitionResult:
         if c.z < lm.pelvis.z + 0.05:
             continue
         if abs(c.x - lm.sternum_x) > max_back_lr:
+            continue
+        # Keep off posterior deltoid: too close to shoulder joint laterally/high
+        d_sh = min((c - lm.shoulder_l).length, (c - lm.shoulder_r).length)
+        if d_sh < 0.075 and abs(c.x - lm.sternum_x) > lm.shoulder_width * 0.38:
             continue
         if c.z >= back_split_z:
             face_region[fi] = "upper_back_region"
@@ -1065,7 +976,16 @@ def partition_public_regions(baked, rig, offset: Vector) -> PartitionResult:
             face_region[fi] = "full_abdomen_region"
         remaining.discard(fi)
 
-    # Island cleanup: absorb tiny components into neighboring majority region
+    # Island cleanup: absorb small secondary components into neighboring regions.
+    TORSO_RIDS = {
+        "left_pectoral_region",
+        "right_pectoral_region",
+        "full_abdomen_region",
+        "left_ribs_region",
+        "right_ribs_region",
+        "upper_back_region",
+        "lower_back_region",
+    }
     for rid in list(PUBLIC_BASE_SELECTABLE):
         faces = [i for i, r in face_region.items() if r == rid]
         if len(faces) < 2:
@@ -1075,7 +995,8 @@ def partition_public_regions(baked, rig, offset: Vector) -> PartitionResult:
             continue
         comps_sorted = sorted(comps, key=len, reverse=True)
         for island in comps_sorted[1:]:
-            if len(island) >= max(12, int(0.08 * len(faces))):
+            # Keep large secondary anatomical pieces
+            if len(island) >= max(20, int(0.35 * len(faces))):
                 continue
             for fi in island:
                 votes: dict[str, int] = defaultdict(int)
@@ -1085,12 +1006,21 @@ def partition_public_regions(baked, rig, offset: Vector) -> PartitionResult:
                         votes[nr] += 1
                 if votes:
                     face_region[fi] = max(votes.items(), key=lambda kv: kv[1])[0]
-                else:
-                    for nb in adj.get(fi, ()):
-                        nr = face_region.get(nb)
-                        if nr:
-                            face_region[fi] = nr
-                            break
+                elif rid in TORSO_RIDS:
+                    c = centroids[fi]
+                    n = normals[fi]
+                    if n.dot(lm.body_front) < -0.1:
+                        face_region[fi] = (
+                            "upper_back_region"
+                            if c.z >= (lm.chest_lower.z + lm.waist_level.z) * 0.52
+                            else "lower_back_region"
+                        )
+                    elif abs(c.x - lm.sternum_x) > lm.waist_width * 0.28:
+                        face_region[fi] = (
+                            "left_ribs_region" if c.x > lm.sternum_x else "right_ribs_region"
+                        )
+                    else:
+                        face_region[fi] = "full_abdomen_region"
 
     # Stats + components
     stats: dict[str, dict] = {}

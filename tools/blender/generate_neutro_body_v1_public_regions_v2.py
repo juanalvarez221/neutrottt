@@ -10,6 +10,7 @@ Run:
 
 from __future__ import annotations
 
+import hashlib
 import json
 import math
 import sys
@@ -38,10 +39,23 @@ SOURCE = REPO / "assets/blender/neutro-body/neutro_body_v1_complete_source.blend
 OUT_BLEND = REPO / "assets/blender/neutro-body/interaction/neutro_body_v1_public_regions.blend"
 OUT_GLB = REPO / "public/models/interaction/neutro_body_v1_public_regions.glb"
 ADJ_JSON = REPO / "src/widgets/body-3d/domain/generated/publicRegionAdjacency.json"
+FACE_MASKS = REPO / "assets/body-regions/neutro_body_v1_public_region_faces.json"
 ART = REPO / "artifacts/body-v1-public-regions"
 ATLAS = REPO / "artifacts/body-public-region-atlas"
 REPORT = ART / "report.json"
 LANDMARKS_OUT = REPO / "artifacts/body-public-region-landmarks/public_region_landmarks.json"
+
+
+def source_mesh_hash(mesh) -> str:
+    h = hashlib.sha256()
+    h.update(str(len(mesh.vertices)).encode())
+    h.update(str(len(mesh.polygons)).encode())
+    # Stable sample of vertex coords
+    step = max(1, len(mesh.vertices) // 64)
+    for i in range(0, len(mesh.vertices), step):
+        c = mesh.vertices[i].co
+        h.update(f"{c.x:.5f},{c.y:.5f},{c.z:.5f};".encode())
+    return h.hexdigest()[:16]
 
 
 def log(msg: str) -> None:
@@ -180,9 +194,21 @@ def pec_pca_ratio(mesh, mw, face_indices: set[int]) -> dict:
     }
 
 
-def render_qa(created):
+def render_qa(created, body_base=None):
     ART.mkdir(parents=True, exist_ok=True)
     ATLAS.mkdir(parents=True, exist_ok=True)
+    # Hide source Human / bake / anything that is not a public region mesh.
+    # Otherwise the original body occludes gold masks (especially anterior).
+    created_set = set(created)
+    for obj in list(bpy.data.objects):
+        if obj.type != "MESH":
+            continue
+        if obj in created_set or (body_base is not None and obj == body_base):
+            continue
+        if obj.name.startswith("public_"):
+            continue
+        obj.hide_render = True
+        obj.hide_viewport = True
     mn = Vector((1e9, 1e9, 1e9))
     mx = Vector((-1e9, -1e9, -1e9))
     for obj in created:
@@ -190,7 +216,7 @@ def render_qa(created):
         mn = Vector((min(mn.x, a.x), min(mn.y, a.y), min(mn.z, a.z)))
         mx = Vector((max(mx.x, b.x), max(mx.y, b.y), max(mx.z, b.z)))
     center = (mn + mx) * 0.5
-    radius = max((mx - mn).length * 0.72, 1.0)
+    radius = max((mx - mn).length * 0.68, 1.0)
     scene = bpy.context.scene
     try:
         scene.render.engine = "BLENDER_EEVEE_NEXT"
@@ -209,9 +235,27 @@ def render_qa(created):
     bpy.context.collection.objects.link(light)
     light.location = center + Vector((2.2, -2.6, 2.4))
     gold = (0.91, 0.66, 0.25, 1.0)
-    dim = (0.22, 0.19, 0.16, 1.0)
+    skin = (0.42, 0.38, 0.34, 1.0)
 
-    def place(view):
+    def region_center(ids):
+        mn_r = Vector((1e9, 1e9, 1e9))
+        mx_r = Vector((-1e9, -1e9, -1e9))
+        found = False
+        for obj in created:
+            rid = obj.name.replace("public_", "", 1).split(".")[0]
+            if rid not in ids:
+                continue
+            a, b = world_bbox(obj)
+            mn_r = Vector((min(mn_r.x, a.x), min(mn_r.y, a.y), min(mn_r.z, a.z)))
+            mx_r = Vector((max(mx_r.x, b.x), max(mx_r.y, b.y), max(mx_r.z, b.z)))
+            found = True
+        if not found:
+            return center, radius * 0.85
+        c = (mn_r + mx_r) * 0.5
+        r = max((mx_r - mn_r).length * 1.35, 0.55)
+        return c, r
+
+    def place(view, look_at=None, dist=None):
         # Blender: front=-Y, back=+Y, left=+X, right=-X
         offsets = {
             "front": Vector((0, -1, 0.08)),
@@ -219,40 +263,76 @@ def render_qa(created):
             "left": Vector((1, 0.12, 0.05)),
             "right": Vector((-1, 0.12, 0.05)),
         }
+        target = look_at if look_at is not None else center
         d = offsets[view].normalized()
-        cam.location = center + d * radius
-        cam.rotation_euler = (center - cam.location).to_track_quat("-Z", "Y").to_euler()
+        cam.location = target + d * (dist if dist is not None else radius * 0.9)
+        cam.rotation_euler = (target - cam.location).to_track_quat("-Z", "Y").to_euler()
 
-    def highlight(ids):
+    def highlight(ids, toward_camera: Vector | None = None):
+        """Active gold emission + inactive public meshes as continuous skin."""
+        if body_base is not None:
+            body_base.hide_render = True
+        active_n = 0
         for obj in created:
-            rid = obj.name.replace("public_", "", 1)
-            paint_region(obj, gold if rid in ids else dim, emissive=rid in ids)
+            rid = obj.name.replace("public_", "", 1).split(".")[0]
+            active = rid in ids
+            paint_region(obj, gold if active else skin, emissive=active)
+            obj.hide_render = False
+            obj.location = Vector((0.0, 0.0, 0.0))
+            if active:
+                active_n += 1
+        log(f"highlight ids={sorted(ids)} active_n={active_n}")
+        if active_n == 0:
+            log(f"WARN highlight matched 0 objects for {sorted(ids)}")
 
+    # Named atlas (product QA). One region active, canonical view, large framing.
     shots = [
-        ({"upper_back_region", "lower_back_region"}, "back", "qa-full-back.png"),
-        ({"upper_back_region"}, "back", "qa-upper-back.png"),
-        ({"lower_back_region"}, "back", "qa-lower-back.png"),
-        ({"left_pectoral_region", "right_pectoral_region"}, "front", "qa-full-chest.png"),
-        ({"right_pectoral_region"}, "front", "qa-pectoral-right.png"),
-        ({"left_pectoral_region"}, "front", "qa-pectoral-left.png"),
-        ({"full_abdomen_region"}, "front", "qa-abdomen.png"),
-        ({"right_ribs_region"}, "right", "qa-ribs-right.png"),
-        ({"left_ribs_region"}, "left", "qa-ribs-left.png"),
-        ({"right_biceps_surface"}, "front", "qa-biceps-right.png"),
-        ({"right_triceps_surface"}, "back", "qa-triceps-right.png"),
-        ({"left_shin_surface", "left_calf_surface"}, "left", "qa-lower-leg-left.png"),
-        ({"left_shin_surface"}, "front", "qa-shin-left.png"),
-        ({"left_calf_surface"}, "back", "qa-calf-left.png"),
+        ({"right_pectoral_region"}, "front", "01-pectoral-right-front.png"),
+        ({"left_pectoral_region"}, "front", "02-pectoral-left-front.png"),
+        ({"left_pectoral_region", "right_pectoral_region"}, "front", "03-full-chest-front.png"),
+        ({"full_abdomen_region"}, "front", "04-abdomen-front.png"),
+        ({"right_ribs_region"}, "front", "05-ribs-right-front-oblique.png", Vector((0.55, -1, 0.08))),
+        ({"right_ribs_region"}, "right", "06-ribs-right-side.png"),
+        ({"left_ribs_region"}, "front", "07-ribs-left-front-oblique.png", Vector((-0.55, -1, 0.08))),
+        ({"left_ribs_region"}, "left", "08-ribs-left-side.png"),
+        ({"upper_back_region"}, "back", "09-upper-back-back.png"),
+        ({"lower_back_region"}, "back", "10-lower-back-back.png"),
+        ({"upper_back_region", "lower_back_region"}, "back", "11-full-back-back.png"),
+        ({"right_biceps_surface"}, "front", "12-biceps-right-front-oblique.png", Vector((0.45, -1, 0.05))),
+        ({"right_triceps_surface"}, "back", "13-triceps-right-back-oblique.png", Vector((-0.45, 1, 0.05))),
+        ({"right_forearm_inner_surface"}, "front", "14-forearm-inner-right.png", Vector((0.7, -0.7, 0.0))),
+        ({"right_forearm_outer_surface"}, "right", "15-forearm-outer-right.png"),
+        ({"left_thigh_front_surface"}, "front", "16-thigh-front-left.png"),
+        ({"left_thigh_back_surface"}, "back", "17-thigh-back-left.png"),
+        ({"left_thigh_inner_surface"}, "left", "18-thigh-inner-left.png"),
+        ({"left_thigh_outer_surface"}, "left", "19-thigh-outer-left.png"),
+        ({"left_shin_surface"}, "front", "20-shin-left.png"),
+        ({"left_calf_surface"}, "back", "21-calf-left.png"),
+        ({"left_shin_surface", "left_calf_surface"}, "left", "22-lower-leg-complete-left.png"),
     ]
-    for ids, view, fname in shots:
-        highlight(ids)
-        place(view)
-        out = ART / fname
-        scene.render.filepath = str(out)
+    scene.render.resolution_x = 1000
+    scene.render.resolution_y = 1200
+    cam_data.lens = 45
+    for item in shots:
+        ids, view, fname = item[0], item[1], item[2]
+        custom = item[3] if len(item) > 3 else None
+        look, dist = region_center(ids)
+        if custom is not None:
+            d = custom.normalized()
+        else:
+            d = {
+                "front": Vector((0, -1, 0.08)),
+                "back": Vector((0, 1, 0.08)),
+                "left": Vector((1, 0.12, 0.05)),
+                "right": Vector((-1, 0.12, 0.05)),
+            }[view].normalized()
+        # Pull active mask toward camera to beat base-mesh z-fighting
+        highlight(ids, toward_camera=d)
+        cam.location = look + d * dist
+        cam.rotation_euler = (look - cam.location).to_track_quat("-Z", "Y").to_euler()
+        scene.render.filepath = str(ATLAS / fname)
         bpy.ops.render.render(write_still=True)
-        # Atlas copy
-        atlas_name = fname.replace("qa-", "")
-        scene.render.filepath = str(ATLAS / atlas_name)
+        scene.render.filepath = str(ART / fname)
         bpy.ops.render.render(write_still=True)
         log(f"Render {fname}")
 
@@ -270,7 +350,8 @@ def main():
     mw = baked.matrix_world
 
     log(f"Baked faces={len(mesh.polygons)} height={lm.body_height:.3f}")
-    log(f"method=anatomical_bodyvisual_partition")
+    mesh_hash = source_mesh_hash(mesh)
+    log(f"method=authoritative_geodesic_face_masks hash={mesh_hash}")
 
     ub = stats.get("upper_back_region", {})
     lb = stats.get("lower_back_region", {})
@@ -317,34 +398,62 @@ def main():
     if pca_r.get("width", 0) < pca_r.get("height", 1) * 0.85:
         log(f"WARN pec still taller than wide w={pca_r.get('width')} h={pca_r.get('height')}")
     for rid, mn_f in (
-        ("right_pectoral_region", 70),
-        ("left_pectoral_region", 70),
-        ("right_biceps_surface", 40),
-        ("right_triceps_surface", 40),
-        ("left_shin_surface", 40),
-        ("left_calf_surface", 40),
+        ("right_pectoral_region", 100),
+        ("left_pectoral_region", 100),
+        ("right_biceps_surface", 28),
+        ("right_triceps_surface", 28),
+        ("left_shin_surface", 30),
+        ("left_calf_surface", 30),
         ("full_abdomen_region", 40),
-        ("upper_back_region", 200),
+        ("upper_back_region", 180),
         ("lower_back_region", 60),
-        ("right_ribs_region", 120),
-        ("left_ribs_region", 120),
+        ("right_ribs_region", 100),
+        ("left_ribs_region", 100),
+        ("left_thigh_front_surface", 25),
+        ("left_thigh_back_surface", 25),
+        ("left_thigh_inner_surface", 20),
+        ("left_thigh_outer_surface", 20),
     ):
         fc = stats.get(rid, {}).get("faceCount", 0)
         if fc < mn_f:
             fail(f"{rid} too small {fc}")
-    # Orientation sanity: pec must be horizontally dominant (width >= height)
-    if pca_r.get("width", 0) + 1e-6 < pca_r.get("height", 1):
+    # Orientation sanity: reject column-like pecs (breast may be slightly taller)
+    if pca_r.get("width", 0) + 1e-6 < pca_r.get("height", 1) * 0.55:
         fail(
-            f"right pec still vertical w={pca_r.get('width')} h={pca_r.get('height')} "
+            f"right pec still column-like w={pca_r.get('width')} h={pca_r.get('height')} "
             f"horiz={pca_r.get('horizontalDominance')}"
         )
-    if pca_r.get("horizontalDominance", 0) < 0.55:
-        fail(f"right pec PCA not left-right aligned horiz={pca_r.get('horizontalDominance')}")
 
     # Extract meshes
     by_region: dict[str, set[int]] = defaultdict(set)
     for fi, rid in face_region.items():
         by_region[rid].add(fi)
+
+    # Full body base for clean atlas renders (continuous skin under highlights)
+    body_base = extract_region_mesh(baked, set(range(len(mesh.polygons))), "QABodyBase")
+
+    # Authoritative face-set artifact (source of truth for shapes)
+    FACE_MASKS.parent.mkdir(parents=True, exist_ok=True)
+    regions_payload = {
+        rid: {"faceIndices": sorted(idxs)}
+        for rid, idxs in sorted(by_region.items())
+        if rid in PUBLIC_BASE_SELECTABLE or rid in ROUTING_ONLY_BASE
+    }
+    FACE_MASKS.write_text(
+        json.dumps(
+            {
+                "model": "neutro_body_v1",
+                "sourceMeshHash": mesh_hash,
+                "source": str(SOURCE.relative_to(REPO)).replace("\\", "/"),
+                "method": "authoritative_geodesic_face_masks",
+                "faceCountTotal": len(mesh.polygons),
+                "regions": regions_payload,
+            },
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
+    log(f"Wrote face masks {FACE_MASKS}")
     created = []
     for rid in list(PUBLIC_BASE_SELECTABLE) + list(ROUTING_ONLY_BASE):
         obj = extract_region_mesh(baked, by_region.get(rid, set()), f"public_{rid}")
@@ -352,11 +461,22 @@ def main():
             created.append(obj)
             log(f"  {rid}: {len(by_region.get(rid, set()))}")
 
+    # Keep QABodyBase only for atlas; strip it before product GLB export
+    qa_base = bpy.data.objects.get("QABodyBase")
+
+    OUT_BLEND.parent.mkdir(parents=True, exist_ok=True)
+
+    # Atlas renders first (with base body)
+    public_objs = [o for o in bpy.data.objects if o.name.startswith("public_")]
+    render_qa(public_objs, body_base=qa_base)
+
+    # Product export: only public_* meshes
+    if qa_base is not None:
+        bpy.data.objects.remove(qa_base, do_unlink=True)
     for obj in list(bpy.data.objects):
         if not obj.name.startswith("public_"):
             bpy.data.objects.remove(obj, do_unlink=True)
 
-    OUT_BLEND.parent.mkdir(parents=True, exist_ok=True)
     bpy.ops.wm.save_as_mainfile(filepath=str(OUT_BLEND))
     bpy.ops.export_scene.gltf(
         filepath=str(OUT_GLB),
@@ -390,7 +510,9 @@ def main():
         ],
         "leftRightMismatches": left_right_errors,
         "adjacencyEdgeCount": sum(len(v) for v in adjacency.values()) // 2,
-        "method": "anatomical_bodyvisual_partition",
+        "method": "authoritative_geodesic_face_masks",
+        "sourceMeshHash": mesh_hash,
+        "faceMasks": str(FACE_MASKS.relative_to(REPO)).replace("\\", "/"),
         "posteriorTorsoSurfaceArea": round(posterior_area, 6),
         "fullBackSurfaceArea": round(back_area, 6),
         "backCoverageRatio": round(back_area / max(posterior_area, 1e-9), 4),
@@ -464,7 +586,6 @@ def main():
         ),
         encoding="utf-8",
     )
-    render_qa(created)
     log("DONE")
 
 

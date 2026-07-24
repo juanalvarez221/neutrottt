@@ -53,8 +53,8 @@ describe("contiguous selection", () => {
     }
   });
 
-  it("allows adjacent ribs + abdomen", () => {
-    const result = tryAddContiguousPublicTarget(["right_ribs"], "full_abdomen");
+  it("allows adjacent chest + abdomen", () => {
+    const result = tryAddContiguousPublicTarget(["right_chest"], "full_abdomen");
     expect(result.ok).toBe(true);
     if (result.ok) {
       expect(isPublicSelectionContiguous(result.next)).toBe(true);

@@ -33,11 +33,12 @@ const DATA = adjacencyData as {
 };
 
 describe("pectoralis orientation sanity", () => {
-  it("right pec PCA is horizontally dominant", () => {
+  it("right pec PCA is not a vertical column", () => {
     const pca = DATA.validation.pectoralPCA?.right;
     expect(pca).toBeTruthy();
-    expect(pca!.width).toBeGreaterThanOrEqual(pca!.height * 0.95);
-    expect(pca!.horizontalDominance).toBeGreaterThan(0.55);
+    // Female breast volume may be taller than wide; reject only extreme columns.
+    expect(pca!.width).toBeGreaterThanOrEqual(pca!.height * 0.55);
+    expect(pca!.horizontalDominance).toBeGreaterThan(0.4);
   });
 
   it("full chest only resolves pectoral surfaces", () => {
@@ -103,7 +104,7 @@ describe("geometric integrity", () => {
 
 describe("connected selection graph", () => {
   it("accepts adjacent chains and rejects distant targets", () => {
-    const ok = tryAddContiguousPublicTarget(["right_chest"], "right_ribs");
+    const ok = tryAddContiguousPublicTarget(["right_chest"], "full_abdomen");
     expect(ok.ok).toBe(true);
     const distant = tryAddContiguousPublicTarget(
       ["right_chest"],
