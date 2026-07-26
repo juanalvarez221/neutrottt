@@ -1,0 +1,234 @@
+{
+  "model": "neutro_body_v1",
+  "sourceMesh": "public/models/production/neutro_body_v1.glb",
+  "sourceHash": "f3d5259a80cbf0b7",
+  "coordinateSystem": {
+    "up": "+Y",
+    "front": "+Z",
+    "anatomicalLeft": "+X"
+  },
+  "measurements": {
+    "bodyHeight": 1.734,
+    "min": [
+      -0.369,
+      0,
+      -0.235
+    ],
+    "max": [
+      0.369,
+      1.734,
+      0.235
+    ],
+    "halfWidth": 0.369,
+    "halfDepth": 0.235
+  },
+  "points": {
+    "neckBaseFront": [
+      0,
+      1.471,
+      -0.051
+    ],
+    "neckBaseBack": [
+      -0.039,
+      1.451,
+      -0.174
+    ],
+    "clavicleRight": [
+      -0.1,
+      1.371,
+      -0.02
+    ],
+    "clavicleLeft": [
+      0.1,
+      1.371,
+      -0.02
+    ],
+    "sternumTop": [
+      -0.013,
+      1.343,
+      -0.006
+    ],
+    "sternumBottom": [
+      -0.016,
+      1.209,
+      0.023
+    ],
+    "breastApexRight": [
+      -0.072,
+      1.268,
+      0.031
+    ],
+    "breastApexLeft": [
+      0.072,
+      1.268,
+      0.031
+    ],
+    "inframammaryMedialRight": [
+      -0.033,
+      1.175,
+      0.024
+    ],
+    "inframammaryLateralRight": [
+      -0.076,
+      1.164,
+      0.016
+    ],
+    "inframammaryMedialLeft": [
+      0.033,
+      1.175,
+      0.024
+    ],
+    "inframammaryLateralLeft": [
+      0.076,
+      1.164,
+      0.016
+    ],
+    "anteriorAxillaryFoldRight": [
+      -0.132,
+      1.325,
+      -0.015
+    ],
+    "anteriorAxillaryFoldLeft": [
+      0.132,
+      1.325,
+      -0.015
+    ],
+    "posteriorAxillaryFoldRight": [
+      -0.102,
+      1.354,
+      -0.206
+    ],
+    "posteriorAxillaryFoldLeft": [
+      0.102,
+      1.354,
+      -0.206
+    ],
+    "inferiorScapularLine": [
+      0,
+      1.05,
+      -0.18
+    ],
+    "waistFront": [
+      -0.016,
+      1.123,
+      0.025
+    ],
+    "waistBack": [
+      -0.033,
+      1.084,
+      -0.176
+    ],
+    "iliacCrestRight": [
+      -0.369,
+      0.934,
+      0.158
+    ],
+    "iliacCrestLeft": [
+      0.369,
+      0.934,
+      0.158
+    ],
+    "shoulderRight": [
+      -0.219,
+      1.404,
+      -0.132
+    ],
+    "shoulderLeft": [
+      0.219,
+      1.404,
+      -0.132
+    ],
+    "elbowRight": [
+      -0.283,
+      1.094,
+      -0.096
+    ],
+    "elbowLeft": [
+      0.283,
+      1.094,
+      -0.095
+    ],
+    "wristRight": [
+      -0.331,
+      1.015,
+      0.148
+    ],
+    "wristLeft": [
+      0.331,
+      1.015,
+      0.148
+    ],
+    "hipRight": [
+      -0.136,
+      0.89,
+      -0.016
+    ],
+    "hipLeft": [
+      0.136,
+      0.89,
+      -0.016
+    ],
+    "kneeRight": [
+      -0.164,
+      0.441,
+      -0.061
+    ],
+    "kneeLeft": [
+      0.164,
+      0.441,
+      -0.061
+    ],
+    "ankleRight": [
+      -0.209,
+      0.12,
+      -0.094
+    ],
+    "ankleLeft": [
+      0.21,
+      0.121,
+      -0.094
+    ]
+  },
+  "levels": {
+    "neckBase": 1.471,
+    "infraclavicular": 1.371,
+    "breastApex": 1.268,
+    "inframammary": 1.175,
+    "inferiorScapular": 1.05,
+    "waist": 1.123,
+    "iliacCrest": 0.934
+  },
+  "ratios": {
+    "neckBase": 0.848,
+    "breastApex": 0.731,
+    "inframammary": 0.678,
+    "waist": 0.648
+  },
+  "axisZSamples": [
+    {
+      "y": 1,
+      "z": -0.088
+    },
+    {
+      "y": 1.15,
+      "z": -0.075
+    },
+    {
+      "y": 1.25,
+      "z": -0.08
+    },
+    {
+      "y": 1.35,
+      "z": -0.106
+    },
+    {
+      "y": 1.45,
+      "z": -0.12
+    }
+  ],
+  "derived": {
+    "breastApexRightTheta": -32.368,
+    "breastApexLeftTheta": 32.368,
+    "note": "theta = atan2(x, z - axisZ(y)) degrees; 0 = anterior/sternum"
+  }
+}

@@ -1,0 +1,226 @@
+/**
+ * Right Ribs V4.2 — official V4.1 promotion tests.
+ */
+import { createHash } from "node:crypto";
+import { existsSync, readFileSync } from "node:fs";
+import path from "node:path";
+import { describe, expect, it } from "vitest";
+import {
+  assertTorsoFrontFrozen,
+  FROZEN_B01,
+  OFFICIAL_CHEST_HASHES,
+} from "../../../../tools/body-regions/right-ribs-v40.mjs";
+import { tryAddContiguousPublicTarget } from "@/widgets/body-3d/domain/bodyPublicAdjacency";
+import {
+  findRegionGeometryFieldEntry,
+  type RegionGeometryFieldManifest,
+} from "@/widgets/body-3d/domain/bodyRegionGeometryField";
+import maskManifest from "@/widgets/body-3d/domain/generated/publicRegionMaskManifest.json";
+import visualAssets from "@/widgets/body-3d/domain/generated/publicRegionVisualAssets.json";
+import { BODY_PUBLIC_SELECTION_CATALOG } from "@/widgets/body-3d/domain/bodyPublicSelectionCatalog";
+import { getPreferredBodyView } from "@/widgets/body-3d/ux/bodyPreferredCamera";
+
+const ROOT = process.cwd();
+const FIELDS = path.join(ROOT, "public/models/interaction/fields");
+const ART = path.join(ROOT, "artifacts/right-ribs-v42");
+const REPORT = path.join(ART, "report.json");
+
+const EXPECTED = {
+  candidate: "V4.1",
+  sourceCandidate: "R02",
+  geometryHash: "c62e81edaa1f",
+  indexHash: "52494d471398c",
+  vertexCount: 14517,
+  fieldHash: "69a61207dd331a1d",
+  refineHash: "4a17658fa0cec820",
+  maskHashPre: "8f68930e75e0",
+};
+
+function contentHash16(buf: Buffer) {
+  return createHash("sha256").update(buf).digest("hex").slice(0, 16);
+}
+
+describe("right_ribs V4.2 torso freeze", () => {
+  it("keeps C07 + B01 field/refine bit-identical", () => {
+    const regionFields = JSON.parse(
+      readFileSync(path.join(FIELDS, "neutro_body_v1_region_fields.json"), "utf8"),
+    ) as RegionGeometryFieldManifest;
+    const chest = findRegionGeometryFieldEntry(regionFields, "full_chest")!;
+    const abd = findRegionGeometryFieldEntry(regionFields, "full_abdomen")!;
+    expect(contentHash16(readFileSync(path.join(FIELDS, "neutro_body_v1_full_chest_sdf.bin")))).toBe(
+      OFFICIAL_CHEST_HASHES.fieldHash,
+    );
+    expect(
+      contentHash16(
+        readFileSync(path.join(FIELDS, "neutro_body_v1_full_chest_refine.bin")),
+      ),
+    ).toBe(OFFICIAL_CHEST_HASHES.refinementHash);
+    expect(contentHash16(readFileSync(path.join(FIELDS, "neutro_body_v1_full_abdomen_sdf.bin")))).toBe(
+      FROZEN_B01.fieldHash,
+    );
+    expect(
+      contentHash16(
+        readFileSync(path.join(FIELDS, "neutro_body_v1_full_abdomen_refine.bin")),
+      ),
+    ).toBe(FROZEN_B01.refinementHash);
+    expect(chest.candidateId).toBe("C07");
+    expect(abd.candidateId).toBe("B01");
+    expect(assertTorsoFrontFrozen().intact).toBe(true);
+  });
+
+  it("reports zero chest/abdomen pixel mutations when promotion report exists", () => {
+    if (!existsSync(REPORT)) return;
+    const report = JSON.parse(readFileSync(REPORT, "utf8")) as {
+      torsoFrontRegression: {
+        chestPixelsModified: number;
+        abdomenPixelsModified: number;
+        chestIntact: boolean;
+        abdomenIntact: boolean;
+        maskHashPre: string;
+        maskHashPost: string;
+      };
+      mask: { foreignIdsModified: number };
+    };
+    expect(report.torsoFrontRegression.chestIntact).toBe(true);
+    expect(report.torsoFrontRegression.abdomenIntact).toBe(true);
+    expect(report.torsoFrontRegression.chestPixelsModified).toBe(0);
+    expect(report.torsoFrontRegression.abdomenPixelsModified).toBe(0);
+    expect(report.mask.foreignIdsModified).toBe(0);
+    expect(report.torsoFrontRegression.maskHashPre).toBe(EXPECTED.maskHashPre);
+    expect(report.torsoFrontRegression.maskHashPost).not.toBe(
+      EXPECTED.maskHashPre,
+    );
+  });
+});
+
+describe("right_ribs V4.2 official assets", () => {
+  it("promotes V4.1 field + refine with versioned hashes", () => {
+    const regionFields = JSON.parse(
+      readFileSync(path.join(FIELDS, "neutro_body_v1_region_fields.json"), "utf8"),
+    ) as RegionGeometryFieldManifest & {
+      version?: string;
+      fields: Array<{
+        visualRegionId?: string;
+        sourceCandidateId?: string;
+        sharedBoundary?: string;
+      }>;
+    };
+    const ribs = findRegionGeometryFieldEntry(regionFields, "right_ribs");
+    expect(ribs).toBeTruthy();
+    expect(ribs!.candidateId).toBe(EXPECTED.candidate);
+    expect(ribs!.fieldHash).toBe(EXPECTED.fieldHash);
+    expect(ribs!.refinement?.hash).toBe(EXPECTED.refineHash);
+    expect(ribs!.geometryHash).toBe(EXPECTED.geometryHash);
+    expect(ribs!.indexHash).toBe(EXPECTED.indexHash);
+    expect(ribs!.vertexCount).toBe(EXPECTED.vertexCount);
+    expect(ribs!.encoding).toBe("snorm16");
+    expect(ribs!.visualRegionId).toBe("right_ribs_surface");
+    expect(ribs!.surfaceRegionId).toBe("right_ribs_region");
+    expect(ribs!.maskIndex).toBe(13);
+    expect(regionFields.version).toBe("4.2");
+    expect(regionFields.fields).toHaveLength(3);
+
+    const fieldBin = readFileSync(
+      path.join(FIELDS, "neutro_body_v1_right_ribs_sdf.bin"),
+    );
+    const refineBin = readFileSync(
+      path.join(FIELDS, "neutro_body_v1_right_ribs_refine.bin"),
+    );
+    expect(contentHash16(fieldBin)).toBe(EXPECTED.fieldHash);
+    expect(contentHash16(refineBin)).toBe(EXPECTED.refineHash);
+    expect(fieldBin.byteLength + refineBin.byteLength).toBeLessThanOrEqual(
+      45 * 1024,
+    );
+  });
+
+  it("resolves right_ribs via visual and surface aliases", () => {
+    const regionFields = JSON.parse(
+      readFileSync(path.join(FIELDS, "neutro_body_v1_region_fields.json"), "utf8"),
+    ) as RegionGeometryFieldManifest;
+    expect(
+      findRegionGeometryFieldEntry(regionFields, "right_ribs_surface")
+        ?.candidateId,
+    ).toBe("V4.1");
+    expect(
+      findRegionGeometryFieldEntry(regionFields, "right_ribs_region")
+        ?.candidateId,
+    ).toBe("V4.1");
+  });
+
+  it("updates categorical mask manifest and visual assets", () => {
+    expect(maskManifest.maskHash).toBeTruthy();
+    expect(maskManifest.maskHash).not.toBe(EXPECTED.maskHashPre);
+    expect(maskManifest.regions.right_ribs_region.maskIndex).toBe(13);
+    expect(maskManifest.regions.full_chest_surface.maskIndex).toBe(9);
+    expect(maskManifest.regions.full_abdomen_region.maskIndex).toBe(11);
+    expect(visualAssets.assets.some((a) => a.regionId === "right_ribs")).toBe(
+      true,
+    );
+  });
+
+  it("promotion report passes integrity + alignment when present", () => {
+    if (!existsSync(REPORT)) return;
+    const report = JSON.parse(readFileSync(REPORT, "utf8")) as {
+      candidate: string;
+      promoted: boolean;
+      leftRibsGenerated: boolean;
+      seam: { mean: number; p95: number; max: number; gap: number; overlap: number };
+      alignment: { interiorMismatch: number; exteriorMismatch: number };
+      mask: {
+        components: number;
+        tinyIslands: number;
+        uvSeamErrors: number;
+        unknownIds: number;
+      };
+      field: { totalSidecarBytes: number };
+    };
+    expect(report.candidate).toBe("V4.1");
+    expect(report.promoted).toBe(true);
+    expect(report.leftRibsGenerated).toBe(false);
+    expect(report.seam.mean).toBe(0);
+    expect(report.seam.p95).toBe(0);
+    expect(report.seam.max).toBe(0);
+    expect(report.seam.gap).toBe(0);
+    expect(report.seam.overlap).toBe(0);
+    expect(report.alignment.interiorMismatch).toBe(0);
+    expect(report.alignment.exteriorMismatch).toBe(0);
+    expect(report.mask.components).toBe(1);
+    expect(report.mask.tinyIslands).toBe(0);
+    expect(report.mask.uvSeamErrors).toBe(0);
+    expect(report.mask.unknownIds).toBe(0);
+    expect(report.field.totalSidecarBytes).toBeLessThanOrEqual(45 * 1024);
+  });
+});
+
+describe("right_ribs V4.2 UX + adjacency", () => {
+  it("exposes a single complete right_ribs public target", () => {
+    const ribs = BODY_PUBLIC_SELECTION_CATALOG.filter((e) => e.id === "right_ribs");
+    expect(ribs).toHaveLength(1);
+    expect(ribs[0]!.shortLabel).toBe("Costillas derechas");
+    expect(ribs[0]!.description).toBe(
+      "Superficie lateral derecha del torso",
+    );
+    expect(ribs[0]!.supportedCoverages).toEqual(["complete"]);
+    expect(ribs[0]!.preferredView).toBe("front-right");
+    expect(getPreferredBodyView("right_ribs")).toBe("front-right");
+  });
+
+  it("allows chest/abdomen + right_ribs chain and rejects distant calf", () => {
+    expect(tryAddContiguousPublicTarget(["full_chest"], "right_ribs").ok).toBe(
+      true,
+    );
+    expect(
+      tryAddContiguousPublicTarget(["full_abdomen"], "right_ribs").ok,
+    ).toBe(true);
+    const chain = tryAddContiguousPublicTarget(["full_chest"], "full_abdomen");
+    expect(chain.ok).toBe(true);
+    if (chain.ok) {
+      expect(tryAddContiguousPublicTarget(chain.next, "right_ribs").ok).toBe(
+        true,
+      );
+    }
+    expect(
+      tryAddContiguousPublicTarget(["right_ribs"], "right_lower_leg_back").ok,
+    ).toBe(false);
+  });
+});

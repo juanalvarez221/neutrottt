@@ -1,0 +1,90 @@
+{
+  "model": "neutro_body_v1",
+  "version": "4.2",
+  "geometryHash": "c62e81edaa1f",
+  "indexHash": "52494d471398c",
+  "vertexCount": 14517,
+  "indexCount": 80268,
+  "fields": [
+    {
+      "regionId": "full_chest",
+      "surfaceRegionId": "full_chest_surface",
+      "maskIndex": 9,
+      "geometryHash": "c62e81edaa1f",
+      "indexHash": "52494d471398c",
+      "vertexCount": 14517,
+      "fieldUrl": "/models/interaction/fields/neutro_body_v1_full_chest_sdf.bin",
+      "fieldHash": "cc4f1242dc879825",
+      "encoding": "snorm16",
+      "distanceRangeMeters": 0.02,
+      "candidateId": "C07",
+      "anatomicalParameters": {
+        "infraclavicularOffsetMm": 14,
+        "upperCenterRiseMm": 3,
+        "inferiorCenterTransitionMm": 0,
+        "lateralInsetMm": 0
+      },
+      "refinement": {
+        "url": "/models/interaction/fields/neutro_body_v1_full_chest_refine.bin",
+        "hash": "b309a72b943d16e8",
+        "triangleCount": 156,
+        "bandMeters": 0.005,
+        "encoding": "u32-snorm16x3"
+      }
+    },
+    {
+      "regionId": "full_abdomen",
+      "visualRegionId": "full_abdomen_surface",
+      "surfaceRegionId": "full_abdomen_region",
+      "maskIndex": 11,
+      "geometryHash": "c62e81edaa1f",
+      "indexHash": "52494d471398c",
+      "vertexCount": 14517,
+      "fieldUrl": "/models/interaction/fields/neutro_body_v1_full_abdomen_sdf.bin",
+      "fieldHash": "30a41c0dcc820ab0",
+      "encoding": "snorm16",
+      "distanceRangeMeters": 0.02,
+      "candidateId": "B01",
+      "anatomicalParameters": {
+        "pubicClearance": 0.014,
+        "inguinalSideRise": 0.01
+      },
+      "sharedBoundary": "full_chest",
+      "refinement": {
+        "url": "/models/interaction/fields/neutro_body_v1_full_abdomen_refine.bin",
+        "hash": "e624d3f9ecc9d40a",
+        "triangleCount": 225,
+        "bandMeters": 0.005,
+        "encoding": "u32-snorm16x3"
+      }
+    },
+    {
+      "regionId": "right_ribs",
+      "visualRegionId": "right_ribs_surface",
+      "surfaceRegionId": "right_ribs_region",
+      "maskIndex": 13,
+      "geometryHash": "c62e81edaa1f",
+      "indexHash": "52494d471398c",
+      "vertexCount": 14517,
+      "fieldUrl": "/models/interaction/fields/neutro_body_v1_right_ribs_sdf.bin",
+      "fieldHash": "69a61207dd331a1d",
+      "encoding": "snorm16",
+      "distanceRangeMeters": 0.02,
+      "candidateId": "V4.1",
+      "sourceCandidateId": "R02",
+      "anatomicalParameters": {
+        "posteriorCoverage": "medium",
+        "waistClearance": 0.01,
+        "uRibsSlices": 96
+      },
+      "sharedBoundary": "full_chest",
+      "refinement": {
+        "url": "/models/interaction/fields/neutro_body_v1_right_ribs_refine.bin",
+        "hash": "4a17658fa0cec820",
+        "triangleCount": 89,
+        "bandMeters": 0.005,
+        "encoding": "u32-snorm16x3"
+      }
+    }
+  ]
+}

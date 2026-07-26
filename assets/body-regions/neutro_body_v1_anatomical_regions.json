@@ -1,0 +1,342 @@
+{
+  "model": "neutro_body_v1",
+  "schemaVersion": 3,
+  "description": "Fuente anatomica autoritativa unica de las regiones publicas de Neutro. Genera: UV region mask, adjacency graph, metricas y atlas QA. Editar los control points aqui y re-ejecutar tools/body-mask/bake-region-mask.mjs.",
+  "sourceMesh": "public/models/production/neutro_body_v1.glb",
+  "coordinateSystem": {
+    "up": "+Y",
+    "front": "+Z",
+    "anatomicalLeft": "+X",
+    "note": "theta = atan2(x, z - zAxis(y)) en grados. theta=0 linea esternal/anterior, theta=+90 lateral izquierdo, theta=180 posterior. Las curvas se definen sobre |theta| y se espejan para garantizar simetria exacta."
+  },
+  "measurements": {
+    "height": 1.7342,
+    "halfWidth": 0.3686,
+    "halfDepth": 0.2349,
+    "note": "Medido sobre el GLB de produccion por tools/body-mask/probe-landmarks.mjs"
+  },
+  "landmarks": {
+    "crotch": 0.8,
+    "pelvisTop": 0.955,
+    "waist": 1.115,
+    "inframammaryApex": 1.215,
+    "breastApex": 1.258,
+    "infraclavicular": 1.375,
+    "axilla": 1.4,
+    "shoulderTop": 1.45,
+    "neckBase": 1.452,
+    "neckTop": 1.527,
+    "chinLevel": 1.545,
+    "headCrown": 1.7342
+  },
+  "skeleton": {
+    "note": "Joints en coordenadas runtime. Los brazos y piernas derechos se espejan en x para el lado izquierdo. Los radios son el grosor esperado del miembro y solo se usan para la segmentacion por partes (no definen bordes visibles).",
+    "torso": {
+      "bottom": [0.0, 0.83, -0.1],
+      "top": [0.0, 1.452, -0.11]
+    },
+    "head": {
+      "bottom": [0.0, 1.452, -0.09],
+      "top": [0.0, 1.7342, -0.075],
+      "radius": 0.095
+    },
+    "rightArm": {
+      "note": "Medido con tools/body-mask/probe-limb-axes.mjs sobre la superficie del GLB.",
+      "acromion": [-0.205, 1.42, -0.112],
+      "elbow": [-0.28, 1.115, -0.092],
+      "wrist": [-0.333, 0.982, 0.155],
+      "handEnd": [-0.33, 0.865, 0.195],
+      "radii": {
+        "acromion": 0.062,
+        "elbow": 0.05,
+        "wrist": 0.04,
+        "handEnd": 0.055
+      }
+    },
+    "rightLeg": {
+      "note": "Medido con tools/body-mask/probe-limb-axes.mjs sobre la superficie del GLB.",
+      "hip": [-0.1, 0.86, -0.093],
+      "knee": [-0.177, 0.475, -0.098],
+      "ankle": [-0.229, 0.125, -0.105],
+      "toe": [-0.25, 0.015, 0.055],
+      "radii": {
+        "hip": 0.098,
+        "knee": 0.058,
+        "ankle": 0.036,
+        "toe": 0.055
+      }
+    }
+  },
+  "torsoChart": {
+    "note": "bands: |theta| (grados) en funcion de y. Separan la banda anterior, la banda lateral (costillas) y la banda posterior. Cuando frontLateral == lateralBack la banda lateral desaparece y anterior/posterior comparten frontera.",
+    "bands": {
+      "frontLateral": [
+        [0.79, 100],
+        [0.96, 96],
+        [1.02, 88],
+        [1.06, 78],
+        [1.1, 68],
+        [1.16, 62],
+        [1.22, 60],
+        [1.28, 62],
+        [1.34, 68],
+        [1.4, 76],
+        [1.46, 84]
+      ],
+      "lateralBack": [
+        [0.79, 100],
+        [0.96, 110],
+        [1.02, 116],
+        [1.06, 118],
+        [1.1, 120],
+        [1.16, 122],
+        [1.22, 122],
+        [1.28, 120],
+        [1.34, 118],
+        [1.4, 116],
+        [1.46, 114]
+      ]
+    },
+    "curves": {
+      "note": "y en funcion de |theta| (grados). Interpolacion cubica monotona. Fronteras compartidas: chestBottom es a la vez borde inferior del pectoral y borde superior del abdomen.",
+      "chestTop": [
+        [0, 1.332],
+        [10, 1.348],
+        [20, 1.365],
+        [32, 1.378],
+        [44, 1.372],
+        [54, 1.355],
+        [64, 1.332],
+        [74, 1.305],
+        [84, 1.282],
+        [92, 1.268]
+      ],
+      "chestBottom": [
+        [0, 1.228],
+        [10, 1.218],
+        [20, 1.202],
+        [30, 1.188],
+        [40, 1.182],
+        [50, 1.186],
+        [60, 1.2],
+        [70, 1.222],
+        [80, 1.245],
+        [92, 1.265]
+      ],
+      "abdomenBottom": [
+        [0, 0.875],
+        [22, 0.886],
+        [45, 0.908],
+        [68, 0.928],
+        [88, 0.94],
+        [112, 0.945]
+      ],
+      "ribsTop": [
+        [58, 1.3],
+        [72, 1.335],
+        [88, 1.355],
+        [105, 1.365],
+        [120, 1.358],
+        [135, 1.342]
+      ],
+      "ribsBottom": [
+        [58, 1.04],
+        [74, 1.012],
+        [92, 0.992],
+        [108, 0.985],
+        [122, 0.992],
+        [136, 1.01]
+      ],
+      "backTop": [
+        [112, 1.342],
+        [124, 1.375],
+        [138, 1.4],
+        [152, 1.412],
+        [166, 1.418],
+        [180, 1.42]
+      ],
+      "backSplit": [
+        [108, 1.068],
+        [126, 1.078],
+        [146, 1.09],
+        [164, 1.098],
+        [180, 1.102]
+      ],
+      "backBottom": [
+        [112, 0.945],
+        [132, 0.942],
+        [150, 0.938],
+        [165, 0.935],
+        [180, 0.933]
+      ]
+    },
+    "waistFrontBackSplit": 112,
+    "pelvis": {
+      "pubicHalfAngle": 44,
+      "hipGluteBoundary": 119,
+      "bottom": 0.79
+    },
+    "upperFront": {
+      "note": "Franja infraclavicular/supraesternal entre chestTop y neckBase. Centro -> neck_front_surface, lateral -> shoulder.",
+      "neckFrontHalfAngle": 30
+    }
+  },
+  "headChart": {
+    "neck": {
+      "frontHalfAngle": 58,
+      "backHalfAngle": 122
+    },
+    "head": {
+      "topLevel": 1.662,
+      "backHalfAngle": 122,
+      "face": {
+        "note": "Rostro: no seleccionable (indice 0).",
+        "halfAngle": 62
+      }
+    }
+  },
+  "armChart": {
+    "note": "t = arco normalizado sobre la polilinea acromion->codo->muneca->mano. phi = azimut alrededor del eje, 0 = anterior, +-180 = posterior.",
+    "segments": {
+      "shoulder": [0.0, 0.16],
+      "upperArm": [0.16, 0.375],
+      "elbow": [0.375, 0.495],
+      "forearm": [0.495, 0.775],
+      "wrist": [0.775, 0.845],
+      "hand": [0.845, 1.0]
+    },
+    "upperArmSplit": [
+      [0.16, 84],
+      [0.27, 90],
+      [0.375, 96]
+    ],
+    "forearmSplit": [
+      [0.495, 96],
+      [0.64, 90],
+      [0.775, 84]
+    ]
+  },
+  "legChart": {
+    "note": "t = arco normalizado sobre la polilinea cadera->rodilla->tobillo->pie. phi = azimut, 0 = anterior, +90 = lateral externo, -90 = medial interno, 180 = posterior.",
+    "segments": {
+      "thigh": [0.0, 0.355],
+      "knee": [0.355, 0.462],
+      "lowerLeg": [0.462, 0.755],
+      "ankle": [0.755, 0.845],
+      "foot": [0.845, 1.0]
+    },
+    "thighQuadrants": {
+      "frontOuter": [
+        [0.0, 54],
+        [0.18, 52],
+        [0.355, 50]
+      ],
+      "outerBack": [
+        [0.0, 126],
+        [0.18, 128],
+        [0.355, 130]
+      ],
+      "frontInner": [
+        [0.0, -54],
+        [0.18, -52],
+        [0.355, -50]
+      ],
+      "innerBack": [
+        [0.0, -126],
+        [0.18, -128],
+        [0.355, -130]
+      ]
+    },
+    "lowerLegSplit": [
+      [0.462, 96],
+      [0.61, 89],
+      [0.755, 83]
+    ]
+  },
+  "regions": {
+    "head_top_surface": { "maskIndex": 1, "part": "head", "side": "center", "public": true },
+    "head_left_surface": { "maskIndex": 2, "part": "head", "side": "left", "public": true },
+    "head_right_surface": { "maskIndex": 3, "part": "head", "side": "right", "public": true },
+    "head_back_surface": { "maskIndex": 4, "part": "head", "side": "center", "public": true },
+    "neck_front_surface": { "maskIndex": 5, "part": "neck", "side": "center", "public": true },
+    "neck_back_surface": { "maskIndex": 6, "part": "neck", "side": "center", "public": true },
+    "neck_left_surface": { "maskIndex": 7, "part": "neck", "side": "left", "public": true },
+    "neck_right_surface": { "maskIndex": 8, "part": "neck", "side": "right", "public": true },
+    "full_chest_surface": { "maskIndex": 9, "part": "torso", "side": "both", "public": true },
+    "full_abdomen_region": { "maskIndex": 11, "part": "torso", "side": "center", "public": true },
+    "left_ribs_region": { "maskIndex": 12, "part": "torso", "side": "left", "public": true },
+    "right_ribs_region": { "maskIndex": 13, "part": "torso", "side": "right", "public": true },
+    "upper_back_region": { "maskIndex": 14, "part": "torso", "side": "center", "public": true },
+    "lower_back_region": { "maskIndex": 15, "part": "torso", "side": "center", "public": true },
+    "right_shoulder_surface": { "maskIndex": 16, "part": "arm", "side": "right", "public": true },
+    "left_shoulder_surface": { "maskIndex": 17, "part": "arm", "side": "left", "public": true },
+    "right_biceps_surface": { "maskIndex": 18, "part": "arm", "side": "right", "public": true },
+    "left_biceps_surface": { "maskIndex": 19, "part": "arm", "side": "left", "public": true },
+    "right_triceps_surface": { "maskIndex": 20, "part": "arm", "side": "right", "public": true },
+    "left_triceps_surface": { "maskIndex": 21, "part": "arm", "side": "left", "public": true },
+    "right_forearm_inner_surface": { "maskIndex": 22, "part": "arm", "side": "right", "public": true },
+    "left_forearm_inner_surface": { "maskIndex": 23, "part": "arm", "side": "left", "public": true },
+    "right_forearm_outer_surface": { "maskIndex": 24, "part": "arm", "side": "right", "public": true },
+    "left_forearm_outer_surface": { "maskIndex": 25, "part": "arm", "side": "left", "public": true },
+    "right_hand_surface": { "maskIndex": 26, "part": "arm", "side": "right", "public": true },
+    "left_hand_surface": { "maskIndex": 27, "part": "arm", "side": "left", "public": true },
+    "right_thigh_front_surface": { "maskIndex": 28, "part": "leg", "side": "right", "public": true },
+    "right_thigh_back_surface": { "maskIndex": 29, "part": "leg", "side": "right", "public": true },
+    "right_thigh_inner_surface": { "maskIndex": 30, "part": "leg", "side": "right", "public": true },
+    "right_thigh_outer_surface": { "maskIndex": 31, "part": "leg", "side": "right", "public": true },
+    "left_thigh_front_surface": { "maskIndex": 32, "part": "leg", "side": "left", "public": true },
+    "left_thigh_back_surface": { "maskIndex": 33, "part": "leg", "side": "left", "public": true },
+    "left_thigh_inner_surface": { "maskIndex": 34, "part": "leg", "side": "left", "public": true },
+    "left_thigh_outer_surface": { "maskIndex": 35, "part": "leg", "side": "left", "public": true },
+    "right_shin_surface": { "maskIndex": 36, "part": "leg", "side": "right", "public": true },
+    "left_shin_surface": { "maskIndex": 37, "part": "leg", "side": "left", "public": true },
+    "right_calf_surface": { "maskIndex": 38, "part": "leg", "side": "right", "public": true },
+    "left_calf_surface": { "maskIndex": 39, "part": "leg", "side": "left", "public": true },
+    "right_foot_surface": { "maskIndex": 40, "part": "leg", "side": "right", "public": true },
+    "left_foot_surface": { "maskIndex": 41, "part": "leg", "side": "left", "public": true },
+    "left_hip_surface": { "maskIndex": 42, "part": "torso", "side": "left", "public": true },
+    "right_hip_surface": { "maskIndex": 43, "part": "torso", "side": "right", "public": true },
+    "left_glute_surface": { "maskIndex": 44, "part": "torso", "side": "left", "public": true },
+    "right_glute_surface": { "maskIndex": 45, "part": "torso", "side": "right", "public": true },
+    "right_elbow_transition": { "maskIndex": 46, "part": "arm", "side": "right", "public": true },
+    "left_elbow_transition": { "maskIndex": 47, "part": "arm", "side": "left", "public": true },
+    "right_wrist_transition": { "maskIndex": 48, "part": "arm", "side": "right", "public": true },
+    "left_wrist_transition": { "maskIndex": 49, "part": "arm", "side": "left", "public": true },
+    "right_knee_transition": { "maskIndex": 50, "part": "leg", "side": "right", "public": true },
+    "left_knee_transition": { "maskIndex": 51, "part": "leg", "side": "left", "public": true },
+    "right_ankle_transition": { "maskIndex": 52, "part": "leg", "side": "right", "public": true },
+    "left_ankle_transition": { "maskIndex": 53, "part": "leg", "side": "left", "public": true }
+  },
+  "composites": {
+    "full_chest": ["full_chest_surface"],
+    "full_back": ["upper_back_region", "lower_back_region"]
+  },
+  "symmetryPairs": [
+    ["left_ribs_region", "right_ribs_region"],
+    ["left_shoulder_surface", "right_shoulder_surface"],
+    ["left_biceps_surface", "right_biceps_surface"],
+    ["left_triceps_surface", "right_triceps_surface"],
+    ["left_forearm_inner_surface", "right_forearm_inner_surface"],
+    ["left_forearm_outer_surface", "right_forearm_outer_surface"],
+    ["left_elbow_transition", "right_elbow_transition"],
+    ["left_wrist_transition", "right_wrist_transition"],
+    ["left_hand_surface", "right_hand_surface"],
+    ["left_thigh_front_surface", "right_thigh_front_surface"],
+    ["left_thigh_back_surface", "right_thigh_back_surface"],
+    ["left_thigh_inner_surface", "right_thigh_inner_surface"],
+    ["left_thigh_outer_surface", "right_thigh_outer_surface"],
+    ["left_knee_transition", "right_knee_transition"],
+    ["left_shin_surface", "right_shin_surface"],
+    ["left_calf_surface", "right_calf_surface"],
+    ["left_ankle_transition", "right_ankle_transition"],
+    ["left_foot_surface", "right_foot_surface"],
+    ["left_hip_surface", "right_hip_surface"],
+    ["left_glute_surface", "right_glute_surface"],
+    ["head_left_surface", "head_right_surface"],
+    ["neck_left_surface", "neck_right_surface"]
+  ],
+  "nonSelectable": {
+    "index": 0,
+    "surfaces": ["face", "pubic", "axilla_gap", "palm_gap"]
+  }
+}

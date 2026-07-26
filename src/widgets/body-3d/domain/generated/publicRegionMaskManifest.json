@@ -1,0 +1,183 @@
+{
+  "model": "neutro_body_v1",
+  "maskTexture": "/models/interaction/neutro_body_v1_anatomical_region_ids.png",
+  "maskHash": "b628b15261da",
+  "maskUrl": "/models/interaction/neutro_body_v1_anatomical_region_ids.png?v=b628b15261da",
+  "resolution": 4096,
+  "encoding": "r8_index",
+  "indexScale": 255,
+  "source": "assets/body-regions/neutro_body_v1_anatomical_regions_authoring.png",
+  "palette": "assets/body-regions/neutro_body_v1_region_palette.json",
+  "regions": {
+    "full_chest_surface": {
+      "maskIndex": 9
+    },
+    "full_abdomen_region": {
+      "maskIndex": 11
+    },
+    "right_ribs_region": {
+      "maskIndex": 13
+    },
+    "left_ribs_region": {
+      "maskIndex": 12
+    },
+    "upper_back_region": {
+      "maskIndex": 14
+    },
+    "lower_back_region": {
+      "maskIndex": 15
+    },
+    "right_shoulder_surface": {
+      "maskIndex": 16
+    },
+    "left_shoulder_surface": {
+      "maskIndex": 17
+    },
+    "right_biceps_surface": {
+      "maskIndex": 18
+    },
+    "left_biceps_surface": {
+      "maskIndex": 19
+    },
+    "right_triceps_surface": {
+      "maskIndex": 20
+    },
+    "left_triceps_surface": {
+      "maskIndex": 21
+    },
+    "right_forearm_inner_surface": {
+      "maskIndex": 22
+    },
+    "left_forearm_inner_surface": {
+      "maskIndex": 23
+    },
+    "right_forearm_outer_surface": {
+      "maskIndex": 24
+    },
+    "left_forearm_outer_surface": {
+      "maskIndex": 25
+    },
+    "right_hand_surface": {
+      "maskIndex": 26
+    },
+    "left_hand_surface": {
+      "maskIndex": 27
+    },
+    "right_elbow_transition": {
+      "maskIndex": 46
+    },
+    "left_elbow_transition": {
+      "maskIndex": 47
+    },
+    "right_wrist_transition": {
+      "maskIndex": 48
+    },
+    "left_wrist_transition": {
+      "maskIndex": 49
+    },
+    "right_thigh_front_surface": {
+      "maskIndex": 28
+    },
+    "right_thigh_back_surface": {
+      "maskIndex": 29
+    },
+    "right_thigh_inner_surface": {
+      "maskIndex": 30
+    },
+    "right_thigh_outer_surface": {
+      "maskIndex": 31
+    },
+    "left_thigh_front_surface": {
+      "maskIndex": 32
+    },
+    "left_thigh_back_surface": {
+      "maskIndex": 33
+    },
+    "left_thigh_inner_surface": {
+      "maskIndex": 34
+    },
+    "left_thigh_outer_surface": {
+      "maskIndex": 35
+    },
+    "right_knee_transition": {
+      "maskIndex": 50
+    },
+    "left_knee_transition": {
+      "maskIndex": 51
+    },
+    "right_shin_surface": {
+      "maskIndex": 36
+    },
+    "left_shin_surface": {
+      "maskIndex": 37
+    },
+    "right_calf_surface": {
+      "maskIndex": 38
+    },
+    "left_calf_surface": {
+      "maskIndex": 39
+    },
+    "right_ankle_transition": {
+      "maskIndex": 52
+    },
+    "left_ankle_transition": {
+      "maskIndex": 53
+    },
+    "right_foot_surface": {
+      "maskIndex": 40
+    },
+    "left_foot_surface": {
+      "maskIndex": 41
+    },
+    "head_top_surface": {
+      "maskIndex": 1
+    },
+    "head_left_surface": {
+      "maskIndex": 2
+    },
+    "head_right_surface": {
+      "maskIndex": 3
+    },
+    "head_back_surface": {
+      "maskIndex": 4
+    },
+    "neck_front_surface": {
+      "maskIndex": 5
+    },
+    "neck_back_surface": {
+      "maskIndex": 6
+    },
+    "neck_left_surface": {
+      "maskIndex": 7
+    },
+    "neck_right_surface": {
+      "maskIndex": 8
+    },
+    "left_hip_surface": {
+      "maskIndex": 42
+    },
+    "right_hip_surface": {
+      "maskIndex": 43
+    },
+    "left_glute_surface": {
+      "maskIndex": 44
+    },
+    "right_glute_surface": {
+      "maskIndex": 45
+    }
+  },
+  "composites": {
+    "full_chest": [
+      "full_chest_surface"
+    ],
+    "full_back": [
+      "upper_back_region",
+      "lower_back_region"
+    ]
+  },
+  "promotedCandidates": [
+    "C07",
+    "B01",
+    "V4.1"
+  ]
+}

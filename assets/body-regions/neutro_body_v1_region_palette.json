@@ -1,0 +1,347 @@
+{
+  "model": "neutro_body_v1",
+  "schemaVersion": 1,
+  "description": "Paleta de autoría RGB → runtimeIndex R8. Colores inequívocos para Texture Paint en Blender.",
+  "resolution": 4096,
+  "background": {
+    "regionId": "NON_SELECTABLE",
+    "runtimeIndex": 0,
+    "authoringColor": "#000000",
+    "shortLabel": "None"
+  },
+  "regions": {
+    "full_chest_surface": {
+      "runtimeIndex": 9,
+      "authoringColor": "#E53935",
+      "shortLabel": "Pecho",
+      "gate": "torso"
+    },
+    "full_abdomen_region": {
+      "runtimeIndex": 11,
+      "authoringColor": "#FB8C00",
+      "shortLabel": "Abdomen",
+      "gate": "torso"
+    },
+    "right_ribs_region": {
+      "runtimeIndex": 13,
+      "authoringColor": "#FDD835",
+      "shortLabel": "Ribs R",
+      "gate": "torso"
+    },
+    "left_ribs_region": {
+      "runtimeIndex": 12,
+      "authoringColor": "#C0CA33",
+      "shortLabel": "Ribs L",
+      "gate": "torso"
+    },
+    "upper_back_region": {
+      "runtimeIndex": 14,
+      "authoringColor": "#43A047",
+      "shortLabel": "Back Up",
+      "gate": "torso"
+    },
+    "lower_back_region": {
+      "runtimeIndex": 15,
+      "authoringColor": "#00897B",
+      "shortLabel": "Back Low",
+      "gate": "torso"
+    },
+    "right_shoulder_surface": {
+      "runtimeIndex": 16,
+      "authoringColor": "#1E88E5",
+      "shortLabel": "Shoulder R",
+      "gate": "limbs"
+    },
+    "left_shoulder_surface": {
+      "runtimeIndex": 17,
+      "authoringColor": "#039BE5",
+      "shortLabel": "Shoulder L",
+      "gate": "limbs"
+    },
+    "right_biceps_surface": {
+      "runtimeIndex": 18,
+      "authoringColor": "#3949AB",
+      "shortLabel": "Biceps R",
+      "gate": "limbs"
+    },
+    "left_biceps_surface": {
+      "runtimeIndex": 19,
+      "authoringColor": "#5E35B1",
+      "shortLabel": "Biceps L",
+      "gate": "limbs"
+    },
+    "right_triceps_surface": {
+      "runtimeIndex": 20,
+      "authoringColor": "#8E24AA",
+      "shortLabel": "Triceps R",
+      "gate": "limbs"
+    },
+    "left_triceps_surface": {
+      "runtimeIndex": 21,
+      "authoringColor": "#AD1457",
+      "shortLabel": "Triceps L",
+      "gate": "limbs"
+    },
+    "right_forearm_inner_surface": {
+      "runtimeIndex": 22,
+      "authoringColor": "#6D4C41",
+      "shortLabel": "FA In R",
+      "gate": "limbs"
+    },
+    "left_forearm_inner_surface": {
+      "runtimeIndex": 23,
+      "authoringColor": "#8D6E63",
+      "shortLabel": "FA In L",
+      "gate": "limbs"
+    },
+    "right_forearm_outer_surface": {
+      "runtimeIndex": 24,
+      "authoringColor": "#546E7A",
+      "shortLabel": "FA Out R",
+      "gate": "limbs"
+    },
+    "left_forearm_outer_surface": {
+      "runtimeIndex": 25,
+      "authoringColor": "#78909C",
+      "shortLabel": "FA Out L",
+      "gate": "limbs"
+    },
+    "right_hand_surface": {
+      "runtimeIndex": 26,
+      "authoringColor": "#EC407A",
+      "shortLabel": "Hand R",
+      "gate": "limbs"
+    },
+    "left_hand_surface": {
+      "runtimeIndex": 27,
+      "authoringColor": "#F06292",
+      "shortLabel": "Hand L",
+      "gate": "limbs"
+    },
+    "right_elbow_transition": {
+      "runtimeIndex": 46,
+      "authoringColor": "#7E57C2",
+      "shortLabel": "Elbow R",
+      "gate": "limbs"
+    },
+    "left_elbow_transition": {
+      "runtimeIndex": 47,
+      "authoringColor": "#5C6BC0",
+      "shortLabel": "Elbow L",
+      "gate": "limbs"
+    },
+    "right_wrist_transition": {
+      "runtimeIndex": 48,
+      "authoringColor": "#26A69A",
+      "shortLabel": "Wrist R",
+      "gate": "limbs"
+    },
+    "left_wrist_transition": {
+      "runtimeIndex": 49,
+      "authoringColor": "#66BB6A",
+      "shortLabel": "Wrist L",
+      "gate": "limbs"
+    },
+    "right_thigh_front_surface": {
+      "runtimeIndex": 28,
+      "authoringColor": "#FF7043",
+      "shortLabel": "Thigh F R",
+      "gate": "limbs"
+    },
+    "right_thigh_back_surface": {
+      "runtimeIndex": 29,
+      "authoringColor": "#FFA726",
+      "shortLabel": "Thigh B R",
+      "gate": "limbs"
+    },
+    "right_thigh_inner_surface": {
+      "runtimeIndex": 30,
+      "authoringColor": "#FFCA28",
+      "shortLabel": "Thigh I R",
+      "gate": "limbs"
+    },
+    "right_thigh_outer_surface": {
+      "runtimeIndex": 31,
+      "authoringColor": "#9CCC65",
+      "shortLabel": "Thigh O R",
+      "gate": "limbs"
+    },
+    "left_thigh_front_surface": {
+      "runtimeIndex": 32,
+      "authoringColor": "#26C6DA",
+      "shortLabel": "Thigh F L",
+      "gate": "limbs"
+    },
+    "left_thigh_back_surface": {
+      "runtimeIndex": 33,
+      "authoringColor": "#29B6F6",
+      "shortLabel": "Thigh B L",
+      "gate": "limbs"
+    },
+    "left_thigh_inner_surface": {
+      "runtimeIndex": 34,
+      "authoringColor": "#42A5F5",
+      "shortLabel": "Thigh I L",
+      "gate": "limbs"
+    },
+    "left_thigh_outer_surface": {
+      "runtimeIndex": 35,
+      "authoringColor": "#7986CB",
+      "shortLabel": "Thigh O L",
+      "gate": "limbs"
+    },
+    "right_knee_transition": {
+      "runtimeIndex": 50,
+      "authoringColor": "#A1887F",
+      "shortLabel": "Knee R",
+      "gate": "limbs"
+    },
+    "left_knee_transition": {
+      "runtimeIndex": 51,
+      "authoringColor": "#90A4AE",
+      "shortLabel": "Knee L",
+      "gate": "limbs"
+    },
+    "right_shin_surface": {
+      "runtimeIndex": 36,
+      "authoringColor": "#EF5350",
+      "shortLabel": "Shin R",
+      "gate": "limbs"
+    },
+    "left_shin_surface": {
+      "runtimeIndex": 37,
+      "authoringColor": "#FF8A65",
+      "shortLabel": "Shin L",
+      "gate": "limbs"
+    },
+    "right_calf_surface": {
+      "runtimeIndex": 38,
+      "authoringColor": "#AB47BC",
+      "shortLabel": "Calf R",
+      "gate": "limbs"
+    },
+    "left_calf_surface": {
+      "runtimeIndex": 39,
+      "authoringColor": "#B39DDB",
+      "shortLabel": "Calf L",
+      "gate": "limbs"
+    },
+    "right_ankle_transition": {
+      "runtimeIndex": 52,
+      "authoringColor": "#BDBDBD",
+      "shortLabel": "Ankle R",
+      "gate": "limbs"
+    },
+    "left_ankle_transition": {
+      "runtimeIndex": 53,
+      "authoringColor": "#9E9E9E",
+      "shortLabel": "Ankle L",
+      "gate": "limbs"
+    },
+    "right_foot_surface": {
+      "runtimeIndex": 40,
+      "authoringColor": "#5D4037",
+      "shortLabel": "Foot R",
+      "gate": "limbs"
+    },
+    "left_foot_surface": {
+      "runtimeIndex": 41,
+      "authoringColor": "#BCAAA4",
+      "shortLabel": "Foot L",
+      "gate": "limbs"
+    },
+    "head_top_surface": {
+      "runtimeIndex": 1,
+      "authoringColor": "#FFE082",
+      "shortLabel": "Head Top",
+      "gate": "head"
+    },
+    "head_left_surface": {
+      "runtimeIndex": 2,
+      "authoringColor": "#FFCC80",
+      "shortLabel": "Head L",
+      "gate": "head"
+    },
+    "head_right_surface": {
+      "runtimeIndex": 3,
+      "authoringColor": "#FFAB91",
+      "shortLabel": "Head R",
+      "gate": "head"
+    },
+    "head_back_surface": {
+      "runtimeIndex": 4,
+      "authoringColor": "#CE93D8",
+      "shortLabel": "Head Back",
+      "gate": "head"
+    },
+    "neck_front_surface": {
+      "runtimeIndex": 5,
+      "authoringColor": "#80CBC4",
+      "shortLabel": "Neck Front",
+      "gate": "head"
+    },
+    "neck_back_surface": {
+      "runtimeIndex": 6,
+      "authoringColor": "#A5D6A7",
+      "shortLabel": "Neck Back",
+      "gate": "head"
+    },
+    "neck_left_surface": {
+      "runtimeIndex": 7,
+      "authoringColor": "#81D4FA",
+      "shortLabel": "Neck L",
+      "gate": "head"
+    },
+    "neck_right_surface": {
+      "runtimeIndex": 8,
+      "authoringColor": "#90CAF9",
+      "shortLabel": "Neck R",
+      "gate": "head"
+    },
+    "left_hip_surface": {
+      "runtimeIndex": 42,
+      "authoringColor": "#F48FB1",
+      "shortLabel": "Hip L",
+      "gate": "pelvis"
+    },
+    "right_hip_surface": {
+      "runtimeIndex": 43,
+      "authoringColor": "#F50057",
+      "shortLabel": "Hip R",
+      "gate": "pelvis"
+    },
+    "left_glute_surface": {
+      "runtimeIndex": 44,
+      "authoringColor": "#BA68C8",
+      "shortLabel": "Glute L",
+      "gate": "pelvis"
+    },
+    "right_glute_surface": {
+      "runtimeIndex": 45,
+      "authoringColor": "#9575CD",
+      "shortLabel": "Glute R",
+      "gate": "pelvis"
+    }
+  },
+  "composites": {
+    "full_chest": ["full_chest_surface"],
+    "full_back": ["upper_back_region", "lower_back_region"]
+  },
+  "torsoGateRegionIds": [
+    "full_chest_surface",
+    "full_abdomen_region",
+    "right_ribs_region",
+    "left_ribs_region",
+    "upper_back_region",
+    "lower_back_region"
+  ],
+  "legacyHighlightAliases": {
+    "left_pectoral_region": "full_chest_surface",
+    "right_pectoral_region": "full_chest_surface"
+  },
+  "legacyAuthoringColors": {
+    "#D81B60": "full_chest_surface",
+    "#C62828": "full_chest_surface",
+    "#E53935": "full_chest_surface"
+  }
+}

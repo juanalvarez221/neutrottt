@@ -11,6 +11,9 @@ import {
   type CanonicalBodyView,
 } from "@/widgets/body-3d/domain/bodyModelCoordinateSystem";
 import {
+  getPublicCatalogEntry,
+} from "@/widgets/body-3d/domain/bodyPublicSelectionCatalog";
+import {
   getPublicRegionMeta,
   type PublicRegionCategory,
   type PublicRegionMeta,
@@ -43,6 +46,8 @@ const PREFERRED_VIEW_OVERRIDES: Readonly<Record<string, PreferredBodyView>> = {
   left_chest: "front",
   right_chest: "front",
   full_abdomen: "front",
+  right_ribs: "front-right",
+  right_ribs_region: "front-right",
   right_biceps_region: "front-right",
   left_biceps_region: "front-left",
   right_triceps_region: "back-right",
@@ -153,19 +158,34 @@ function inferFocusSection(
 }
 
 export function getPreferredBodyView(targetId: string): PreferredBodyView {
-  if (PREFERRED_VIEW_OVERRIDES[targetId]) {
-    return PREFERRED_VIEW_OVERRIDES[targetId];
+  const bare = targetId.includes("@")
+    ? targetId.slice(0, targetId.lastIndexOf("@"))
+    : targetId;
+  const catalog = getPublicCatalogEntry(bare);
+  if (catalog?.preferredView) {
+    return catalog.preferredView as PreferredBodyView;
   }
-  const meta = getPublicRegionMeta(targetId);
+  if (PREFERRED_VIEW_OVERRIDES[bare]) {
+    return PREFERRED_VIEW_OVERRIDES[bare];
+  }
+  const meta = getPublicRegionMeta(bare);
   if (!meta) return "front";
   return inferPreferredView(meta.side, meta.surface, meta.category);
 }
 
 export function getPreferredFocusSection(targetId: string): BodySection {
-  if (FOCUS_SECTION_OVERRIDES[targetId]) {
-    return FOCUS_SECTION_OVERRIDES[targetId];
+  const bare = targetId.includes("@")
+    ? targetId.slice(0, targetId.lastIndexOf("@"))
+    : targetId;
+  const catalog = getPublicCatalogEntry(bare);
+  if (catalog?.focusSection) {
+    const section = catalog.focusSection as BodySection | "full";
+    return section === "full" ? "torso" : section;
   }
-  const meta = getPublicRegionMeta(targetId);
+  if (FOCUS_SECTION_OVERRIDES[bare]) {
+    return FOCUS_SECTION_OVERRIDES[bare];
+  }
+  const meta = getPublicRegionMeta(bare);
   if (!meta) return "torso";
   return inferFocusSection(meta.category, meta.surface);
 }
