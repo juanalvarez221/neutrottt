@@ -1,6 +1,6 @@
 {
-  "version": "4.4",
-  "note": "SDF UV retired for full_chest, full_abdomen, right_ribs, and left_ribs. Visual authority is the Geometry Distance Field sidecar.",
+  "version": "5.2",
+  "note": "SDF UV retired for torso + posterior back. Visual authority is the Geometry Distance Field sidecar. full_back has no categorical surface; hitVisualRegionIds union upper+lower.",
   "assets": [
     {
       "regionId": "full_chest",
@@ -24,6 +24,25 @@
       "visualRegionId": "left_ribs_surface",
       "surfaceRegionId": "left_ribs_region",
       "maskIndex": 12
+    },
+    {
+      "regionId": "upper_back",
+      "visualRegionId": "upper_back_surface",
+      "surfaceRegionId": "upper_back_surface",
+      "maskIndex": 14
+    },
+    {
+      "regionId": "lower_back",
+      "visualRegionId": "lower_back_surface",
+      "surfaceRegionId": "lower_back_surface",
+      "maskIndex": 15
+    },
+    {
+      "regionId": "full_back",
+      "hitVisualRegionIds": [
+        "upper_back_surface",
+        "lower_back_surface"
+      ]
     }
   ]
 }

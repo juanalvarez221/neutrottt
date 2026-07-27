@@ -21,8 +21,8 @@ export const PUBLIC_HIGHLIGHT_REGION_IDS = [
   "full_abdomen_region",
   "left_ribs_region",
   "right_ribs_region",
-  "upper_back_region",
-  "lower_back_region",
+  "upper_back_surface",
+  "lower_back_surface",
   "right_shoulder_surface",
   "left_shoulder_surface",
   "right_biceps_surface",
@@ -96,9 +96,12 @@ const TARGET_TO_PUBLIC_HIGHLIGHT: Readonly<
   Record<string, readonly PublicHighlightRegionId[]>
 > = {
   // Espalda
-  full_back: ["upper_back_region", "lower_back_region"],
-  upper_back_large: ["upper_back_region"],
-  lower_back_large: ["lower_back_region"],
+  full_back: ["upper_back_surface", "lower_back_surface"],
+  upper_back: ["upper_back_surface"],
+  lower_back: ["lower_back_surface"],
+  // Aliases legacy
+  upper_back_large: ["upper_back_surface"],
+  lower_back_large: ["lower_back_surface"],
 
   // Pecho / torso — única superficie visual pública
   full_chest_surface: ["full_chest_surface"],

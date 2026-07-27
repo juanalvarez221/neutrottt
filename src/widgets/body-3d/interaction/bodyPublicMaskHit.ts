@@ -10,10 +10,15 @@ import {
   getMaskIndexForRegionId,
 } from "@/widgets/body-3d/domain/bodyPublicRegionMask";
 import { resolvePublicTargetHighlightRegions } from "@/widgets/body-3d/domain/bodyPublicHighlightRegions";
+import {
+  getLogicalRegionForVisualHit,
+  normalizeLogicalPublicHit,
+} from "@/widgets/body-3d/domain/bodyPublicLogicalRegions";
 import { getPrimaryPublicSelectionTarget } from "@/widgets/body-3d/domain/bodyPublicSelectionRouting";
 import { isPublicSelectableBodyTarget } from "@/widgets/body-3d/domain/bodyPublicSelectionTargets";
 import {
   BODY_PUBLIC_SELECTION_CATALOG,
+  stripCoverageToken,
   type PublicBodySelectionTargetId,
 } from "@/widgets/body-3d/domain/bodyPublicSelectionCatalog";
 
@@ -102,6 +107,19 @@ const MASK_INDEX_TO_PUBLIC: ReadonlyMap<number, PublicBodySelectionTargetId> =
     return map;
   })();
 
+/** Active public selection used to normalize logical hits (e.g. full_back). */
+let activePublicTargetIdsForHit: readonly string[] = [];
+
+export function setActivePublicTargetsForHit(ids: readonly string[]) {
+  activePublicTargetIdsForHit = ids.map(
+    (id) => stripCoverageToken(id).regionId,
+  );
+}
+
+export function getActivePublicTargetsForHit(): readonly string[] {
+  return activePublicTargetIdsForHit;
+}
+
 /**
  * Canonical routing atomic for a public target so existing option sheets keep working.
  */
@@ -110,6 +128,10 @@ const PUBLIC_TO_CANONICAL_ATOMIC: Readonly<Record<string, string>> = {
   full_abdomen: "upper_abdomen",
   left_ribs: "left_ribs",
   right_ribs: "right_ribs",
+  upper_back: "upper_back_center",
+  lower_back: "mid_back_center",
+  full_back: "upper_back_center",
+  // Aliases legacy
   upper_back_large: "upper_back_center",
   lower_back_large: "mid_back_center",
 };
@@ -176,11 +198,27 @@ export async function resolvePublicHitFromUv(
     };
   }
 
-  const publicTargetId = getPublicTargetForMaskIndex(maskIndex);
+  const surfaceRegionId = getSurfaceRegionIdForMaskIndex(maskIndex);
+  let publicTargetId = getPublicTargetForMaskIndex(maskIndex);
+
+  // Logical composite: when full_back is active, upper/lower surfaces resolve to it.
+  if (surfaceRegionId && publicTargetId) {
+    const logical = getLogicalRegionForVisualHit(surfaceRegionId);
+    if (logical) {
+      const normalized = normalizeLogicalPublicHit(
+        surfaceRegionId,
+        activePublicTargetIdsForHit,
+      );
+      if (normalized === logical.regionId) {
+        publicTargetId = logical.regionId as PublicBodySelectionTargetId;
+      }
+    }
+  }
+
   if (!publicTargetId) {
     return {
       maskIndex,
-      surfaceRegionId: getSurfaceRegionIdForMaskIndex(maskIndex),
+      surfaceRegionId,
       publicTargetId: atomicPublic,
       effectiveAtomicId: atomicId,
     };
@@ -189,7 +227,7 @@ export async function resolvePublicHitFromUv(
   const canonical = canonicalAtomicForPublicTarget(publicTargetId);
   return {
     maskIndex,
-    surfaceRegionId: getSurfaceRegionIdForMaskIndex(maskIndex),
+    surfaceRegionId,
     publicTargetId,
     effectiveAtomicId: canonical ?? atomicId,
   };

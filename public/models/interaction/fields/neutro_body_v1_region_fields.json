@@ -1,6 +1,6 @@
 {
   "model": "neutro_body_v1",
-  "version": "4.4",
+  "version": "5.2",
   "geometryHash": "c62e81edaa1f",
   "indexHash": "52494d471398c",
   "vertexCount": 14517,
@@ -118,6 +118,96 @@
         "bandMeters": 0.005,
         "encoding": "u32-snorm16x3"
       }
+    },
+    {
+      "regionId": "upper_back",
+      "visualRegionId": "upper_back_surface",
+      "surfaceRegionId": "upper_back_surface",
+      "maskIndex": 14,
+      "geometryHash": "c62e81edaa1f",
+      "indexHash": "52494d471398c",
+      "vertexCount": 14517,
+      "fieldUrl": "/models/interaction/fields/neutro_body_v1_upper_back_sdf.bin",
+      "fieldHash": "6795862f576d5f8b",
+      "encoding": "snorm16",
+      "distanceRangeMeters": 0.02,
+      "candidateId": "S02",
+      "anatomicalParameters": {
+        "offsetM": -0.012,
+        "sourceGate": "posterior-back-v51"
+      },
+      "sharedBoundaries": [
+        "right_ribs",
+        "left_ribs",
+        "lower_back"
+      ],
+      "refinement": {
+        "url": "/models/interaction/fields/neutro_body_v1_upper_back_refine.bin",
+        "hash": "4d366898782d2c7f",
+        "triangleCount": 1337,
+        "bandMeters": 0.005,
+        "encoding": "u32-snorm16x3"
+      }
+    },
+    {
+      "regionId": "lower_back",
+      "visualRegionId": "lower_back_surface",
+      "surfaceRegionId": "lower_back_surface",
+      "maskIndex": 15,
+      "geometryHash": "c62e81edaa1f",
+      "indexHash": "52494d471398c",
+      "vertexCount": 14517,
+      "fieldUrl": "/models/interaction/fields/neutro_body_v1_lower_back_sdf.bin",
+      "fieldHash": "105365e5be961e96",
+      "encoding": "snorm16",
+      "distanceRangeMeters": 0.02,
+      "candidateId": "S02",
+      "anatomicalParameters": {
+        "offsetM": -0.012,
+        "sourceGate": "posterior-back-v51"
+      },
+      "sharedBoundaries": [
+        "right_ribs",
+        "left_ribs",
+        "upper_back"
+      ],
+      "refinement": {
+        "url": "/models/interaction/fields/neutro_body_v1_lower_back_refine.bin",
+        "hash": "4c956c30646eb298",
+        "triangleCount": 83,
+        "bandMeters": 0.005,
+        "encoding": "u32-snorm16x3"
+      }
+    },
+    {
+      "regionId": "full_back",
+      "geometryHash": "c62e81edaa1f",
+      "indexHash": "52494d471398c",
+      "vertexCount": 14517,
+      "fieldUrl": "/models/interaction/fields/neutro_body_v1_full_back_sdf.bin",
+      "fieldHash": "6da0b6bfe2eb5b38",
+      "encoding": "snorm16",
+      "distanceRangeMeters": 0.02,
+      "candidateId": "S02",
+      "anatomicalParameters": {
+        "offsetM": -0.012,
+        "sourceGate": "posterior-back-v51"
+      },
+      "sharedBoundaries": [
+        "right_ribs",
+        "left_ribs"
+      ],
+      "refinement": {
+        "url": "/models/interaction/fields/neutro_body_v1_full_back_refine.bin",
+        "hash": "c79f8241b89fecb2",
+        "triangleCount": 1337,
+        "bandMeters": 0.005,
+        "encoding": "u32-snorm16x3"
+      },
+      "hitVisualRegionIds": [
+        "upper_back_surface",
+        "lower_back_surface"
+      ]
     }
   ]
 }

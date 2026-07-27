@@ -93,20 +93,18 @@ describe("public body selection taxonomy", () => {
     expect(getPrimaryPublicSelectionTarget("sternum")).toBe("full_chest");
   });
 
-  it("routes upper/mid back to upper_back_large", () => {
-    expect(getPrimaryPublicSelectionTarget("left_scapula")).toBe(
-      "upper_back_large",
-    );
+  it("routes upper/mid back to upper_back", () => {
+    expect(getPrimaryPublicSelectionTarget("left_scapula")).toBe("upper_back");
     expect(getPrimaryPublicSelectionTarget("mid_back_center")).toBe(
-      "upper_back_large",
+      "upper_back",
     );
   });
 
-  it("routes lower back and sacrum to lower_back_large", () => {
+  it("routes lower back and sacrum to lower_back", () => {
     expect(getPrimaryPublicSelectionTarget("left_lower_back")).toBe(
-      "lower_back_large",
+      "lower_back",
     );
-    expect(getPrimaryPublicSelectionTarget("sacrum")).toBe("lower_back_large");
+    expect(getPrimaryPublicSelectionTarget("sacrum")).toBe("lower_back");
   });
 
   it("routes ears to head side regions", () => {
@@ -207,10 +205,10 @@ describe("public body selection taxonomy", () => {
     expect(next).toEqual(["right_full_sleeve"]);
   });
 
-  it("full back normalization collapses upper/lower large", () => {
+  it("full back normalization collapses upper/lower", () => {
     const next = normalizeSelectedTargetIds([
-      "upper_back_large",
-      "lower_back_large",
+      "upper_back",
+      "lower_back",
       "full_back",
     ]);
     expect(next).toEqual(["full_back"]);
@@ -368,12 +366,12 @@ describe("public body selection taxonomy", () => {
       "right_biceps_region",
       "full_face",
       "face_left",
-      "upper_back_large",
+      "upper_back",
     ]);
     expect(sample.every(isPublicSelectableBodyTarget)).toBe(true);
     expect(sample).not.toContain("full_face");
     expect(sample).not.toContain("face_left");
     expect(sample).toContain("right_biceps_region");
-    expect(sample).toContain("upper_back_large");
+    expect(sample).toContain("upper_back");
   });
 });

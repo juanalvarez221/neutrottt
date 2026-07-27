@@ -265,61 +265,61 @@ const ATOMIC_PUBLIC_ROUTES: Record<string, RouteRule> = {
   lower_abdomen: { primary: "full_abdomen" },
   left_ribs: {
     primary: "left_ribs",
-    amplify: ["full_abdomen", "upper_back_large", "full_back"],
+    amplify: ["full_abdomen", "upper_back", "full_back"],
   },
   right_ribs: {
     primary: "right_ribs",
-    amplify: ["full_abdomen", "upper_back_large", "full_back"],
+    amplify: ["full_abdomen", "upper_back", "full_back"],
   },
   // Flanks absorbed into ribs / abdomen / back — routing only
   left_flank: {
     primary: "left_ribs",
-    amplify: ["full_abdomen", "lower_back_large"],
+    amplify: ["full_abdomen", "lower_back"],
   },
   right_flank: {
     primary: "right_ribs",
-    amplify: ["full_abdomen", "lower_back_large"],
+    amplify: ["full_abdomen", "lower_back"],
   },
 
   // Espalda
   left_scapula: {
-    primary: "upper_back_large",
+    primary: "upper_back",
     amplify: ["full_back"],
   },
   right_scapula: {
-    primary: "upper_back_large",
+    primary: "upper_back",
     amplify: ["full_back"],
   },
   upper_back_center: {
-    primary: "upper_back_large",
+    primary: "upper_back",
     amplify: ["full_back"],
   },
   left_mid_back: {
-    primary: "upper_back_large",
+    primary: "upper_back",
     amplify: ["full_back"],
   },
   right_mid_back: {
-    primary: "upper_back_large",
+    primary: "upper_back",
     amplify: ["full_back"],
   },
   mid_back_center: {
-    primary: "upper_back_large",
+    primary: "upper_back",
     amplify: ["full_back"],
   },
   left_lower_back: {
-    primary: "lower_back_large",
+    primary: "lower_back",
     amplify: ["full_back"],
   },
   right_lower_back: {
-    primary: "lower_back_large",
+    primary: "lower_back",
     amplify: ["full_back"],
   },
   lower_back_center: {
-    primary: "lower_back_large",
+    primary: "lower_back",
     amplify: ["full_back"],
   },
   sacrum: {
-    primary: "lower_back_large",
+    primary: "lower_back",
     amplify: ["full_back", "full_glutes"],
   },
 

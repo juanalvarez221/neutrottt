@@ -32,8 +32,8 @@ describe("public region composition — exact atomic sets", () => {
     expect(ids.some((id) => id.startsWith("neck_"))).toBe(false);
   });
 
-  it("upper_back_large includes scapulae and mid laterals", () => {
-    expect(resolveTargetToAtomicZoneIds("upper_back_large")).toEqual(
+  it("upper_back includes scapulae and mid laterals", () => {
+    expect(resolveTargetToAtomicZoneIds("upper_back")).toEqual(
       [
         "left_scapula",
         "right_scapula",
@@ -45,13 +45,11 @@ describe("public region composition — exact atomic sets", () => {
     );
   });
 
-  it("lower_back_large is lumbar only (no sacrum)", () => {
-    expect(resolveTargetToAtomicZoneIds("lower_back_large")).toEqual(
+  it("lower_back is lumbar only (no sacrum)", () => {
+    expect(resolveTargetToAtomicZoneIds("lower_back")).toEqual(
       ["left_lower_back", "right_lower_back", "lower_back_center"].sort(),
     );
-    expect(resolveTargetToAtomicZoneIds("lower_back_large")).not.toContain(
-      "sacrum",
-    );
+    expect(resolveTargetToAtomicZoneIds("lower_back")).not.toContain("sacrum");
   });
 
   it("full_chest is pectorals only", () => {

@@ -67,9 +67,9 @@ describe("abdomen / ribs / back sanity", () => {
   });
 
   it("upper / lower back posterior width sanity", () => {
-    expect(DATA.stats.upper_back_region?.widthX ?? 0).toBeGreaterThan(0.28);
-    expect(DATA.stats.lower_back_region?.widthX ?? 0).toBeGreaterThan(0.22);
-    expect(DATA.stats.upper_back_region?.faceCount ?? 0).toBeGreaterThan(200);
+    expect(DATA.stats.upper_back_surface?.widthX ?? 0).toBeGreaterThan(0.28);
+    expect(DATA.stats.lower_back_surface?.widthX ?? 0).toBeGreaterThan(0.22);
+    expect(DATA.stats.upper_back_surface?.faceCount ?? 0).toBeGreaterThan(200);
   });
 });
 
@@ -95,7 +95,7 @@ describe("geometric integrity", () => {
 
   it("public adjacency graph is non-empty", () => {
     expect(Object.keys(PUBLIC_REGION_ADJACENCY).length).toBeGreaterThan(10);
-    expect(PUBLIC_REGION_ADJACENCY.upper_back_region?.length ?? 0).toBeGreaterThan(
+    expect(PUBLIC_REGION_ADJACENCY.upper_back_surface?.length ?? 0).toBeGreaterThan(
       0,
     );
   });
@@ -116,9 +116,7 @@ describe("connected selection graph", () => {
   });
 
   it("isConnectedBodySelection matches contiguous component rule", () => {
-    expect(isConnectedBodySelection(["upper_back_large", "lower_back_large"])).toBe(
-      true,
-    );
+    expect(isConnectedBodySelection(["upper_back", "lower_back"])).toBe(true);
     expect(isConnectedBodySelection(["full_chest", "left_lower_leg_front"])).toBe(
       false,
     );
@@ -129,7 +127,7 @@ describe("connected selection graph", () => {
       normalizeConnectedBodySelection(["left_chest", "right_chest"]),
     ).toEqual(["full_chest"]);
     expect(
-      normalizeConnectedBodySelection(["upper_back_large", "lower_back_large"]),
+      normalizeConnectedBodySelection(["upper_back", "lower_back"]),
     ).toEqual(["full_back"]);
     expect(
       normalizeConnectedBodySelection([

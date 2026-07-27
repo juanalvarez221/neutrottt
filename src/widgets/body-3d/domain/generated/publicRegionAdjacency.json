@@ -24,7 +24,7 @@
     "left_thigh_inner_surface",
     "left_thigh_outer_surface",
     "left_triceps_surface",
-    "lower_back_region",
+    "lower_back_surface",
     "neck_back_surface",
     "neck_front_surface",
     "neck_left_surface",
@@ -45,7 +45,7 @@
     "right_thigh_inner_surface",
     "right_thigh_outer_surface",
     "right_triceps_surface",
-    "upper_back_region"
+    "upper_back_surface"
   ],
   "routingOnlyRegions": [
     "right_elbow_transition",
@@ -62,7 +62,7 @@
       "full_chest_surface",
       "left_hip_surface",
       "left_ribs_region",
-      "lower_back_region",
+      "lower_back_surface",
       "right_hip_surface",
       "right_ribs_region"
     ],
@@ -125,7 +125,7 @@
       "left_hip_surface",
       "left_thigh_back_surface",
       "left_thigh_inner_surface",
-      "lower_back_region",
+      "lower_back_surface",
       "right_glute_surface"
     ],
     "left_hand_surface": [
@@ -137,7 +137,7 @@
       "left_thigh_back_surface",
       "left_thigh_front_surface",
       "left_thigh_outer_surface",
-      "lower_back_region"
+      "lower_back_surface"
     ],
     "left_knee_transition": [
       "left_calf_surface",
@@ -153,8 +153,8 @@
       "left_biceps_surface",
       "left_shoulder_surface",
       "left_triceps_surface",
-      "lower_back_region",
-      "upper_back_region"
+      "lower_back_surface",
+      "upper_back_surface"
     ],
     "left_shin_surface": [
       "left_ankle_transition",
@@ -167,7 +167,7 @@
       "neck_back_surface",
       "neck_front_surface",
       "neck_left_surface",
-      "upper_back_region"
+      "upper_back_surface"
     ],
     "left_thigh_back_surface": [
       "left_glute_surface",
@@ -204,7 +204,7 @@
       "left_forearm_outer_surface",
       "left_hand_surface"
     ],
-    "lower_back_region": [
+    "lower_back_surface": [
       "full_abdomen_region",
       "left_glute_surface",
       "left_hip_surface",
@@ -212,7 +212,7 @@
       "right_glute_surface",
       "right_hip_surface",
       "right_ribs_region",
-      "upper_back_region"
+      "upper_back_surface"
     ],
     "neck_back_surface": [
       "head_back_surface",
@@ -220,7 +220,7 @@
       "neck_left_surface",
       "neck_right_surface",
       "right_shoulder_surface",
-      "upper_back_region"
+      "upper_back_surface"
     ],
     "neck_front_surface": [
       "full_chest_surface",
@@ -277,7 +277,7 @@
     ],
     "right_glute_surface": [
       "left_glute_surface",
-      "lower_back_region",
+      "lower_back_surface",
       "right_hip_surface",
       "right_thigh_back_surface",
       "right_thigh_inner_surface"
@@ -287,7 +287,7 @@
     ],
     "right_hip_surface": [
       "full_abdomen_region",
-      "lower_back_region",
+      "lower_back_surface",
       "right_glute_surface",
       "right_thigh_back_surface",
       "right_thigh_front_surface",
@@ -304,11 +304,11 @@
     "right_ribs_region": [
       "full_abdomen_region",
       "full_chest_surface",
-      "lower_back_region",
+      "lower_back_surface",
       "right_biceps_surface",
       "right_shoulder_surface",
       "right_triceps_surface",
-      "upper_back_region"
+      "upper_back_surface"
     ],
     "right_shin_surface": [
       "right_ankle_transition",
@@ -321,7 +321,7 @@
       "neck_front_surface",
       "neck_right_surface",
       "right_ribs_region",
-      "upper_back_region"
+      "upper_back_surface"
     ],
     "right_thigh_back_surface": [
       "right_glute_surface",
@@ -358,10 +358,10 @@
       "right_forearm_outer_surface",
       "right_hand_surface"
     ],
-    "upper_back_region": [
+    "upper_back_surface": [
       "left_ribs_region",
       "left_shoulder_surface",
-      "lower_back_region",
+      "lower_back_surface",
       "neck_back_surface",
       "right_ribs_region",
       "right_shoulder_surface"
@@ -652,7 +652,7 @@
       ],
       "connectedComponents": 1
     },
-    "upper_back_region": {
+    "upper_back_surface": {
       "faceCount": 516,
       "surfaceArea": 0.0855949491047068,
       "centroid": [
@@ -677,7 +677,7 @@
       ],
       "connectedComponents": 1
     },
-    "lower_back_region": {
+    "lower_back_surface": {
       "faceCount": 232,
       "surfaceArea": 0.047053308468764175,
       "centroid": [

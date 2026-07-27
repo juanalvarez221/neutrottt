@@ -248,13 +248,13 @@ describe("routing coherence audit", () => {
     },
     {
       atomic: "left_scapula",
-      expectedPrimary: "upper_back_large",
+      expectedPrimary: "upper_back",
       category: "back",
       side: "both",
     },
     {
       atomic: "lower_back_center",
-      expectedPrimary: "lower_back_large",
+      expectedPrimary: "lower_back",
       category: "back",
       side: "both",
     },
@@ -338,7 +338,7 @@ describe("contiguous selection rules", () => {
 
   it("normalizations remain valid", () => {
     expect(
-      normalizeConnectedBodySelection(["upper_back_large", "lower_back_large"]),
+      normalizeConnectedBodySelection(["upper_back", "lower_back"]),
     ).toEqual(["full_back"]);
     expect(
       normalizeConnectedBodySelection([

@@ -37,6 +37,12 @@ export type RegionGeometryFieldEntry = {
   surfaceRegionId?: string;
   /** Public visual alias (e.g. full_abdomen_surface). */
   visualRegionId?: string;
+  /**
+   * Categorical mask IDs that count as a hit for this public target.
+   * Used by logical composites (e.g. full_back → upper + lower surfaces).
+   * Does not create a categorical full_*_surface mask.
+   */
+  hitVisualRegionIds?: readonly string[];
   maskIndex?: number;
   geometryHash: string;
   indexHash: string;
@@ -58,9 +64,11 @@ export type RegionGeometryFieldEntry = {
     | {
         pubicClearance: number;
         inguinalSideRise: number;
-      };
+      }
+    | Record<string, unknown>;
   /** Shared isoline neighbour (e.g. full_chest for abdomen). */
   sharedBoundary?: string;
+  sharedBoundaries?: readonly string[];
 };
 
 export type RegionGeometryFieldManifest = {

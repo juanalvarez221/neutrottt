@@ -41,8 +41,8 @@ describe("public highlight region resolution", () => {
 
   it("full_back public highlight resolves correctly", () => {
     expect(resolvePublicTargetHighlightRegions("full_back")).toEqual([
-      "upper_back_region",
-      "lower_back_region",
+      "upper_back_surface",
+      "lower_back_surface",
     ]);
   });
 
@@ -80,11 +80,11 @@ describe("public highlight region resolution", () => {
 
   it("dedupes compound selections", () => {
     const ids = resolvePublicTargetsHighlightRegions([
-      "upper_back_large",
+      "upper_back",
       "full_back",
     ]);
-    expect(ids.filter((x) => x === "upper_back_region")).toHaveLength(1);
-    expect(ids).toContain("lower_back_region");
+    expect(ids.filter((x) => x === "upper_back_surface")).toHaveLength(1);
+    expect(ids).toContain("lower_back_surface");
   });
 });
 

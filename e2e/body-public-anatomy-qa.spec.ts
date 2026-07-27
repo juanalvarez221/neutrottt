@@ -1,7 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
 import path from "node:path";
 
-const OUT = path.join("artifacts", "body-public-region-atlas");
+const OUT = path.join("artifacts", "body-public-region-atlas-v2");
 
 async function openPublicAnatomyQa(page: Page) {
   await page.addInitScript(() => {
@@ -44,26 +44,17 @@ test.describe("Public Anatomy browser QA", () => {
     test.setTimeout(240_000);
     await openPublicAnatomyQa(page);
 
-    // Camera regression: start front-ish via chest, then upper back must go BACK
+    // Camera regression: start front via chest, then upper back must go BACK
     await selectTarget(page, "full_chest");
-    await shot(page, "23-click-upper-back-from-front-before.png");
-    await selectTarget(page, "upper_back_large");
-    await shot(page, "24-click-upper-back-camera-result.png");
-    await selectTarget(page, "full_back");
-    await shot(page, "25-full-back-selected.png");
-    await selectTarget(page, "full_chest");
-    await shot(page, "26-click-chest-from-back-result.png");
+    await shot(page, "36-before-click-upper-back-front.png");
+    await selectTarget(page, "upper_back");
+    await shot(page, "37-after-click-upper-back-back.png");
 
-    const shots: Array<[string, string]> = [
-      ["right_chest", "playwright-pectoral-right.png"],
-      ["full_chest", "playwright-full-chest.png"],
-      ["full_abdomen", "playwright-abdomen.png"],
-      ["full_back", "playwright-full-back.png"],
-    ];
-    for (const [id, file] of shots) {
-      await selectTarget(page, id);
-      await shot(page, file);
-    }
+    // From back selection, pectoral should reframe front
+    await selectTarget(page, "full_back");
+    await shot(page, "38-before-click-pectoral-back.png");
+    await selectTarget(page, "right_chest");
+    await shot(page, "39-after-click-pectoral-front.png");
 
     await expect(page.getByText(/preferredView/i)).toBeVisible();
   });
@@ -73,23 +64,29 @@ test.describe("Public Anatomy browser QA", () => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await openPublicAnatomyQa(page);
 
-    await selectTarget(page, "full_back");
-    await shot(page, "desktop-1440-full-back.png");
     await selectTarget(page, "full_chest");
-    await shot(page, "desktop-1440-full-chest.png");
+    await shot(page, "29-desktop-full-chest.png");
+    await selectTarget(page, "full_back");
+    await shot(page, "30-desktop-full-back.png");
+    await selectTarget(page, "right_ribs");
+    await shot(page, "31-desktop-ribs.png");
 
     await page.setViewportSize({ width: 820, height: 1180 });
     await page.waitForTimeout(400);
+    await selectTarget(page, "full_chest");
+    await shot(page, "32-tablet-full-chest.png");
     await selectTarget(page, "full_back");
-    await shot(page, "tablet-820-full-back.png");
+    await shot(page, "33-tablet-full-back.png");
     await selectTarget(page, "left_thigh_front");
-    await shot(page, "tablet-820-thigh.png");
+    await shot(page, "33b-tablet-thigh.png");
 
     await page.setViewportSize({ width: 390, height: 844 });
     await page.waitForTimeout(400);
-    await selectTarget(page, "full_back");
-    await shot(page, "mobile-390-full-back.png");
     await selectTarget(page, "full_chest");
-    await shot(page, "mobile-390-full-chest.png");
+    await shot(page, "34-mobile-full-chest.png");
+    await selectTarget(page, "full_back");
+    await shot(page, "35-mobile-full-back.png");
+    await selectTarget(page, "left_thigh_front");
+    await shot(page, "35b-mobile-thigh.png");
   });
 });

@@ -1,8 +1,8 @@
 {
   "model": "neutro_body_v1",
   "maskTexture": "/models/interaction/neutro_body_v1_anatomical_region_ids.png",
-  "maskHash": "6134058b9b59",
-  "maskUrl": "/models/interaction/neutro_body_v1_anatomical_region_ids.png?v=6134058b9b59",
+  "maskHash": "5a0bb94fa522",
+  "maskUrl": "/models/interaction/neutro_body_v1_anatomical_region_ids.png?v=5a0bb94fa522",
   "resolution": 4096,
   "encoding": "r8_index",
   "indexScale": 255,
@@ -20,12 +20,6 @@
     },
     "left_ribs_region": {
       "maskIndex": 12
-    },
-    "upper_back_region": {
-      "maskIndex": 14
-    },
-    "lower_back_region": {
-      "maskIndex": 15
     },
     "right_shoulder_surface": {
       "maskIndex": 16
@@ -164,6 +158,12 @@
     },
     "right_glute_surface": {
       "maskIndex": 45
+    },
+    "upper_back_surface": {
+      "maskIndex": 14
+    },
+    "lower_back_surface": {
+      "maskIndex": 15
     }
   },
   "composites": {
@@ -171,14 +171,15 @@
       "full_chest_surface"
     ],
     "full_back": [
-      "upper_back_region",
-      "lower_back_region"
+      "upper_back_surface",
+      "lower_back_surface"
     ]
   },
   "promotedCandidates": [
     "C07",
     "B01",
     "V4.1",
-    "L01"
+    "L01",
+    "S02"
   ]
 }

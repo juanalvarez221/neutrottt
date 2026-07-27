@@ -41,6 +41,7 @@ import {
   type BodyCoverage,
 } from "@/widgets/body-3d/domain/bodyPublicSelectionCatalog";
 import { resolveTargetToAtomicZoneIds } from "@/widgets/body-3d/domain/bodySelectionTargets";
+import { setActivePublicTargetsForHit } from "@/widgets/body-3d/interaction/bodyPublicMaskHit";
 import {
   getCameraFocusForAtomicZone,
   getFullBodyCameraPose,
@@ -243,6 +244,11 @@ export function BodyPremiumSelector({
     () => resolvePublicTargetsHighlightRegions(selectedTargetIds),
     [selectedTargetIds],
   );
+
+  useEffect(() => {
+    setActivePublicTargetsForHit(selectedTargetIds);
+    return () => setActivePublicTargetsForHit([]);
+  }, [selectedTargetIds]);
 
   const previewPublicRegionIds = useMemo(() => {
     const staged =

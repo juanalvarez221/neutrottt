@@ -145,8 +145,8 @@ export function normalizeConnectedBodySelection(
   }
 
   // Full back
-  if (has("upper_back_large") && has("lower_back_large")) {
-    next = [...without("upper_back_large", "lower_back_large"), "full_back"];
+  if (has("upper_back") && has("lower_back")) {
+    next = [...without("upper_back", "lower_back"), "full_back"];
   }
 
   // Upper arm complete

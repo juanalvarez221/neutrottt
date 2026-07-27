@@ -37,19 +37,19 @@ import {
   getPreferredBodyView,
 } from "@/widgets/body-3d/ux/bodyPreferredCamera";
 import type { CameraFocusPose } from "@/widgets/body-3d/ux/bodyCameraFocus";
+import { setActivePublicTargetsForHit } from "@/widgets/body-3d/interaction/bodyPublicMaskHit";
 
 export type LabExperienceMode = "premium" | "technical" | "audit";
 
 export function BodyLabWorkbench() {
-  const [labExperience, setLabExperience] =
-    useState<LabExperienceMode>("premium");
-
-  useEffect(() => {
+  const [labExperience, setLabExperience] = useState<LabExperienceMode>(() => {
+    if (typeof window === "undefined") return "premium";
     const mode = new URLSearchParams(window.location.search).get("mode");
     if (mode === "audit" || mode === "technical" || mode === "premium") {
-      setLabExperience(mode);
+      return mode;
     }
-  }, []);
+    return "premium";
+  });
   const [modelId, setModelId] = useState(DEFAULT_LAB_BODY_MODEL.id);
   const [cameraView, setCameraView] = useState<BodyCameraView>("front");
   const [cameraViewToken, setCameraViewToken] = useState(0);
@@ -108,6 +108,7 @@ export function BodyLabWorkbench() {
 
   function handleAuditSelectTarget(id: string) {
     setAuditTargetId(id);
+    setActivePublicTargetsForHit(id ? [id] : []);
     if (!id) return;
     const preferred = getPreferredBodyView(id);
     setCameraView(toCardinalCameraView(preferred));
@@ -115,6 +116,25 @@ export function BodyLabWorkbench() {
     setFocusPose(getCameraPoseForPublicTarget(id, activeModel.camera));
     setFocusToken((token) => token + 1);
   }
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    (
+      window as unknown as {
+        __neutroSelectPublicTarget?: (regionId: string) => void;
+      }
+    ).__neutroSelectPublicTarget = (regionId: string) => {
+      setLabExperience("audit");
+      handleAuditSelectTarget(regionId);
+    };
+    return () => {
+      delete (
+        window as unknown as {
+          __neutroSelectPublicTarget?: (regionId: string) => void;
+        }
+      ).__neutroSelectPublicTarget;
+    };
+  });
 
   function handleModelChange(nextId: string) {
     setModelId(nextId);

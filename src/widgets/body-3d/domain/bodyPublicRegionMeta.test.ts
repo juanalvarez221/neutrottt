@@ -44,11 +44,18 @@ describe("public region professional metadata", () => {
       "Superficie frontal completa del pecho",
     );
     expect(isPublicSelectableBodyTarget("right_chest")).toBe(false);
-    expect(getPublicShortLabel("upper_back_large")).toBe("Espalda alta");
-    expect(getPublicDescription("upper_back_large")).toBe(
-      "Región escapular y dorsal superior",
+    expect(getPublicShortLabel("upper_back")).toBe("Espalda alta");
+    expect(getPublicDescription("upper_back")).toBe(
+      "Superficie superior de la espalda",
     );
-    expect(getPublicShortLabel("lower_back_large")).toBe("Espalda baja");
+    expect(getPublicShortLabel("lower_back")).toBe("Espalda baja");
+    expect(getPublicDescription("lower_back")).toBe(
+      "Superficie lumbar de la espalda",
+    );
+    expect(getPublicShortLabel("full_back")).toBe("Espalda completa");
+    expect(getPublicDescription("full_back")).toBe(
+      "Superficie completa de la espalda",
+    );
     expect(getPublicShortLabel("right_thigh_front")).toBe(
       "Muslo derecho · Cara anterior",
     );

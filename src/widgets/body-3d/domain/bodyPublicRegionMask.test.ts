@@ -80,17 +80,28 @@ describe("bodyPublicRegionMask", () => {
       readFileSync(ANATOMY_PATH, "utf8"),
     ) as AnatomySource;
     expect(anatomy.model).toBe("neutro_body_v1");
+    const anatomyLegacyAlias: Record<string, string> = {
+      upper_back_surface: "upper_back_region",
+      lower_back_surface: "lower_back_region",
+    };
     for (const id of PUBLIC_HIGHLIGHT_REGION_IDS) {
-      expect(anatomy.regions[id], id).toBeTruthy();
-      expect(anatomy.regions[id].maskIndex).toBe(
+      const key = anatomy.regions[id]
+        ? id
+        : (anatomyLegacyAlias[id] ?? id);
+      expect(anatomy.regions[key], id).toBeTruthy();
+      expect(anatomy.regions[key].maskIndex).toBe(
         getMaskIndexForRegionId(id),
       );
     }
     expect(anatomy.composites.full_chest).toEqual(["full_chest_surface"]);
-    expect(anatomy.composites.full_back).toEqual([
-      "upper_back_region",
-      "lower_back_region",
-    ]);
+    const fullBack = (anatomy.composites.full_back ?? []).map((x) =>
+      x === "upper_back_region"
+        ? "upper_back_surface"
+        : x === "lower_back_region"
+          ? "lower_back_surface"
+          : x,
+    );
+    expect(fullBack).toEqual(["upper_back_surface", "lower_back_surface"]);
   });
 
   it("all PUBLIC_HIGHLIGHT_REGION_IDS have unique mask indices", () => {
@@ -167,8 +178,8 @@ describe("bodyPublicRegionMask", () => {
   });
 
   it("adjacency regenerated from anatomical bake includes critical torso edges", () => {
-    expect(getAdjacentPublicBaseRegions("upper_back_region")).toContain(
-      "lower_back_region",
+    expect(getAdjacentPublicBaseRegions("upper_back_surface")).toContain(
+      "lower_back_surface",
     );
     expect(getAdjacentPublicBaseRegions("full_chest_surface")).toContain(
       "full_abdomen_region",

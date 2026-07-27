@@ -28,7 +28,14 @@ import {
 } from "@/widgets/body-3d/domain/bodyPublicRegionMask";
 import type { PublicHighlightRegionId } from "@/widgets/body-3d/domain/bodyPublicHighlightRegions";
 import { REGION_MASK_COVERAGE_GLSL } from "@/widgets/body-3d/interaction/regionMaskCoverage";
-import { loadRegionGeometryField } from "@/widgets/body-3d/interaction/bodyRegionGeometryFieldLoader";
+import {
+  resolveGeometryFieldCandidateIds,
+  visualIdsSuppressedByFieldRegion,
+} from "@/widgets/body-3d/domain/bodyPublicLogicalRegions";
+import {
+  loadRegionGeometryField,
+  regionFieldCacheKey,
+} from "@/widgets/body-3d/interaction/bodyRegionGeometryFieldLoader";
 import { buildRefinedFieldGeometry } from "@/widgets/body-3d/interaction/bodyRegionFieldGeometry";
 import type { RegionFieldRefinement } from "@/widgets/body-3d/domain/bodyRegionGeometryField";
 
@@ -290,23 +297,42 @@ function writeFieldAttribute(
  * the region ships a refinement sidecar. Derived geometries are cached per key
  * so re-selecting a region costs nothing.
  */
+type ApplyFieldResult = {
+  ok: boolean;
+  geometryCacheHit: boolean;
+  geometryRetrieveMs: number;
+  attributeInstallMs: number;
+};
+
 function applyFieldToTarget(
   target: FieldOverlayTarget,
   values: Float32Array | null,
   refinement: RegionFieldRefinement | null,
   cacheKey: string | null,
   cache: Map<string, BufferGeometry>,
-): boolean {
+): ApplyFieldResult {
+  const t0 = now();
   if (!values) {
     target.mesh.geometry = target.base;
-    return writeFieldAttribute(target.base, null);
+    const ok = writeFieldAttribute(target.base, null);
+    return {
+      ok,
+      geometryCacheHit: false,
+      geometryRetrieveMs: 0,
+      attributeInstallMs: now() - t0,
+    };
   }
 
   if (refinement && cacheKey) {
     const cached = cache.get(cacheKey);
     if (cached) {
       target.mesh.geometry = cached;
-      return true;
+      return {
+        ok: true,
+        geometryCacheHit: true,
+        geometryRetrieveMs: now() - t0,
+        attributeInstallMs: 0,
+      };
     }
     const refined = buildRefinedFieldGeometry(
       target.base,
@@ -317,12 +343,24 @@ function applyFieldToTarget(
     if (refined) {
       cache.set(cacheKey, refined);
       target.mesh.geometry = refined;
-      return true;
+      return {
+        ok: true,
+        geometryCacheHit: false,
+        geometryRetrieveMs: now() - t0,
+        attributeInstallMs: 0,
+      };
     }
   }
 
   target.mesh.geometry = target.base;
-  return writeFieldAttribute(target.base, values);
+  const tAttr = now();
+  const ok = writeFieldAttribute(target.base, values);
+  return {
+    ok,
+    geometryCacheHit: false,
+    geometryRetrieveMs: tAttr - t0,
+    attributeInstallMs: now() - tAttr,
+  };
 }
 
 function geometryIdentityOf(geometry: BufferGeometry) {
@@ -350,6 +388,22 @@ type FieldTiming = {
   resolveMs: number;
   installMs: number;
   totalMs: number;
+  /** Micro path: cache lookup + geometry restore + attribute/uniforms. */
+  microCachedMs?: number;
+  geometryCacheHit?: boolean;
+  stages?: {
+    manifestMs: number;
+    lookupMs: number;
+    validateMs: number;
+    fieldFetchMs: number;
+    decodeMs: number;
+    refineFetchMs: number;
+    refineDecodeMs: number;
+    cacheHit: boolean;
+    geometryRetrieveMs: number;
+    attributeInstallMs: number;
+    uniformUpdateMs: number;
+  };
 };
 
 /** Diagnostics hook consumed by the V2.5 browser evidence run. */
@@ -453,20 +507,26 @@ export function BodyPublicRegionMaskHighlight({
 
     /** Categorical LUTs; the geometry-field region is drawn by the field only. */
     const syncLuts = (fieldRegionId: string | null) => {
+      const suppressed = new Set(
+        visualIdsSuppressedByFieldRegion(fieldRegionId),
+      );
       const strip = (ids: readonly string[]) =>
-        regionIdsToMaskIndices(ids.filter((id) => id !== fieldRegionId));
+        regionIdsToMaskIndices(ids.filter((id) => !suppressed.has(id)));
       writeMembershipLut(selectedLut, strip(selectedIds));
       writeMembershipLut(previewLut, strip(previewIds));
       writeMembershipLut(hoverLut, strip(hoverIds));
 
       const mat = materialRef.current;
       if (!mat?.uniforms.uFieldSelected) return;
-      mat.uniforms.uFieldSelected.value =
-        fieldRegionId && selectedIds.includes(fieldRegionId) ? 1 : 0;
-      mat.uniforms.uFieldPreview.value =
-        fieldRegionId && previewIds.includes(fieldRegionId) ? 1 : 0;
-      mat.uniforms.uFieldHover.value =
-        fieldRegionId && hoverIds.includes(fieldRegionId) ? 1 : 0;
+      const covers = (ids: readonly string[]) =>
+        fieldRegionId != null &&
+        (ids.includes(fieldRegionId) ||
+          visualIdsSuppressedByFieldRegion(fieldRegionId).some((id) =>
+            ids.includes(id),
+          ));
+      mat.uniforms.uFieldSelected.value = covers(selectedIds) ? 1 : 0;
+      mat.uniforms.uFieldPreview.value = covers(previewIds) ? 1 : 0;
+      mat.uniforms.uFieldHover.value = covers(hoverIds) ? 1 : 0;
     };
 
     syncLuts(null);
@@ -478,13 +538,20 @@ export function BodyPublicRegionMaskHighlight({
       }
     };
 
-    const candidates = [...selectedIds, ...previewIds, ...hoverIds];
+    const candidates = resolveGeometryFieldCandidateIds([
+      ...selectedIds,
+      ...previewIds,
+      ...hoverIds,
+    ]);
     if (!candidates.length || !targets.length) {
       clearField();
     } else {
       const identity = geometryIdentityOf(targets[0]!.base);
       void (async () => {
         const started = now();
+        if (typeof performance !== "undefined") {
+          performance.mark("neutro-region-field-start");
+        }
         for (const regionId of candidates) {
           const result = await loadRegionGeometryField(regionId, identity);
           if (cancelled) return;
@@ -502,27 +569,59 @@ export function BodyPublicRegionMaskHighlight({
               resolveMs: now() - started,
               installMs: 0,
               totalMs: now() - started,
+              stages: result.stages
+                ? {
+                    ...result.stages,
+                    geometryRetrieveMs: 0,
+                    attributeInstallMs: 0,
+                    uniformUpdateMs: 0,
+                  }
+                : undefined,
             });
             continue;
           }
           const installedAt = now();
-          const cacheKey = result.refinement
-            ? `${result.entry.fieldHash}:${result.entry.refinement?.hash ?? ""}`
-            : null;
+          const cacheKey = regionFieldCacheKey(result.entry);
           let installed = false;
+          let geometryCacheHit = false;
+          let geometryRetrieveMs = 0;
+          let attributeInstallMs = 0;
           for (const target of targets) {
-            installed =
-              applyFieldToTarget(
-                target,
-                result.values,
-                result.refinement,
-                cacheKey,
-                derivedCache,
-              ) || installed;
+            const applied = applyFieldToTarget(
+              target,
+              result.values,
+              result.refinement,
+              cacheKey,
+              derivedCache,
+            );
+            if (applied.ok) installed = true;
+            geometryCacheHit = geometryCacheHit || applied.geometryCacheHit;
+            geometryRetrieveMs += applied.geometryRetrieveMs;
+            attributeInstallMs += applied.attributeInstallMs;
           }
           if (!installed) continue;
+          const tUniforms = now();
           fieldRegionRef.current = regionId;
           syncLuts(regionId);
+          const uniformUpdateMs = now() - tUniforms;
+          const installMs = now() - installedAt;
+          const microCachedMs =
+            (result.stages?.lookupMs ?? 0) +
+            geometryRetrieveMs +
+            attributeInstallMs +
+            uniformUpdateMs;
+          if (typeof performance !== "undefined") {
+            performance.mark("neutro-region-field-end");
+            try {
+              performance.measure(
+                "neutro-region-field-total",
+                "neutro-region-field-start",
+                "neutro-region-field-end",
+              );
+            } catch {
+              /* ignore */
+            }
+          }
           reportFieldTiming({
             regionId,
             status: "ok",
@@ -531,8 +630,16 @@ export function BodyPublicRegionMaskHighlight({
             refinementHash: result.entry.refinement?.hash,
             loadSource: "official",
             resolveMs: installedAt - started,
-            installMs: now() - installedAt,
+            installMs,
             totalMs: now() - started,
+            microCachedMs,
+            geometryCacheHit,
+            stages: {
+              ...result.stages,
+              geometryRetrieveMs,
+              attributeInstallMs,
+              uniformUpdateMs,
+            },
           });
           return;
         }

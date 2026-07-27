@@ -26,8 +26,8 @@ describe("public region adjacency graph", () => {
   });
 
   it("upper and lower back share a boundary", () => {
-    const n = getAdjacentPublicBaseRegions("upper_back_region");
-    expect(n).toContain("lower_back_region");
+    const n = getAdjacentPublicBaseRegions("upper_back_surface");
+    expect(n).toContain("lower_back_surface");
   });
 
   it("pectorals are adjacent to abdomen via full_chest_surface", () => {
@@ -67,10 +67,7 @@ describe("contiguous selection", () => {
   });
 
   it("normalizes to full back", () => {
-    const next = normalizeConnectedBodySelection([
-      "upper_back_large",
-      "lower_back_large",
-    ]);
+    const next = normalizeConnectedBodySelection(["upper_back", "lower_back"]);
     expect(next).toContain("full_back");
   });
 

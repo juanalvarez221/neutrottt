@@ -40,6 +40,8 @@ export type PreferredBodyView =
 /** Overrides explícitos de producto (prioridad sobre inferencia). */
 const PREFERRED_VIEW_OVERRIDES: Readonly<Record<string, PreferredBodyView>> = {
   full_back: "back",
+  upper_back: "back",
+  lower_back: "back",
   upper_back_large: "back",
   lower_back_large: "back",
   full_chest: "front",
@@ -101,6 +103,8 @@ const PREFERRED_VIEW_OVERRIDES: Readonly<Record<string, PreferredBodyView>> = {
 
 const FOCUS_SECTION_OVERRIDES: Readonly<Record<string, BodySection>> = {
   full_back: "torso",
+  upper_back: "upperBody",
+  lower_back: "torso",
   upper_back_large: "upperBody",
   lower_back_large: "torso",
   full_chest: "torso",
@@ -196,6 +200,8 @@ export type FramingScale = "tight" | "medium" | "wide";
 
 const FRAMING_SCALE_OVERRIDES: Readonly<Record<string, FramingScale>> = {
   full_back: "wide",
+  upper_back: "wide",
+  lower_back: "medium",
   upper_back_large: "wide",
   lower_back_large: "medium",
   full_chest: "wide",

@@ -105,7 +105,7 @@ describe("canonical camera poses", () => {
 
 describe("regression: public target camera orientation", () => {
   const cases: Array<[string, "back" | "front" | "left" | "right" | "front-right" | "back-right"]> = [
-    ["upper_back_large", "back"],
+    ["upper_back", "back"],
     ["full_back", "back"],
     ["full_chest", "front"],
     ["right_biceps_region", "front-right"],

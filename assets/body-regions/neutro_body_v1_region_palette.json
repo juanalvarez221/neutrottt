@@ -34,18 +34,6 @@
       "shortLabel": "Ribs L",
       "gate": "torso"
     },
-    "upper_back_region": {
-      "runtimeIndex": 14,
-      "authoringColor": "#43A047",
-      "shortLabel": "Back Up",
-      "gate": "torso"
-    },
-    "lower_back_region": {
-      "runtimeIndex": 15,
-      "authoringColor": "#00897B",
-      "shortLabel": "Back Low",
-      "gate": "torso"
-    },
     "right_shoulder_surface": {
       "runtimeIndex": 16,
       "authoringColor": "#1E88E5",
@@ -321,19 +309,36 @@
       "authoringColor": "#9575CD",
       "shortLabel": "Glute R",
       "gate": "pelvis"
+    },
+    "upper_back_surface": {
+      "runtimeIndex": 14,
+      "authoringColor": "#43A047",
+      "shortLabel": "Back Up",
+      "gate": "torso"
+    },
+    "lower_back_surface": {
+      "runtimeIndex": 15,
+      "authoringColor": "#00897B",
+      "shortLabel": "Back Low",
+      "gate": "torso"
     }
   },
   "composites": {
-    "full_chest": ["full_chest_surface"],
-    "full_back": ["upper_back_region", "lower_back_region"]
+    "full_chest": [
+      "full_chest_surface"
+    ],
+    "full_back": [
+      "upper_back_surface",
+      "lower_back_surface"
+    ]
   },
   "torsoGateRegionIds": [
     "full_chest_surface",
     "full_abdomen_region",
     "right_ribs_region",
     "left_ribs_region",
-    "upper_back_region",
-    "lower_back_region"
+    "upper_back_surface",
+    "lower_back_surface"
   ],
   "legacyHighlightAliases": {
     "left_pectoral_region": "full_chest_surface",
@@ -343,5 +348,6 @@
     "#D81B60": "full_chest_surface",
     "#C62828": "full_chest_surface",
     "#E53935": "full_chest_surface"
-  }
+  },
+  "gateOrder": []
 }

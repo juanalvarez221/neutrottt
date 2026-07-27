@@ -64,10 +64,32 @@ const REGION_TO_MASK_INDEX: ReadonlyMap<string, number> = new Map(
   ),
 );
 
+/** Legacy visual IDs → canonical surface IDs (S02 promotion). */
+const LEGACY_MASK_REGION_ALIASES: Readonly<Record<string, string>> = {
+  upper_back_region: "upper_back_surface",
+  lower_back_region: "lower_back_surface",
+};
+
+const LEGACY_MASK_INDEX_FALLBACK: Readonly<Record<string, number>> = {
+  upper_back_surface: 14,
+  lower_back_surface: 15,
+  upper_back_region: 14,
+  lower_back_region: 15,
+};
+
 /** Índice de máscara (1–255) para un region id; null si no existe. */
 export function getMaskIndexForRegionId(id: string): number | null {
-  const index = REGION_TO_MASK_INDEX.get(id);
-  return index === undefined ? null : index;
+  const direct = REGION_TO_MASK_INDEX.get(id);
+  if (direct !== undefined) return direct;
+
+  const canonical = LEGACY_MASK_REGION_ALIASES[id];
+  if (canonical) {
+    const viaCanonical = REGION_TO_MASK_INDEX.get(canonical);
+    if (viaCanonical !== undefined) return viaCanonical;
+  }
+
+  const fallback = LEGACY_MASK_INDEX_FALLBACK[id];
+  return fallback === undefined ? null : fallback;
 }
 
 /** Índices únicos y ordenados para una lista de region ids. */
