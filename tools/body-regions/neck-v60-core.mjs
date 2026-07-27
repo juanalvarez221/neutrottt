@@ -83,7 +83,7 @@ export const OFFICIAL_BACK = Object.freeze({
     fieldHash: "6da0b6bfe2eb5b38",
     refinementHash: "c79f8241b89fecb2",
   },
-  maskHash: "b0f32714bfc1",
+  maskHash: "b6894a5ed2b7",
 });
 
 function lerp(a, b, t) {

@@ -174,7 +174,7 @@ describe("full_chest V2.6 candidate engine", () => {
       ),
     );
     expect(official.fields[0].fieldUrl).not.toContain("_C0");
-    expect(["2.5", "2.7", "4.4", "5.2", "6.3"]).toContain(official.version);
+    expect(["2.5", "2.7", "4.4", "5.2", "6.3", "7.0", "8.0"]).toContain(official.version);
     if (official.version === "2.7") {
       expect(official.fields[0].candidateId).toBe("C07");
     }

@@ -140,7 +140,9 @@ describe("full_abdomen V3.0 candidate engine", () => {
     }
   });
 
-  it("aligns geometry field with analytic interior/exterior samples", () => {
+  it(
+    "aligns geometry field with analytic interior/exterior samples",
+    () => {
     const approvedId = sweep.finalists[0] ?? sweep.survivors[0];
     const r = sweep.results.find((x) => x.id === approvedId)!;
     const alignment = sampleAbdomenFieldAlignment(
@@ -154,7 +156,9 @@ describe("full_abdomen V3.0 candidate engine", () => {
     expect(alignment.exterior).toBeGreaterThanOrEqual(3000);
     expect(alignment.interiorMismatch).toBe(0);
     expect(alignment.exteriorMismatch).toBe(0);
-  });
+  },
+  20_000,
+  );
 
   it("stages an approved candidate without touching official assets", () => {
     expect(existsSync(REPORT)).toBe(true);

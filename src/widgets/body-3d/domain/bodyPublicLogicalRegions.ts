@@ -29,6 +29,14 @@ export const LOGICAL_PUBLIC_BODY_REGIONS: readonly LogicalPublicBodyRegion[] = [
       "neck_left_surface",
     ],
   },
+  {
+    regionId: "right_upper_arm",
+    hitVisualRegionIds: ["right_biceps_surface", "right_triceps_surface"],
+  },
+  {
+    regionId: "left_upper_arm",
+    hitVisualRegionIds: ["left_biceps_surface", "left_triceps_surface"],
+  },
 ] as const;
 
 const BY_REGION = new Map(

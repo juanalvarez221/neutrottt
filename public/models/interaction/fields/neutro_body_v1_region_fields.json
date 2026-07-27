@@ -1,6 +1,6 @@
 {
   "model": "neutro_body_v1",
-  "version": "7.0",
+  "version": "8.0",
   "geometryHash": "c62e81edaa1f",
   "indexHash": "52494d471398c",
   "vertexCount": 14517,
@@ -437,6 +437,212 @@
         "bandMeters": 0.005,
         "encoding": "u32-t16-snorm16x3"
       }
+    },
+    {
+      "regionId": "right_biceps_region",
+      "geometryHash": "c62e81edaa1f",
+      "indexHash": "52494d471398c",
+      "vertexCount": 14517,
+      "fieldUrl": "/models/interaction/fields/neutro_body_v1_right_biceps_sdf.bin?v=06cd4a99cc149e0c",
+      "fieldHash": "06cd4a99cc149e0c",
+      "encoding": "snorm16",
+      "distanceRangeMeters": 0.02,
+      "candidateId": "UA02",
+      "anatomicalParameters": {
+        "bicepsBandOffsetMm": 0,
+        "sourceGate": "upper-arms-v80",
+        "pipelineVersion": "V8.0",
+        "side": "right",
+        "kind": "biceps"
+      },
+      "boundaryHashes": {
+        "shoulder": "b596246a65f6ba26",
+        "forearm": "c99c05240fbd7ab9",
+        "medial": "4c0969f9189e3b5e",
+        "lateral": "bb8ac613e344d603"
+      },
+      "refinement": {
+        "url": "/models/interaction/fields/neutro_body_v1_right_biceps_refine.bin?v=2f814a76008087c7",
+        "hash": "2f814a76008087c7",
+        "triangleCount": 128,
+        "bandMeters": 0.005,
+        "encoding": "u32-t16-snorm16x3"
+      },
+      "visualRegionId": "right_biceps_surface",
+      "surfaceRegionId": "right_biceps_surface",
+      "maskIndex": 18
+    },
+    {
+      "regionId": "right_triceps_region",
+      "geometryHash": "c62e81edaa1f",
+      "indexHash": "52494d471398c",
+      "vertexCount": 14517,
+      "fieldUrl": "/models/interaction/fields/neutro_body_v1_right_triceps_sdf.bin?v=69eccf8116f61a1c",
+      "fieldHash": "69eccf8116f61a1c",
+      "encoding": "snorm16",
+      "distanceRangeMeters": 0.02,
+      "candidateId": "UA02",
+      "anatomicalParameters": {
+        "bicepsBandOffsetMm": 0,
+        "sourceGate": "upper-arms-v80",
+        "pipelineVersion": "V8.0",
+        "side": "right",
+        "kind": "triceps"
+      },
+      "boundaryHashes": {
+        "shoulder": "b596246a65f6ba26",
+        "forearm": "c99c05240fbd7ab9",
+        "medial": "4c0969f9189e3b5e",
+        "lateral": "bb8ac613e344d603"
+      },
+      "refinement": {
+        "url": "/models/interaction/fields/neutro_body_v1_right_triceps_refine.bin?v=fb16852adab02c60",
+        "hash": "fb16852adab02c60",
+        "triangleCount": 85,
+        "bandMeters": 0.005,
+        "encoding": "u32-t16-snorm16x3"
+      },
+      "visualRegionId": "right_triceps_surface",
+      "surfaceRegionId": "right_triceps_surface",
+      "maskIndex": 20
+    },
+    {
+      "regionId": "right_upper_arm",
+      "geometryHash": "c62e81edaa1f",
+      "indexHash": "52494d471398c",
+      "vertexCount": 14517,
+      "fieldUrl": "/models/interaction/fields/neutro_body_v1_right_upper_arm_sdf.bin?v=9ba461332242346a",
+      "fieldHash": "9ba461332242346a",
+      "encoding": "snorm16",
+      "distanceRangeMeters": 0.02,
+      "candidateId": "UA02",
+      "anatomicalParameters": {
+        "bicepsBandOffsetMm": 0,
+        "sourceGate": "upper-arms-v80",
+        "pipelineVersion": "V8.0",
+        "side": "right",
+        "kind": "upper_arm"
+      },
+      "boundaryHashes": {
+        "shoulder": "b596246a65f6ba26",
+        "forearm": "c99c05240fbd7ab9",
+        "medial": "4c0969f9189e3b5e",
+        "lateral": "bb8ac613e344d603"
+      },
+      "refinement": {
+        "url": "/models/interaction/fields/neutro_body_v1_right_upper_arm_refine.bin?v=69bb7ba512022f76",
+        "hash": "69bb7ba512022f76",
+        "triangleCount": 110,
+        "bandMeters": 0.005,
+        "encoding": "u32-t16-snorm16x3"
+      },
+      "hitVisualRegionIds": [
+        "right_biceps_surface",
+        "right_triceps_surface"
+      ]
+    },
+    {
+      "regionId": "left_biceps_region",
+      "geometryHash": "c62e81edaa1f",
+      "indexHash": "52494d471398c",
+      "vertexCount": 14517,
+      "fieldUrl": "/models/interaction/fields/neutro_body_v1_left_biceps_sdf.bin?v=b01de8aa7bd86841",
+      "fieldHash": "b01de8aa7bd86841",
+      "encoding": "snorm16",
+      "distanceRangeMeters": 0.02,
+      "candidateId": "UA02",
+      "anatomicalParameters": {
+        "bicepsBandOffsetMm": 0,
+        "sourceGate": "upper-arms-v80",
+        "pipelineVersion": "V8.0",
+        "side": "left",
+        "kind": "biceps"
+      },
+      "boundaryHashes": {
+        "shoulder": "77dc42dab44ccdc9",
+        "forearm": "68bbd1ab1d20f7a2",
+        "medial": "291aada0f1ae8f5e",
+        "lateral": "e11ff0cf4924137f"
+      },
+      "refinement": {
+        "url": "/models/interaction/fields/neutro_body_v1_left_biceps_refine.bin?v=8939342dea90c8c1",
+        "hash": "8939342dea90c8c1",
+        "triangleCount": 128,
+        "bandMeters": 0.005,
+        "encoding": "u32-t16-snorm16x3"
+      },
+      "visualRegionId": "left_biceps_surface",
+      "surfaceRegionId": "left_biceps_surface",
+      "maskIndex": 19
+    },
+    {
+      "regionId": "left_triceps_region",
+      "geometryHash": "c62e81edaa1f",
+      "indexHash": "52494d471398c",
+      "vertexCount": 14517,
+      "fieldUrl": "/models/interaction/fields/neutro_body_v1_left_triceps_sdf.bin?v=0db8d34c26c306aa",
+      "fieldHash": "0db8d34c26c306aa",
+      "encoding": "snorm16",
+      "distanceRangeMeters": 0.02,
+      "candidateId": "UA02",
+      "anatomicalParameters": {
+        "bicepsBandOffsetMm": 0,
+        "sourceGate": "upper-arms-v80",
+        "pipelineVersion": "V8.0",
+        "side": "left",
+        "kind": "triceps"
+      },
+      "boundaryHashes": {
+        "shoulder": "77dc42dab44ccdc9",
+        "forearm": "68bbd1ab1d20f7a2",
+        "medial": "291aada0f1ae8f5e",
+        "lateral": "e11ff0cf4924137f"
+      },
+      "refinement": {
+        "url": "/models/interaction/fields/neutro_body_v1_left_triceps_refine.bin?v=161bf01daf9837f0",
+        "hash": "161bf01daf9837f0",
+        "triangleCount": 85,
+        "bandMeters": 0.005,
+        "encoding": "u32-t16-snorm16x3"
+      },
+      "visualRegionId": "left_triceps_surface",
+      "surfaceRegionId": "left_triceps_surface",
+      "maskIndex": 21
+    },
+    {
+      "regionId": "left_upper_arm",
+      "geometryHash": "c62e81edaa1f",
+      "indexHash": "52494d471398c",
+      "vertexCount": 14517,
+      "fieldUrl": "/models/interaction/fields/neutro_body_v1_left_upper_arm_sdf.bin?v=345e104eed76ee18",
+      "fieldHash": "345e104eed76ee18",
+      "encoding": "snorm16",
+      "distanceRangeMeters": 0.02,
+      "candidateId": "UA02",
+      "anatomicalParameters": {
+        "bicepsBandOffsetMm": 0,
+        "sourceGate": "upper-arms-v80",
+        "pipelineVersion": "V8.0",
+        "side": "left",
+        "kind": "upper_arm"
+      },
+      "boundaryHashes": {
+        "shoulder": "77dc42dab44ccdc9",
+        "forearm": "68bbd1ab1d20f7a2",
+        "medial": "291aada0f1ae8f5e",
+        "lateral": "e11ff0cf4924137f"
+      },
+      "refinement": {
+        "url": "/models/interaction/fields/neutro_body_v1_left_upper_arm_refine.bin?v=cd3c73a4993014f7",
+        "hash": "cd3c73a4993014f7",
+        "triangleCount": 110,
+        "bandMeters": 0.005,
+        "encoding": "u32-t16-snorm16x3"
+      },
+      "hitVisualRegionIds": [
+        "left_biceps_surface",
+        "left_triceps_surface"
+      ]
     }
   ]
 }

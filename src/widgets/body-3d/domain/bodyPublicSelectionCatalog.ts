@@ -228,7 +228,7 @@ export const BODY_PUBLIC_SELECTION_CATALOG: readonly PublicBodyCatalogEntry[] = 
       entry({
         id: `${side}_biceps_region`,
         shortLabel: `Bíceps ${L}`,
-        description: "Cara anterior del brazo superior",
+        description: `Superficie anterior del brazo superior ${L}`,
         side,
         surface: "anterior",
         category: "arm",
@@ -240,7 +240,7 @@ export const BODY_PUBLIC_SELECTION_CATALOG: readonly PublicBodyCatalogEntry[] = 
       entry({
         id: `${side}_triceps_region`,
         shortLabel: `Tríceps ${L}`,
-        description: "Cara posterior del brazo superior",
+        description: `Superficie posterior del brazo superior ${L}`,
         side,
         surface: "posterior",
         category: "arm",
@@ -275,13 +275,13 @@ export const BODY_PUBLIC_SELECTION_CATALOG: readonly PublicBodyCatalogEntry[] = 
       }),
       entry({
         id: `${side}_upper_arm`,
-        shortLabel: `Brazo superior ${L} completo`,
-        description: "Circunferencia del brazo superior",
+        shortLabel: `Brazo superior ${L}`,
+        description: `Superficie completa del brazo superior ${L}`,
         side,
         surface: "full",
         category: "arm",
-        supportedCoverages: FULL_COVERAGE,
-        preferredView: view,
+        supportedCoverages: COMPLETE_ONLY,
+        preferredView: side === "left" ? "front-left" : "front-right",
         focusSection: "arms",
         memberIds: [
           `${side}_upper_arm_front`,

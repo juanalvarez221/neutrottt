@@ -95,6 +95,7 @@
     "left_biceps_surface": [
       "left_elbow_transition",
       "left_ribs_region",
+      "left_shoulder_surface",
       "left_triceps_surface"
     ],
     "left_calf_surface": [
@@ -163,7 +164,9 @@
     ],
     "left_shoulder_surface": [
       "full_chest_surface",
+      "left_biceps_surface",
       "left_ribs_region",
+      "left_triceps_surface",
       "neck_back_surface",
       "neck_front_surface",
       "neck_left_surface",
@@ -197,7 +200,8 @@
     "left_triceps_surface": [
       "left_biceps_surface",
       "left_elbow_transition",
-      "left_ribs_region"
+      "left_ribs_region",
+      "left_shoulder_surface"
     ],
     "left_wrist_transition": [
       "left_forearm_inner_surface",
@@ -249,6 +253,7 @@
     "right_biceps_surface": [
       "right_elbow_transition",
       "right_ribs_region",
+      "right_shoulder_surface",
       "right_triceps_surface"
     ],
     "right_calf_surface": [
@@ -320,7 +325,9 @@
       "neck_back_surface",
       "neck_front_surface",
       "neck_right_surface",
+      "right_biceps_surface",
       "right_ribs_region",
+      "right_triceps_surface",
       "upper_back_surface"
     ],
     "right_thigh_back_surface": [
@@ -351,7 +358,8 @@
     "right_triceps_surface": [
       "right_biceps_surface",
       "right_elbow_transition",
-      "right_ribs_region"
+      "right_ribs_region",
+      "right_shoulder_surface"
     ],
     "right_wrist_transition": [
       "right_forearm_inner_surface",
@@ -375,7 +383,7 @@
       "right_shoulder_surface"
     ]
   },
-  "edgeCount": 109,
+  "edgeCount": 113,
   "stats": {
     "head_top_surface": {
       "faceCount": 398,

@@ -35,7 +35,7 @@ describe("public region professional metadata", () => {
   it("covers key professional labels", () => {
     expect(getPublicShortLabel("right_biceps_region")).toBe("Bíceps derecho");
     expect(getPublicFullLabel("right_biceps_region")).toContain(
-      "Cara anterior del brazo superior",
+      "Superficie anterior del brazo superior",
     );
     expect(getPublicShortLabel("right_triceps_region")).toBe("Tríceps derecho");
     expect(getPublicShortLabel("full_chest")).toBe("Pecho completo");
@@ -60,7 +60,7 @@ describe("public region professional metadata", () => {
       "Muslo derecho · Cara anterior",
     );
     expect(getPublicShortLabel("head_top")).toBe("Cabeza · Parte superior");
-    expect(getPublicShortLabel("neck_front")).toBe("Cuello · Parte anterior");
+    expect(getPublicShortLabel("neck_front")).toBe("Cuello anterior");
   });
 
   it("meta catalog covers all selectable public ids", () => {

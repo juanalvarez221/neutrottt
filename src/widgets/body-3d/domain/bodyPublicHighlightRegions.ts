@@ -126,16 +126,8 @@ const TARGET_TO_PUBLIC_HIGHLIGHT: Readonly<
   left_forearm_inner_region: ["left_forearm_inner_surface"],
   right_forearm_outer_region: ["right_forearm_outer_surface"],
   left_forearm_outer_region: ["left_forearm_outer_surface"],
-  right_upper_arm: [
-    "right_biceps_surface",
-    "right_triceps_surface",
-    "right_elbow_transition",
-  ],
-  left_upper_arm: [
-    "left_biceps_surface",
-    "left_triceps_surface",
-    "left_elbow_transition",
-  ],
+  right_upper_arm: ["right_biceps_surface", "right_triceps_surface"],
+  left_upper_arm: ["left_biceps_surface", "left_triceps_surface"],
   right_forearm: [
     "right_forearm_inner_surface",
     "right_forearm_outer_surface",
