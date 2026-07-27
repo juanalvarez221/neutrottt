@@ -131,12 +131,10 @@ const TARGET_TO_PUBLIC_HIGHLIGHT: Readonly<
   right_forearm: [
     "right_forearm_inner_surface",
     "right_forearm_outer_surface",
-    "right_wrist_transition",
   ],
   left_forearm: [
     "left_forearm_inner_surface",
     "left_forearm_outer_surface",
-    "left_wrist_transition",
   ],
   right_full_sleeve: [
     "right_shoulder_surface",
@@ -171,14 +169,10 @@ const TARGET_TO_PUBLIC_HIGHLIGHT: Readonly<
   right_lower_half_sleeve: [
     "right_forearm_inner_surface",
     "right_forearm_outer_surface",
-    "right_elbow_transition",
-    "right_wrist_transition",
   ],
   left_lower_half_sleeve: [
     "left_forearm_inner_surface",
     "left_forearm_outer_surface",
-    "left_elbow_transition",
-    "left_wrist_transition",
   ],
   right_hand: ["right_hand_surface"],
   left_hand: ["left_hand_surface"],

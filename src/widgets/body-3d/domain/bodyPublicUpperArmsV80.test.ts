@@ -104,7 +104,7 @@ describe("Upper Arms V8.0 — official freeze + promotion", () => {
   it("promotes six sidecars with UA02 hashes within 45 KB", () => {
     const hashes = readJson(path.join(ART, "approved/hashes.json"));
     const manifest = readJson(MANIFEST) as RegionGeometryFieldManifest;
-    expect(manifest.version).toBe("8.0");
+    expect(manifest.version).toBe("9.0");
     expect(hashes.candidateId).toBe("UA02");
     expect(hashes.pipelineVersion).toBe(PIPELINE_VERSION);
     expect(CANDIDATES.UA02.bicepsBandOffsetMm).toBe(0);

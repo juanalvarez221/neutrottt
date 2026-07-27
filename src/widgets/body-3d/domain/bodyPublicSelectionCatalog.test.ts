@@ -117,10 +117,18 @@ describe("dynamic coverage", () => {
     ]);
   });
 
-  it("upper arm is complete-only; forearm / thigh / lower leg support coverage", () => {
+  it("upper arm and forearm are complete-only; thigh / lower leg support coverage", () => {
     expect(getSupportedCoverages("right_upper_arm")).toEqual(["complete"]);
     expect(getSupportedCoverages("left_upper_arm")).toEqual(["complete"]);
-    for (const id of ["left_forearm", "right_thigh", "left_lower_leg"]) {
+    expect(getSupportedCoverages("right_forearm")).toEqual(["complete"]);
+    expect(getSupportedCoverages("left_forearm")).toEqual(["complete"]);
+    expect(getSupportedCoverages("right_forearm_inner_region")).toEqual([
+      "complete",
+    ]);
+    expect(getSupportedCoverages("right_forearm_outer_region")).toEqual([
+      "complete",
+    ]);
+    for (const id of ["right_thigh", "left_lower_leg"]) {
       expect(getSupportedCoverages(id)).toEqual([
         "complete",
         "inner",

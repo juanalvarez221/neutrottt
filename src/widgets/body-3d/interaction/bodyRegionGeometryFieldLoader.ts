@@ -364,6 +364,15 @@ const NECK_PREFETCH_IDS = [
   "full_neck",
 ] as const;
 
+const FOREARM_PREFETCH_IDS = [
+  "right_forearm_inner_region",
+  "right_forearm_outer_region",
+  "right_forearm",
+  "left_forearm_inner_region",
+  "left_forearm_outer_region",
+  "left_forearm",
+] as const;
+
 /**
  * Idle prefetch of official neck geometry fields after the model is ready.
  * Warm hover/reselect should then hit the micro-cache (&lt;16 ms).
@@ -372,7 +381,7 @@ export function prefetchNeckRegionGeometryFields(
   identity: GeometryIdentity,
 ): void {
   const run = () => {
-    for (const id of NECK_PREFETCH_IDS) {
+    for (const id of [...NECK_PREFETCH_IDS, ...FOREARM_PREFETCH_IDS]) {
       void loadRegionGeometryField(id, identity).catch(() => {
         /* categorical fallback remains available */
       });

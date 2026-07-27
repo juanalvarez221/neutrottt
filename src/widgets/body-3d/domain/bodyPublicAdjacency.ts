@@ -46,11 +46,22 @@ function areBaseRegionsAdjacent(a: string, b: string): boolean {
   return false;
 }
 
+/** Hand adjacency deferred until Hands gate; wrist is a zero-measure wall. */
+function isDeferredHandForearmPair(a: string, b: string): boolean {
+  const ids = [bareRegionId(a), bareRegionId(b)];
+  const hasHand = ids.some((id) => id.endsWith("_hand"));
+  const hasFore =
+    ids.some((id) => id.endsWith("_forearm")) ||
+    ids.some((id) => id.includes("forearm_inner") || id.includes("forearm_outer"));
+  return hasHand && hasFore;
+}
+
 /** True if two public targets share a base region or an adjacent boundary. */
 export function arePublicTargetsAdjacent(
   a: string,
   b: string,
 ): boolean {
+  if (isDeferredHandForearmPair(a, b)) return false;
   const ra = resolvePublicTargetHighlightRegions(bareRegionId(a));
   const rb = resolvePublicTargetHighlightRegions(bareRegionId(b));
   if (ra.length === 0 || rb.length === 0) return false;

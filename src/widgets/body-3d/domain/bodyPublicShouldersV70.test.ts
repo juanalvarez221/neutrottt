@@ -65,7 +65,7 @@ describe("Shoulders V7.0 — official freeze + promotion", () => {
   it("promotes bilateral shoulder sidecars with SH02 hashes", () => {
     const hashes = readJson(path.join(ART, "approved/hashes.json"));
     const manifest = readJson(MANIFEST) as RegionGeometryFieldManifest;
-    expect(["7.0", "8.0"]).toContain(manifest.version);
+    expect(["7.0", "8.0", "9.0"]).toContain(manifest.version);
     expect(hashes.candidateId).toBe("SH02");
     expect(hashes.pipelineVersion).toBe(PIPELINE_VERSION);
     for (const region of SIDES) {

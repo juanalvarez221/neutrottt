@@ -59,8 +59,8 @@ export const OFFICIAL_SHOULDERS = Object.freeze({
     fieldHash: "6cec9beae6491233",
     refinementHash: "424bbcb6edb04649",
   },
-  maskHash: "b6894a5ed2b7",
-  maskHashPrev: "b0f32714bfc1",
+  maskHash: "829f2c9ab5dd",
+  maskHashPrev: "b6894a5ed2b7",
   upperArmBoundary: {
     right: "f603092bdd3ac2e3",
     left: "2d3072c92f3d666e",

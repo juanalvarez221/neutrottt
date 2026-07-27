@@ -66,7 +66,7 @@ describe("Neck V6.3 — official freeze + promotion", () => {
   it("promotes five official neck sidecars with V6.3 hashes", () => {
     const hashes = readJson(path.join(ART, "approved/hashes.json"));
     const manifest = readJson(MANIFEST) as RegionGeometryFieldManifest;
-    expect(["6.3", "7.0", "8.0"]).toContain(manifest.version);
+    expect(["6.3", "7.0", "8.0", "9.0"]).toContain(manifest.version);
     for (const region of REGIONS) {
       const bin = path.join(FIELDS, `neutro_body_v1_${region}_sdf.bin`);
       const ref = path.join(FIELDS, `neutro_body_v1_${region}_refine.bin`);

@@ -54,7 +54,7 @@ export const OFFICIAL_NECK = Object.freeze({
     fieldHash: "554f6b07992ae0c5",
     refinementHash: "ff1424a32a248592",
   },
-  maskHash: "b6894a5ed2b7",
+  maskHash: "829f2c9ab5dd",
 });
 
 export const GEOMETRY_IDENTITY = Object.freeze({

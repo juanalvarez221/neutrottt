@@ -1,6 +1,6 @@
 {
   "model": "neutro_body_v1",
-  "version": "8.0",
+  "version": "9.0",
   "geometryHash": "c62e81edaa1f",
   "indexHash": "52494d471398c",
   "vertexCount": 14517,
@@ -642,6 +642,212 @@
       "hitVisualRegionIds": [
         "left_biceps_surface",
         "left_triceps_surface"
+      ]
+    },
+    {
+      "regionId": "right_forearm_inner_region",
+      "geometryHash": "c62e81edaa1f",
+      "indexHash": "52494d471398c",
+      "vertexCount": 14517,
+      "fieldUrl": "/models/interaction/fields/neutro_body_v1_right_forearm_inner_sdf.bin?v=b94123164af4d7b5",
+      "fieldHash": "b94123164af4d7b5",
+      "encoding": "snorm16",
+      "distanceRangeMeters": 0.02,
+      "candidateId": "FA02",
+      "anatomicalParameters": {
+        "innerBandOffsetMm": 0,
+        "sourceGate": "forearms-v90",
+        "pipelineVersion": "V9.0",
+        "side": "right",
+        "kind": "inner"
+      },
+      "boundaryHashes": {
+        "proximal": "c99c05240fbd7ab9",
+        "hand": "55cec1a260724d34",
+        "radial": "ebe9bb24d9eb5e78",
+        "ulnar": "13b339eb30ed4f68"
+      },
+      "refinement": {
+        "url": "/models/interaction/fields/neutro_body_v1_right_forearm_inner_refine.bin?v=1388650ef064d281",
+        "hash": "1388650ef064d281",
+        "triangleCount": 141,
+        "bandMeters": 0.005,
+        "encoding": "u32-t16-snorm16x3"
+      },
+      "visualRegionId": "right_forearm_inner_surface",
+      "surfaceRegionId": "right_forearm_inner_surface",
+      "maskIndex": 22
+    },
+    {
+      "regionId": "right_forearm_outer_region",
+      "geometryHash": "c62e81edaa1f",
+      "indexHash": "52494d471398c",
+      "vertexCount": 14517,
+      "fieldUrl": "/models/interaction/fields/neutro_body_v1_right_forearm_outer_sdf.bin?v=f1b5c8b33b1775bb",
+      "fieldHash": "f1b5c8b33b1775bb",
+      "encoding": "snorm16",
+      "distanceRangeMeters": 0.02,
+      "candidateId": "FA02",
+      "anatomicalParameters": {
+        "innerBandOffsetMm": 0,
+        "sourceGate": "forearms-v90",
+        "pipelineVersion": "V9.0",
+        "side": "right",
+        "kind": "outer"
+      },
+      "boundaryHashes": {
+        "proximal": "c99c05240fbd7ab9",
+        "hand": "55cec1a260724d34",
+        "radial": "ebe9bb24d9eb5e78",
+        "ulnar": "13b339eb30ed4f68"
+      },
+      "refinement": {
+        "url": "/models/interaction/fields/neutro_body_v1_right_forearm_outer_refine.bin?v=ee4515ddd2e044eb",
+        "hash": "ee4515ddd2e044eb",
+        "triangleCount": 89,
+        "bandMeters": 0.005,
+        "encoding": "u32-t16-snorm16x3"
+      },
+      "visualRegionId": "right_forearm_outer_surface",
+      "surfaceRegionId": "right_forearm_outer_surface",
+      "maskIndex": 24
+    },
+    {
+      "regionId": "right_forearm",
+      "geometryHash": "c62e81edaa1f",
+      "indexHash": "52494d471398c",
+      "vertexCount": 14517,
+      "fieldUrl": "/models/interaction/fields/neutro_body_v1_right_forearm_sdf.bin?v=a1f37c38ada48878",
+      "fieldHash": "a1f37c38ada48878",
+      "encoding": "snorm16",
+      "distanceRangeMeters": 0.02,
+      "candidateId": "FA02",
+      "anatomicalParameters": {
+        "innerBandOffsetMm": 0,
+        "sourceGate": "forearms-v90",
+        "pipelineVersion": "V9.0",
+        "side": "right",
+        "kind": "forearm"
+      },
+      "boundaryHashes": {
+        "proximal": "c99c05240fbd7ab9",
+        "hand": "55cec1a260724d34",
+        "radial": "ebe9bb24d9eb5e78",
+        "ulnar": "13b339eb30ed4f68"
+      },
+      "refinement": {
+        "url": "/models/interaction/fields/neutro_body_v1_right_forearm_refine.bin?v=e19f02c6079665db",
+        "hash": "e19f02c6079665db",
+        "triangleCount": 42,
+        "bandMeters": 0.005,
+        "encoding": "u32-t16-snorm16x3"
+      },
+      "hitVisualRegionIds": [
+        "right_forearm_inner_surface",
+        "right_forearm_outer_surface"
+      ]
+    },
+    {
+      "regionId": "left_forearm_inner_region",
+      "geometryHash": "c62e81edaa1f",
+      "indexHash": "52494d471398c",
+      "vertexCount": 14517,
+      "fieldUrl": "/models/interaction/fields/neutro_body_v1_left_forearm_inner_sdf.bin?v=2b017cd48b18f4ba",
+      "fieldHash": "2b017cd48b18f4ba",
+      "encoding": "snorm16",
+      "distanceRangeMeters": 0.02,
+      "candidateId": "FA02",
+      "anatomicalParameters": {
+        "innerBandOffsetMm": 0,
+        "sourceGate": "forearms-v90",
+        "pipelineVersion": "V9.0",
+        "side": "left",
+        "kind": "inner"
+      },
+      "boundaryHashes": {
+        "proximal": "68bbd1ab1d20f7a2",
+        "hand": "86d76b999348171f",
+        "radial": "53ffb8c9750fcc1c",
+        "ulnar": "25c6d9e312b61d93"
+      },
+      "refinement": {
+        "url": "/models/interaction/fields/neutro_body_v1_left_forearm_inner_refine.bin?v=bc34d462a689ba65",
+        "hash": "bc34d462a689ba65",
+        "triangleCount": 142,
+        "bandMeters": 0.005,
+        "encoding": "u32-t16-snorm16x3"
+      },
+      "visualRegionId": "left_forearm_inner_surface",
+      "surfaceRegionId": "left_forearm_inner_surface",
+      "maskIndex": 23
+    },
+    {
+      "regionId": "left_forearm_outer_region",
+      "geometryHash": "c62e81edaa1f",
+      "indexHash": "52494d471398c",
+      "vertexCount": 14517,
+      "fieldUrl": "/models/interaction/fields/neutro_body_v1_left_forearm_outer_sdf.bin?v=649bf0c5c252e315",
+      "fieldHash": "649bf0c5c252e315",
+      "encoding": "snorm16",
+      "distanceRangeMeters": 0.02,
+      "candidateId": "FA02",
+      "anatomicalParameters": {
+        "innerBandOffsetMm": 0,
+        "sourceGate": "forearms-v90",
+        "pipelineVersion": "V9.0",
+        "side": "left",
+        "kind": "outer"
+      },
+      "boundaryHashes": {
+        "proximal": "68bbd1ab1d20f7a2",
+        "hand": "86d76b999348171f",
+        "radial": "53ffb8c9750fcc1c",
+        "ulnar": "25c6d9e312b61d93"
+      },
+      "refinement": {
+        "url": "/models/interaction/fields/neutro_body_v1_left_forearm_outer_refine.bin?v=850123f6f72eee80",
+        "hash": "850123f6f72eee80",
+        "triangleCount": 86,
+        "bandMeters": 0.005,
+        "encoding": "u32-t16-snorm16x3"
+      },
+      "visualRegionId": "left_forearm_outer_surface",
+      "surfaceRegionId": "left_forearm_outer_surface",
+      "maskIndex": 25
+    },
+    {
+      "regionId": "left_forearm",
+      "geometryHash": "c62e81edaa1f",
+      "indexHash": "52494d471398c",
+      "vertexCount": 14517,
+      "fieldUrl": "/models/interaction/fields/neutro_body_v1_left_forearm_sdf.bin?v=2e29c95a262ddd7e",
+      "fieldHash": "2e29c95a262ddd7e",
+      "encoding": "snorm16",
+      "distanceRangeMeters": 0.02,
+      "candidateId": "FA02",
+      "anatomicalParameters": {
+        "innerBandOffsetMm": 0,
+        "sourceGate": "forearms-v90",
+        "pipelineVersion": "V9.0",
+        "side": "left",
+        "kind": "forearm"
+      },
+      "boundaryHashes": {
+        "proximal": "68bbd1ab1d20f7a2",
+        "hand": "86d76b999348171f",
+        "radial": "53ffb8c9750fcc1c",
+        "ulnar": "25c6d9e312b61d93"
+      },
+      "refinement": {
+        "url": "/models/interaction/fields/neutro_body_v1_left_forearm_refine.bin?v=8770ee6ad8cc05f4",
+        "hash": "8770ee6ad8cc05f4",
+        "triangleCount": 41,
+        "bandMeters": 0.005,
+        "encoding": "u32-t16-snorm16x3"
+      },
+      "hitVisualRegionIds": [
+        "left_forearm_inner_surface",
+        "left_forearm_outer_surface"
       ]
     }
   ]
