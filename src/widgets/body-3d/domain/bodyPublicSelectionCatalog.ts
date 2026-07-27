@@ -213,7 +213,10 @@ export const BODY_PUBLIC_SELECTION_CATALOG: readonly PublicBodyCatalogEntry[] = 
       entry({
         id: `${side}_shoulder`,
         shortLabel: `Hombro ${L}`,
-        description: "Región deltoidea",
+        description:
+          side === "left"
+            ? "Superficie completa del hombro izquierdo"
+            : "Superficie completa del hombro derecho",
         side,
         surface: "full",
         category: "arm",

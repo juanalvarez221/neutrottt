@@ -1,6 +1,6 @@
 {
   "model": "neutro_body_v1",
-  "version": "6.3",
+  "version": "7.0",
   "geometryHash": "c62e81edaa1f",
   "indexHash": "52494d471398c",
   "vertexCount": 14517,
@@ -371,6 +371,72 @@
         "neck_back_surface",
         "neck_left_surface"
       ]
+    },
+    {
+      "regionId": "right_shoulder",
+      "visualRegionId": "right_shoulder_surface",
+      "surfaceRegionId": "right_shoulder_surface",
+      "maskIndex": 16,
+      "geometryHash": "c62e81edaa1f",
+      "indexHash": "52494d471398c",
+      "vertexCount": 14517,
+      "fieldUrl": "/models/interaction/fields/neutro_body_v1_right_shoulder_sdf.bin?v=b213189a4f6b6d27",
+      "fieldHash": "b213189a4f6b6d27",
+      "encoding": "snorm16",
+      "distanceRangeMeters": 0.02,
+      "candidateId": "SH02",
+      "anatomicalParameters": {
+        "deltoidInsertionOffsetMm": 0,
+        "sourceGate": "shoulders-v70",
+        "pipelineVersion": "V7.0",
+        "side": "right"
+      },
+      "boundaryHashes": {
+        "neck": "62137824e28a39e5",
+        "chest": "83d5660e5be14876",
+        "back": "20dab8a0ef2f6eb6",
+        "upperArm": "f603092bdd3ac2e3"
+      },
+      "refinement": {
+        "url": "/models/interaction/fields/neutro_body_v1_right_shoulder_refine.bin?v=7fa63f0a95d7a90d",
+        "hash": "7fa63f0a95d7a90d",
+        "triangleCount": 121,
+        "bandMeters": 0.005,
+        "encoding": "u32-t16-snorm16x3"
+      }
+    },
+    {
+      "regionId": "left_shoulder",
+      "visualRegionId": "left_shoulder_surface",
+      "surfaceRegionId": "left_shoulder_surface",
+      "maskIndex": 17,
+      "geometryHash": "c62e81edaa1f",
+      "indexHash": "52494d471398c",
+      "vertexCount": 14517,
+      "fieldUrl": "/models/interaction/fields/neutro_body_v1_left_shoulder_sdf.bin?v=6cec9beae6491233",
+      "fieldHash": "6cec9beae6491233",
+      "encoding": "snorm16",
+      "distanceRangeMeters": 0.02,
+      "candidateId": "SH02",
+      "anatomicalParameters": {
+        "deltoidInsertionOffsetMm": 0,
+        "sourceGate": "shoulders-v70",
+        "pipelineVersion": "V7.0",
+        "side": "left"
+      },
+      "boundaryHashes": {
+        "neck": "38d7dc8aa6c4ee6a",
+        "chest": "3e184ad1d9c01371",
+        "back": "98e57d9e41dbe414",
+        "upperArm": "2d3072c92f3d666e"
+      },
+      "refinement": {
+        "url": "/models/interaction/fields/neutro_body_v1_left_shoulder_refine.bin?v=424bbcb6edb04649",
+        "hash": "424bbcb6edb04649",
+        "triangleCount": 120,
+        "bandMeters": 0.005,
+        "encoding": "u32-t16-snorm16x3"
+      }
     }
   ]
 }
