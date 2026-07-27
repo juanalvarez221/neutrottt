@@ -39,3 +39,11 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# local QA / authoring
+/artifacts/
+*.blend1
+tools/body-regions/.blender-path.local
+tools/blender/__pycache__/
+**/__pycache__/
+assets/body-regions/backups/

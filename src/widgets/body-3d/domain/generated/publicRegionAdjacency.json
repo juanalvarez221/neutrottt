@@ -1,52 +1,51 @@
 {
-  "generatedFrom": "tools/blender/generate_neutro_body_v1_public_regions_v2.py",
-  "source": "assets/blender/neutro-body/neutro_body_v1_complete_source.blend",
+  "generatedFrom": "tools/body-mask/bake-region-mask.mjs",
+  "source": "assets/body-regions/neutro_body_v1_anatomical_regions.json",
   "baseRegions": [
-    "head_top_surface",
+    "full_abdomen_region",
+    "full_chest_surface",
+    "head_back_surface",
     "head_left_surface",
     "head_right_surface",
-    "head_back_surface",
-    "neck_front_surface",
-    "neck_back_surface",
-    "neck_left_surface",
-    "neck_right_surface",
-    "left_pectoral_region",
-    "right_pectoral_region",
-    "full_abdomen_region",
-    "left_ribs_region",
-    "right_ribs_region",
-    "upper_back_region",
-    "lower_back_region",
-    "right_shoulder_surface",
-    "left_shoulder_surface",
-    "right_biceps_surface",
+    "head_top_surface",
     "left_biceps_surface",
-    "right_triceps_surface",
-    "left_triceps_surface",
-    "right_forearm_inner_surface",
+    "left_calf_surface",
+    "left_foot_surface",
     "left_forearm_inner_surface",
-    "right_forearm_outer_surface",
     "left_forearm_outer_surface",
-    "right_hand_surface",
+    "left_glute_surface",
     "left_hand_surface",
-    "right_thigh_front_surface",
-    "right_thigh_back_surface",
-    "right_thigh_inner_surface",
-    "right_thigh_outer_surface",
-    "left_thigh_front_surface",
+    "left_hip_surface",
+    "left_ribs_region",
+    "left_shin_surface",
+    "left_shoulder_surface",
     "left_thigh_back_surface",
+    "left_thigh_front_surface",
     "left_thigh_inner_surface",
     "left_thigh_outer_surface",
-    "right_shin_surface",
-    "left_shin_surface",
+    "left_triceps_surface",
+    "lower_back_region",
+    "neck_back_surface",
+    "neck_front_surface",
+    "neck_left_surface",
+    "neck_right_surface",
+    "right_biceps_surface",
     "right_calf_surface",
-    "left_calf_surface",
     "right_foot_surface",
-    "left_foot_surface",
-    "left_hip_surface",
+    "right_forearm_inner_surface",
+    "right_forearm_outer_surface",
+    "right_glute_surface",
+    "right_hand_surface",
     "right_hip_surface",
-    "left_glute_surface",
-    "right_glute_surface"
+    "right_ribs_region",
+    "right_shin_surface",
+    "right_shoulder_surface",
+    "right_thigh_back_surface",
+    "right_thigh_front_surface",
+    "right_thigh_inner_surface",
+    "right_thigh_outer_surface",
+    "right_triceps_surface",
+    "upper_back_region"
   ],
   "routingOnlyRegions": [
     "right_elbow_transition",
@@ -60,42 +59,33 @@
   ],
   "adjacency": {
     "full_abdomen_region": [
-      "left_biceps_surface",
-      "left_pectoral_region",
-      "left_thigh_front_surface",
-      "left_thigh_outer_surface",
-      "left_triceps_surface",
-      "right_pectoral_region",
-      "right_thigh_front_surface",
-      "right_thigh_outer_surface",
-      "upper_back_region"
+      "full_chest_surface",
+      "left_hip_surface",
+      "left_ribs_region",
+      "lower_back_region",
+      "right_hip_surface",
+      "right_ribs_region"
     ],
     "head_back_surface": [
       "head_left_surface",
       "head_right_surface",
-      "head_top_surface"
+      "head_top_surface",
+      "neck_back_surface"
     ],
     "head_left_surface": [
       "head_back_surface",
-      "head_right_surface",
       "head_top_surface",
-      "neck_back_surface",
-      "neck_front_surface",
       "neck_left_surface"
     ],
     "head_right_surface": [
       "head_back_surface",
-      "head_left_surface",
       "head_top_surface",
-      "neck_back_surface",
-      "neck_front_surface",
       "neck_right_surface"
     ],
     "head_top_surface": [
       "head_back_surface",
       "head_left_surface",
-      "head_right_surface",
-      "neck_back_surface"
+      "head_right_surface"
     ],
     "left_ankle_transition": [
       "left_calf_surface",
@@ -103,12 +93,9 @@
       "left_shin_surface"
     ],
     "left_biceps_surface": [
-      "full_abdomen_region",
       "left_elbow_transition",
       "left_ribs_region",
-      "left_shoulder_surface",
-      "left_triceps_surface",
-      "upper_back_region"
+      "left_triceps_surface"
     ],
     "left_calf_surface": [
       "left_ankle_transition",
@@ -119,7 +106,6 @@
       "left_biceps_surface",
       "left_forearm_inner_surface",
       "left_forearm_outer_surface",
-      "left_ribs_region",
       "left_triceps_surface"
     ],
     "left_foot_surface": [
@@ -137,14 +123,21 @@
     ],
     "left_glute_surface": [
       "left_hip_surface",
-      "left_wrist_transition"
+      "left_thigh_back_surface",
+      "left_thigh_inner_surface",
+      "lower_back_region",
+      "right_glute_surface"
     ],
     "left_hand_surface": [
       "left_wrist_transition"
     ],
     "left_hip_surface": [
+      "full_abdomen_region",
       "left_glute_surface",
-      "left_wrist_transition"
+      "left_thigh_back_surface",
+      "left_thigh_front_surface",
+      "left_thigh_outer_surface",
+      "lower_back_region"
     ],
     "left_knee_transition": [
       "left_calf_surface",
@@ -154,20 +147,13 @@
       "left_thigh_inner_surface",
       "left_thigh_outer_surface"
     ],
-    "left_pectoral_region": [
+    "left_ribs_region": [
       "full_abdomen_region",
+      "full_chest_surface",
+      "left_biceps_surface",
       "left_shoulder_surface",
       "left_triceps_surface",
-      "neck_front_surface",
-      "right_pectoral_region",
-      "upper_back_region"
-    ],
-    "left_ribs_region": [
-      "left_biceps_surface",
-      "left_elbow_transition",
-      "left_shoulder_surface",
-      "neck_front_surface",
-      "neck_left_surface",
+      "lower_back_region",
       "upper_back_region"
     ],
     "left_shin_surface": [
@@ -176,87 +162,84 @@
       "left_knee_transition"
     ],
     "left_shoulder_surface": [
-      "left_biceps_surface",
-      "left_pectoral_region",
+      "full_chest_surface",
       "left_ribs_region",
-      "left_triceps_surface",
-      "neck_front_surface"
+      "neck_back_surface",
+      "neck_front_surface",
+      "neck_left_surface",
+      "upper_back_region"
     ],
     "left_thigh_back_surface": [
-      "left_knee_transition",
-      "left_thigh_outer_surface",
-      "lower_back_region"
-    ],
-    "left_thigh_front_surface": [
-      "full_abdomen_region",
+      "left_glute_surface",
+      "left_hip_surface",
       "left_knee_transition",
       "left_thigh_inner_surface",
-      "left_thigh_outer_surface",
-      "right_thigh_front_surface"
+      "left_thigh_outer_surface"
+    ],
+    "left_thigh_front_surface": [
+      "left_hip_surface",
+      "left_knee_transition",
+      "left_thigh_inner_surface",
+      "left_thigh_outer_surface"
     ],
     "left_thigh_inner_surface": [
+      "left_glute_surface",
       "left_knee_transition",
+      "left_thigh_back_surface",
       "left_thigh_front_surface"
     ],
     "left_thigh_outer_surface": [
-      "full_abdomen_region",
+      "left_hip_surface",
       "left_knee_transition",
       "left_thigh_back_surface",
-      "left_thigh_front_surface",
-      "upper_back_region"
+      "left_thigh_front_surface"
     ],
     "left_triceps_surface": [
-      "full_abdomen_region",
       "left_biceps_surface",
       "left_elbow_transition",
-      "left_pectoral_region",
-      "left_shoulder_surface"
+      "left_ribs_region"
     ],
     "left_wrist_transition": [
       "left_forearm_inner_surface",
       "left_forearm_outer_surface",
-      "left_glute_surface",
-      "left_hand_surface",
-      "left_hip_surface"
+      "left_hand_surface"
     ],
     "lower_back_region": [
-      "left_thigh_back_surface",
-      "right_thigh_back_surface",
+      "full_abdomen_region",
+      "left_glute_surface",
+      "left_hip_surface",
+      "left_ribs_region",
+      "right_glute_surface",
+      "right_hip_surface",
+      "right_ribs_region",
       "upper_back_region"
     ],
     "neck_back_surface": [
-      "head_left_surface",
-      "head_right_surface",
-      "head_top_surface",
-      "neck_left_surface",
-      "neck_right_surface",
-      "upper_back_region"
-    ],
-    "neck_front_surface": [
-      "head_left_surface",
-      "head_right_surface",
-      "left_pectoral_region",
-      "left_ribs_region",
+      "head_back_surface",
       "left_shoulder_surface",
       "neck_left_surface",
       "neck_right_surface",
-      "right_pectoral_region",
-      "right_ribs_region",
+      "right_shoulder_surface",
+      "upper_back_region"
+    ],
+    "neck_front_surface": [
+      "full_chest_surface",
+      "left_shoulder_surface",
+      "neck_left_surface",
+      "neck_right_surface",
       "right_shoulder_surface"
     ],
     "neck_left_surface": [
       "head_left_surface",
-      "left_ribs_region",
+      "left_shoulder_surface",
       "neck_back_surface",
-      "neck_front_surface",
-      "upper_back_region"
+      "neck_front_surface"
     ],
     "neck_right_surface": [
       "head_right_surface",
       "neck_back_surface",
       "neck_front_surface",
-      "right_ribs_region",
-      "upper_back_region"
+      "right_shoulder_surface"
     ],
     "right_ankle_transition": [
       "right_calf_surface",
@@ -266,9 +249,7 @@
     "right_biceps_surface": [
       "right_elbow_transition",
       "right_ribs_region",
-      "right_shoulder_surface",
-      "right_triceps_surface",
-      "upper_back_region"
+      "right_triceps_surface"
     ],
     "right_calf_surface": [
       "right_ankle_transition",
@@ -279,7 +260,6 @@
       "right_biceps_surface",
       "right_forearm_inner_surface",
       "right_forearm_outer_surface",
-      "right_ribs_region",
       "right_triceps_surface"
     ],
     "right_foot_surface": [
@@ -296,15 +276,22 @@
       "right_wrist_transition"
     ],
     "right_glute_surface": [
+      "left_glute_surface",
+      "lower_back_region",
       "right_hip_surface",
-      "right_wrist_transition"
+      "right_thigh_back_surface",
+      "right_thigh_inner_surface"
     ],
     "right_hand_surface": [
       "right_wrist_transition"
     ],
     "right_hip_surface": [
+      "full_abdomen_region",
+      "lower_back_region",
       "right_glute_surface",
-      "right_wrist_transition"
+      "right_thigh_back_surface",
+      "right_thigh_front_surface",
+      "right_thigh_outer_surface"
     ],
     "right_knee_transition": [
       "right_calf_surface",
@@ -314,20 +301,13 @@
       "right_thigh_inner_surface",
       "right_thigh_outer_surface"
     ],
-    "right_pectoral_region": [
+    "right_ribs_region": [
       "full_abdomen_region",
-      "left_pectoral_region",
-      "neck_front_surface",
+      "full_chest_surface",
+      "lower_back_region",
+      "right_biceps_surface",
       "right_shoulder_surface",
       "right_triceps_surface",
-      "upper_back_region"
-    ],
-    "right_ribs_region": [
-      "neck_front_surface",
-      "neck_right_surface",
-      "right_biceps_surface",
-      "right_elbow_transition",
-      "right_shoulder_surface",
       "upper_back_region"
     ],
     "right_shin_surface": [
@@ -336,1631 +316,1373 @@
       "right_knee_transition"
     ],
     "right_shoulder_surface": [
+      "full_chest_surface",
+      "neck_back_surface",
       "neck_front_surface",
-      "right_biceps_surface",
-      "right_pectoral_region",
+      "neck_right_surface",
       "right_ribs_region",
-      "right_triceps_surface"
-    ],
-    "right_thigh_back_surface": [
-      "lower_back_region",
-      "right_knee_transition",
-      "right_thigh_outer_surface",
       "upper_back_region"
     ],
+    "right_thigh_back_surface": [
+      "right_glute_surface",
+      "right_hip_surface",
+      "right_knee_transition",
+      "right_thigh_inner_surface",
+      "right_thigh_outer_surface"
+    ],
     "right_thigh_front_surface": [
-      "full_abdomen_region",
-      "left_thigh_front_surface",
+      "right_hip_surface",
       "right_knee_transition",
       "right_thigh_inner_surface",
       "right_thigh_outer_surface"
     ],
     "right_thigh_inner_surface": [
+      "right_glute_surface",
       "right_knee_transition",
+      "right_thigh_back_surface",
       "right_thigh_front_surface"
     ],
     "right_thigh_outer_surface": [
-      "full_abdomen_region",
+      "right_hip_surface",
       "right_knee_transition",
       "right_thigh_back_surface",
-      "right_thigh_front_surface",
-      "upper_back_region"
+      "right_thigh_front_surface"
     ],
     "right_triceps_surface": [
       "right_biceps_surface",
       "right_elbow_transition",
-      "right_pectoral_region",
-      "right_shoulder_surface",
-      "upper_back_region"
+      "right_ribs_region"
     ],
     "right_wrist_transition": [
       "right_forearm_inner_surface",
       "right_forearm_outer_surface",
-      "right_glute_surface",
-      "right_hand_surface",
-      "right_hip_surface"
+      "right_hand_surface"
     ],
     "upper_back_region": [
-      "full_abdomen_region",
-      "left_biceps_surface",
-      "left_pectoral_region",
       "left_ribs_region",
-      "left_thigh_outer_surface",
+      "left_shoulder_surface",
       "lower_back_region",
       "neck_back_surface",
-      "neck_left_surface",
-      "neck_right_surface",
-      "right_biceps_surface",
-      "right_pectoral_region",
       "right_ribs_region",
-      "right_thigh_back_surface",
-      "right_thigh_outer_surface",
-      "right_triceps_surface"
+      "right_shoulder_surface"
+    ],
+    "full_chest_surface": [
+      "full_abdomen_region",
+      "left_ribs_region",
+      "left_shoulder_surface",
+      "neck_front_surface",
+      "right_ribs_region",
+      "right_shoulder_surface"
     ]
   },
-  "edgeCount": 116,
+  "edgeCount": 109,
   "stats": {
     "head_top_surface": {
-      "faceCount": 471,
-      "triangleCount": 942,
-      "surfaceArea": 0.069664,
+      "faceCount": 398,
+      "surfaceArea": 0.041198016656079244,
       "centroid": [
-        0.00016,
-        0.09795,
-        1.64072
+        2.1869284021893542e-18,
+        1.6909716342961216,
+        -0.05381080477032024
       ],
+      "widthX": 0.14402136206626892,
+      "heightY": 0.08135056495666504,
+      "depthZ": 0.19659307599067688,
       "bbox": [
         [
-          -0.0834,
-          -0.007,
-          1.5423
+          -0.07201068103313446,
+          1.6528491973876953,
+          -0.1783352792263031
         ],
         [
-          0.084,
-          0.1764,
-          1.7323
+          0.07201068103313446,
+          1.7341997623443604,
+          0.01825779676437378
         ]
       ],
-      "widthX": 0.1673,
-      "connectedComponents": 2,
-      "classification": "selectable"
+      "connectedComponents": 1
     },
     "head_left_surface": {
-      "faceCount": 1430,
-      "triangleCount": 2860,
-      "surfaceArea": 0.02987,
+      "faceCount": 879,
+      "surfaceArea": 0.011822111696496107,
       "centroid": [
-        0.03985,
-        0.0195,
-        1.60094
+        0.07249732455538899,
+        1.6020223453363986,
+        -0.07912817652484548
       ],
+      "widthX": 0.04468805715441704,
+      "heightY": 0.15077662467956543,
+      "depthZ": 0.10132402926683426,
       "bbox": [
         [
-          0.0007,
-          -0.0364,
-          1.477
+          0.04161948338150978,
+          1.5200650691986084,
+          -0.12585671246051788
         ],
         [
-          0.0848,
-          0.108,
-          1.6856
+          0.08630754053592682,
+          1.6708416938781738,
+          -0.024532683193683624
         ]
       ],
-      "widthX": 0.0841,
-      "connectedComponents": 1,
-      "classification": "selectable"
+      "connectedComponents": 1
     },
     "head_right_surface": {
-      "faceCount": 1486,
-      "triangleCount": 2972,
-      "surfaceArea": 0.030534,
+      "faceCount": 879,
+      "surfaceArea": 0.011822112021036413,
       "centroid": [
-        -0.03954,
-        0.01925,
-        1.60178
+        -0.07249732455680169,
+        1.602022345245986,
+        -0.07912817652484545
       ],
+      "widthX": 0.04468805715441704,
+      "heightY": 0.15077662467956543,
+      "depthZ": 0.10132402926683426,
       "bbox": [
         [
-          -0.0848,
-          -0.0364,
-          1.477
+          -0.08630754053592682,
+          1.5200650691986084,
+          -0.12585671246051788
         ],
         [
-          -0.0007,
-          0.108,
-          1.6856
+          -0.04161948338150978,
+          1.6708416938781738,
+          -0.024532683193683624
         ]
       ],
-      "widthX": 0.0841,
-      "connectedComponents": 2,
-      "classification": "selectable"
+      "connectedComponents": 1
     },
     "head_back_surface": {
-      "faceCount": 496,
-      "triangleCount": 992,
-      "surfaceArea": 0.026078,
+      "faceCount": 366,
+      "surfaceArea": 0.024958221967300465,
       "centroid": [
-        0.0033,
-        0.01541,
-        1.57138
+        -3.5013657400916706e-8,
+        1.5902998957694756,
+        -0.1408402667480954
       ],
+      "widthX": 0.14159192144870758,
+      "heightY": 0.1525782346725464,
+      "depthZ": 0.08581624925136566,
       "bbox": [
         [
-          -0.0805,
-          -0.0219,
-          1.5237
+          -0.07079596072435379,
+          1.520227074623108,
+          -0.1783352792263031
         ],
         [
-          0.0455,
-          0.0969,
-          1.6386
+          0.07079596072435379,
+          1.6728053092956543,
+          -0.09251902997493744
         ]
       ],
-      "widthX": 0.126,
-      "connectedComponents": 3,
-      "classification": "selectable"
+      "connectedComponents": 1
     },
     "neck_front_surface": {
-      "faceCount": 128,
-      "triangleCount": 256,
-      "surfaceArea": 0.02065,
+      "faceCount": 462,
+      "surfaceArea": 0.021109442594982406,
       "centroid": [
-        -0.0,
-        0.0707,
-        1.45268
+        -2.6088353496531284e-7,
+        1.4822197353513034,
+        -0.03225458205864372
       ],
+      "widthX": 0.12083474546670914,
+      "heightY": 0.18943655490875244,
+      "depthZ": 0.09647008776664734,
       "bbox": [
         [
-          -0.114,
-          0.0384,
-          1.4078
+          -0.06043431535363197,
+          1.3418201208114624,
+          -0.0781414806842804
         ],
         [
-          0.114,
-          0.1125,
-          1.4945
+          0.060400430113077164,
+          1.5312566757202148,
+          0.018328607082366943
         ]
       ],
-      "widthX": 0.228,
-      "connectedComponents": 1,
-      "classification": "selectable"
+      "connectedComponents": 1
     },
     "neck_back_surface": {
-      "faceCount": 122,
-      "triangleCount": 244,
-      "surfaceArea": 0.027596,
+      "faceCount": 174,
+      "surfaceArea": 0.016385771044632364,
       "centroid": [
-        0.00071,
-        0.15809,
-        1.47874
+        3.0751486367124055e-8,
+        1.484392616712272,
+        -0.1523071942258614
       ],
+      "widthX": 0.21253535151481628,
+      "heightY": 0.12252616882324219,
+      "depthZ": 0.09027481824159622,
       "bbox": [
         [
-          -0.1207,
-          0.1152,
-          1.4088
+          -0.10626767575740814,
+          1.4103498458862305,
+          -0.19154095649719238
         ],
         [
-          0.1207,
-          0.1977,
-          1.5448
+          0.10626767575740814,
+          1.5328760147094727,
+          -0.10126613825559616
         ]
       ],
-      "widthX": 0.2415,
-      "connectedComponents": 1,
-      "classification": "selectable"
+      "connectedComponents": 1
     },
     "neck_left_surface": {
-      "faceCount": 20,
-      "triangleCount": 40,
-      "surfaceArea": 0.003504,
+      "faceCount": 117,
+      "surfaceArea": 0.010232239295284652,
       "centroid": [
-        0.07215,
-        0.12259,
-        1.48633
+        0.069673127959087,
+        1.4846576438670143,
+        -0.10128716381526735
       ],
+      "widthX": 0.12952668592333794,
+      "heightY": 0.08848309516906738,
+      "depthZ": 0.12986109405755997,
       "bbox": [
         [
-          0.0525,
-          0.0941,
-          1.4637
+          0.035051170736551285,
+          1.4442673921585083,
+          -0.17607620358467102
         ],
         [
-          0.1135,
-          0.1466,
-          1.513
+          0.16457785665988922,
+          1.5327504873275757,
+          -0.04621510952711105
         ]
       ],
-      "widthX": 0.061,
-      "connectedComponents": 1,
-      "classification": "selectable"
+      "connectedComponents": 1
     },
     "neck_right_surface": {
-      "faceCount": 20,
-      "triangleCount": 40,
-      "surfaceArea": 0.003504,
+      "faceCount": 117,
+      "surfaceArea": 0.010231572707056857,
       "centroid": [
-        -0.07214,
-        0.12259,
-        1.48633
+        -0.06967267102198384,
+        1.4846573911840755,
+        -0.10128716381526735
       ],
+      "widthX": 0.12952777743339539,
+      "heightY": 0.08848631381988525,
+      "depthZ": 0.12986109405755997,
       "bbox": [
         [
-          -0.1135,
-          0.0941,
-          1.4637
+          -0.16457895934581757,
+          1.4442641735076904,
+          -0.17607620358467102
         ],
         [
-          -0.0525,
-          0.1466,
-          1.513
+          -0.03505118191242218,
+          1.5327504873275757,
+          -0.04621510952711105
         ]
       ],
-      "widthX": 0.061,
-      "connectedComponents": 1,
-      "classification": "selectable"
-    },
-    "left_pectoral_region": {
-      "faceCount": 137,
-      "triangleCount": 274,
-      "surfaceArea": 0.022543,
-      "centroid": [
-        0.08603,
-        -0.01435,
-        1.27439
-      ],
-      "bbox": [
-        [
-          0.0208,
-          -0.0299,
-          1.1971
-        ],
-        [
-          0.1414,
-          0.0501,
-          1.396
-        ]
-      ],
-      "widthX": 0.1206,
-      "connectedComponents": 1,
-      "classification": "selectable"
-    },
-    "right_pectoral_region": {
-      "faceCount": 166,
-      "triangleCount": 332,
-      "surfaceArea": 0.031486,
-      "centroid": [
-        -0.07516,
-        -0.01027,
-        1.27658
-      ],
-      "bbox": [
-        [
-          -0.1451,
-          -0.0299,
-          1.1734
-        ],
-        [
-          0.0079,
-          0.0685,
-          1.3961
-        ]
-      ],
-      "widthX": 0.1531,
-      "connectedComponents": 1,
-      "classification": "selectable"
+      "connectedComponents": 1
     },
     "full_abdomen_region": {
-      "faceCount": 136,
-      "triangleCount": 272,
-      "surfaceArea": 0.057956,
+      "faceCount": 417,
+      "surfaceArea": 0.1067109380401946,
       "centroid": [
-        0.00024,
-        -0.00377,
-        1.09978
+        -0.0003394370859124345,
+        1.0367814569259832,
+        -0.003913046662613069
       ],
+      "widthX": 0.3321714550256729,
+      "heightY": 0.3705304265022278,
+      "depthZ": 0.19655470550060272,
       "bbox": [
         [
-          -0.1388,
-          -0.0271,
-          0.9707
+          -0.16608555614948273,
+          0.8642949461936951,
+          -0.16759291291236877
         ],
         [
-          0.1518,
-          0.0789,
-          1.2815
+          0.16608589887619019,
+          1.2348253726959229,
+          0.028961792588233948
         ]
       ],
-      "widthX": 0.2906,
-      "connectedComponents": 2,
-      "classification": "selectable"
+      "connectedComponents": 1
     },
     "left_ribs_region": {
-      "faceCount": 165,
-      "triangleCount": 330,
-      "surfaceArea": 0.043214,
+      "faceCount": 436,
+      "surfaceArea": 0.0684839922163262,
       "centroid": [
-        0.23533,
-        0.13375,
-        1.23813
+        0.1625685298513473,
+        1.2422283736573128,
+        -0.10497215075207599
       ],
+      "widthX": 0.14050102978944778,
+      "heightY": 0.3985220789909363,
+      "depthZ": 0.18403692543506622,
       "bbox": [
         [
-          0.1404,
-          0.0914,
-          1.1023
+          0.10936286300420761,
+          0.9738035798072815,
+          -0.18878963589668274
         ],
         [
-          0.3012,
-          0.1732,
-          1.4562
+          0.2498638927936554,
+          1.3723256587982178,
+          -0.004752710461616516
         ]
       ],
-      "widthX": 0.1609,
-      "connectedComponents": 1,
-      "classification": "selectable"
+      "connectedComponents": 1
     },
     "right_ribs_region": {
-      "faceCount": 165,
-      "triangleCount": 330,
-      "surfaceArea": 0.043197,
+      "faceCount": 435,
+      "surfaceArea": 0.06823920634176371,
       "centroid": [
-        -0.23533,
-        0.13376,
-        1.23813
+        -0.16260989782796476,
+        1.242694981436163,
+        -0.10505120968910017
       ],
+      "widthX": 0.14049866050481796,
+      "heightY": 0.3985195755958557,
+      "depthZ": 0.18403692543506622,
       "bbox": [
         [
-          -0.3012,
-          0.0914,
-          1.1022
+          -0.24986152350902557,
+          0.9738060832023621,
+          -0.18878963589668274
         ],
         [
-          -0.1404,
-          0.1732,
-          1.4562
+          -0.10936286300420761,
+          1.3723256587982178,
+          -0.004752710461616516
         ]
       ],
-      "widthX": 0.1609,
-      "connectedComponents": 1,
-      "classification": "selectable"
+      "connectedComponents": 1
     },
     "upper_back_region": {
-      "faceCount": 557,
-      "triangleCount": 1114,
-      "surfaceArea": 0.183994,
+      "faceCount": 516,
+      "surfaceArea": 0.0855949491047068,
       "centroid": [
-        0.00213,
-        0.15666,
-        1.23615
+        4.159426202943227e-8,
+        1.2462322511722284,
+        -0.18363909669778788
       ],
+      "widthX": 0.2906672954559326,
+      "heightY": 0.34578609466552734,
+      "depthZ": 0.07265739142894745,
       "bbox": [
         [
-          -0.2157,
-          0.0192,
-          1.011
+          -0.1453336477279663,
+          1.0761736631393433,
+          -0.20835429430007935
         ],
         [
-          0.2157,
-          0.2074,
-          1.4571
+          0.1453336477279663,
+          1.4219597578048706,
+          -0.1356969028711319
         ]
       ],
-      "widthX": 0.4314,
-      "connectedComponents": 1,
-      "classification": "selectable"
+      "connectedComponents": 1
     },
     "lower_back_region": {
-      "faceCount": 142,
-      "triangleCount": 284,
-      "surfaceArea": 0.071579,
+      "faceCount": 232,
+      "surfaceArea": 0.047053308468764175,
       "centroid": [
-        0.00092,
-        0.19227,
-        0.96959
+        -0.000018515947258820453,
+        1.0237646886500809,
+        -0.18544454091153662
       ],
+      "widthX": 0.2954670637845993,
+      "heightY": 0.15892904996871948,
+      "depthZ": 0.09066142141819,
       "bbox": [
         [
-          -0.1566,
-          0.0872,
-          0.8458
+          -0.14773811399936676,
+          0.9395784735679626,
+          -0.2294110208749771
         ],
         [
-          0.153,
-          0.2327,
-          1.0523
+          0.14772894978523254,
+          1.0985075235366821,
+          -0.1387495994567871
         ]
       ],
-      "widthX": 0.3096,
-      "connectedComponents": 1,
-      "classification": "selectable"
+      "connectedComponents": 1
     },
     "right_shoulder_surface": {
-      "faceCount": 63,
-      "triangleCount": 126,
-      "surfaceArea": 0.02223,
+      "faceCount": 229,
+      "surfaceArea": 0.04349788032677893,
       "centroid": [
-        -0.14632,
-        0.04732,
-        1.37535
+        -0.14471232273996845,
+        1.4038548913758582,
+        -0.10227516899766552
       ],
+      "widthX": 0.21031928807497025,
+      "heightY": 0.13406825065612793,
+      "depthZ": 0.18903620541095734,
       "bbox": [
         [
-          -0.2321,
-          -0.0097,
-          1.3094
+          -0.24011048674583435,
+          1.324905276298523,
+          -0.2031794786453247
         ],
         [
-          -0.0615,
-          0.0884,
-          1.4402
+          -0.029791198670864105,
+          1.4589735269546509,
+          -0.01414327323436737
         ]
       ],
-      "widthX": 0.1705,
-      "connectedComponents": 1,
-      "classification": "selectable"
+      "connectedComponents": 1
     },
     "left_shoulder_surface": {
-      "faceCount": 63,
-      "triangleCount": 126,
-      "surfaceArea": 0.02223,
+      "faceCount": 229,
+      "surfaceArea": 0.04349854727796652,
       "centroid": [
-        0.14632,
-        0.04732,
-        1.37535
+        0.14471325030471743,
+        1.4038551367352998,
+        -0.10227516897597533
       ],
+      "widthX": 0.2103186920285225,
+      "heightY": 0.1340733766555786,
+      "depthZ": 0.18903620541095734,
       "bbox": [
         [
-          0.0615,
-          -0.0097,
-          1.3094
+          0.029791198670864105,
+          1.3249032497406006,
+          -0.2031794786453247
         ],
         [
-          0.2321,
-          0.0884,
-          1.4402
+          0.2401098906993866,
+          1.4589766263961792,
+          -0.01414327323436737
         ]
       ],
-      "widthX": 0.1705,
-      "connectedComponents": 1,
-      "classification": "selectable"
+      "connectedComponents": 1
     },
     "right_biceps_surface": {
-      "faceCount": 55,
-      "triangleCount": 110,
-      "surfaceArea": 0.01693,
+      "faceCount": 123,
+      "surfaceArea": 0.01539359886589459,
       "centroid": [
-        -0.2193,
-        0.08297,
-        1.25431
+        -0.2502299589193289,
+        1.2032952657560032,
+        -0.07497197242206352
       ],
+      "widthX": 0.11724504828453064,
+      "heightY": 0.1643505096435547,
+      "depthZ": 0.0544457733631134,
       "bbox": [
         [
-          -0.2891,
-          0.068,
-          1.1599
+          -0.3016429841518402,
+          1.1464346647262573,
+          -0.11181677877902985
         ],
         [
-          -0.1518,
-          0.1016,
-          1.3428
+          -0.18439793586730957,
+          1.310785174369812,
+          -0.05737100541591644
         ]
       ],
-      "widthX": 0.1373,
-      "connectedComponents": 2,
-      "classification": "selectable"
+      "connectedComponents": 1
     },
     "left_biceps_surface": {
-      "faceCount": 55,
-      "triangleCount": 110,
-      "surfaceArea": 0.016852,
+      "faceCount": 123,
+      "surfaceArea": 0.015393959364137295,
       "centroid": [
-        0.21932,
-        0.08335,
-        1.25445
+        0.2502306526511665,
+        1.203293550305251,
+        -0.0749644496980398
       ],
+      "widthX": 0.11724504828453064,
+      "heightY": 0.1643505096435547,
+      "depthZ": 0.0544457733631134,
       "bbox": [
         [
-          0.1519,
-          0.068,
-          1.1599
+          0.18439793586730957,
+          1.1464346647262573,
+          -0.11181677877902985
         ],
         [
-          0.2891,
-          0.1016,
-          1.3428
+          0.3016429841518402,
+          1.310785174369812,
+          -0.05737100541591644
         ]
       ],
-      "widthX": 0.1372,
-      "connectedComponents": 2,
-      "classification": "selectable"
+      "connectedComponents": 1
     },
     "right_triceps_surface": {
-      "faceCount": 56,
-      "triangleCount": 112,
-      "surfaceArea": 0.012991,
+      "faceCount": 162,
+      "surfaceArea": 0.020489402473100445,
       "centroid": [
-        -0.1754,
-        0.03737,
-        1.27496
+        -0.23975917555913048,
+        1.2070381754219772,
+        -0.13442977755464658
       ],
+      "widthX": 0.12497100234031677,
+      "heightY": 0.1791982650756836,
+      "depthZ": 0.07143545150756836,
       "bbox": [
         [
-          -0.2671,
-          -0.0163,
-          1.1771
+          -0.30123183131217957,
+          1.1399368047714233,
+          -0.16050928831100464
         ],
         [
-          -0.1091,
-          0.0685,
-          1.3374
+          -0.1762608289718628,
+          1.319135069847107,
+          -0.08907383680343628
         ]
       ],
-      "widthX": 0.158,
-      "connectedComponents": 2,
-      "classification": "selectable"
+      "connectedComponents": 1
     },
     "left_triceps_surface": {
-      "faceCount": 56,
-      "triangleCount": 112,
-      "surfaceArea": 0.012989,
+      "faceCount": 162,
+      "surfaceArea": 0.020491606589740263,
       "centroid": [
-        0.17541,
-        0.03737,
-        1.27496
+        0.2397589777354843,
+        1.2070387400717393,
+        -0.13442736746045794
       ],
+      "widthX": 0.12497100234031677,
+      "heightY": 0.1791982650756836,
+      "depthZ": 0.07143545150756836,
       "bbox": [
         [
-          0.1091,
-          -0.0163,
-          1.1771
+          0.1762608289718628,
+          1.1399368047714233,
+          -0.16050928831100464
         ],
         [
-          0.2671,
-          0.0685,
-          1.3375
+          0.30123183131217957,
+          1.319135069847107,
+          -0.08907383680343628
         ]
       ],
-      "widthX": 0.158,
-      "connectedComponents": 2,
-      "classification": "selectable"
+      "connectedComponents": 1
     },
     "right_forearm_inner_surface": {
-      "faceCount": 174,
-      "triangleCount": 348,
-      "surfaceArea": 0.017907,
+      "faceCount": 157,
+      "surfaceArea": 0.01819136945519784,
       "centroid": [
-        -0.31218,
-        -0.11207,
-        0.99946
+        -0.3109655627019844,
+        1.0556209278461024,
+        0.05199356892812535
       ],
+      "widthX": 0.10500094294548035,
+      "heightY": 0.15445822477340698,
+      "depthZ": 0.1988789662718773,
       "bbox": [
         [
-          -0.3566,
-          -0.1824,
-          0.9377
+          -0.35169273614883423,
+          0.9971035122871399,
+          -0.06159838289022446
         ],
         [
-          -0.2806,
-          -0.002,
-          1.0703
+          -0.24669179320335388,
+          1.1515617370605469,
+          0.13728058338165283
         ]
       ],
-      "widthX": 0.076,
-      "connectedComponents": 1,
-      "classification": "selectable"
+      "connectedComponents": 1
     },
     "left_forearm_inner_surface": {
-      "faceCount": 174,
-      "triangleCount": 348,
-      "surfaceArea": 0.017907,
+      "faceCount": 157,
+      "surfaceArea": 0.01819137180788393,
       "centroid": [
-        0.31218,
-        -0.11207,
-        0.99946
+        0.3109655613732181,
+        1.0556209331611655,
+        0.05199357269296225
       ],
+      "widthX": 0.10500091314315796,
+      "heightY": 0.15445822477340698,
+      "depthZ": 0.1988789662718773,
       "bbox": [
         [
-          0.2806,
-          -0.1824,
-          0.9377
+          0.24669179320335388,
+          0.9971035122871399,
+          -0.06159838289022446
         ],
         [
-          0.3566,
-          -0.002,
-          1.0703
+          0.35169270634651184,
+          1.1515617370605469,
+          0.13728058338165283
         ]
       ],
-      "widthX": 0.076,
-      "connectedComponents": 1,
-      "classification": "selectable"
+      "connectedComponents": 1
     },
     "right_forearm_outer_surface": {
-      "faceCount": 125,
-      "triangleCount": 250,
-      "surfaceArea": 0.015838,
+      "faceCount": 288,
+      "surfaceArea": 0.02154901336253511,
       "centroid": [
-        -0.34682,
-        -0.0835,
-        1.01272
+        -0.3304823417630466,
+        1.0134007690681353,
+        0.056067526237004346
       ],
+      "widthX": 0.10323241353034973,
+      "heightY": 0.15215516090393066,
+      "depthZ": 0.19570991396903992,
       "bbox": [
         [
-          -0.3641,
-          -0.154,
-          0.9476
+          -0.3602102994918823,
+          0.9506450891494751,
+          -0.0695212185382843
         ],
         [
-          -0.3037,
-          0.0108,
-          1.0858
+          -0.2569778859615326,
+          1.1028002500534058,
+          0.12618869543075562
         ]
       ],
-      "widthX": 0.0604,
-      "connectedComponents": 1,
-      "classification": "selectable"
+      "connectedComponents": 1
     },
     "left_forearm_outer_surface": {
-      "faceCount": 125,
-      "triangleCount": 250,
-      "surfaceArea": 0.015838,
+      "faceCount": 288,
+      "surfaceArea": 0.02154901359665661,
       "centroid": [
-        0.34682,
-        -0.0835,
-        1.01272
+        0.33048234193551324,
+        1.0134007689301614,
+        0.05606752609903062
       ],
+      "widthX": 0.10323241353034973,
+      "heightY": 0.15215516090393066,
+      "depthZ": 0.19570991396903992,
       "bbox": [
         [
-          0.3037,
-          -0.154,
-          0.9476
+          0.2569778859615326,
+          0.9506450891494751,
+          -0.0695212185382843
         ],
         [
-          0.3641,
-          0.0108,
-          1.0858
+          0.3602102994918823,
+          1.1028002500534058,
+          0.12618869543075562
         ]
       ],
-      "widthX": 0.0604,
-      "connectedComponents": 1,
-      "classification": "selectable"
+      "connectedComponents": 1
     },
     "right_hand_surface": {
-      "faceCount": 363,
-      "triangleCount": 726,
-      "surfaceArea": 0.004869,
+      "faceCount": 2556,
+      "surfaceArea": 0.022027243426773525,
       "centroid": [
-        -0.3223,
-        -0.21739,
-        0.91682
+        -0.33790167979215935,
+        0.917486009556741,
+        0.18477053052406248
       ],
+      "widthX": 0.06882861256599426,
+      "heightY": 0.11233997344970703,
+      "depthZ": 0.12715837359428406,
       "bbox": [
         [
-          -0.3523,
-          -0.2347,
-          0.8842
+          -0.36858999729156494,
+          0.8690530061721802,
+          0.10771489143371582
         ],
         [
-          -0.3005,
-          -0.1909,
-          0.9532
+          -0.2997613847255707,
+          0.9813929796218872,
+          0.23487326502799988
         ]
       ],
-      "widthX": 0.0518,
-      "connectedComponents": 2,
-      "classification": "selectable"
+      "connectedComponents": 1
     },
     "left_hand_surface": {
-      "faceCount": 363,
-      "triangleCount": 726,
-      "surfaceArea": 0.004869,
+      "faceCount": 2556,
+      "surfaceArea": 0.022027383283360274,
       "centroid": [
-        0.3223,
-        -0.21739,
-        0.91682
+        0.3379016004320111,
+        0.9174862406063595,
+        0.1847701229030703
       ],
+      "widthX": 0.06882861256599426,
+      "heightY": 0.11233186721801758,
+      "depthZ": 0.12715837359428406,
       "bbox": [
         [
-          0.3005,
-          -0.2347,
-          0.8842
+          0.2997613847255707,
+          0.8690530061721802,
+          0.10771489143371582
         ],
         [
-          0.3523,
-          -0.1909,
-          0.9532
+          0.36858999729156494,
+          0.9813848733901978,
+          0.23487326502799988
         ]
       ],
-      "widthX": 0.0518,
-      "connectedComponents": 2,
-      "classification": "selectable"
+      "connectedComponents": 1
     },
     "right_thigh_front_surface": {
-      "faceCount": 65,
-      "triangleCount": 130,
-      "surfaceArea": 0.041504,
+      "faceCount": 142,
+      "surfaceArea": 0.048978727935402755,
       "centroid": [
-        -0.07468,
-        0.00755,
-        0.82059
+        -0.14090962016281666,
+        0.6918098795022202,
+        -0.01956010060690937
       ],
+      "widthX": 0.1622355543076992,
+      "heightY": 0.33559900522232056,
+      "depthZ": 0.07300757616758347,
       "bbox": [
         [
-          -0.1496,
-          -0.0181,
-          0.552
+          -0.2059963494539261,
+          0.514642596244812,
+          -0.0677904412150383
         ],
         [
-          -0.0087,
-          0.0393,
-          1.0121
+          -0.04376079514622688,
+          0.8502416014671326,
+          0.005217134952545166
         ]
       ],
-      "widthX": 0.1409,
-      "connectedComponents": 1,
-      "classification": "selectable"
+      "connectedComponents": 1
     },
     "right_thigh_back_surface": {
-      "faceCount": 46,
-      "triangleCount": 92,
-      "surfaceArea": 0.03149,
+      "faceCount": 127,
+      "surfaceArea": 0.04176920381084784,
       "centroid": [
-        -0.18935,
-        0.10621,
-        0.78363
+        -0.1337809799889253,
+        0.6870407933012393,
+        -0.16052873782676635
       ],
+      "widthX": 0.168863657861948,
+      "heightY": 0.31905531883239746,
+      "depthZ": 0.08751604706048965,
       "bbox": [
         [
-          -0.2159,
-          0.0657,
-          0.5384
+          -0.20532190799713135,
+          0.5220049619674683,
+          -0.21059365570545197
         ],
         [
-          -0.1459,
-          0.1869,
-          0.9872
+          -0.036458250135183334,
+          0.8410602807998657,
+          -0.12307760864496231
         ]
       ],
-      "widthX": 0.07,
-      "connectedComponents": 1,
-      "classification": "selectable"
+      "connectedComponents": 1
     },
     "right_thigh_inner_surface": {
-      "faceCount": 43,
-      "triangleCount": 86,
-      "surfaceArea": 0.024891,
+      "faceCount": 108,
+      "surfaceArea": 0.031524458866925356,
       "centroid": [
-        -0.0565,
-        0.06951,
-        0.68909
+        -0.06265708102764175,
+        0.6649948410045946,
+        -0.09610806322760057
       ],
+      "widthX": 0.1071237176656723,
+      "heightY": 0.2989063262939453,
+      "depthZ": 0.12733402848243713,
       "bbox": [
         [
-          -0.1301,
-          0.0343,
-          0.5259
+          -0.12123195827007294,
+          0.5138998031616211,
+          -0.1565411239862442
         ],
         [
-          -0.0093,
-          0.1001,
-          0.8288
+          -0.014108240604400635,
+          0.8128061294555664,
+          -0.029207095503807068
         ]
       ],
-      "widthX": 0.1208,
-      "connectedComponents": 1,
-      "classification": "selectable"
+      "connectedComponents": 1
     },
     "right_thigh_outer_surface": {
-      "faceCount": 86,
-      "triangleCount": 172,
-      "surfaceArea": 0.050443,
+      "faceCount": 87,
+      "surfaceArea": 0.027811796400503554,
       "centroid": [
-        -0.16158,
-        0.03218,
-        0.81647
+        -0.2019258616527835,
+        0.6918064056685146,
+        -0.09332593219261978
       ],
+      "widthX": 0.04538664221763611,
+      "heightY": 0.32176464796066284,
+      "depthZ": 0.12416284531354904,
       "bbox": [
         [
-          -0.2074,
-          -0.003,
-          0.558
+          -0.2153029590845108,
+          0.5252174139022827,
+          -0.16352927684783936
         ],
         [
-          -0.0917,
-          0.0739,
-          1.0556
+          -0.1699163168668747,
+          0.8469820618629456,
+          -0.039366431534290314
         ]
       ],
-      "widthX": 0.1157,
-      "connectedComponents": 1,
-      "classification": "selectable"
+      "connectedComponents": 1
     },
     "left_thigh_front_surface": {
-      "faceCount": 66,
-      "triangleCount": 132,
-      "surfaceArea": 0.041674,
+      "faceCount": 142,
+      "surfaceArea": 0.04897928483429297,
       "centroid": [
-        0.07377,
-        0.00835,
-        0.8207
+        0.14090787445330563,
+        0.6918112655200866,
+        -0.01956010060690937
       ],
+      "widthX": 0.162203136831522,
+      "heightY": 0.3355993628501892,
+      "depthZ": 0.07300757616758347,
       "bbox": [
         [
-          0.0087,
-          -0.0181,
-          0.552
+          0.0437932126224041,
+          0.514642596244812,
+          -0.0677904412150383
         ],
         [
-          0.1496,
-          0.0602,
-          1.0121
+          0.2059963494539261,
+          0.8502419590950012,
+          0.005217134952545166
         ]
       ],
-      "widthX": 0.1409,
-      "connectedComponents": 1,
-      "classification": "selectable"
+      "connectedComponents": 1
     },
     "left_thigh_back_surface": {
-      "faceCount": 44,
-      "triangleCount": 88,
-      "surfaceArea": 0.030005,
+      "faceCount": 127,
+      "surfaceArea": 0.041770096326633574,
       "centroid": [
-        0.19018,
-        0.1026,
-        0.78313
+        0.13379184707138791,
+        0.6870424209304373,
+        -0.16052873763121311
       ],
+      "widthX": 0.168863657861948,
+      "heightY": 0.3190602660179138,
+      "depthZ": 0.08751604706048965,
       "bbox": [
         [
-          0.1459,
-          0.0657,
-          0.5384
+          0.036458250135183334,
+          0.5220049619674683,
+          -0.21059365570545197
         ],
         [
-          0.2159,
-          0.1869,
-          0.9872
+          0.20532190799713135,
+          0.8410652279853821,
+          -0.12307760864496231
         ]
       ],
-      "widthX": 0.07,
-      "connectedComponents": 1,
-      "classification": "selectable"
+      "connectedComponents": 1
     },
     "left_thigh_inner_surface": {
-      "faceCount": 42,
-      "triangleCount": 84,
-      "surfaceArea": 0.02472,
+      "faceCount": 108,
+      "surfaceArea": 0.03152451829406542,
       "centroid": [
-        0.05751,
-        0.06973,
-        0.68575
+        0.06266217727651015,
+        0.6649928810419852,
+        -0.09610806322760057
       ],
+      "widthX": 0.10711966268718243,
+      "heightY": 0.2989024519920349,
+      "depthZ": 0.12733402848243713,
       "bbox": [
         [
-          0.0093,
-          0.0343,
-          0.5259
+          0.01411229558289051,
+          0.5138998031616211,
+          -0.1565411239862442
         ],
         [
-          0.1301,
-          0.1001,
-          0.8274
+          0.12123195827007294,
+          0.812802255153656,
+          -0.029207095503807068
         ]
       ],
-      "widthX": 0.1208,
-      "connectedComponents": 1,
-      "classification": "selectable"
+      "connectedComponents": 1
     },
     "left_thigh_outer_surface": {
-      "faceCount": 80,
-      "triangleCount": 160,
-      "surfaceArea": 0.047589,
+      "faceCount": 87,
+      "surfaceArea": 0.027810927427681032,
       "centroid": [
-        0.16335,
-        0.03072,
-        0.79971
+        0.2019263979233088,
+        0.6918067068889224,
+        -0.0933259321926198
       ],
+      "widthX": 0.04537476599216461,
+      "heightY": 0.32176464796066284,
+      "depthZ": 0.12416284531354904,
       "bbox": [
         [
-          0.0917,
-          -0.003,
-          0.558
+          0.1699281930923462,
+          0.5252174139022827,
+          -0.16352927684783936
         ],
         [
-          0.2074,
-          0.0739,
-          1.0289
+          0.2153029590845108,
+          0.8469820618629456,
+          -0.039366431534290314
         ]
       ],
-      "widthX": 0.1157,
-      "connectedComponents": 1,
-      "classification": "selectable"
+      "connectedComponents": 1
     },
     "right_shin_surface": {
-      "faceCount": 31,
-      "triangleCount": 62,
-      "surfaceArea": 0.015374,
+      "faceCount": 120,
+      "surfaceArea": 0.033646207682784875,
       "centroid": [
-        -0.17681,
-        0.09613,
-        0.26066
+        -0.2023638709551757,
+        0.30790226422250294,
+        -0.07842173772967523
       ],
+      "widthX": 0.1249319314956665,
+      "heightY": 0.3125716894865036,
+      "depthZ": 0.05806206911802292,
       "bbox": [
         [
-          -0.2096,
-          0.0731,
-          0.1283
+          -0.2575852572917938,
+          0.14035774767398834,
+          -0.1135980635881424
         ],
         [
-          -0.1383,
-          0.1296,
-          0.4215
+          -0.13265332579612732,
+          0.45292943716049194,
+          -0.055535994470119476
         ]
       ],
-      "widthX": 0.0713,
-      "connectedComponents": 1,
-      "classification": "selectable"
+      "connectedComponents": 1
     },
     "left_shin_surface": {
-      "faceCount": 31,
-      "triangleCount": 62,
-      "surfaceArea": 0.015418,
+      "faceCount": 121,
+      "surfaceArea": 0.03393523210056745,
       "centroid": [
-        0.17704,
-        0.09606,
-        0.26072
+        0.20247978078760717,
+        0.30700236209988907,
+        -0.07860543800533314
       ],
+      "widthX": 0.12537813186645508,
+      "heightY": 0.3126686364412308,
+      "depthZ": 0.05806206911802292,
       "bbox": [
         [
-          0.1383,
-          0.0731,
-          0.1284
+          0.13265332579612732,
+          0.14026080071926117,
+          -0.1135980635881424
         ],
         [
-          0.2102,
-          0.1295,
-          0.4215
+          0.2580314576625824,
+          0.45292943716049194,
+          -0.055535994470119476
         ]
       ],
-      "widthX": 0.0719,
-      "connectedComponents": 1,
-      "classification": "selectable"
+      "connectedComponents": 1
     },
     "right_calf_surface": {
-      "faceCount": 52,
-      "triangleCount": 104,
-      "surfaceArea": 0.026155,
+      "faceCount": 140,
+      "surfaceArea": 0.056127364580280906,
       "centroid": [
-        -0.21564,
-        0.07312,
-        0.29157
+        -0.19951745583897576,
+        0.30571303420833196,
+        -0.14401388155917325
       ],
+      "widthX": 0.13125693798065186,
+      "heightY": 0.32208113372325897,
+      "depthZ": 0.08892257511615753,
       "bbox": [
         [
-          -0.2535,
-          0.0567,
-          0.1292
+          -0.2614631652832031,
+          0.1340021938085556,
+          -0.18152689933776855
         ],
         [
-          -0.1589,
-          0.0911,
-          0.4481
+          -0.13020622730255127,
+          0.4560833275318146,
+          -0.09260432422161102
         ]
       ],
-      "widthX": 0.0946,
-      "connectedComponents": 1,
-      "classification": "selectable"
+      "connectedComponents": 1
     },
     "left_calf_surface": {
-      "faceCount": 50,
-      "triangleCount": 100,
-      "surfaceArea": 0.02442,
+      "faceCount": 139,
+      "surfaceArea": 0.05587804625964445,
       "centroid": [
-        0.21449,
-        0.07243,
-        0.29415
+        0.19972196346421334,
+        0.3064923841032767,
+        -0.14430705398964352
       ],
+      "widthX": 0.13142144680023193,
+      "heightY": 0.32208018004894257,
+      "depthZ": 0.08891536295413971,
       "bbox": [
         [
-          0.1589,
-          0.0567,
-          0.1292
+          0.13020622730255127,
+          0.134003147482872,
+          -0.18151968717575073
         ],
         [
-          0.2499,
-          0.0886,
-          0.4481
+          0.2616276741027832,
+          0.4560833275318146,
+          -0.09260432422161102
         ]
       ],
-      "widthX": 0.091,
-      "connectedComponents": 1,
-      "classification": "selectable"
+      "connectedComponents": 1
     },
     "right_foot_surface": {
-      "faceCount": 164,
-      "triangleCount": 328,
-      "surfaceArea": 0.002568,
+      "faceCount": 1976,
+      "surfaceArea": 0.04402498004895422,
       "centroid": [
-        -0.24624,
-        -0.06451,
-        0.01523
+        -0.25453430088676665,
+        0.018088589397110746,
+        0.030763303133308318
       ],
+      "widthX": 0.09401118755340576,
+      "heightY": 0.10045737028121948,
+      "depthZ": 0.22861194610595703,
       "bbox": [
         [
-          -0.2795,
-          -0.0832,
-          0.0041
+          -0.29363808035850525,
+          0,
+          -0.14293909072875977
         ],
         [
-          -0.2121,
-          -0.0452,
-          0.0276
+          -0.1996268928050995,
+          0.10045737028121948,
+          0.08567285537719727
         ]
       ],
-      "widthX": 0.0673,
-      "connectedComponents": 4,
-      "classification": "selectable"
+      "connectedComponents": 1
     },
     "left_foot_surface": {
-      "faceCount": 295,
-      "triangleCount": 590,
-      "surfaceArea": 0.004732,
+      "faceCount": 1976,
+      "surfaceArea": 0.044023133337616184,
       "centroid": [
-        0.24535,
-        -0.06657,
-        0.01465
+        0.25452995370927534,
+        0.018088774604147217,
+        0.030763701829863155
       ],
+      "widthX": 0.09401118755340576,
+      "heightY": 0.1004815548658371,
+      "depthZ": 0.22861194610595703,
       "bbox": [
         [
-          0.2087,
-          -0.0851,
-          0.0014
+          0.1996268928050995,
+          0,
+          -0.14293909072875977
         ],
         [
-          0.2804,
-          -0.0452,
-          0.0276
+          0.29363808035850525,
+          0.1004815548658371,
+          0.08567285537719727
         ]
       ],
-      "widthX": 0.0717,
-      "connectedComponents": 4,
-      "classification": "selectable"
+      "connectedComponents": 1
     },
     "left_hip_surface": {
-      "faceCount": 307,
-      "triangleCount": 614,
-      "surfaceArea": 0.003015,
+      "faceCount": 78,
+      "surfaceArea": 0.024023177963666258,
       "centroid": [
-        0.34351,
-        -0.16939,
-        0.89521
+        0.1622716790526851,
+        0.8827307356728449,
+        -0.08227469176690806
       ],
+      "widthX": 0.10961582511663437,
+      "heightY": 0.11891728639602661,
+      "depthZ": 0.1998136192560196,
       "bbox": [
         [
-          0.323,
-          -0.1973,
-          0.8695
+          0.08383093029260635,
+          0.8290780186653137,
+          -0.20156365633010864
         ],
         [
-          0.365,
-          -0.1409,
-          0.9288
+          0.19344675540924072,
+          0.9479953050613403,
+          -0.0017500370740890503
         ]
       ],
-      "widthX": 0.042,
-      "connectedComponents": 2,
-      "classification": "selectable"
+      "connectedComponents": 1
     },
     "right_hip_surface": {
-      "faceCount": 307,
-      "triangleCount": 614,
-      "surfaceArea": 0.003015,
+      "faceCount": 78,
+      "surfaceArea": 0.024023772510200932,
       "centroid": [
-        -0.34351,
-        -0.16939,
-        0.89521
+        -0.1622694846019786,
+        0.8827266372167147,
+        -0.08227469176690806
       ],
+      "widthX": 0.10963112115859985,
+      "heightY": 0.11891847848892212,
+      "depthZ": 0.1998136192560196,
       "bbox": [
         [
-          -0.365,
-          -0.1973,
-          0.8695
+          -0.1934572160243988,
+          0.8290780186653137,
+          -0.20156365633010864
         ],
         [
-          -0.323,
-          -0.1409,
-          0.9288
+          -0.08382609486579895,
+          0.9479964971542358,
+          -0.0017500370740890503
         ]
       ],
-      "widthX": 0.042,
-      "connectedComponents": 2,
-      "classification": "selectable"
+      "connectedComponents": 1
     },
     "left_glute_surface": {
-      "faceCount": 200,
-      "triangleCount": 400,
-      "surfaceArea": 0.002521,
+      "faceCount": 110,
+      "surfaceArea": 0.023625487305276197,
       "centroid": [
-        0.34587,
-        -0.16061,
-        0.89951
+        0.03715612401244023,
+        0.8617016656832245,
+        -0.18908099615664192
       ],
+      "widthX": 0.15394476271467283,
+      "heightY": 0.1577606201171875,
+      "depthZ": 0.14511516690254211,
       "bbox": [
         [
-          0.3242,
-          -0.1895,
-          0.8699
+          -0.000040071376133710146,
+          0.7858714461326599,
+          -0.23487325012683868
         ],
         [
-          0.3633,
-          -0.1349,
-          0.9255
+          0.15390469133853912,
+          0.9436320662498474,
+          -0.08975808322429657
         ]
       ],
-      "widthX": 0.0392,
-      "connectedComponents": 2,
-      "classification": "selectable"
+      "connectedComponents": 1
     },
     "right_glute_surface": {
-      "faceCount": 196,
-      "triangleCount": 392,
-      "surfaceArea": 0.002458,
+      "faceCount": 110,
+      "surfaceArea": 0.023620564373998933,
       "centroid": [
-        -0.34589,
-        -0.16039,
-        0.89918
+        -0.037144310916172915,
+        0.8617172618707024,
+        -0.18908099615664192
       ],
+      "widthX": 0.15394051211478654,
+      "heightY": 0.15774071216583252,
+      "depthZ": 0.14511516690254211,
       "bbox": [
         [
-          -0.3633,
-          -0.1895,
-          0.8699
+          -0.15391023457050323,
+          0.7858714461326599,
+          -0.23487325012683868
         ],
         [
-          -0.3242,
-          -0.1349,
-          0.9255
+          0.00003027754428330809,
+          0.9436121582984924,
+          -0.08975808322429657
         ]
       ],
-      "widthX": 0.0392,
-      "connectedComponents": 2,
-      "classification": "selectable"
+      "connectedComponents": 1
     },
     "right_elbow_transition": {
-      "faceCount": 104,
-      "triangleCount": 208,
-      "surfaceArea": 0.030365,
+      "faceCount": 159,
+      "surfaceArea": 0.01878901588645026,
       "centroid": [
-        -0.28234,
-        0.0516,
-        1.11762
+        -0.2732070120875441,
+        1.128432340342043,
+        -0.09040285681278706
       ],
+      "widthX": 0.10184147953987122,
+      "heightY": 0.09140658378601074,
+      "depthZ": 0.12319203466176987,
       "bbox": [
         [
-          -0.3341,
-          -0.0139,
-          1.0471
+          -0.3262832462787628,
+          1.0749270915985107,
+          -0.14417609572410583
         ],
         [
-          -0.2255,
-          0.0987,
-          1.1826
+          -0.2244417667388916,
+          1.1663336753845215,
+          -0.020984061062335968
         ]
       ],
-      "widthX": 0.1085,
-      "connectedComponents": 1,
-      "classification": "routing_only"
+      "connectedComponents": 1
     },
     "left_elbow_transition": {
-      "faceCount": 104,
-      "triangleCount": 208,
-      "surfaceArea": 0.030336,
+      "faceCount": 159,
+      "surfaceArea": 0.01877537808344515,
       "centroid": [
-        0.28234,
-        0.05158,
-        1.11762
+        0.2732035814466216,
+        1.1284408319421275,
+        -0.0903664383748293
       ],
+      "widthX": 0.10184147953987122,
+      "heightY": 0.09140658378601074,
+      "depthZ": 0.12319203466176987,
       "bbox": [
         [
-          0.2255,
-          -0.0139,
-          1.0471
+          0.2244417667388916,
+          1.0749270915985107,
+          -0.14417609572410583
         ],
         [
-          0.3341,
-          0.0987,
-          1.1826
+          0.3262832462787628,
+          1.1663336753845215,
+          -0.020984061062335968
         ]
       ],
-      "widthX": 0.1085,
-      "connectedComponents": 1,
-      "classification": "routing_only"
+      "connectedComponents": 1
     },
     "right_wrist_transition": {
-      "faceCount": 556,
-      "triangleCount": 1112,
-      "surfaceArea": 0.015112,
+      "faceCount": 521,
+      "surfaceArea": 0.013120680401438276,
       "centroid": [
-        -0.33009,
-        -0.1825,
-        0.95447
+        -0.3048096824859244,
+        0.9867686531670314,
+        0.17108651001294714
       ],
+      "widthX": 0.09294146299362183,
+      "heightY": 0.08062833547592163,
+      "depthZ": 0.11633984744548798,
       "bbox": [
         [
-          -0.3676,
-          -0.2207,
-          0.9098
+          -0.36483585834503174,
+          0.9404512047767639,
+          0.09247194230556488
         ],
         [
-          -0.2728,
-          -0.1191,
-          0.9991
+          -0.2718943953514099,
+          1.0210795402526855,
+          0.20881178975105286
         ]
       ],
-      "widthX": 0.0948,
-      "connectedComponents": 1,
-      "classification": "routing_only"
+      "connectedComponents": 1
     },
     "left_wrist_transition": {
-      "faceCount": 552,
-      "triangleCount": 1104,
-      "surfaceArea": 0.015049,
+      "faceCount": 521,
+      "surfaceArea": 0.013120744815658242,
       "centroid": [
-        0.32998,
-        -0.18257,
-        0.95475
+        0.3048101913562889,
+        0.9867668440917001,
+        0.17108472900480592
       ],
+      "widthX": 0.09294146299362183,
+      "heightY": 0.08062833547592163,
+      "depthZ": 0.11633984744548798,
       "bbox": [
         [
-          0.2728,
-          -0.2207,
-          0.9098
+          0.2718943953514099,
+          0.9404512047767639,
+          0.09247194230556488
         ],
         [
-          0.3676,
-          -0.1191,
-          0.9991
+          0.36483585834503174,
+          1.0210795402526855,
+          0.20881178975105286
         ]
       ],
-      "widthX": 0.0948,
-      "connectedComponents": 1,
-      "classification": "routing_only"
+      "connectedComponents": 1
     },
     "right_knee_transition": {
-      "faceCount": 48,
-      "triangleCount": 96,
-      "surfaceArea": 0.018307,
+      "faceCount": 183,
+      "surfaceArea": 0.03628860088449267,
       "centroid": [
-        -0.17737,
-        0.06619,
-        0.49267
+        -0.17697516302213406,
+        0.4854282104361035,
+        -0.09969767014782713
       ],
+      "widthX": 0.14346331357955933,
+      "heightY": 0.1396639049053192,
+      "depthZ": 0.15463820844888687,
       "bbox": [
         [
-          -0.2311,
-          0.0268,
-          0.4452
+          -0.24491864442825317,
+          0.409249871969223,
+          -0.176699697971344
         ],
         [
-          -0.1062,
-          0.1052,
-          0.5381
+          -0.10145533084869385,
+          0.5489137768745422,
+          -0.022061489522457123
         ]
       ],
-      "widthX": 0.1248,
-      "connectedComponents": 1,
-      "classification": "routing_only"
+      "connectedComponents": 1
     },
     "left_knee_transition": {
-      "faceCount": 48,
-      "triangleCount": 96,
-      "surfaceArea": 0.018307,
+      "faceCount": 183,
+      "surfaceArea": 0.03628860057897823,
       "centroid": [
-        0.17737,
-        0.06619,
-        0.49267
+        0.1769751635106968,
+        0.48542820978468665,
+        -0.09969767003925765
       ],
+      "widthX": 0.14346331357955933,
+      "heightY": 0.1396639049053192,
+      "depthZ": 0.15463820844888687,
       "bbox": [
         [
-          0.1062,
-          0.0268,
-          0.4452
+          0.10145533084869385,
+          0.409249871969223,
+          -0.176699697971344
         ],
         [
-          0.2311,
-          0.1052,
-          0.5381
+          0.24491864442825317,
+          0.5489137768745422,
+          -0.022061489522457123
         ]
       ],
-      "widthX": 0.1248,
-      "connectedComponents": 1,
-      "classification": "routing_only"
+      "connectedComponents": 1
     },
     "right_ankle_transition": {
-      "faceCount": 868,
-      "triangleCount": 1736,
-      "surfaceArea": 0.052191,
+      "faceCount": 272,
+      "surfaceArea": 0.02856048655609079,
       "centroid": [
-        -0.25518,
-        -0.01782,
-        0.02304
+        -0.23546971457407667,
+        0.0774891670706555,
+        -0.12288560996781675
       ],
+      "widthX": 0.07535609602928162,
+      "heightY": 0.178898423910141,
+      "depthZ": 0.10257554799318314,
       "bbox": [
         [
-          -0.2926,
-          -0.0851,
-          0.0008
+          -0.2689853310585022,
+          0,
+          -0.1618061363697052
         ],
         [
-          -0.2007,
-          0.1273,
-          0.1594
+          -0.19362923502922058,
+          0.178898423910141,
+          -0.059230588376522064
         ]
       ],
-      "widthX": 0.092,
-      "connectedComponents": 1,
-      "classification": "routing_only"
+      "connectedComponents": 1
     },
     "left_ankle_transition": {
-      "faceCount": 736,
-      "triangleCount": 1472,
-      "surfaceArea": 0.049514,
+      "faceCount": 272,
+      "surfaceArea": 0.02855795563874206,
       "centroid": [
-        0.25713,
-        -0.00885,
-        0.02447
+        0.23558216021560513,
+        0.07748107104699184,
+        -0.12290032997763915
       ],
+      "widthX": 0.07521310448646545,
+      "heightY": 0.17877592146396637,
+      "depthZ": 0.10258272290229797,
       "bbox": [
         [
-          0.2007,
-          -0.0669,
-          0.0008
+          0.19377222657203674,
+          0,
+          -0.1618061363697052
         ],
         [
-          0.2926,
-          0.1274,
-          0.1588
+          0.2689853310585022,
+          0.17877592146396637,
+          -0.05922341346740723
         ]
       ],
-      "widthX": 0.092,
-      "connectedComponents": 1,
-      "classification": "routing_only"
+      "connectedComponents": 1
     },
-    "face_non_selectable": {
-      "faceCount": 301,
-      "triangleCount": 602,
-      "surfaceArea": 0.001876,
+    "full_chest_surface": {
+      "note": "merged from legacy pecs",
+      "faceCount": 638,
+      "widthX": 0.2885903095602771,
       "centroid": [
-        -0.00012,
-        -0.02002,
-        1.55575
-      ],
-      "bbox": [
-        [
-          -0.027,
-          -0.0299,
-          1.5404
-        ],
-        [
-          0.027,
-          -0.0111,
-          1.5685
-        ]
-      ],
-      "widthX": 0.054,
-      "connectedComponents": 1,
-      "classification": "non_selectable"
-    },
-    "genital_non_selectable": {
-      "faceCount": 643,
-      "triangleCount": 1286,
-      "surfaceArea": 0.324863,
-      "centroid": [
-        0.002,
-        0.14637,
-        0.44449
-      ],
-      "bbox": [
-        [
-          -0.2674,
-          0.0375,
-          0.0008
-        ],
-        [
-          0.2674,
-          0.232,
-          0.8983
-        ]
-      ],
-      "widthX": 0.5347,
-      "connectedComponents": 1,
-      "classification": "non_selectable"
+        0,
+        1.278082359484869,
+        0.014854573211637549
+      ]
     }
   },
   "landmarks": {
-    "body_height": 1.7342,
-    "shoulder_width": 0.34845,
-    "chest_width": 0.33103,
-    "waist_width": 0.73524,
-    "hip_width": 0.73524,
-    "neck_base": [
-      0.0,
-      -0.00549,
-      1.48047
-    ],
-    "upper_chest": [
-      0.0,
-      -0.02404,
-      1.40702
-    ],
-    "chest_lower": [
-      0.0,
-      0.00978,
-      1.06965
-    ],
-    "waist_level": [
-      0.0,
-      0.00421,
-      0.95514
-    ],
-    "pelvis": [
-      0.0,
-      -0.01372,
-      0.91834
-    ],
-    "clavicle_l": [
-      0.02351,
-      -0.02404,
-      1.40702
-    ],
-    "clavicle_r": [
-      -0.02351,
-      -0.02404,
-      1.40702
-    ],
-    "shoulder_l": [
-      0.17423,
-      -0.01984,
-      1.38419
-    ],
-    "shoulder_r": [
-      -0.17423,
-      -0.01984,
-      1.38419
-    ],
-    "elbow_l": [
-      0.27066,
-      -0.02216,
-      1.14552
-    ],
-    "elbow_r": [
-      -0.27066,
-      -0.02216,
-      1.14552
-    ],
-    "wrist_l": [
-      0.3371,
-      -0.2168,
-      1.00464
-    ],
-    "wrist_r": [
-      -0.3371,
-      -0.2168,
-      1.00464
-    ],
-    "hip_l": [
-      0.10633,
-      -0.00537,
-      0.9095
-    ],
-    "hip_r": [
-      -0.10633,
-      -0.00537,
-      0.9095
-    ],
-    "knee_l": [
-      0.16937,
-      -0.03829,
-      0.49012
-    ],
-    "knee_r": [
-      -0.16937,
-      -0.03829,
-      0.49012
-    ],
-    "ankle_l": [
-      0.2313,
-      -0.02068,
-      0.0726
-    ],
-    "ankle_r": [
-      -0.2313,
-      -0.02068,
-      0.0726
-    ],
-    "head": [
-      0.0,
-      -0.04437,
-      1.58483
-    ],
-    "nipple_l": [
-      0.06952,
-      -0.09404,
-      1.21134
-    ],
-    "nipple_r": [
-      -0.06952,
-      -0.09404,
-      1.21134
-    ],
-    "torso_center": [
-      0.0,
-      0.00978,
-      1.06965
-    ],
-    "body_up": [
-      0.0,
-      0.01465,
-      0.99989
-    ],
-    "body_front": [
-      0.0,
-      -0.99989,
-      0.01465
-    ],
-    "body_right": [
-      -1.0,
-      0.0,
-      0.0
-    ],
-    "axillary_z": 1.36419,
-    "sternum_x": 0.0
+    "sternum_x": 0
   },
   "validation": {
-    "totalFaces": 13378,
-    "classifiedFaces": 13378,
-    "unclassified": 0,
     "overlaps": 0,
-    "disconnectedSelectable": [
-      "head_top_surface",
-      "head_right_surface",
-      "head_back_surface",
-      "full_abdomen_region",
-      "right_biceps_surface",
-      "left_biceps_surface",
-      "right_triceps_surface",
-      "left_triceps_surface",
-      "right_hand_surface",
-      "left_hand_surface",
-      "right_foot_surface",
-      "left_foot_surface",
-      "left_hip_surface",
-      "right_hip_surface",
-      "left_glute_surface",
-      "right_glute_surface"
-    ],
+    "unclassified": 0,
     "leftRightMismatches": [],
-    "adjacencyEdgeCount": 116,
-    "method": "authoritative_geodesic_face_masks",
-    "sourceMeshHash": "1ffbed2c78fc3514",
-    "faceMasks": "assets/body-regions/neutro_body_v1_public_region_faces.json",
-    "posteriorTorsoSurfaceArea": 0.324132,
-    "fullBackSurfaceArea": 0.255573,
-    "backCoverageRatio": 0.7885,
     "pectoralPCA": {
       "right": {
-        "horizontalDominance": 0.6521,
-        "width": 0.1531,
-        "height": 0.2227,
-        "lambda1": 0.002838,
-        "lambda2": 0.000956
+        "width": 0.03374951342171892,
+        "height": 0.030750408150001986,
+        "horizontalDominance": 0.5232489063446539
       },
       "left": {
-        "horizontalDominance": 0.5251,
-        "width": 0.1206,
-        "height": 0.1989,
-        "lambda1": 0.001766,
-        "lambda2": 0.000522
+        "width": 0.03374957571953402,
+        "height": 0.03075058153710182,
+        "horizontalDominance": 0.5232479602375206
       }
-    }
+    },
+    "backCoverageRatio": 0.7920734584331512,
+    "intentionalUnassignedAreaRatio": 0.045152557964583916
   }
 }

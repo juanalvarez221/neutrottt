@@ -110,6 +110,11 @@ describe("body UX helpers", () => {
         "left_ribs",
         "right_thigh_outer",
       ],
+      selectedBodyPlacements: [
+        { regionId: "right_full_sleeve", coverage: "complete" },
+        { regionId: "left_ribs", coverage: "complete" },
+        { regionId: "right_thigh_outer", coverage: "complete" },
+      ],
     });
     expect(getConceptualSelectionCount(payload.selectedBodyTargets)).toBe(3);
 

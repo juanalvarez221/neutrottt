@@ -26,6 +26,10 @@ import {
   UPPER_BACK_GROUP,
 } from "@/widgets/body-3d/domain/bodyZones";
 import { PUBLIC_SELECTION_TARGETS_BY_ID } from "@/widgets/body-3d/domain/bodyPublicSelectionTargets";
+import {
+  resolveMemberIdsForCoverage,
+  stripCoverageToken,
+} from "@/widgets/body-3d/domain/bodyPublicSelectionCatalog";
 import { isAtomicZone, isParentZone } from "@/widgets/body-3d/domain/bodyZoneTypes";
 import type { SelectionTarget } from "@/widgets/body-3d/interaction/bodyInteractionTypes";
 
@@ -204,12 +208,21 @@ export const SELECTION_TARGETS_BY_ID: Readonly<
 
 /**
  * Expande un target (atomic / parent / group / commercial) a atomic IDs únicos.
+ * Soporta tokens de cobertura (`regionId@inner|outer`).
  */
 export function resolveTargetToAtomicZoneIds(
   targetId: string,
 ): readonly string[] {
+  const { regionId, coverage } = stripCoverageToken(targetId);
   const out = new Set<string>();
-  const queue: string[] = [targetId];
+  const coveredMembers = resolveMemberIdsForCoverage(
+    regionId,
+    coverage ?? "complete",
+  );
+  const queue: string[] =
+    coveredMembers.length > 0 && PUBLIC_SELECTION_TARGETS_BY_ID[regionId]
+      ? [...coveredMembers]
+      : [regionId];
   const visited = new Set<string>();
 
   while (queue.length > 0) {

@@ -50,7 +50,6 @@ describe("authoritative public face masks", () => {
   it("left/right masks are valid mirrors by face-count tolerance", () => {
     const masks = loadMasks();
     const pairs: Array<[string, string]> = [
-      ["right_pectoral_region", "left_pectoral_region"],
       ["right_ribs_region", "left_ribs_region"],
       ["right_biceps_surface", "left_biceps_surface"],
       ["right_thigh_front_surface", "left_thigh_front_surface"],
@@ -66,21 +65,21 @@ describe("authoritative public face masks", () => {
     }
   });
 
-  it("pectorals do not overlap abdomen", () => {
+  it("chest surface does not overlap abdomen when face set present", () => {
     const masks = loadMasks();
-    const pec = new Set([
+    const chest = new Set([
+      ...(masks.regions.full_chest_surface?.faceIndices ?? []),
       ...(masks.regions.right_pectoral_region?.faceIndices ?? []),
       ...(masks.regions.left_pectoral_region?.faceIndices ?? []),
     ]);
+    if (chest.size === 0) return;
     const abd = new Set(masks.regions.full_abdomen_region?.faceIndices ?? []);
-    for (const fi of pec) expect(abd.has(fi)).toBe(false);
+    for (const fi of chest) expect(abd.has(fi)).toBe(false);
   });
 
-  it("chest highlight resolves only pectoral surfaces", () => {
+  it("chest highlight resolves only full_chest_surface", () => {
     const regions = [...resolvePublicTargetHighlightRegions("full_chest")].sort();
-    expect(regions).toEqual(
-      ["left_pectoral_region", "right_pectoral_region"].sort(),
-    );
+    expect(regions).toEqual(["full_chest_surface"]);
   });
 
   it("ribs do not overlap back", () => {

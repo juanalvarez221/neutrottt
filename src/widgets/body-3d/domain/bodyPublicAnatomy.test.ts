@@ -41,11 +41,9 @@ describe("pectoralis orientation sanity", () => {
     expect(pca!.horizontalDominance).toBeGreaterThan(0.4);
   });
 
-  it("full chest only resolves pectoral surfaces", () => {
+  it("full chest only resolves full_chest_surface", () => {
     const ids = [...resolvePublicTargetHighlightRegions("full_chest")].sort();
-    expect(ids).toEqual(
-      ["left_pectoral_region", "right_pectoral_region"].sort(),
-    );
+    expect(ids).toEqual(["full_chest_surface"]);
   });
 });
 
@@ -53,6 +51,7 @@ describe("abdomen / ribs / back sanity", () => {
   it("abdomen does not include pectorals", () => {
     const ids = resolvePublicTargetHighlightRegions("full_abdomen");
     expect(ids).toEqual(["full_abdomen_region"]);
+    expect(ids).not.toContain("full_chest_surface");
     expect(ids).not.toContain("left_pectoral_region");
     expect(ids).not.toContain("right_pectoral_region");
   });
@@ -104,10 +103,10 @@ describe("geometric integrity", () => {
 
 describe("connected selection graph", () => {
   it("accepts adjacent chains and rejects distant targets", () => {
-    const ok = tryAddContiguousPublicTarget(["right_chest"], "full_abdomen");
+    const ok = tryAddContiguousPublicTarget(["full_chest"], "full_abdomen");
     expect(ok.ok).toBe(true);
     const distant = tryAddContiguousPublicTarget(
-      ["right_chest"],
+      ["full_chest"],
       "left_lower_leg_back",
     );
     expect(distant.ok).toBe(false);

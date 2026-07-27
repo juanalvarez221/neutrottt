@@ -16,6 +16,7 @@ import {
   PUBLIC_SELECTABLE_BODY_TARGET_IDS,
 } from "@/widgets/body-3d/domain/bodyPublicSelectionTargets";
 import { resolveTargetToAtomicZoneIds } from "@/widgets/body-3d/domain/bodySelectionTargets";
+import { resolvePublicTargetHighlightRegions } from "@/widgets/body-3d/domain/bodyPublicHighlightRegions";
 import { normalizeSelectedTargetIds } from "@/widgets/body-3d/interaction/bodySelectionEngine";
 import { normalizeQuoteBodyTargets } from "@/widgets/quote/quoteBodyLocation";
 
@@ -48,7 +49,7 @@ describe("public body selection taxonomy", () => {
     ]);
   });
 
-  it("full_chest highlight is pectorals only (no sternum / abdomen)", () => {
+  it("full_chest highlight is full_chest_surface only (no abdomen)", () => {
     expect(resolveTargetToAtomicZoneIds("full_chest")).toEqual([
       "left_chest",
       "right_chest",
@@ -57,6 +58,9 @@ describe("public body selection taxonomy", () => {
     expect(resolveTargetToAtomicZoneIds("full_chest")).not.toContain(
       "upper_abdomen",
     );
+    expect(resolvePublicTargetHighlightRegions("full_chest")).toEqual([
+      "full_chest_surface",
+    ]);
   });
 
   it("maps forearm faces to inner/outer regions", () => {
@@ -72,6 +76,17 @@ describe("public body selection taxonomy", () => {
     expect(getPrimaryPublicSelectionTarget("right_forearm_outer")).toBe(
       "right_forearm_outer_region",
     );
+  });
+
+  it("routes chest atomics to full_chest only (no public pectorals)", () => {
+    expect(getPrimaryPublicSelectionTarget("left_chest")).toBe("full_chest");
+    expect(getPrimaryPublicSelectionTarget("right_chest")).toBe("full_chest");
+    expect(getPrimaryPublicSelectionTarget("sternum")).toBe("full_chest");
+    expect(isPublicSelectableBodyTarget("left_chest")).toBe(false);
+    expect(isPublicSelectableBodyTarget("right_chest")).toBe(false);
+    expect(
+      getPublicSelectionOptionsForAtomicZone("left_chest").map((o) => o.targetId),
+    ).toEqual(["full_chest"]);
   });
 
   it("routes sternum to full chest", () => {

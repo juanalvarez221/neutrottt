@@ -4,6 +4,12 @@
  */
 
 import {
+  LEGACY_REGION_ID_MIGRATIONS,
+  parseBodyPlacementToken,
+  serializeBodyPlacement,
+  stripCoverageToken,
+} from "@/widgets/body-3d/domain/bodyPublicSelectionCatalog";
+import {
   getPublicSelectionTarget,
   isPublicSelectableBodyTarget,
   PUBLIC_PRODUCT_FLAGS,
@@ -39,6 +45,9 @@ export const ROUTING_ONLY_ATOMIC_ZONE_IDS: ReadonlySet<string> = new Set([
   "right_ear",
   "upper_abdomen",
   "lower_abdomen",
+  // Pectorales individuales: no públicos; enrutan a Pecho completo
+  "left_chest",
+  "right_chest",
   // face_left / face_right → NON_SELECTABLE_SURFACE cuando faceSelectable=false
   "head_left_side",
   "head_right_side",
@@ -142,163 +151,116 @@ const ATOMIC_PUBLIC_ROUTES: Record<string, RouteRule> = {
   // Hombros
   right_shoulder: {
     primary: "right_shoulder",
-    amplify: ["right_upper_half_sleeve", "right_full_sleeve"],
+    amplify: ["right_upper_arm", "right_full_sleeve"],
   },
   left_shoulder: {
     primary: "left_shoulder",
-    amplify: ["left_upper_half_sleeve", "left_full_sleeve"],
+    amplify: ["left_upper_arm", "left_full_sleeve"],
   },
 
   // Bíceps / tríceps
   right_upper_arm_front: {
     primary: "right_biceps_region",
-    amplify: [
-      "right_upper_arm",
-      "right_upper_half_sleeve",
-      "right_full_sleeve",
-    ],
+    amplify: ["right_upper_arm", "right_full_sleeve"],
   },
   right_upper_arm_inner: {
     primary: "right_biceps_region",
-    amplify: [
-      "right_upper_arm",
-      "right_upper_half_sleeve",
-      "right_full_sleeve",
-    ],
+    amplify: ["right_upper_arm", "right_full_sleeve"],
   },
   right_upper_arm_back: {
     primary: "right_triceps_region",
-    amplify: [
-      "right_upper_arm",
-      "right_upper_half_sleeve",
-      "right_full_sleeve",
-    ],
+    amplify: ["right_upper_arm", "right_full_sleeve"],
   },
   right_upper_arm_outer: {
     primary: "right_triceps_region",
-    amplify: [
-      "right_upper_arm",
-      "right_upper_half_sleeve",
-      "right_full_sleeve",
-    ],
+    amplify: ["right_upper_arm", "right_full_sleeve"],
   },
   left_upper_arm_front: {
     primary: "left_biceps_region",
-    amplify: ["left_upper_arm", "left_upper_half_sleeve", "left_full_sleeve"],
+    amplify: ["left_upper_arm", "left_full_sleeve"],
   },
   left_upper_arm_inner: {
     primary: "left_biceps_region",
-    amplify: ["left_upper_arm", "left_upper_half_sleeve", "left_full_sleeve"],
+    amplify: ["left_upper_arm", "left_full_sleeve"],
   },
   left_upper_arm_back: {
     primary: "left_triceps_region",
-    amplify: ["left_upper_arm", "left_upper_half_sleeve", "left_full_sleeve"],
+    amplify: ["left_upper_arm", "left_full_sleeve"],
   },
   left_upper_arm_outer: {
     primary: "left_triceps_region",
-    amplify: ["left_upper_arm", "left_upper_half_sleeve", "left_full_sleeve"],
+    amplify: ["left_upper_arm", "left_full_sleeve"],
   },
 
   // Codos (routing-only)
   right_elbow: {
     primary: "right_upper_arm",
-    amplify: [
-      "right_forearm",
-      "right_upper_half_sleeve",
-      "right_lower_half_sleeve",
-      "right_full_sleeve",
-    ],
+    amplify: ["right_forearm", "right_full_sleeve"],
   },
   left_elbow: {
     primary: "left_upper_arm",
-    amplify: [
-      "left_forearm",
-      "left_upper_half_sleeve",
-      "left_lower_half_sleeve",
-      "left_full_sleeve",
-    ],
+    amplify: ["left_forearm", "left_full_sleeve"],
   },
 
   // Antebrazo
   right_forearm_front: {
     primary: "right_forearm_inner_region",
-    amplify: [
-      "right_forearm",
-      "right_lower_half_sleeve",
-      "right_full_sleeve",
-    ],
+    amplify: ["right_forearm", "right_full_sleeve"],
   },
   right_forearm_inner: {
     primary: "right_forearm_inner_region",
-    amplify: [
-      "right_forearm",
-      "right_lower_half_sleeve",
-      "right_full_sleeve",
-    ],
+    amplify: ["right_forearm", "right_full_sleeve"],
   },
   right_forearm_back: {
     primary: "right_forearm_outer_region",
-    amplify: [
-      "right_forearm",
-      "right_lower_half_sleeve",
-      "right_full_sleeve",
-    ],
+    amplify: ["right_forearm", "right_full_sleeve"],
   },
   right_forearm_outer: {
     primary: "right_forearm_outer_region",
-    amplify: [
-      "right_forearm",
-      "right_lower_half_sleeve",
-      "right_full_sleeve",
-    ],
+    amplify: ["right_forearm", "right_full_sleeve"],
   },
   left_forearm_front: {
     primary: "left_forearm_inner_region",
-    amplify: ["left_forearm", "left_lower_half_sleeve", "left_full_sleeve"],
+    amplify: ["left_forearm", "left_full_sleeve"],
   },
   left_forearm_inner: {
     primary: "left_forearm_inner_region",
-    amplify: ["left_forearm", "left_lower_half_sleeve", "left_full_sleeve"],
+    amplify: ["left_forearm", "left_full_sleeve"],
   },
   left_forearm_back: {
     primary: "left_forearm_outer_region",
-    amplify: ["left_forearm", "left_lower_half_sleeve", "left_full_sleeve"],
+    amplify: ["left_forearm", "left_full_sleeve"],
   },
   left_forearm_outer: {
     primary: "left_forearm_outer_region",
-    amplify: ["left_forearm", "left_lower_half_sleeve", "left_full_sleeve"],
+    amplify: ["left_forearm", "left_full_sleeve"],
   },
 
   // Muñecas
   right_wrist: {
     primary: "right_forearm",
-    amplify: [
-      "right_lower_half_sleeve",
-      "right_full_sleeve",
-      "right_hand",
-    ],
+    amplify: ["right_full_sleeve", "right_hand"],
   },
   left_wrist: {
     primary: "left_forearm",
-    amplify: ["left_lower_half_sleeve", "left_full_sleeve", "left_hand"],
+    amplify: ["left_full_sleeve", "left_hand"],
   },
 
   // Manos
   right_hand: { primary: "right_hand" },
   left_hand: { primary: "left_hand" },
 
-  // Pecho / abdomen / costillas / costados
+  // Pecho: solo Pecho completo público (pectorales = routing-only)
   left_chest: {
-    primary: "left_chest",
-    amplify: ["full_chest"],
+    primary: "full_chest",
   },
   right_chest: {
-    primary: "right_chest",
-    amplify: ["full_chest"],
+    primary: "full_chest",
   },
   sternum: {
     primary: "full_chest",
   },
+
   upper_abdomen: { primary: "full_abdomen" },
   lower_abdomen: { primary: "full_abdomen" },
   left_ribs: {
@@ -488,36 +450,36 @@ const ATOMIC_PUBLIC_ROUTES: Record<string, RouteRule> = {
   // Cabeza / cuello / rostro
   head_top: {
     primary: "head_top",
-    amplify: ["full_scalp", "full_head"],
+    amplify: ["full_scalp"],
   },
   head_back: {
     primary: "head_back",
-    amplify: ["full_scalp", "full_head"],
+    amplify: ["full_scalp"],
   },
   head_left_side: {
     primary: "head_left_region",
-    amplify: ["full_scalp", "full_head"],
+    amplify: ["full_scalp"],
   },
   head_right_side: {
     primary: "head_right_region",
-    amplify: ["full_scalp", "full_head"],
+    amplify: ["full_scalp"],
   },
   left_ear: {
     primary: "head_left_region",
-    amplify: ["full_scalp", "full_head"],
+    amplify: ["full_scalp"],
   },
   right_ear: {
     primary: "head_right_region",
-    amplify: ["full_scalp", "full_head"],
+    amplify: ["full_scalp"],
   },
   face_left: {
     // Interno: full_face. Público solo si faceSelectable=true.
     primary: "full_face",
-    amplify: ["full_scalp", "full_head"],
+    amplify: ["full_scalp"],
   },
   face_right: {
     primary: "full_face",
-    amplify: ["full_scalp", "full_head"],
+    amplify: ["full_scalp"],
   },
   neck_front: {
     primary: "neck_front",
@@ -608,15 +570,41 @@ export function getPublicSelectionOptionsForAtomicZone(
 
 /**
  * Migra selecciones técnicas antiguas → targets públicos.
+ * Conserva cobertura canónica (`regionId@inner|outer`) cuando aplica.
  */
 export function upgradeBodySelectionToPublicTargets(
   targetIds: readonly string[],
 ): PublicBodySelectionTargetId[] {
   const out: string[] = [];
 
-  for (const id of targetIds) {
+  for (const raw of targetIds) {
+    const placement = parseBodyPlacementToken(raw);
+    const id = placement?.regionId ?? raw;
+    const coverage = placement?.coverage;
+
     if (isPublicSelectableBodyTarget(id)) {
-      out.push(id);
+      out.push(
+        serializeBodyPlacement({
+          regionId: id,
+          coverage,
+        }),
+      );
+      continue;
+    }
+
+    const legacy = LEGACY_REGION_ID_MIGRATIONS[id];
+    if (legacy && isPublicSelectableBodyTarget(legacy)) {
+      out.push(
+        serializeBodyPlacement({
+          regionId: legacy,
+          coverage,
+        }),
+      );
+      continue;
+    }
+
+    if (id === "full_ribs" || id === "full_flanks") {
+      out.push("left_ribs", "right_ribs");
       continue;
     }
 
@@ -624,47 +612,19 @@ export function upgradeBodySelectionToPublicTargets(
     const primary = getPrimaryPublicSelectionTarget(id);
     if (primary) {
       if (isPublicSelectableBodyTarget(primary)) {
-        out.push(primary);
+        out.push(serializeBodyPlacement({ regionId: primary, coverage }));
       }
-      // Si el primary está oculto (p. ej. full_face), no persistir nada desde ese atomic.
-      continue;
-    }
-
-    // Targets legacy anatómicos/comerciales no whitelisted
-    const legacyMap: Record<string, string> = {
-      upper_back: "upper_back_large",
-      mid_back: "upper_back_large",
-      lower_back: "lower_back_large",
-      back_torso: "full_back",
-      right_full_arm: "right_full_sleeve",
-      left_full_arm: "left_full_sleeve",
-      full_ribs: "left_ribs", // ambiguous — keep first? Better expand both
-      full_flanks: "left_flank",
-      front_torso: "full_chest",
-      full_torso: "full_chest",
-    };
-
-    if (id === "full_ribs") {
-      out.push("left_ribs", "right_ribs");
-      continue;
-    }
-    if (id === "full_flanks") {
-      out.push("left_ribs", "right_ribs");
-      continue;
-    }
-
-    const mapped = legacyMap[id];
-    if (mapped && isPublicSelectableBodyTarget(mapped)) {
-      out.push(mapped);
       continue;
     }
 
     // Si el ID resuelve atomics, mapear cada atomic a primary
-    const atomics = resolveTargetToAtomicZoneIds(id);
+    const atomics = resolveTargetToAtomicZoneIds(stripCoverageToken(id).regionId);
     if (atomics.length > 0) {
       for (const atomic of atomics) {
         const p = getPrimaryPublicSelectionTarget(atomic);
-        if (p && isPublicSelectableBodyTarget(p)) out.push(p);
+        if (p && isPublicSelectableBodyTarget(p)) {
+          out.push(serializeBodyPlacement({ regionId: p }));
+        }
       }
     }
   }

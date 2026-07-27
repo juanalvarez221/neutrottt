@@ -6,8 +6,13 @@
 import type { ContextualSelectionOption } from "@/widgets/body-3d/interaction/bodyInteractionTypes";
 import adjacencyData from "@/widgets/body-3d/domain/generated/publicRegionAdjacency.json";
 import { resolvePublicTargetHighlightRegions } from "@/widgets/body-3d/domain/bodyPublicHighlightRegions";
+import { stripCoverageToken } from "@/widgets/body-3d/domain/bodyPublicSelectionCatalog";
 import type { SelectionTargetId } from "@/widgets/body-3d/interaction/bodyInteractionTypes";
 import { normalizeSelectedTargetIds } from "@/widgets/body-3d/interaction/bodySelectionEngine";
+
+function bareRegionId(token: string): string {
+  return stripCoverageToken(token).regionId;
+}
 
 export type PublicBaseRegionId = string;
 
@@ -46,8 +51,8 @@ export function arePublicTargetsAdjacent(
   a: string,
   b: string,
 ): boolean {
-  const ra = resolvePublicTargetHighlightRegions(a);
-  const rb = resolvePublicTargetHighlightRegions(b);
+  const ra = resolvePublicTargetHighlightRegions(bareRegionId(a));
+  const rb = resolvePublicTargetHighlightRegions(bareRegionId(b));
   if (ra.length === 0 || rb.length === 0) return false;
   for (const x of ra) {
     for (const y of rb) {
@@ -134,7 +139,7 @@ export function normalizeConnectedBodySelection(
   const without = (...ids: string[]) =>
     next.filter((t) => !ids.includes(t));
 
-  // Full chest
+  // Full chest (legacy pair + canónico)
   if (has("left_chest") && has("right_chest")) {
     next = [...without("left_chest", "right_chest"), "full_chest"];
   }

@@ -55,11 +55,15 @@ export function PublicRegionAuditPanel({
   onSelectTarget,
   highlightedRegions,
   onCameraViewChange,
+  showUvRegionMaskDebug = false,
+  onShowUvRegionMaskDebugChange,
 }: {
   selectedTargetId: string | null;
   onSelectTarget: (id: string) => void;
   highlightedRegions: readonly PublicHighlightRegionId[];
   onCameraViewChange?: (view: BodyCameraView) => void;
+  showUvRegionMaskDebug?: boolean;
+  onShowUvRegionMaskDebugChange?: (value: boolean) => void;
 }) {
   const [query, setQuery] = useState("");
 
@@ -114,10 +118,21 @@ export function PublicRegionAuditPanel({
         Anatomical Region Review
       </p>
       <p className="mt-1 text-xs text-zinc-500">
-        Public Anatomy QA · debug-only · adjacency:{" "}
-        {PUBLIC_REGION_ADJACENCY_EDGE_COUNT} · meshes:{" "}
+        Public Anatomy QA · UV Region Mask · adjacency:{" "}
+        {PUBLIC_REGION_ADJACENCY_EDGE_COUNT} · regions:{" "}
         {PUBLIC_HIGHLIGHT_REGION_IDS.length}
       </p>
+      <label className="mt-3 flex min-h-[40px] cursor-pointer items-center gap-2.5 rounded-lg border border-white/8 bg-black/30 px-3 py-2 text-sm text-zinc-200 transition hover:bg-white/[0.04]">
+        <input
+          type="checkbox"
+          checked={showUvRegionMaskDebug}
+          onChange={(event) =>
+            onShowUvRegionMaskDebugChange?.(event.target.checked)
+          }
+          className="accent-stone-400"
+        />
+        UV Region Mask (debug rainbow)
+      </label>
       <div className="mt-3 flex flex-wrap gap-1.5">
         {(
           [

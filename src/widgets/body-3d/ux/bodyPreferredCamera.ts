@@ -48,6 +48,8 @@ const PREFERRED_VIEW_OVERRIDES: Readonly<Record<string, PreferredBodyView>> = {
   full_abdomen: "front",
   right_ribs: "front-right",
   right_ribs_region: "front-right",
+  left_ribs: "front-left",
+  left_ribs_region: "front-left",
   right_biceps_region: "front-right",
   left_biceps_region: "front-left",
   right_triceps_region: "back-right",

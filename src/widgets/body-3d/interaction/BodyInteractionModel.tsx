@@ -14,6 +14,10 @@ import {
 import { BODY_81_INTERACTION_MODEL_SRC } from "@/widgets/body-3d/domain/bodyZones";
 import { interactionMeshNameToAtomicId } from "@/widgets/body-3d/interaction/bodyInteractionLabels";
 import { CLICK_DRAG_THRESHOLD_PX } from "@/widgets/body-3d/interaction/bodyInteractionTypes";
+import {
+  prefetchPublicRegionMaskRaster,
+  resolvePublicHitFromUv,
+} from "@/widgets/body-3d/interaction/bodyPublicMaskHit";
 
 function disposeMaterial(material: Material | Material[]) {
   if (Array.isArray(material)) {
@@ -64,6 +68,7 @@ type PointerSession = {
   x: number;
   y: number;
   atomicId: string | null;
+  uv: { x: number; y: number } | null;
 };
 
 export type BodyInteractionModelProps = {
@@ -81,6 +86,7 @@ export type BodyInteractionModelProps = {
 /**
  * Capa invisible raycasteable del InteractionModel (81 zonas).
  * No aporta apariencia al BodyVisual.
+ * Public hit authority: categorical UV mask (not mesh name partitions).
  */
 export function BodyInteractionModel({
   rotation = [0, 0, 0],
@@ -95,49 +101,58 @@ export function BodyInteractionModel({
   const prepared = useMemo(() => prepareInvisibleRaycastScene(scene), [scene]);
   const sessionRef = useRef<PointerSession | null>(null);
   const onReadyRef = useRef(onReady);
+  const hoverSeq = useRef(0);
 
   useLayoutEffect(() => {
     onReadyRef.current = onReady;
   }, [onReady]);
 
   useLayoutEffect(() => {
+    prefetchPublicRegionMaskRaster();
     onReadyRef.current?.();
-  }, [prepared]);
-
-  useLayoutEffect(() => {
     return () => {
-      for (const mat of prepared.materials) {
-        disposeMaterial(mat);
-      }
+      for (const mat of prepared.materials) disposeMaterial(mat);
     };
   }, [prepared]);
 
-  function atomicFromEvent(event: ThreeEvent<PointerEvent>): string | null {
+  function atomicFromEvent(event: ThreeEvent<PointerEvent>) {
     return interactionMeshNameToAtomicId(event.object.name);
+  }
+
+  function uvFromEvent(event: ThreeEvent<PointerEvent>) {
+    const uv = event.uv;
+    return uv ? { x: uv.x, y: uv.y } : null;
   }
 
   function handlePointerMove(event: ThreeEvent<PointerEvent>) {
     if (!enabled) return;
     event.stopPropagation();
-    onHoverAtomicZone(atomicFromEvent(event));
+    const atomicId = atomicFromEvent(event);
+    const uv = uvFromEvent(event);
     onHoverPointer?.({ x: event.clientX, y: event.clientY });
+    const seq = ++hoverSeq.current;
+    void resolvePublicHitFromUv(uv, atomicId).then((hit) => {
+      if (seq !== hoverSeq.current) return;
+      onHoverAtomicZone(hit.effectiveAtomicId);
+    });
   }
 
   function handlePointerOut() {
     if (!enabled) return;
+    hoverSeq.current += 1;
     onHoverAtomicZone(null);
     onHoverPointer?.(null);
   }
 
   function handlePointerDown(event: ThreeEvent<PointerEvent>) {
     if (!enabled) return;
-    // Only primary button / touch
     if (event.button !== undefined && event.button !== 0) return;
     event.stopPropagation();
     sessionRef.current = {
       x: event.clientX,
       y: event.clientY,
       atomicId: atomicFromEvent(event),
+      uv: uvFromEvent(event),
     };
   }
 
@@ -150,18 +165,41 @@ export function BodyInteractionModel({
 
     const dx = event.clientX - start.x;
     const dy = event.clientY - start.y;
-    // Drag → OrbitControls; click/tap → activate zone menu
     if (Math.hypot(dx, dy) >= CLICK_DRAG_THRESHOLD_PX) return;
 
-    const id = atomicFromEvent(event) ?? start.atomicId;
-    if (id) {
-      event.stopPropagation();
-      onActivateAtomicZone(id);
-    }
+    const atomicId = atomicFromEvent(event) ?? start.atomicId;
+    const uv = uvFromEvent(event) ?? start.uv;
+    if (!atomicId) return;
+    event.stopPropagation();
+    void resolvePublicHitFromUv(uv, atomicId).then((hit) => {
+      const effective = hit.effectiveAtomicId ?? atomicId;
+      if (typeof window !== "undefined") {
+        (
+          window as unknown as {
+            __neutroLastHit?: {
+              atomicId: string | null;
+              publicTargetId: string | null;
+              maskIndex?: number;
+              via: string;
+            };
+          }
+        ).__neutroLastHit = {
+          atomicId: effective,
+          publicTargetId: hit.publicTargetId,
+          maskIndex: hit.maskIndex,
+          via: "pointer",
+        };
+      }
+      onActivateAtomicZone(effective);
+    });
   }
 
   return (
-    <group rotation={rotation} scale={[scale, scale, scale]}>
+    <group
+      name="NeutroInteractionRoot"
+      rotation={rotation}
+      scale={[scale, scale, scale]}
+    >
       <primitive
         object={prepared.cloned}
         onPointerMove={handlePointerMove}

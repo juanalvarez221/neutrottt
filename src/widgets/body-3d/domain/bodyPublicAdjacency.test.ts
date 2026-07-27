@@ -30,13 +30,12 @@ describe("public region adjacency graph", () => {
     expect(n).toContain("lower_back_region");
   });
 
-  it("pectorals are adjacent to abdomen or each other via sternum continuity", () => {
-    const left = getAdjacentPublicBaseRegions("left_pectoral_region");
-    const right = getAdjacentPublicBaseRegions("right_pectoral_region");
+  it("pectorals are adjacent to abdomen via full_chest_surface", () => {
+    const chest = getAdjacentPublicBaseRegions("full_chest_surface");
     expect(
-      left.includes("right_pectoral_region") ||
-        left.includes("full_abdomen_region") ||
-        right.includes("full_abdomen_region"),
+      chest.includes("full_abdomen_region") ||
+        chest.includes("left_ribs_region") ||
+        chest.includes("right_ribs_region"),
     ).toBe(true);
   });
 });
@@ -44,7 +43,7 @@ describe("public region adjacency graph", () => {
 describe("contiguous selection", () => {
   it("blocks distant regions", () => {
     const result = tryAddContiguousPublicTarget(
-      ["right_chest"],
+      ["full_chest"],
       "left_lower_leg_back",
     );
     expect(result.ok).toBe(false);
@@ -54,7 +53,7 @@ describe("contiguous selection", () => {
   });
 
   it("allows adjacent chest + abdomen", () => {
-    const result = tryAddContiguousPublicTarget(["right_chest"], "full_abdomen");
+    const result = tryAddContiguousPublicTarget(["full_chest"], "full_abdomen");
     expect(result.ok).toBe(true);
     if (result.ok) {
       expect(isPublicSelectionContiguous(result.next)).toBe(true);

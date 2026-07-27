@@ -139,14 +139,15 @@ export const BODY_PUBLIC_SELECTION_CATALOG: readonly PublicBodyCatalogEntry[] = 
   entry({
     id: "left_ribs",
     shortLabel: "Costillas izquierdas",
-    description: "Rejilla costal izquierda",
+    description: "Superficie lateral izquierda del torso",
     side: "left",
     surface: "lateral",
     category: "torso",
     supportedCoverages: COMPLETE_ONLY,
-    preferredView: "left",
+    preferredView: "front-left",
     focusSection: "torso",
     memberIds: ["left_ribs"],
+    fullLabel: "Costillas izquierdas · Superficie lateral izquierda del torso",
   }),
   entry({
     id: "upper_back_large",

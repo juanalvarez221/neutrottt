@@ -15,8 +15,13 @@ export {
   createEmptySelectionState,
 } from "@/widgets/body-3d/interaction/bodySelectionEngine";
 export { BodyInteractionModel } from "@/widgets/body-3d/interaction/BodyInteractionModel";
+export { BodyHitTestBridge } from "@/widgets/body-3d/interaction/BodyHitTestBridge";
 export { BodyZoneHighlight } from "@/widgets/body-3d/interaction/BodyZoneHighlight";
 export { BodyPublicRegionHighlight } from "@/widgets/body-3d/interaction/BodyPublicRegionHighlight";
+export {
+  BodyPublicRegionMaskHighlight,
+  BodyPublicRegionMaskDebug,
+} from "@/widgets/body-3d/interaction/BodyPublicRegionMaskHighlight";
 export { BodyInteractionLabPanel } from "@/widgets/body-3d/interaction/BodyInteractionLabPanel";
 export { getPublicSelectionOptionsForAtomicZone } from "@/widgets/body-3d/domain/bodyPublicSelectionRouting";
 export {

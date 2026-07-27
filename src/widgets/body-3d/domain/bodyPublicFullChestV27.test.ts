@@ -91,7 +91,7 @@ describe("full_chest V2.7 official C07 promotion", () => {
 
   it("official manifest registers C07 with hash-versioned metadata", () => {
     // Manifest version advances with multi-region promotions (V3.3 abdomen).
-    expect(["2.7", "3.3", "4.2"]).toContain(manifest.version);
+    expect(["2.7", "3.3", "4.2", "4.4"]).toContain(manifest.version);
     expect(entry.regionId).toBe("full_chest");
     expect(entry.geometryHash).toBe("c62e81edaa1f");
     expect(entry.indexHash).toBe("52494d471398c");

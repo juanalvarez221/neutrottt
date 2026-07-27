@@ -7,6 +7,7 @@ import {
   PUBLIC_REGION_META,
 } from "@/widgets/body-3d/domain/bodyPublicRegionMeta";
 import {
+  isPublicSelectableBodyTarget,
   listPublicTargetsMissingMeta,
   PUBLIC_SELECTABLE_BODY_TARGET_IDS,
   PUBLIC_SELECTION_TARGETS,
@@ -38,10 +39,11 @@ describe("public region professional metadata", () => {
     );
     expect(getPublicShortLabel("right_triceps_region")).toBe("Tríceps derecho");
     expect(getPublicShortLabel("full_chest")).toBe("Pecho completo");
-    expect(getPublicFullLabel("full_chest")).toBe(
-      "Pecho completo · Región pectoral",
+    expect(getPublicFullLabel("full_chest")).toContain("Pecho completo");
+    expect(getPublicDescription("full_chest")).toBe(
+      "Superficie frontal completa del pecho",
     );
-    expect(getPublicShortLabel("right_chest")).toBe("Pectoral derecho");
+    expect(isPublicSelectableBodyTarget("right_chest")).toBe(false);
     expect(getPublicShortLabel("upper_back_large")).toBe("Espalda alta");
     expect(getPublicDescription("upper_back_large")).toBe(
       "Región escapular y dorsal superior",

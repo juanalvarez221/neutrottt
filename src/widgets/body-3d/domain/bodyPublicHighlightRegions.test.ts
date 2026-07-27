@@ -48,8 +48,7 @@ describe("public highlight region resolution", () => {
 
   it("full_chest public highlight resolves correctly", () => {
     expect(resolvePublicTargetHighlightRegions("full_chest")).toEqual([
-      "left_pectoral_region",
-      "right_pectoral_region",
+      "full_chest_surface",
     ]);
   });
 
@@ -75,7 +74,8 @@ describe("public highlight region resolution", () => {
     expect(ids).toContain("right_knee_transition");
     expect(ids).toContain("right_shin_surface");
     expect(ids).toContain("right_calf_surface");
-    expect(ids).toContain("right_foot_surface");
+    // Pie no se incluye automáticamente en Pierna completa
+    expect(ids).not.toContain("right_foot_surface");
   });
 
   it("dedupes compound selections", () => {

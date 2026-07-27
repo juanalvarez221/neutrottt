@@ -35,6 +35,11 @@ import {
   getPublicDescription,
   getPublicShortLabel,
 } from "@/widgets/body-3d/domain/bodyPublicRegionMeta";
+import {
+  regionSupportsCoverage,
+  serializeBodyPlacement,
+  type BodyCoverage,
+} from "@/widgets/body-3d/domain/bodyPublicSelectionCatalog";
 import { resolveTargetToAtomicZoneIds } from "@/widgets/body-3d/domain/bodySelectionTargets";
 import {
   getCameraFocusForAtomicZone,
@@ -168,6 +173,9 @@ export function BodyPremiumSelector({
   const [confirmedTargetId, setConfirmedTargetId] = useState<string | null>(
     null,
   );
+  const [stagingRegionId, setStagingRegionId] = useState<string | null>(null);
+  const [stagingCoverage, setStagingCoverage] =
+    useState<BodyCoverage>("complete");
   const [layoutMode, setLayoutMode] =
     useState<SelectorLayoutMode>("desktop-medium");
   const [viewportWidth, setViewportWidth] = useState(1280);
@@ -237,14 +245,28 @@ export function BodyPremiumSelector({
   );
 
   const previewPublicRegionIds = useMemo(() => {
-    if (previewTargetId && isPublicSelectableBodyTarget(previewTargetId)) {
-      return [...resolvePublicTargetHighlightRegions(previewTargetId)];
+    const staged =
+      stagingRegionId && isPublicSelectableBodyTarget(stagingRegionId)
+        ? serializeBodyPlacement({
+            regionId: stagingRegionId,
+            coverage: stagingCoverage,
+          })
+        : null;
+    const sourceId = staged ?? previewTargetId;
+    if (sourceId && isPublicSelectableBodyTarget(sourceId)) {
+      return [...resolvePublicTargetHighlightRegions(sourceId)];
     }
     const source = activeAtomicZoneId ?? hoveredAtomicZoneId;
     if (!source) return [];
     const primary = getPrimaryPublicSelectionTarget(source);
     return primary ? [...resolvePublicTargetHighlightRegions(primary)] : [];
-  }, [activeAtomicZoneId, hoveredAtomicZoneId, previewTargetId]);
+  }, [
+    activeAtomicZoneId,
+    hoveredAtomicZoneId,
+    previewTargetId,
+    stagingCoverage,
+    stagingRegionId,
+  ]);
 
   // Legacy atomic highlight path kept for contained-selection helpers only.
   const regionHighlightIds = useMemo(() => {
@@ -369,6 +391,8 @@ export function BodyPremiumSelector({
       setActiveAtomicZoneId(null);
       setConfirmedTargetId(null);
       setPreviewTargetId(null);
+      setStagingRegionId(null);
+      setStagingCoverage("complete");
       setShowContainedOverride(false);
       setReplacingTargetId(null);
       setDistantCandidateId(null);
@@ -385,6 +409,8 @@ export function BodyPremiumSelector({
     setShowContainedOverride(false);
     setReplacingTargetId(null);
     setPreviewTargetId(null);
+    setStagingRegionId(null);
+    setStagingCoverage("complete");
     setSheetMode("zone");
     setSheetState("peek");
 
@@ -400,29 +426,30 @@ export function BodyPremiumSelector({
     }
   }
 
-  function handleSelectOption(targetId: string) {
+  function commitStagedSelection(targetToken: string) {
     if (replacingTargetId) {
       const next = replaceContainingSelection(
         selectedTargetIds,
         replacingTargetId,
-        targetId,
+        targetToken,
       );
       commitTargets(normalizeConnectedBodySelection(next));
       setActiveAtomicZoneId(null);
       setPreviewTargetId(null);
+      setStagingRegionId(null);
       setShowContainedOverride(false);
       setReplacingTargetId(null);
       setDistantCandidateId(null);
-      setConfirmedTargetId(targetId);
+      setConfirmedTargetId(targetToken);
       setSheetMode("zone");
       setSheetState(isCoarsePointer ? "peek" : "closed");
-      orientCameraToPublicTarget(targetId);
+      orientCameraToPublicTarget(targetToken);
       return;
     }
 
-    const result = tryAddContiguousPublicTarget(selectedTargetIds, targetId);
+    const result = tryAddContiguousPublicTarget(selectedTargetIds, targetToken);
     if (!result.ok) {
-      setDistantCandidateId(targetId);
+      setDistantCandidateId(targetToken);
       setSurfaceNotice(result.message);
       return;
     }
@@ -430,13 +457,40 @@ export function BodyPremiumSelector({
     commitTargets(result.next);
     setActiveAtomicZoneId(null);
     setPreviewTargetId(null);
+    setStagingRegionId(null);
     setShowContainedOverride(false);
     setReplacingTargetId(null);
     setDistantCandidateId(null);
-    setConfirmedTargetId(targetId);
+    setConfirmedTargetId(targetToken);
     setSheetMode("zone");
     setSheetState(isCoarsePointer ? "peek" : "closed");
+    orientCameraToPublicTarget(targetToken);
+  }
+
+  function handleSelectOption(targetId: string) {
+    if (regionSupportsCoverage(targetId)) {
+      setStagingRegionId(targetId);
+      setStagingCoverage("complete");
+      setPreviewTargetId(targetId);
+      orientCameraToPublicTarget(targetId);
+      setSheetState(isCoarsePointer ? "expanded" : "peek");
+      return;
+    }
+
+    // Regiones sin cobertura: staging mínimo + confirmar (mismo patrón UX)
+    setStagingRegionId(targetId);
+    setStagingCoverage("complete");
+    setPreviewTargetId(targetId);
     orientCameraToPublicTarget(targetId);
+  }
+
+  function handleConfirmStaging() {
+    if (!stagingRegionId) return;
+    const token = serializeBodyPlacement({
+      regionId: stagingRegionId,
+      coverage: stagingCoverage,
+    });
+    commitStagedSelection(token);
   }
 
   function handleSwitchToDistantZone() {
@@ -447,6 +501,7 @@ export function BodyPremiumSelector({
     setDistantCandidateId(null);
     setSurfaceNotice(null);
     setActiveAtomicZoneId(null);
+    setStagingRegionId(null);
     setSheetState(isCoarsePointer ? "peek" : "closed");
   }
 
@@ -459,6 +514,8 @@ export function BodyPremiumSelector({
     setActiveAtomicZoneId(null);
     setConfirmedTargetId(null);
     setPreviewTargetId(null);
+    setStagingRegionId(null);
+    setStagingCoverage("complete");
     setSheetState("closed");
     setShowContainedOverride(false);
     setReplacingTargetId(null);
@@ -515,8 +572,26 @@ export function BodyPremiumSelector({
         },
         replacingTargetId,
         enablePreview: !isCoarsePointer,
-        panelTitle: panelPrimaryLabel,
-        panelSubtitle,
+        panelTitle: stagingRegionId
+          ? getPublicShortLabel(stagingRegionId)
+          : panelPrimaryLabel,
+        panelSubtitle: stagingRegionId
+          ? getPublicDescription(stagingRegionId)
+          : panelSubtitle,
+        stagingRegionId,
+        stagingCoverage,
+        onStagingCoverageChange: (coverage: BodyCoverage) => {
+          setStagingCoverage(coverage);
+          if (stagingRegionId) {
+            setPreviewTargetId(
+              serializeBodyPlacement({
+                regionId: stagingRegionId,
+                coverage,
+              }),
+            );
+          }
+        },
+        onConfirmStaging: handleConfirmStaging,
       }
     : null;
 

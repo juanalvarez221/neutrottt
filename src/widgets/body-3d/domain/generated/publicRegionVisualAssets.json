@@ -1,6 +1,6 @@
 {
-  "version": "4.2",
-  "note": "SDF UV retired for full_chest, full_abdomen, and right_ribs. Visual authority is the Geometry Distance Field sidecar.",
+  "version": "4.4",
+  "note": "SDF UV retired for full_chest, full_abdomen, right_ribs, and left_ribs. Visual authority is the Geometry Distance Field sidecar.",
   "assets": [
     {
       "regionId": "full_chest",
@@ -18,6 +18,12 @@
       "visualRegionId": "right_ribs_surface",
       "surfaceRegionId": "right_ribs_region",
       "maskIndex": 13
+    },
+    {
+      "regionId": "left_ribs",
+      "visualRegionId": "left_ribs_surface",
+      "surfaceRegionId": "left_ribs_region",
+      "maskIndex": 12
     }
   ]
 }

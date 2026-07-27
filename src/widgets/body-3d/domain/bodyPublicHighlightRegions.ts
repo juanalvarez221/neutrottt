@@ -1,15 +1,23 @@
 /**
  * PublicRegionHighlightModel — geometría visual de highlights públicos.
  * Independiente del InteractionModel (81 zonas / raycast).
+ *
+ * Autoridad visual premium: UV anatomical region mask (BodyPublicRegionMaskHighlight).
+ * Este GLB es legacy / audit (face-set), no el overlay high-res experimental.
  */
+
+import {
+  normalizeCoverageForRegion,
+  stripCoverageToken,
+  type BodyCoverage,
+} from "@/widgets/body-3d/domain/bodyPublicSelectionCatalog";
 
 export const BODY_PUBLIC_REGIONS_MODEL_SRC =
   "/models/interaction/neutro_body_v1_public_regions.glb";
 
 /** Mesh IDs en el GLB (sin prefijo public_). */
 export const PUBLIC_HIGHLIGHT_REGION_IDS = [
-  "left_pectoral_region",
-  "right_pectoral_region",
+  "full_chest_surface",
   "full_abdomen_region",
   "left_ribs_region",
   "right_ribs_region",
@@ -92,10 +100,14 @@ const TARGET_TO_PUBLIC_HIGHLIGHT: Readonly<
   upper_back_large: ["upper_back_region"],
   lower_back_large: ["lower_back_region"],
 
-  // Pecho / torso
-  full_chest: ["left_pectoral_region", "right_pectoral_region"],
-  left_chest: ["left_pectoral_region"],
-  right_chest: ["right_pectoral_region"],
+  // Pecho / torso — única superficie visual pública
+  full_chest_surface: ["full_chest_surface"],
+  full_chest: ["full_chest_surface"],
+  left_chest: ["full_chest_surface"],
+  right_chest: ["full_chest_surface"],
+  // Aliases legacy (mismo mask ID; no renderizar por separado)
+  left_pectoral_region: ["full_chest_surface"],
+  right_pectoral_region: ["full_chest_surface"],
   full_abdomen: ["full_abdomen_region"],
   left_ribs: ["left_ribs_region"],
   right_ribs: ["right_ribs_region"],
@@ -220,7 +232,6 @@ const TARGET_TO_PUBLIC_HIGHLIGHT: Readonly<
     "right_shin_surface",
     "right_calf_surface",
     "right_ankle_transition",
-    "right_foot_surface",
   ],
   left_full_leg: [
     "left_thigh_front_surface",
@@ -231,7 +242,6 @@ const TARGET_TO_PUBLIC_HIGHLIGHT: Readonly<
     "left_shin_surface",
     "left_calf_surface",
     "left_ankle_transition",
-    "left_foot_surface",
   ],
   right_foot: ["right_foot_surface"],
   left_foot: ["left_foot_surface"],
@@ -275,8 +285,32 @@ const TARGET_TO_PUBLIC_HIGHLIGHT: Readonly<
 
 export function resolvePublicTargetHighlightRegions(
   targetId: string,
+  coverage?: BodyCoverage,
 ): readonly PublicHighlightRegionId[] {
-  return TARGET_TO_PUBLIC_HIGHLIGHT[targetId] ?? [];
+  const parsed = stripCoverageToken(targetId);
+  const regionId = parsed.regionId;
+  const cov = normalizeCoverageForRegion(
+    regionId,
+    coverage ?? parsed.coverage,
+  );
+  const base = TARGET_TO_PUBLIC_HIGHLIGHT[regionId] ?? [];
+  if (cov === "complete" || base.length === 0) return base;
+
+  const innerHints = ["inner", "biceps", "front", "shin"];
+  const outerHints = ["outer", "triceps", "back", "calf"];
+  const hints = cov === "inner" ? innerHints : outerHints;
+  const filtered = base.filter((id) => hints.some((h) => id.includes(h)));
+  // Mantener transiciones de articulación en cobertura parcial (continuidad)
+  const withJoints = base.filter(
+    (id) =>
+      filtered.includes(id) ||
+      id.includes("elbow") ||
+      id.includes("wrist") ||
+      id.includes("knee") ||
+      id.includes("ankle") ||
+      id.includes("shoulder"),
+  );
+  return filtered.length > 0 ? withJoints : base;
 }
 
 export function resolvePublicTargetsHighlightRegions(

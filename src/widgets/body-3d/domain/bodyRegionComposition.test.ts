@@ -71,13 +71,13 @@ describe("public region composition — exact atomic sets", () => {
     expect(ids).not.toContain("right_hand");
   });
 
-  it("full leg includes thigh through foot", () => {
+  it("full leg includes thigh through ankle and excludes foot", () => {
     const ids = resolveTargetToAtomicZoneIds("right_full_leg");
     expect(ids).toContain("right_thigh_front");
     expect(ids).toContain("right_knee");
     expect(ids).toContain("right_lower_leg_front");
     expect(ids).toContain("right_ankle");
-    expect(ids).toContain("right_foot");
+    expect(ids).not.toContain("right_foot");
   });
 });
 

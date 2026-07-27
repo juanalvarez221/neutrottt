@@ -117,8 +117,8 @@ describe("right_ribs V4.2 official assets", () => {
     expect(ribs!.visualRegionId).toBe("right_ribs_surface");
     expect(ribs!.surfaceRegionId).toBe("right_ribs_region");
     expect(ribs!.maskIndex).toBe(13);
-    expect(regionFields.version).toBe("4.2");
-    expect(regionFields.fields).toHaveLength(3);
+    expect(regionFields.version).toBe("4.4");
+    expect(regionFields.fields).toHaveLength(4);
 
     const fieldBin = readFileSync(
       path.join(FIELDS, "neutro_body_v1_right_ribs_sdf.bin"),
@@ -154,6 +154,9 @@ describe("right_ribs V4.2 official assets", () => {
     expect(maskManifest.regions.full_chest_surface.maskIndex).toBe(9);
     expect(maskManifest.regions.full_abdomen_region.maskIndex).toBe(11);
     expect(visualAssets.assets.some((a) => a.regionId === "right_ribs")).toBe(
+      true,
+    );
+    expect(visualAssets.assets.some((a) => a.regionId === "left_ribs")).toBe(
       true,
     );
   });

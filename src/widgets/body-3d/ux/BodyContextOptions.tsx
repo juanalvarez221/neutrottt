@@ -1,5 +1,5 @@
 /**
- * Opciones contextuales de producción: zona primaria + ampliar.
+ * Opciones contextuales de producción: zona primaria + ampliar + cobertura.
  * También soporta tiers legacy (exact/region/broad) para el lab técnico.
  */
 
@@ -9,6 +9,12 @@ import type { ContextualSelectionOption } from "@/widgets/body-3d/interaction/bo
 import type { ContainedSelectionInfo } from "@/widgets/body-3d/ux/bodyContainedSelection";
 import { splitZoneLabel } from "@/widgets/body-3d/ux/bodyUxCopy";
 import { getSelectionDisplayLabel } from "@/widgets/body-3d/interaction/bodyInteractionLabels";
+import {
+  COVERAGE_LABELS,
+  getSupportedCoverages,
+  regionSupportsCoverage,
+  type BodyCoverage,
+} from "@/widgets/body-3d/domain/bodyPublicSelectionCatalog";
 
 export type ContextOptionsMode = "full" | "peek" | "expanded";
 
@@ -28,6 +34,11 @@ type BodyContextOptionsProps = {
   /** Título de panel (región pública primaria). */
   panelTitle?: string | null;
   panelSubtitle?: string | null;
+  /** Región en staging (antes de confirmar / con cobertura). */
+  stagingRegionId?: string | null;
+  stagingCoverage?: BodyCoverage;
+  onStagingCoverageChange?: (coverage: BodyCoverage) => void;
+  onConfirmStaging?: () => void;
 };
 
 function isPublicTier(tier: ContextualSelectionOption["tier"]) {
@@ -49,6 +60,10 @@ export function BodyContextOptions({
   className = "",
   panelTitle = null,
   panelSubtitle = null,
+  stagingRegionId = null,
+  stagingCoverage = "complete",
+  onStagingCoverageChange,
+  onConfirmStaging,
 }: BodyContextOptionsProps) {
   const parts = splitZoneLabel(activeAtomicZoneId);
   const selectedSet = new Set(selectedTargetIds);
@@ -99,17 +114,29 @@ export function BodyContextOptions({
   }
 
   if (usesPublic) {
-    const showPrimary = mode !== "expanded";
-    const showAmplify = mode !== "peek";
+    const showPrimary = mode !== "expanded" && !stagingRegionId;
+    const showAmplify = mode !== "peek" && !stagingRegionId;
     const title =
       panelTitle ??
       primary[0]?.label ??
       getSelectionDisplayLabel(activeAtomicZoneId);
+    const stagingSupports =
+      stagingRegionId != null && regionSupportsCoverage(stagingRegionId);
+    const stagingCoverages = stagingRegionId
+      ? getSupportedCoverages(stagingRegionId)
+      : [];
 
     return (
       <div className={className}>
         {mode !== "expanded" ? (
-          <PanelHeader title={title} subtitle={panelSubtitle} />
+          <PanelHeader
+            title={
+              stagingRegionId
+                ? getSelectionDisplayLabel(stagingRegionId)
+                : title
+            }
+            subtitle={panelSubtitle}
+          />
         ) : (
           <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-500">
             Ampliar selección
@@ -143,7 +170,7 @@ export function BodyContextOptions({
               onPreviewOption={onPreviewOption}
             />
           ) : null}
-          {mode === "peek" && amplify.length > 0 ? (
+          {mode === "peek" && amplify.length > 0 && !stagingRegionId ? (
             <OptionGroup
               title={null}
               options={amplify.slice(0, 2)}
@@ -152,6 +179,44 @@ export function BodyContextOptions({
               onSelectOption={onSelectOption}
               onPreviewOption={onPreviewOption}
             />
+          ) : null}
+
+          {stagingRegionId && stagingSupports ? (
+            <div>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-500">
+                Cobertura
+              </p>
+              <div className="mt-2 grid grid-cols-3 gap-1.5">
+                {stagingCoverages.map((cov) => {
+                  const active = stagingCoverage === cov;
+                  return (
+                    <button
+                      key={cov}
+                      type="button"
+                      onClick={() => onStagingCoverageChange?.(cov)}
+                      className={[
+                        "min-h-11 rounded-xl border px-2 text-xs font-semibold uppercase tracking-[0.06em] transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[rgba(232,168,64,0.7)] active:scale-[0.98]",
+                        active
+                          ? "border-[rgba(232,168,64,0.45)] bg-[rgba(232,168,64,0.18)] text-[rgba(255,236,210,0.96)]"
+                          : "border-white/10 bg-black/30 text-zinc-200 hover:border-white/18",
+                      ].join(" ")}
+                    >
+                      {COVERAGE_LABELS[cov]}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          ) : null}
+
+          {stagingRegionId && onConfirmStaging ? (
+            <button
+              type="button"
+              onClick={onConfirmStaging}
+              className="inline-flex min-h-12 w-full items-center justify-center rounded-xl border border-[rgba(232,168,64,0.45)] bg-[rgba(232,168,64,0.18)] px-4 text-sm font-semibold uppercase tracking-[0.08em] text-[rgba(255,236,210,0.97)] transition hover:bg-[rgba(232,168,64,0.28)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[rgba(232,168,64,0.7)] active:scale-[0.98]"
+            >
+              Confirmar selección
+            </button>
           ) : null}
         </div>
       </div>

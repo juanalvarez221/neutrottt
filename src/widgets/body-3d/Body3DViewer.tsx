@@ -15,8 +15,10 @@ import { HumanBodyModel } from "@/widgets/body-3d/HumanBodyModel";
 import { BodyCameraController } from "@/widgets/body-3d/BodyCameraController";
 import { InteractionZonesDebug } from "@/widgets/body-3d/lab/InteractionZonesDebug";
 import {
+  BodyHitTestBridge,
   BodyInteractionModel,
-  BodyPublicRegionHighlight,
+  BodyPublicRegionMaskDebug,
+  BodyPublicRegionMaskHighlight,
   BodyZoneHighlight,
 } from "@/widgets/body-3d/interaction";
 import type { BodyModelDefinition } from "@/widgets/body-3d/bodyModelDefinition";
@@ -67,9 +69,11 @@ type Body3DViewerProps = {
   hoveredAtomicZoneId?: string | null;
   previewAtomicZoneIds?: readonly string[];
   selectedAtomicZoneIds?: readonly string[];
-  /** Highlights del PublicRegionHighlightModel (premium). */
+  /** Highlights públicos premium (máscara UV Region ID). */
   previewPublicRegionIds?: readonly string[];
   selectedPublicRegionIds?: readonly string[];
+  /** Lab: fuerza vista rainbow de toda la máscara UV. */
+  showUvRegionMaskDebug?: boolean;
   onHoverAtomicZone?: (atomicId: string | null) => void;
   onHoverPointer?: (point: { x: number; y: number } | null) => void;
   onActivateAtomicZone?: (atomicId: string) => void;
@@ -121,6 +125,7 @@ function BodyScene({
   selectedAtomicZoneIds,
   previewPublicRegionIds,
   selectedPublicRegionIds,
+  showUvRegionMaskDebug,
   onHoverAtomicZone,
   onHoverPointer,
   onActivateAtomicZone,
@@ -144,6 +149,7 @@ function BodyScene({
   selectedAtomicZoneIds: readonly string[];
   previewPublicRegionIds: readonly string[];
   selectedPublicRegionIds: readonly string[];
+  showUvRegionMaskDebug: boolean;
   onHoverAtomicZone: (atomicId: string | null) => void;
   onHoverPointer: (point: { x: number; y: number } | null) => void;
   onActivateAtomicZone: (atomicId: string) => void;
@@ -181,12 +187,19 @@ function BodyScene({
       {showInteraction ? (
         <>
           {usePublicHighlight ? (
-            <BodyPublicRegionHighlight
-              rotation={model.rotation}
-              scale={model.scale ?? 1}
-              previewPublicRegionIds={previewPublicRegionIds}
-              selectedPublicRegionIds={selectedPublicRegionIds}
-            />
+            showUvRegionMaskDebug ? (
+              <BodyPublicRegionMaskDebug
+                rotation={model.rotation}
+                scale={model.scale ?? 1}
+              />
+            ) : (
+              <BodyPublicRegionMaskHighlight
+                rotation={model.rotation}
+                scale={model.scale ?? 1}
+                previewPublicRegionIds={previewPublicRegionIds}
+                selectedPublicRegionIds={selectedPublicRegionIds}
+              />
+            )
           ) : (
             <BodyZoneHighlight
               rotation={model.rotation}
@@ -205,6 +218,7 @@ function BodyScene({
             onActivateAtomicZone={onActivateAtomicZone}
             onReady={onInteractionReady}
           />
+          <BodyHitTestBridge />
         </>
       ) : null}
     </Center>
@@ -255,6 +269,7 @@ export function Body3DViewer({
   selectedAtomicZoneIds = [],
   previewPublicRegionIds = [],
   selectedPublicRegionIds = [],
+  showUvRegionMaskDebug = false,
   onHoverAtomicZone,
   onHoverPointer,
   onActivateAtomicZone,
@@ -416,6 +431,7 @@ export function Body3DViewer({
               selectedAtomicZoneIds={selectedAtomicZoneIds}
               previewPublicRegionIds={previewPublicRegionIds}
               selectedPublicRegionIds={selectedPublicRegionIds}
+              showUvRegionMaskDebug={showUvRegionMaskDebug}
               onHoverAtomicZone={onHoverAtomicZone ?? (() => undefined)}
               onHoverPointer={onHoverPointer ?? (() => undefined)}
               onActivateAtomicZone={onActivateAtomicZone ?? (() => undefined)}

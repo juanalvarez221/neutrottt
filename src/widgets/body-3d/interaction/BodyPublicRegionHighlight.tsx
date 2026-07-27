@@ -82,7 +82,7 @@ function prepareHighlightScene(
           ? PREVIEW_COLOR
           : HOVER_COLOR;
     const opacity =
-      kind === "selected" ? 0.4 : kind === "preview" ? 0.32 : 0.2;
+      kind === "selected" ? 0.55 : kind === "preview" ? 0.38 : 0.24;
 
     const mat = new ThreeMeshBasicMaterial({
       color,
@@ -114,7 +114,8 @@ export type BodyPublicRegionHighlightProps = {
 };
 
 /**
- * Overlay visual del PublicRegionHighlightModel.
+ * Legacy: overlay por meshes del PublicRegionHighlightModel (caras segmentadas).
+ * El camino premium usa BodyPublicRegionMaskHighlight (máscara UV Region ID).
  * SELECTED > PREVIEW > HOVER. No hace raycast.
  */
 export function BodyPublicRegionHighlight({

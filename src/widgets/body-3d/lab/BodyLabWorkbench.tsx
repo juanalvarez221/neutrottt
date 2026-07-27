@@ -75,6 +75,7 @@ export function BodyLabWorkbench() {
   );
   const [selectedTargetIds, setSelectedTargetIds] = useState<string[]>([]);
   const [auditTargetId, setAuditTargetId] = useState<string | null>(null);
+  const [showUvRegionMaskDebug, setShowUvRegionMaskDebug] = useState(false);
   const [focusPose, setFocusPose] = useState<CameraFocusPose | null>(null);
   const [focusToken, setFocusToken] = useState(0);
 
@@ -234,6 +235,7 @@ export function BodyLabWorkbench() {
                   : []
               }
               previewPublicRegionIds={[]}
+              showUvRegionMaskDebug={showUvRegionMaskDebug}
               height="min(70dvh, 680px)"
             />
           </div>
@@ -247,6 +249,8 @@ export function BodyLabWorkbench() {
                   ? resolvePublicTargetHighlightRegions(auditTargetId)
                   : []
               }
+              showUvRegionMaskDebug={showUvRegionMaskDebug}
+              onShowUvRegionMaskDebugChange={setShowUvRegionMaskDebug}
             />
           </div>
         </div>
