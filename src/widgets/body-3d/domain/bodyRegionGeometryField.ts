@@ -24,12 +24,22 @@ export type RegionFieldRefinementSource = {
   hash: string;
   triangleCount: number;
   bandMeters: number;
-  encoding: "u32-snorm16x3";
+  encoding: "u32-snorm16x3" | "u32-t16-snorm16x3" | "bc-topology-v1";
+  sharedTopologyHash?: string;
+  refinedVertexCount?: number;
+  refinedTriangleCount?: number;
 };
 
 export type RegionFieldRefinement = {
   triangles: Uint32Array;
   midValues: Float32Array;
+  /** Variable edge parameter t in [0,1] per mid (independent-edge V6.3). */
+  edgeTs?: Float32Array;
+  /** Present when encoding is bc-topology-v1 (rejected for neck production). */
+  kind?: "mid-edge" | "independent-edge-v1" | "bc-topology-v1";
+  sharedTopologyHash?: string;
+  insertedDistances?: Float32Array;
+  raw?: ArrayBuffer;
 };
 
 export type RegionGeometryFieldEntry = {
@@ -209,11 +219,65 @@ export function decodeRegionGeometryField(
 
 /** Records of 4-byte triangle index + three snorm16 midpoint distances. */
 export const REFINEMENT_RECORD_BYTES = 10;
+/** Independent-edge V6.3: u32 + 3×(u16 t + i16 value) = 16 bytes. */
+export const INDEPENDENT_EDGE_RECORD_BYTES = 16;
+export const BC_TOPOLOGY_MAGIC = 0x32364342; // 'BC62' LE — diagnostic only, not production neck
 
 export function decodeRegionFieldRefinement(
   buffer: ArrayBuffer,
   rangeMeters: number,
+  encoding: RegionFieldRefinementSource["encoding"] = "u32-snorm16x3",
 ): RegionFieldRefinement {
+  // bc-topology-v1 is rejected for production neck; decode kept only so tests
+  // can assert the loader never installs it for official neck entries.
+  if (encoding === "bc-topology-v1") {
+    const view = new DataView(buffer);
+    const magic = view.getUint32(0, true);
+    if (magic !== BC_TOPOLOGY_MAGIC) {
+      throw new Error("BC_TOPOLOGY_MAGIC_MISMATCH");
+    }
+    const nIns = view.getUint32(8, true);
+    const hashBytes = new Uint8Array(buffer, 24, 8);
+    const sharedTopologyHash = [...hashBytes]
+      .map((b) => b.toString(16).padStart(2, "0"))
+      .join("");
+    const insertedDistances = new Float32Array(nIns);
+    let o = 32;
+    for (let i = 0; i < nIns; i++) {
+      insertedDistances[i] = (view.getInt16(o, true) / 32767) * rangeMeters;
+      o += 2;
+    }
+    return {
+      triangles: new Uint32Array(0),
+      midValues: new Float32Array(0),
+      kind: "bc-topology-v1",
+      sharedTopologyHash,
+      insertedDistances,
+      raw: buffer,
+    };
+  }
+  if (encoding === "u32-t16-snorm16x3") {
+    const view = new DataView(buffer);
+    const count = Math.floor(buffer.byteLength / INDEPENDENT_EDGE_RECORD_BYTES);
+    const triangles = new Uint32Array(count);
+    const midValues = new Float32Array(count * 3);
+    const edgeTs = new Float32Array(count * 3);
+    for (let i = 0; i < count; i++) {
+      const base = i * INDEPENDENT_EDGE_RECORD_BYTES;
+      triangles[i] = view.getUint32(base, true);
+      for (let k = 0; k < 3; k++) {
+        edgeTs[i * 3 + k] = view.getUint16(base + 4 + k * 4, true) / 65535;
+        midValues[i * 3 + k] =
+          (view.getInt16(base + 6 + k * 4, true) / 32767) * rangeMeters;
+      }
+    }
+    return {
+      triangles,
+      midValues,
+      edgeTs,
+      kind: "independent-edge-v1",
+    };
+  }
   const view = new DataView(buffer);
   const count = Math.floor(buffer.byteLength / REFINEMENT_RECORD_BYTES);
   const triangles = new Uint32Array(count);
@@ -226,7 +290,7 @@ export function decodeRegionFieldRefinement(
         (view.getInt16(base + 4 + k * 2, true) / 32767) * rangeMeters;
     }
   }
-  return { triangles, midValues };
+  return { triangles, midValues, kind: "mid-edge" };
 }
 
 export function expectedSidecarBytes(entry: RegionGeometryFieldEntry): number {

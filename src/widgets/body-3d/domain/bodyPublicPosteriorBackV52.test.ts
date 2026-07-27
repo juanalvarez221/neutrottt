@@ -57,7 +57,7 @@ describe("Posterior Back V5.2 — official S02 promotion", () => {
     expect(ids).toEqual(
       expect.arrayContaining(["upper_back", "lower_back", "full_back"]),
     );
-    expect(manifest.version).toBe("5.2");
+    expect(Number.parseFloat(manifest.version)).toBeGreaterThanOrEqual(5.2);
 
     for (const region of ["upper_back", "lower_back", "full_back"] as const) {
       const entry = findRegionGeometryFieldEntry(manifest, region);

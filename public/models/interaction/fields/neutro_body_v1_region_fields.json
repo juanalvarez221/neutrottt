@@ -1,6 +1,6 @@
 {
   "model": "neutro_body_v1",
-  "version": "5.2",
+  "version": "6.3",
   "geometryHash": "c62e81edaa1f",
   "indexHash": "52494d471398c",
   "vertexCount": 14517,
@@ -207,6 +207,169 @@
       "hitVisualRegionIds": [
         "upper_back_surface",
         "lower_back_surface"
+      ]
+    },
+    {
+      "regionId": "neck_front",
+      "geometryHash": "c62e81edaa1f",
+      "indexHash": "52494d471398c",
+      "vertexCount": 14517,
+      "fieldUrl": "/models/interaction/fields/neutro_body_v1_neck_front_sdf.bin?v=376e678b00283b36",
+      "fieldHash": "376e678b00283b36",
+      "encoding": "snorm16",
+      "distanceRangeMeters": 0.02,
+      "candidateId": "N02",
+      "anatomicalParameters": {
+        "lateralBandOffsetMm": 0,
+        "sourceGate": "neck-v63",
+        "pipelineVersion": "V6.3"
+      },
+      "boundaryHashes": {
+        "front_right_neck_seam": "e000d8c59f7e6fea",
+        "right_back_neck_seam": "9db0071f0dbd467c",
+        "back_left_neck_seam": "bc900453e22e3674",
+        "left_front_neck_seam": "fa0fb39857fc216a"
+      },
+      "refinement": {
+        "url": "/models/interaction/fields/neutro_body_v1_neck_front_refine.bin?v=e33047d118d648f5",
+        "hash": "e33047d118d648f5",
+        "triangleCount": 991,
+        "bandMeters": 0.005,
+        "encoding": "u32-t16-snorm16x3"
+      },
+      "visualRegionId": "neck_front_surface",
+      "surfaceRegionId": "neck_front_surface",
+      "maskIndex": 5
+    },
+    {
+      "regionId": "neck_right",
+      "geometryHash": "c62e81edaa1f",
+      "indexHash": "52494d471398c",
+      "vertexCount": 14517,
+      "fieldUrl": "/models/interaction/fields/neutro_body_v1_neck_right_sdf.bin?v=d81238c49302414a",
+      "fieldHash": "d81238c49302414a",
+      "encoding": "snorm16",
+      "distanceRangeMeters": 0.02,
+      "candidateId": "N02",
+      "anatomicalParameters": {
+        "lateralBandOffsetMm": 0,
+        "sourceGate": "neck-v63",
+        "pipelineVersion": "V6.3"
+      },
+      "boundaryHashes": {
+        "front_right_neck_seam": "e000d8c59f7e6fea",
+        "right_back_neck_seam": "9db0071f0dbd467c",
+        "back_left_neck_seam": "bc900453e22e3674",
+        "left_front_neck_seam": "fa0fb39857fc216a"
+      },
+      "refinement": {
+        "url": "/models/interaction/fields/neutro_body_v1_neck_right_refine.bin?v=13b7a1970307e540",
+        "hash": "13b7a1970307e540",
+        "triangleCount": 1025,
+        "bandMeters": 0.005,
+        "encoding": "u32-t16-snorm16x3"
+      },
+      "visualRegionId": "neck_right_surface",
+      "surfaceRegionId": "neck_right_surface",
+      "maskIndex": 8
+    },
+    {
+      "regionId": "neck_back",
+      "geometryHash": "c62e81edaa1f",
+      "indexHash": "52494d471398c",
+      "vertexCount": 14517,
+      "fieldUrl": "/models/interaction/fields/neutro_body_v1_neck_back_sdf.bin?v=83bf04075339c4f8",
+      "fieldHash": "83bf04075339c4f8",
+      "encoding": "snorm16",
+      "distanceRangeMeters": 0.02,
+      "candidateId": "N02",
+      "anatomicalParameters": {
+        "lateralBandOffsetMm": 0,
+        "sourceGate": "neck-v63",
+        "pipelineVersion": "V6.3"
+      },
+      "boundaryHashes": {
+        "front_right_neck_seam": "e000d8c59f7e6fea",
+        "right_back_neck_seam": "9db0071f0dbd467c",
+        "back_left_neck_seam": "bc900453e22e3674",
+        "left_front_neck_seam": "fa0fb39857fc216a"
+      },
+      "refinement": {
+        "url": "/models/interaction/fields/neutro_body_v1_neck_back_refine.bin?v=bcc8b728ecb931fc",
+        "hash": "bcc8b728ecb931fc",
+        "triangleCount": 947,
+        "bandMeters": 0.005,
+        "encoding": "u32-t16-snorm16x3"
+      },
+      "visualRegionId": "neck_back_surface",
+      "surfaceRegionId": "neck_back_surface",
+      "maskIndex": 6
+    },
+    {
+      "regionId": "neck_left",
+      "geometryHash": "c62e81edaa1f",
+      "indexHash": "52494d471398c",
+      "vertexCount": 14517,
+      "fieldUrl": "/models/interaction/fields/neutro_body_v1_neck_left_sdf.bin?v=70d905978e955df4",
+      "fieldHash": "70d905978e955df4",
+      "encoding": "snorm16",
+      "distanceRangeMeters": 0.02,
+      "candidateId": "N02",
+      "anatomicalParameters": {
+        "lateralBandOffsetMm": 0,
+        "sourceGate": "neck-v63",
+        "pipelineVersion": "V6.3"
+      },
+      "boundaryHashes": {
+        "front_right_neck_seam": "e000d8c59f7e6fea",
+        "right_back_neck_seam": "9db0071f0dbd467c",
+        "back_left_neck_seam": "bc900453e22e3674",
+        "left_front_neck_seam": "fa0fb39857fc216a"
+      },
+      "refinement": {
+        "url": "/models/interaction/fields/neutro_body_v1_neck_left_refine.bin?v=136144f494cb9ec1",
+        "hash": "136144f494cb9ec1",
+        "triangleCount": 877,
+        "bandMeters": 0.005,
+        "encoding": "u32-t16-snorm16x3"
+      },
+      "visualRegionId": "neck_left_surface",
+      "surfaceRegionId": "neck_left_surface",
+      "maskIndex": 7
+    },
+    {
+      "regionId": "full_neck",
+      "geometryHash": "c62e81edaa1f",
+      "indexHash": "52494d471398c",
+      "vertexCount": 14517,
+      "fieldUrl": "/models/interaction/fields/neutro_body_v1_full_neck_sdf.bin?v=554f6b07992ae0c5",
+      "fieldHash": "554f6b07992ae0c5",
+      "encoding": "snorm16",
+      "distanceRangeMeters": 0.02,
+      "candidateId": "N02",
+      "anatomicalParameters": {
+        "lateralBandOffsetMm": 0,
+        "sourceGate": "neck-v63",
+        "pipelineVersion": "V6.3"
+      },
+      "boundaryHashes": {
+        "front_right_neck_seam": "e000d8c59f7e6fea",
+        "right_back_neck_seam": "9db0071f0dbd467c",
+        "back_left_neck_seam": "bc900453e22e3674",
+        "left_front_neck_seam": "fa0fb39857fc216a"
+      },
+      "refinement": {
+        "url": "/models/interaction/fields/neutro_body_v1_full_neck_refine.bin?v=ff1424a32a248592",
+        "hash": "ff1424a32a248592",
+        "triangleCount": 1337,
+        "bandMeters": 0.005,
+        "encoding": "u32-snorm16x3"
+      },
+      "hitVisualRegionIds": [
+        "neck_front_surface",
+        "neck_right_surface",
+        "neck_back_surface",
+        "neck_left_surface"
       ]
     }
   ]

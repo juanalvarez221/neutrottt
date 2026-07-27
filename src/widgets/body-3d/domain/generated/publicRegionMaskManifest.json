@@ -1,8 +1,8 @@
 {
   "model": "neutro_body_v1",
   "maskTexture": "/models/interaction/neutro_body_v1_anatomical_region_ids.png",
-  "maskHash": "5a0bb94fa522",
-  "maskUrl": "/models/interaction/neutro_body_v1_anatomical_region_ids.png?v=5a0bb94fa522",
+  "maskHash": "ebf1ac3f90b1",
+  "maskUrl": "/models/interaction/neutro_body_v1_anatomical_region_ids.png?v=ebf1ac3f90b1",
   "resolution": 4096,
   "encoding": "r8_index",
   "indexScale": 255,

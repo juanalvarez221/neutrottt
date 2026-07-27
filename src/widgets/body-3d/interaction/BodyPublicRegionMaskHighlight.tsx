@@ -34,6 +34,7 @@ import {
 } from "@/widgets/body-3d/domain/bodyPublicLogicalRegions";
 import {
   loadRegionGeometryField,
+  prefetchNeckRegionGeometryFields,
   regionFieldCacheKey,
 } from "@/widgets/body-3d/interaction/bodyRegionGeometryFieldLoader";
 import { buildRefinedFieldGeometry } from "@/widgets/body-3d/interaction/bodyRegionFieldGeometry";
@@ -477,6 +478,13 @@ export function BodyPublicRegionMaskHighlight({
   useLayoutEffect(() => {
     materialRef.current = material;
   }, [material]);
+
+  useLayoutEffect(() => {
+    if (!overlay.targets[0]) return;
+    prefetchNeckRegionGeometryFields(
+      geometryIdentityOf(overlay.targets[0].base),
+    );
+  }, [overlay.targets]);
 
   useLayoutEffect(() => {
     if (typeof window === "undefined") return;

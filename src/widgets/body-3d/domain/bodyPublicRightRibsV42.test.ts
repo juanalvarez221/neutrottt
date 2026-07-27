@@ -117,7 +117,7 @@ describe("right_ribs V4.2 official assets", () => {
     expect(ribs!.visualRegionId).toBe("right_ribs_surface");
     expect(ribs!.surfaceRegionId).toBe("right_ribs_region");
     expect(ribs!.maskIndex).toBe(13);
-    expect(["4.4", "5.2"]).toContain(regionFields.version);
+    expect(["4.4", "5.2", "6.3"]).toContain(regionFields.version);
     expect(regionFields.fields.length).toBeGreaterThanOrEqual(4);
 
     const fieldBin = readFileSync(

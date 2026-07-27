@@ -138,7 +138,7 @@ describe("left_ribs V4.4 official assets", () => {
     expect(ribs!.side).toBe("left");
     expect(ribs!.sharedBoundaries).toContain("full_chest");
     expect(ribs!.sharedBoundaries).toContain("full_abdomen");
-    expect(["4.4", "5.2"]).toContain(regionFields.version);
+    expect(["4.4", "5.2", "6.3"]).toContain(regionFields.version);
     expect(regionFields.fields.length).toBeGreaterThanOrEqual(4);
 
     const fieldBin = readFileSync(

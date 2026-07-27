@@ -9,6 +9,35 @@
 import { BufferAttribute, BufferGeometry, Uint32BufferAttribute } from "three";
 import type { RegionFieldRefinement } from "@/widgets/body-3d/domain/bodyRegionGeometryField";
 
+/** Cache of shared BC topology meshes keyed by sharedTopologyHash. */
+const sharedTopologyGeometryCache = new Map<
+  string,
+  {
+    positions: Float32Array;
+    indices: Uint32Array;
+    uvs: Float32Array | null;
+    normals: Float32Array | null;
+    baseVertexCount: number;
+  }
+>();
+
+export function cacheSharedTopologyGeometry(
+  hash: string,
+  data: {
+    positions: Float32Array;
+    indices: Uint32Array;
+    uvs: Float32Array | null;
+    normals: Float32Array | null;
+    baseVertexCount: number;
+  },
+): void {
+  sharedTopologyGeometryCache.set(hash, data);
+}
+
+export function clearSharedTopologyGeometryCache(): void {
+  sharedTopologyGeometryCache.clear();
+}
+
 function copyInto(
   source: ArrayLike<number>,
   itemSize: number,
@@ -25,6 +54,12 @@ export function buildRefinedFieldGeometry(
   refinement: RegionFieldRefinement,
   attributeName: string,
 ): BufferGeometry | null {
+  // bc-topology-v1 is not used in production (shared topology rejected for neck).
+  // Without a shared install the caller falls back to base-field / categorical.
+  if (refinement.kind === "bc-topology-v1") {
+    return null;
+  }
+
   const position = base.getAttribute("position");
   const index = base.getIndex();
   if (!position || !index) return null;
@@ -53,6 +88,7 @@ export function buildRefinedFieldGeometry(
   const indices = new Uint32Array((triangleCount + refinedCount * 3) * 3);
   let write = 0;
   let next = vertexCount;
+  const edgeTs = refinement.edgeTs;
 
   for (let t = 0; t < triangleCount; t++) {
     const a = index.getX(t * 3);
@@ -74,13 +110,14 @@ export function buildRefinedFieldGeometry(
     const mid: number[] = [];
     for (let k = 0; k < 3; k++) {
       const [i, j] = pairs[k]!;
+      const tt = edgeTs ? (edgeTs[slot * 3 + k] ?? 0.5) : 0.5;
       const v = next++;
       for (let axis = 0; axis < 3; axis++) {
         positions[v * 3 + axis] =
-          (positions[i * 3 + axis]! + positions[j * 3 + axis]!) / 2;
+          positions[i * 3 + axis]! * (1 - tt) + positions[j * 3 + axis]! * tt;
         if (normals) {
           normals[v * 3 + axis] =
-            (normals[i * 3 + axis]! + normals[j * 3 + axis]!) / 2;
+            normals[i * 3 + axis]! * (1 - tt) + normals[j * 3 + axis]! * tt;
         }
       }
       if (normals) {
@@ -93,8 +130,8 @@ export function buildRefinedFieldGeometry(
         normals[v * 3 + 2] = nz / length;
       }
       if (uvs) {
-        uvs[v * 2] = (uvs[i * 2]! + uvs[j * 2]!) / 2;
-        uvs[v * 2 + 1] = (uvs[i * 2 + 1]! + uvs[j * 2 + 1]!) / 2;
+        uvs[v * 2] = uvs[i * 2]! * (1 - tt) + uvs[j * 2]! * tt;
+        uvs[v * 2 + 1] = uvs[i * 2 + 1]! * (1 - tt) + uvs[j * 2 + 1]! * tt;
       }
       distances[v] = refinement.midValues[slot * 3 + k]!;
       mid.push(v);

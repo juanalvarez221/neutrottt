@@ -20,6 +20,15 @@ export const LOGICAL_PUBLIC_BODY_REGIONS: readonly LogicalPublicBodyRegion[] = [
     regionId: "full_back",
     hitVisualRegionIds: ["upper_back_surface", "lower_back_surface"],
   },
+  {
+    regionId: "full_neck",
+    hitVisualRegionIds: [
+      "neck_front_surface",
+      "neck_right_surface",
+      "neck_back_surface",
+      "neck_left_surface",
+    ],
+  },
 ] as const;
 
 const BY_REGION = new Map(
