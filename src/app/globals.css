@@ -44,7 +44,7 @@
   --font-stack-display: var(--font-display), var(--font-sans), ui-sans-serif, sans-serif;
   --font-stack-brand: var(--font-gothic), "Times New Roman", serif;
   --font-stack-subtitle: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
-  /* Provisional until Fase 3b locks the chosen lettering candidate */
+  /* Locked lettering candidate (Fase 3b): Marck Script — change --font-lettering to switch */
   --font-lettering: var(--font-lettering-marck);
   --font-stack-lettering: var(--font-lettering), cursive, serif;
 }
