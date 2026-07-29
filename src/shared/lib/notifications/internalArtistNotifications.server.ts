@@ -9,10 +9,11 @@ import {
   getArtistNotificationsEmail,
   sendBrandedEmail,
 } from "@/shared/lib/notifications/emailTransport.server";
+import { pushSimulatedNotification } from "@/shared/lib/notifications/simulatedNotificationStore.server";
 
 /**
  * Notificaciones internas para el artista/estudio.
- * Objetivo: que Neutrottt tenga el brief sin entrar al panel admin.
+ * Objetivo: que Danniel Cuervo tenga el brief sin entrar al panel admin.
  * Todas son best-effort: si fallan, se loguea warning y NUNCA rompen la reserva/cotización.
  */
 type Row = { label: string; value?: string | null };
@@ -66,12 +67,22 @@ async function sendToArtist(subject: string, rows: Row[], eyebrow: string, title
   try {
     const link = adminLink();
     const text = [title, "", rowsToText(rows), "", `Panel admin: ${link}`, "", `- ${BRAND.name}`].join("\n");
+
+    // SIMULADO: log visible en admin (pestaña Notificaciones) en vez de depender de email
+    pushSimulatedNotification({
+      kind: subject.toLowerCase().includes("asesor") ? "advisory" : "quote",
+      subject,
+      title,
+      body: text,
+      meta: { eyebrow },
+    });
+
     const to = getArtistNotificationsEmail();
     if (!to) {
       console.info("[internal-email:preview] (sin ARTIST_NOTIFICATIONS_EMAIL)", subject);
-      console.info(text);
       return;
     }
+    // SIMULADO: se mantiene el envío real solo si hay env configurado; el store simulado ya quedó
     const result = await sendBrandedEmail({
       to,
       subject,
@@ -138,19 +149,27 @@ export async function sendNewQuoteInternalEmail(record: QuoteRequestRecord) {
   rows.push(
     { label: "Notas / referencia", value: record.referenceNotes },
     { label: "Cómo llegó", value: c.referral },
-    { label: "Valores personales", value: c.values },
-    { label: "Modo de colaboración", value: record.collaborationMode ?? c.collaboration },
-    { label: "Nota abierta", value: c.purpose },
+    { label: "Marketing / novedades", value: c.values },
+    { label: "Nota del cliente", value: c.purpose },
+    {
+      label: "Opt-in marketing",
+      value:
+        typeof c.marketingOptIn === "boolean"
+          ? c.marketingOptIn
+            ? "Sí"
+            : "No"
+          : undefined,
+    },
     { label: "Estado actual", value: record.statusLabel },
     { label: "Creada", value: formatCreatedAt(record.createdAt) },
-    { label: "Origen", value: "Cotizador Neutrottt" },
+    { label: "Origen", value: "Cotizador Danniel Cuervo" },
   );
 
   await sendToArtist(
-    `Nueva cotización Neutrottt · ${record.clientName}`,
+    `Nueva cotización Danniel Cuervo · ${record.clientName}`,
     rows,
     "Nueva cotización",
-    "Nueva cotización Neutrottt",
+    "Nueva cotización Danniel Cuervo",
   );
 }
 
@@ -169,14 +188,13 @@ export async function sendNewAdvisoryInternalEmail(booking: AdvisoryBooking) {
     { label: "Zona corporal", value: b.bodyZone },
     { label: "Idea / notas", value: booking.projectNotes || b.openNote },
     { label: "Cómo llegó", value: b.referral },
-    { label: "Valores personales", value: b.personalValues },
-    { label: "Modo de colaboración", value: b.collaborationMode },
-    { label: "Nota abierta", value: b.openNote },
+    { label: "Marketing / novedades", value: b.personalValues },
+    { label: "Nota del cliente", value: b.openNote },
     {
       label: "Google Calendar",
       value: booking.googleCalendarEventId ? "Sincronizada con Google Calendar" : undefined,
     },
-    { label: "Origen", value: "Cotizador Neutrottt" },
+    { label: "Origen", value: "Cotizador Danniel Cuervo" },
   ];
 
   await sendToArtist(

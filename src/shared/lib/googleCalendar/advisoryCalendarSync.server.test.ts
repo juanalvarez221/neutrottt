@@ -1,39 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { insertCalendarEvent, patchCalendarEvent, deleteCalendarEvent, queryBusyIntervals } =
-  vi.hoisted(() => ({
-    insertCalendarEvent: vi.fn(),
-    patchCalendarEvent: vi.fn(),
-    deleteCalendarEvent: vi.fn(),
-    queryBusyIntervals: vi.fn(),
-  }));
+import { getExternalBusyIntervals, syncOnReserved } from "./advisoryCalendarSync.server";
 
-vi.mock("@/shared/lib/googleCalendar/googleCalendarConfig", () => ({
-  getGoogleCalendarConfig: vi.fn(() => ({
-    calendarId: "calendar@example.com",
-    clientEmail: "service@example.com",
-    privateKey: "secret",
-    createMeet: true,
-  })),
-}));
-
-vi.mock("@/shared/lib/googleCalendar/googleCalendarClient.server", () => ({
-  insertCalendarEvent,
-  patchCalendarEvent,
-  deleteCalendarEvent,
-  queryBusyIntervals,
-}));
-
-import { syncOnReserved } from "./advisoryCalendarSync.server";
-
-describe("syncOnReserved", () => {
+describe("syncOnReserved (simulated)", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it("devuelve el enlace de reunión cuando Google Calendar lo genera", async () => {
-    insertCalendarEvent.mockResolvedValue({ id: "event-123", hangoutLink: "https://meet.google.com/abc-defg-hij" });
-
+  it("devuelve eventId y meeting link simulados para asesoría virtual", async () => {
     const result = await syncOnReserved({
       id: "AS-1",
       mode: "virtual",
@@ -48,8 +22,23 @@ describe("syncOnReserved", () => {
     });
 
     expect(result).toEqual({
-      eventId: "event-123",
-      meetingLink: "https://meet.google.com/abc-defg-hij",
+      eventId: "sim-cal-AS-1",
+      meetingLink: "https://meet.google.com/sim-AS-1",
     });
+  });
+});
+
+describe("getExternalBusyIntervals (simulated)", () => {
+  it("devuelve huecos ocupados dentro del rango pedido", async () => {
+    const busy = await getExternalBusyIntervals(
+      "2026-07-28T05:00:00.000Z",
+      "2026-08-04T05:00:00.000Z",
+    );
+    expect(busy.length).toBeGreaterThan(0);
+    for (const slot of busy) {
+      expect(slot.start).toBeTruthy();
+      expect(slot.end).toBeTruthy();
+      expect(new Date(slot.end).getTime()).toBeGreaterThan(new Date(slot.start).getTime());
+    }
   });
 });
