@@ -7,7 +7,8 @@ export const STUDIO = {
   region: "Antioquia",
   country: "Colombia",
   locationShort: "Medellín, Colombia",
-  photoSrc: "/brand/about-studio.png",
+  /** Profile still from brand pack until a dedicated studio exterior exists. */
+  photoSrc: "/danniel/brand/perfil.jpg",
   logoSrc: "/brand/emerald-studio-logo.png",
   verifiedBadgeSrc: "/brand/verified-badge.png",
   mapsUrl:

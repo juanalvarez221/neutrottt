@@ -16,6 +16,7 @@ import { NavigationScrollManager } from "@/widgets/navigation/NavigationScrollMa
 import { DeferredChrome } from "@/widgets/layout/DeferredChrome";
 import { ErrorBoundary } from "@/shared/ui/ErrorBoundary";
 import { CartDrawer } from "@/widgets/shop/CartDrawer";
+import { SiteHeader } from "@/features/navigation/SiteHeader";
 
 const fontSans = Montserrat({
   variable: "--font-sans",
@@ -110,6 +111,7 @@ export default function RootLayout({
               <span className="amber-storm__flash amber-storm__flash--b" />
               <span className="amber-storm__flash amber-storm__flash--c" />
             </div>
+            <SiteHeader />
             <div className="relative z-10">
               <ErrorBoundary>{children}</ErrorBoundary>
             </div>

@@ -2,7 +2,6 @@
 
 import dynamic from "next/dynamic";
 import { useCallback, useEffect, useRef, useState } from "react";
-import Image from "next/image";
 import {
   AnimatePresence,
   motion,
@@ -16,11 +15,15 @@ import { ChevronDown } from "lucide-react";
 import { LazyMount } from "@/shared/ui/LazyMount";
 import { StudioLocationTrigger } from "@/shared/ui/StudioLocationTrigger";
 import { HeroBrandTitle } from "@/widgets/home/HeroBrandTitle";
-import { HeroPortraitBanner } from "@/widgets/home/HeroPortraitBanner";
 import { useSiteLanguage } from "@/shared/i18n/LanguageProvider";
+import { SiteFooter } from "@/widgets/layout/SiteFooter";
 
 const AboutIntroSection = dynamic(
   () => import("@/widgets/home/AboutIntroSection").then((mod) => mod.AboutIntroSection),
+  { ssr: false },
+);
+const FeaturedProducts = dynamic(
+  () => import("@/widgets/home/FeaturedProducts").then((mod) => mod.FeaturedProducts),
   { ssr: false },
 );
 const ProjectsCarousel = dynamic(
@@ -28,57 +31,35 @@ const ProjectsCarousel = dynamic(
   { ssr: false },
 );
 
+const HERO_BANNERS = [
+  "/danniel/brand/banner-1.mp4",
+  "/danniel/brand/banner-2.mp4",
+  "/danniel/brand/banner-3.mp4",
+] as const;
+
 type HeroSplashProps = {
-  backgroundImageUrl?: string;
-  backgroundImageUrls?: string[];
-  backgroundVideoUrl?: string;
-  /** Foto principal del hero (con fondo). */
-  portraitBackgroundUrl?: string;
   artistName: string;
   subtitle: string;
 };
 
-export function HeroSplash({
-  backgroundImageUrl,
-  backgroundImageUrls,
-  backgroundVideoUrl,
-  portraitBackgroundUrl,
-  artistName,
-  subtitle,
-}: HeroSplashProps) {
+export function HeroSplash({ artistName, subtitle }: HeroSplashProps) {
   const { t } = useSiteLanguage();
   const reduceMotion = useReducedMotion();
   const sectionRef = useRef<HTMLElement>(null);
-  const [heroIndex, setHeroIndex] = useState(0);
+  const [bannerIndex, setBannerIndex] = useState(0);
   const [showScrollCue, setShowScrollCue] = useState(true);
-  const heroImages =
-    backgroundImageUrls && backgroundImageUrls.length > 0
-      ? backgroundImageUrls
-      : backgroundImageUrl
-        ? [backgroundImageUrl]
-        : [];
-  const hasHeroImage = heroImages.length > 0;
-  const usePortraitPhoto = Boolean(portraitBackgroundUrl);
-  const useHeroCarousel =
-    !backgroundVideoUrl && !usePortraitPhoto && heroImages.length > 1;
-  const currentHeroImage = heroImages[heroIndex] ?? backgroundImageUrl;
 
   const { scrollYProgress } = useScroll({
     target: sectionRef,
     offset: ["start start", "end start"],
   });
 
-  // Base parallax that always tracks scroll progress.
-  const imageY = useTransform(scrollYProgress, [0, 1], [0, -72]);
-  const portraitBgY = useTransform(scrollYProgress, [0, 1], [0, -40]);
-  const portraitBgScale = useTransform(scrollYProgress, [0, 1], [1, 1.05]);
-  const imageScale = useTransform(scrollYProgress, [0, 1], [1, 1.06]);
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.78, 1], [1, 0.94, 0.72]);
-
-  const markY = useTransform(scrollYProgress, [0, 1], [0, 18]);
+  const mediaScale = useTransform(scrollYProgress, [0, 1], [1, 1.08]);
+  const mediaOpacity = useTransform(scrollYProgress, [0, 0.85, 1], [1, 0.88, 0.55]);
+  const contentX = useTransform(scrollYProgress, [0, 1], [0, -28]);
 
   useMotionValueEvent(scrollYProgress, "change", (value) => {
-    setShowScrollCue(value < 0.14);
+    setShowScrollCue(value < 0.12);
   });
 
   const scrollToAbout = useCallback(() => {
@@ -91,151 +72,76 @@ export function HeroSplash({
   }, [reduceMotion]);
 
   useEffect(() => {
-    if (!useHeroCarousel) return;
+    if (reduceMotion) return;
     const id = window.setInterval(() => {
-      setHeroIndex((prev) => (prev + 1) % heroImages.length);
-    }, 7000);
+      setBannerIndex((prev) => (prev + 1) % HERO_BANNERS.length);
+    }, 8200);
     return () => window.clearInterval(id);
-  }, [heroImages.length, useHeroCarousel]);
+  }, [reduceMotion]);
 
   return (
-    <main className="section-surface section-surface--hero relative overflow-x-clip overflow-y-visible text-ivory">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(1100px_540px_at_8%_-8%,rgba(198,122,54,0.26),transparent_60%),radial-gradient(920px_480px_at_95%_6%,rgba(214,161,90,0.2),transparent_62%),radial-gradient(1200px_600px_at_50%_105%,rgba(158,94,60,0.2),transparent_64%)]" />
-      <div className="pointer-events-none absolute -left-24 top-[36%] h-64 w-64 rounded-full bg-stone-500/12 blur-[95px] md:h-96 md:w-96" />
-      <div className="pointer-events-none absolute -right-16 top-[58%] h-64 w-64 rounded-full bg-stone-600/10 blur-[95px] md:h-[26rem] md:w-[26rem]" />
-      <div className="pointer-events-none absolute left-1/2 top-[74%] h-60 w-[82vw] -translate-x-1/2 bg-[radial-gradient(ellipse_at_center,rgba(214,161,90,0.2),transparent_68%)] blur-[46px]" />
-      <section
-        ref={sectionRef}
-        className="relative min-h-[100dvh] w-full"
-      >
+    <main className="section-surface section-surface--hero relative overflow-x-clip overflow-y-visible pt-14 text-ivory sm:pt-16">
+      <section ref={sectionRef} className="relative min-h-[100dvh] w-full">
         <motion.div
-          className="sticky top-0 h-[100dvh] overflow-hidden"
-          style={{ y: imageY, scale: imageScale, opacity: heroOpacity }}
-          animate={{ rotateZ: 0 }}
-          transition={{ duration: 0.45, ease: "easeOut" }}
+          className="absolute inset-0 overflow-hidden"
+          style={{ scale: mediaScale, opacity: mediaOpacity }}
         >
-          {usePortraitPhoto ? (
-            <HeroPortraitBanner
-              src={portraitBackgroundUrl!}
-              alt={`${artistName}, Tattoo Artist`}
-              imageY={portraitBgY}
-              imageScale={portraitBgScale}
-            />
-          ) : backgroundVideoUrl ? (
-            <video
-              key={backgroundVideoUrl}
-              src={backgroundVideoUrl}
-              className="h-full w-full object-cover object-center"
+          <AnimatePresence mode="sync">
+            <motion.video
+              key={HERO_BANNERS[bannerIndex]}
+              src={HERO_BANNERS[bannerIndex]}
+              className="hero-banner-video absolute inset-0 h-full w-full object-cover object-[center_20%]"
               autoPlay
               muted
               loop
               playsInline
               preload="auto"
-              poster={backgroundImageUrl ?? undefined}
+              initial={reduceMotion ? false : { opacity: 0, scale: 1.06 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={reduceMotion ? undefined : { opacity: 0 }}
+              transition={{ duration: reduceMotion ? 0.01 : 1.35, ease: [0.22, 1, 0.36, 1] }}
             />
-          ) : hasHeroImage && currentHeroImage ? (
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={currentHeroImage}
-                initial={{ opacity: 0, scale: 1.02 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.985 }}
-                transition={{ duration: 1.1, ease: "easeInOut" }}
-                className="absolute inset-0"
-              >
-                <Image
-                  src={currentHeroImage}
-                  alt={`${artistName} Tattoo Artist`}
-                  fill
-                  priority
-                  quality={88}
-                  sizes="100vw"
-                  className="object-cover object-center"
-                />
-              </motion.div>
-            </AnimatePresence>
-          ) : (
-            <div className="hero-backdrop absolute inset-0">
-              {hasHeroImage && currentHeroImage ? (
-                <Image
-                  src={currentHeroImage}
-                  alt=""
-                  fill
-                  priority
-                  sizes="100vw"
-                  className="hero-backdrop-image"
-                  aria-hidden
-                />
-              ) : null}
-              <div className="smoke opacity-70" aria-hidden />
-            </div>
-          )}
+          </AnimatePresence>
+          <div className="hero-banner-grade absolute inset-0" aria-hidden />
+          <div className="hero-banner-frame absolute inset-3 border border-white/10 sm:inset-5 md:inset-8" aria-hidden />
         </motion.div>
 
-        <div
-          className={
-            usePortraitPhoto
-              ? "absolute inset-0 z-[2] bg-[radial-gradient(ellipse_80%_50%_at_50%_100%,rgba(198,122,54,0.18),transparent_65%)]"
-              : "absolute inset-0 z-[2] bg-[radial-gradient(900px_500px_at_50%_0%,rgba(214,161,90,0.28),transparent_60%),radial-gradient(560px_280px_at_22%_16%,rgba(158,94,60,0.18),transparent_64%)]"
-          }
-        />
-
-        <div
-          className={
-            usePortraitPhoto
-              ? "absolute inset-0 z-[4] flex min-h-[100dvh] w-full flex-col justify-end px-4 pb-[max(5.5rem,calc(1.25rem+env(safe-area-inset-bottom)))] text-left sm:px-6 sm:pb-16 md:px-10 md:pb-14 lg:px-14"
-              : "absolute inset-0 z-[4] flex h-[100dvh] w-full flex-col items-center justify-end px-6 pb-16 text-center md:pb-14"
-          }
-        >
-          <div
-            className={
-              usePortraitPhoto
-                ? "z-20 w-full max-w-[20rem] sm:max-w-xs md:max-w-md"
-                : "z-20 w-full max-w-[20rem] sm:max-w-sm"
-            }
-          >
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.75, delay: usePortraitPhoto ? 0.12 : 0, ease: [0.22, 1, 0.36, 1] }}
-              style={{ y: markY }}
-            >
-              <HeroBrandTitle
-                name={artistName}
-                tagline={t("heroSubtitle") ?? subtitle}
-                variant="hero"
-                align={usePortraitPhoto ? "left" : "center"}
-              />
-              <div className={usePortraitPhoto ? "mt-2.5 flex justify-start" : "mt-2.5 flex justify-center"}>
-                <StudioLocationTrigger variant="compact" />
-              </div>
-            </motion.div>
-          </div>
-
-          <div
-            className={
-              usePortraitPhoto
-                ? "mt-5 flex w-full max-w-[20rem] flex-col sm:mt-6 sm:max-w-xs md:max-w-sm"
-                : "mt-6 flex w-full max-w-[20rem] flex-col sm:max-w-sm"
-            }
-          >
+        <div className="relative z-[4] flex min-h-[100dvh] w-full flex-col justify-end px-4 pb-[max(5.5rem,calc(1.25rem+env(safe-area-inset-bottom)))] sm:px-6 md:justify-center md:px-10 md:pb-20 lg:px-14">
           <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.12, duration: 0.5, ease: "easeOut" }}
-            className="w-full"
+            className="w-full max-w-xl md:max-w-[34rem]"
+            style={{ x: contentX }}
+            initial={reduceMotion ? false : { opacity: 0, clipPath: "inset(0 100% 0 0)" }}
+            animate={{ opacity: 1, clipPath: "inset(0 0% 0 0)" }}
+            transition={{ duration: reduceMotion ? 0.01 : 1.05, ease: [0.16, 1, 0.3, 1] }}
           >
-            <Link
-              href="/cotizacion"
-              className="btn-accent typo-cta group inline-flex w-full items-center justify-center gap-2 rounded-xl px-5 py-3.5 active:translate-y-0 md:py-4"
-            >
-              {t("heroCta")}
-              <span className="transition-transform group-hover:translate-x-1">
-                →
-              </span>
-            </Link>
+            <HeroBrandTitle
+              name={artistName}
+              tagline={t("heroSubtitle") ?? subtitle}
+              variant="hero"
+              align="left"
+            />
+            <div className="mt-3 flex justify-start">
+              <StudioLocationTrigger variant="compact" />
+            </div>
+
+            <div className="mt-7 flex w-full max-w-sm flex-col gap-3 sm:mt-8">
+              <Link
+                href="/cotizacion"
+                className="btn-accent typo-cta group inline-flex w-full items-center justify-center gap-2 rounded-xl px-5 py-3.5 active:scale-[0.98] md:py-4"
+              >
+                {t("heroCta")}
+                <span className="transition-transform group-hover:translate-x-1" aria-hidden>
+                  →
+                </span>
+              </Link>
+              <Link
+                href="/#tatuajes"
+                className="inline-flex w-full items-center justify-center rounded-xl border border-white/18 bg-black/25 px-5 py-3.5 text-sm font-semibold tracking-wide text-[rgba(243,230,215,0.92)] backdrop-blur-sm transition hover:bg-white/5 active:scale-[0.98] md:py-4"
+              >
+                {t("heroCtaSecondary")}
+              </Link>
+            </div>
           </motion.div>
-          </div>
         </div>
 
         <AnimatePresence>
@@ -251,68 +157,29 @@ export function HeroSplash({
               onClick={scrollToAbout}
               className="hero-scroll-cue"
             >
-              <motion.span
-                aria-hidden
-                className="hero-scroll-cue__inner"
-                animate={reduceMotion ? undefined : { y: [0, 5, 0] }}
-                transition={{
-                  duration: 2.35,
-                  repeat: Infinity,
-                  ease: [0.45, 0, 0.55, 1],
-                }}
-              >
+              <span className="hero-scroll-cue__inner">
                 <span className="hero-scroll-cue__stack">
-                  {[0, 1].map((index) => (
-                    <motion.span
-                      key={index}
-                      className="hero-scroll-cue__chevron"
-                      animate={
-                        reduceMotion
-                          ? undefined
-                          : { y: [0, 7, 0], opacity: [0.28, 1, 0.28] }
-                      }
-                      transition={{
-                        duration: 1.55,
-                        repeat: Infinity,
-                        ease: [0.45, 0, 0.55, 1],
-                        delay: index * 0.28,
-                      }}
-                    >
-                      <ChevronDown className="h-4 w-4" strokeWidth={1.75} />
-                    </motion.span>
-                  ))}
+                  <ChevronDown className="h-4 w-4 opacity-80" strokeWidth={1.75} />
                 </span>
-                <motion.span
-                  className="hero-scroll-cue__label"
-                  animate={
-                    reduceMotion ? undefined : { opacity: [0.42, 0.78, 0.42] }
-                  }
-                  transition={{
-                    duration: 2.1,
-                    repeat: Infinity,
-                    ease: "easeInOut",
-                    delay: 0.35,
-                  }}
-                >
-                  {t("heroScroll")}
-                </motion.span>
-              </motion.span>
+                <span className="hero-scroll-cue__label">{t("heroScroll")}</span>
+              </span>
             </motion.button>
           ) : null}
         </AnimatePresence>
-
-        <div className="absolute bottom-0 z-20 h-1 w-full bg-gradient-to-r from-transparent via-white/10 to-transparent" />
       </section>
 
-      <div id="about-intro" className="scroll-mt-0">
+      <div id="about-intro" className="scroll-mt-20">
         <LazyMount minHeight="28rem">
           <AboutIntroSection />
         </LazyMount>
       </div>
+      <LazyMount minHeight="40rem">
+        <FeaturedProducts />
+      </LazyMount>
       <LazyMount minHeight="34rem">
         <ProjectsCarousel />
       </LazyMount>
+      <SiteFooter />
     </main>
   );
 }
-

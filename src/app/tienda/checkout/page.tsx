@@ -191,7 +191,9 @@ export default function CheckoutPage() {
                     {line!.product.title} × {line!.quantity}
                   </span>
                   <span className="font-mono text-zinc-400">
-                    {formatCop(line!.product.price * line!.quantity, locale)}
+                    {line!.product.price == null
+                      ? t("shopPricePending")
+                      : formatCop(line!.product.price * line!.quantity, locale)}
                   </span>
                 </li>
               ))}

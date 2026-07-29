@@ -481,7 +481,7 @@ export function DannielAdminDashboard() {
       email: "manual@cliente.com",
       size: "Mediano",
       zone: "Brazo",
-      style: "Realismo oscuro",
+      style: "Lettering",
       notes: "Proyecto fuera de cotizador",
       estimateSessions: "2 a 3 sesiones",
       estimatePerSession: "$1,5M - $1,8M COP",

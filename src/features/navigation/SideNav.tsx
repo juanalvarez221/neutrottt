@@ -16,7 +16,7 @@ export function SideNav() {
           <div className="flex items-center justify-between gap-3">
             <div className="leading-none">
               <p className="hero-brand-name text-[2.1rem] leading-[0.9] sm:text-[2.5rem]">
-                Neutrottt
+                Danniel Cuervo
               </p>
               <p className="hero-brand-tagline mt-2 text-[0.58rem] tracking-[0.38em] text-stone-400/80">
                 Tattoo Artist
@@ -63,10 +63,10 @@ export function SideNav() {
                 Estilo
               </p>
               <p className="mt-1 text-sm font-semibold text-zinc-50">
-                Realismo oscuro y blackwork
+                Lettering
               </p>
               <p className="mt-2 text-xs leading-5 text-zinc-400">
-                Sombras y lettering · Emerald Tattoo Studio, Medellín
+                Lettering · Emerald Tattoo Studio, Medellín
               </p>
             </div>
           </div>

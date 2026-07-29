@@ -6,8 +6,8 @@ import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { useReducedMotion } from "framer-motion";
-import { Minus, Plus, ShoppingBag, X } from "lucide-react";
-import { formatCop, getProductById } from "@/shared/config/products";
+import { Minus, Plus, X } from "lucide-react";
+import { formatCop, formatProductPrice, getProductById } from "@/shared/config/products";
 import { useCart } from "@/shared/lib/cart";
 import { useSiteLanguage } from "@/shared/i18n/LanguageProvider";
 
@@ -15,11 +15,12 @@ gsap.registerPlugin(useGSAP);
 
 export function CartDrawer() {
   const { t, language } = useSiteLanguage();
-  const { state, dispatch, subtotal, itemCount } = useCart();
+  const { state, dispatch, subtotal } = useCart();
   const reduceMotion = useReducedMotion();
   const rootRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLElement>(null);
   const locale = language === "en" ? "en-US" : "es-CO";
+  const pendingLabel = t("shopPricePending");
 
   useEffect(() => {
     if (!state.isOpen) return;
@@ -74,19 +75,6 @@ export function CartDrawer() {
 
   return (
     <>
-      <button
-        type="button"
-        onClick={() => dispatch({ type: "TOGGLE" })}
-        className="fixed bottom-[5.5rem] right-4 z-[60] inline-flex min-h-12 items-center gap-2 border border-white/12 bg-[#1a1410]/px-4 text-sm font-semibold text-[rgba(243,230,215,0.96)] shadow-[0_12px_28px_rgba(0,0,0,0.35)] transition active:scale-[0.98] md:bottom-8"
-        aria-label={t("shopCartOpen")}
-      >
-        <ShoppingBag className="h-4 w-4" strokeWidth={1.75} />
-        <span>{t("shopCart")}</span>
-        {itemCount > 0 ? (
-          <span className="font-mono text-xs text-[rgba(var(--rgb-sand),0.9)]">{itemCount}</span>
-        ) : null}
-      </button>
-
       <div
         ref={rootRef}
         className="fixed inset-0 z-[70] opacity-0"
@@ -137,19 +125,23 @@ export function CartDrawer() {
                   if (!product) return null;
                   return (
                     <li key={line.productId} className="grid grid-cols-[4.5rem_1fr] gap-3">
-                      <div className="relative aspect-square overflow-hidden bg-[#0c0a08]">
-                        <Image
-                          src={product.image}
-                          alt={product.title}
-                          fill
-                          sizes="72px"
-                          className="object-cover"
-                        />
+                      <div className="relative flex aspect-square items-center justify-center overflow-hidden bg-[#1a1410] text-[10px] uppercase tracking-[0.12em] text-zinc-500">
+                        {product.image ? (
+                          <Image
+                            src={product.image}
+                            alt={product.title}
+                            fill
+                            sizes="72px"
+                            className="object-cover"
+                          />
+                        ) : (
+                          <span>{t("shopPlaceholderHint")}</span>
+                        )}
                       </div>
                       <div>
                         <p className="text-sm font-semibold text-zinc-100">{product.title}</p>
                         <p className="mt-1 font-mono text-xs text-zinc-400">
-                          {formatCop(product.price, locale)}
+                          {formatProductPrice(product, locale, pendingLabel)}
                         </p>
                         <div className="mt-3 flex items-center gap-2">
                           <button

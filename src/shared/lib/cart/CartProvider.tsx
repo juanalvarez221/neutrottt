@@ -31,7 +31,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const value = useMemo(() => {
     const subtotal = state.lines.reduce((sum, line) => {
       const product = getProductById(line.productId);
-      return sum + (product?.price ?? 0) * line.quantity;
+      return sum + (product?.price != null ? product.price : 0) * line.quantity;
     }, 0);
     return {
       state,

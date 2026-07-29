@@ -9,10 +9,10 @@ import { getQuoteDraft, isLargeQuoteSize } from "@/shared/lib/quoteDraft";
 import { draftHasLocation } from "@/widgets/quote/quoteBodyLocation";
 
 const STYLE_OPTIONS = [
-  "Realismo oscuro",
-  "Surrealismo",
+  "Lettering",
+  "Script",
   "Lineas",
-  "Neutrottt Style",
+  "Danniel Style",
 ] as const;
 
 export function QuoteStyleStep({ size, zone }: { size: string; zone: string }) {

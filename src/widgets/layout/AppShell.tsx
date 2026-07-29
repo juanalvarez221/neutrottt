@@ -1,8 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { NavBar } from "@/features/navigation/NavBar";
-import { SideNav } from "@/features/navigation/SideNav";
+import { SiteFooter } from "@/widgets/layout/SiteFooter";
 import { cn } from "@/shared/lib/cn";
 
 export function AppShell({
@@ -13,26 +11,11 @@ export function AppShell({
   className?: string;
 }) {
   return (
-    <div className="min-h-dvh bg-background">
-      <div className="mx-auto flex w-full max-w-7xl gap-0 lg:gap-6">
-        <SideNav />
-
-        <div className="w-full pl-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))] pb-[max(5.75rem,calc(4.5rem+env(safe-area-inset-bottom)))] pt-5 sm:pt-6 lg:px-6 lg:pb-10 lg:pt-10">
-          <motion.div
-            initial={{ opacity: 0, y: 14 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.42, ease: "easeOut" }}
-            className={cn(className)}
-          >
-            {children}
-          </motion.div>
-        </div>
+    <div className="min-h-dvh bg-background pt-14 sm:pt-16">
+      <div className="mx-auto w-full max-w-[1400px] px-4 pb-12 pt-6 sm:px-6 sm:pt-8 lg:px-8 lg:pb-16 lg:pt-10">
+        <div className={cn(className)}>{children}</div>
       </div>
-
-      <div className="lg:hidden">
-        <NavBar />
-      </div>
+      <SiteFooter />
     </div>
   );
 }
-

@@ -866,6 +866,49 @@ body {
   }
 }
 
+.hero-banner-video {
+  filter: contrast(1.06) saturate(0.82);
+}
+
+.hero-banner-grade {
+  background:
+    linear-gradient(90deg, rgba(8, 6, 4, 0.88) 0%, rgba(8, 6, 4, 0.45) 42%, rgba(8, 6, 4, 0.2) 100%),
+    linear-gradient(0deg, rgba(8, 6, 4, 0.92) 0%, rgba(8, 6, 4, 0.35) 38%, transparent 62%),
+    linear-gradient(145deg, rgba(198, 122, 54, 0.16), transparent 48%);
+  mix-blend-mode: multiply;
+}
+
+.site-header {
+  transition: background-color 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+    backdrop-filter 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  border-bottom: 1px solid transparent;
+}
+
+.site-header--instant {
+  transition: none;
+}
+
+.site-header--clear {
+  background: transparent;
+}
+
+.site-header--solid {
+  background: rgba(20, 16, 13, 0.92);
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(16px);
+}
+
+.site-header__wordmark {
+  color: rgba(243, 230, 215, 0.96);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .site-header {
+    transition: none;
+  }
+}
+
 .hero-photo-grade {
   background:
     linear-gradient(
