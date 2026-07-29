@@ -1,0 +1,21 @@
+# Keep Vercel uploads lean — deploy only what Next.js needs
+node_modules
+.next
+.git
+.cursor
+artifacts
+test-results
+playwright-report
+coverage
+assets
+docs
+tools
+e2e
+*.blend
+*.blend1
+public/models/interaction/fields/temp
+public/models/interaction/pilot
+data/quote-requests.json
+.env*
+README*
+AGENTS.md
