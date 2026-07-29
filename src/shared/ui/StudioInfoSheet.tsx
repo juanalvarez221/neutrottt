@@ -117,7 +117,7 @@ export function StudioInfoSheet({ open, onClose }: StudioInfoSheetProps) {
                 {t("studioInfoIntro")}
               </p>
 
-              <p className="typo-micro mt-2 text-emerald-200/75">{t("studioNeutrotttNote")}</p>
+              <p className="typo-micro mt-2 text-emerald-200/75">{t("studioArtistNote")}</p>
 
               <div className="relative mt-4 h-24 w-full max-w-[240px] overflow-hidden rounded-xl border border-white/10 opacity-90">
                 <Image

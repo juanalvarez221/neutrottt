@@ -1,5 +1,5 @@
-import { QuoteConnectionStep } from "@/widgets/quote/QuoteConnectionStep";
+import { QuoteReferralStep } from "@/widgets/quote/QuoteReferralStep";
 
 export default function CotizacionConexionPage() {
-  return <QuoteConnectionStep />;
+  return <QuoteReferralStep />;
 }
