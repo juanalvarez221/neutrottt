@@ -16,9 +16,16 @@ const RULES = [
     severity: "error",
   },
   {
+    // max-w-/min-w- ya son responsive; solo interesa el ancho rigido.
     id: "fixed-wide",
-    pattern: /\bw-\[(?:[4-9]\d{2,}|[1-9]\d{3,})px\]/g,
+    pattern: /(?<!max-|min-)\bw-\[(?:[4-9]\d{2,}|[1-9]\d{3,})px\]/g,
     message: "Ancho fijo grande sin alternativa responsive.",
+    severity: "warn",
+  },
+  {
+    id: "ios-input-zoom",
+    pattern: /<(?:input|textarea|select)[^>]*\btext-(?:xs|sm)\b/g,
+    message: "Campo con fuente < 16px: iOS hace zoom al enfocarlo (usar la regla base de globals.css).",
     severity: "warn",
   },
 ];

@@ -148,7 +148,7 @@ export function CheckoutOrderPanel({ lines }: { lines: CheckoutLine[] }) {
             {upsells.map((product) => (
               <li
                 key={product.id}
-                className="flex items-center gap-3 rounded-xl border border-[rgba(var(--rgb-sand),0.1)] bg-[rgba(255,255,255,0.02)] px-2.5 py-2"
+                className="flex min-w-0 items-center gap-2.5 rounded-xl border border-[rgba(var(--rgb-sand),0.1)] bg-[rgba(255,255,255,0.02)] px-2.5 py-2 sm:gap-3"
               >
                 <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-md bg-[#1a1410]">
                   {product.image ? (
@@ -176,7 +176,7 @@ export function CheckoutOrderPanel({ lines }: { lines: CheckoutLine[] }) {
                   onClick={() =>
                     dispatch({ type: "ADD", productId: product.id, open: false })
                   }
-                  className="shrink-0 rounded-lg border border-[rgba(var(--rgb-sand),0.2)] px-2.5 py-1.5 font-mono text-[0.58rem] uppercase tracking-[0.12em] text-[rgba(var(--rgb-sand),0.75)] transition hover:border-[rgba(var(--rgb-sand),0.4)] hover:text-[rgba(var(--rgb-sand),0.95)] active:scale-[0.97]"
+                  className="inline-flex min-h-11 shrink-0 items-center rounded-lg border border-[rgba(var(--rgb-sand),0.2)] px-3 font-mono text-[0.58rem] uppercase tracking-[0.12em] text-[rgba(var(--rgb-sand),0.75)] transition hover:border-[rgba(var(--rgb-sand),0.4)] hover:text-[rgba(var(--rgb-sand),0.95)] active:scale-[0.97]"
                 >
                   {t("shopUpsellAdd")}
                 </button>

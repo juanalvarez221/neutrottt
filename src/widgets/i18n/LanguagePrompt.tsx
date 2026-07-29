@@ -42,7 +42,7 @@ export function LanguagePrompt() {
             >
               <p className="text-sm font-semibold text-amber-50">{t("languageEs")}</p>
               <p className="mt-1 text-xs text-amber-100/75">
-                Experiencia completa en espanol.
+                Experiencia completa en español.
               </p>
             </motion.button>
 

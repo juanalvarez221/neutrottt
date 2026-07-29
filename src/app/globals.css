@@ -246,6 +246,15 @@ body {
   -webkit-tap-highlight-color: transparent;
 }
 
+/* Safari iOS hace zoom al enfocar un campo con fuente menor a 16px. */
+@media (pointer: coarse), (max-width: 640px) {
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+  select,
+  textarea {
+    font-size: max(16px, 1em);
+  }
+}
+
 .text-display {
   font-family: var(--font-stack-display);
   font-weight: 700;
@@ -3240,6 +3249,306 @@ body {
   }
 }
 
+/* —— Pared de premios (/premios) —— */
+.awards-wall {
+  position: relative;
+  isolation: isolate;
+  padding-bottom: 4.5rem;
+  color: var(--palette-ivory);
+}
+
+.awards-wall__atmosphere {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background:
+    radial-gradient(980px 460px at 8% -4%, rgba(var(--rgb-terracotta), 0.18), transparent 58%),
+    radial-gradient(720px 380px at 92% 8%, rgba(var(--rgb-sand), 0.08), transparent 52%),
+    linear-gradient(180deg, #14100f 0%, #0e0a0b 42%, #0a0708 100%);
+}
+
+.awards-wall__atmosphere::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: 0.28;
+  background-image:
+    repeating-linear-gradient(
+      90deg,
+      transparent 0,
+      transparent 11px,
+      rgba(255, 255, 255, 0.012) 11px,
+      rgba(255, 255, 255, 0.012) 12px
+    ),
+    repeating-linear-gradient(
+      0deg,
+      transparent 0,
+      transparent 13px,
+      rgba(0, 0, 0, 0.04) 13px,
+      rgba(0, 0, 0, 0.04) 14px
+    );
+}
+
+.awards-wall__intro,
+.awards-wall__surface {
+  position: relative;
+  z-index: 1;
+}
+
+.awards-wall__intro {
+  padding-top: 1.75rem;
+  padding-bottom: 2rem;
+}
+
+@media (min-width: 768px) {
+  .awards-wall__intro {
+    padding-top: 2.5rem;
+    padding-bottom: 2.75rem;
+  }
+}
+
+.awards-wall__surface {
+  /* Plaster wall plane for the hanging frames */
+  border-radius: 0.15rem;
+  border: 1px solid rgba(var(--rgb-sand), 0.12);
+  background:
+    linear-gradient(165deg, rgba(28, 20, 18, 0.72), rgba(14, 10, 11, 0.92)),
+    radial-gradient(ellipse 70% 40% at 50% 0%, rgba(var(--rgb-sand), 0.06), transparent 60%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.04),
+    0 30px 80px rgba(0, 0, 0, 0.35);
+  padding-top: 1.25rem;
+  padding-bottom: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .awards-wall__surface {
+    padding-top: 1.75rem;
+    padding-bottom: 2rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .awards-wall__surface {
+    padding-top: 2.25rem;
+    padding-bottom: 2.5rem;
+  }
+}
+
+/* Secuencia vertical: un cuadro por tramo de scroll, nunca apilados */
+.awards-wall__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0;
+}
+
+.awards-wall__item {
+  min-width: 0;
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 1.15rem;
+  padding-block: 2.75rem;
+  min-height: 68svh;
+}
+
+.awards-wall__item + .awards-wall__item {
+  border-top: 1px solid rgba(var(--rgb-sand), 0.07);
+}
+
+@media (min-width: 1024px) {
+  .awards-wall__item {
+    grid-template-columns: minmax(0, 1fr) auto;
+    justify-items: start;
+    align-items: center;
+    gap: 2.75rem;
+    padding-block: 3.5rem;
+    min-height: 74svh;
+  }
+
+  /* Alternancia asimetrica para recorrer la pared */
+  .awards-wall__item--left .awards-wall__hanger {
+    justify-self: end;
+    margin-right: clamp(0rem, 4vw, 3.5rem);
+  }
+
+  .awards-wall__item--right {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .awards-wall__item--right .awards-wall__hanger {
+    grid-column: 2;
+    justify-self: start;
+    margin-left: clamp(0rem, 4vw, 3.5rem);
+  }
+
+}
+
+.awards-wall__hanger {
+  position: relative;
+  width: min(100%, 20rem);
+  padding-top: 1.9rem;
+}
+
+@media (min-width: 640px) {
+  .awards-wall__hanger {
+    width: min(100%, 23rem);
+  }
+}
+
+@media (min-width: 1024px) {
+  .awards-wall__hanger {
+    width: min(100%, 26rem);
+  }
+}
+
+/* Luz de galeria: aparece cuando el cuadro se asienta */
+.awards-wall__lamp {
+  pointer-events: none;
+  position: absolute;
+  left: -18%;
+  right: -18%;
+  top: -1.5rem;
+  z-index: 0;
+  height: 62%;
+  transform-origin: center top;
+  background: radial-gradient(
+    ellipse 46% 100% at 50% 0%,
+    rgba(var(--rgb-sand), 0.14),
+    transparent 74%
+  );
+}
+
+.awards-wall__hook {
+  position: absolute;
+  top: 0.15rem;
+  left: 50%;
+  z-index: 4;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 9999px;
+  background: radial-gradient(circle at 35% 30%, #e0c288, #6a4e2a 72%);
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  transform: translateX(-50%);
+}
+
+/* Cable de colgado: el trazo no se deforma al escalar el SVG */
+.awards-wall__wire {
+  position: absolute;
+  top: 0.4rem;
+  left: 8%;
+  z-index: 3;
+  width: 84%;
+  height: 1.5rem;
+  color: rgba(var(--rgb-sand), 0.3);
+  pointer-events: none;
+}
+
+.awards-wall__frame {
+  position: relative;
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+}
+
+.awards-wall__cast {
+  pointer-events: none;
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  bottom: -1.1rem;
+  z-index: 0;
+  height: 1.6rem;
+  transform-origin: center top;
+  background: radial-gradient(ellipse 50% 50% at 50% 0%, rgba(0, 0, 0, 0.6), transparent 72%);
+  filter: blur(3px);
+}
+
+.awards-wall__mat {
+  position: relative;
+  display: block;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  border: 1px solid rgba(var(--rgb-sand), 0.28);
+  background:
+    linear-gradient(145deg, rgba(48, 32, 26, 0.98), rgba(16, 11, 12, 0.99));
+  box-shadow:
+    inset 0 1px 0 rgba(var(--rgb-sand), 0.14),
+    0 18px 42px rgba(0, 0, 0, 0.42);
+  padding: 0.4rem;
+  transition:
+    border-color 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.awards-wall__frame:hover .awards-wall__mat {
+  border-color: rgba(var(--rgb-sand), 0.48);
+  box-shadow:
+    inset 0 1px 0 rgba(var(--rgb-sand), 0.18),
+    0 22px 52px rgba(0, 0, 0, 0.5);
+}
+
+.awards-wall__frame:active .awards-wall__mat {
+  transform: scale(0.985);
+}
+
+.awards-wall__photo {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border: 1px solid rgba(var(--rgb-sand), 0.14);
+  background: #120c0e;
+}
+
+.awards-wall__sheen {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, transparent 48%, rgba(8, 4, 5, 0.5) 100%),
+    linear-gradient(125deg, rgba(var(--rgb-sand), 0.07), transparent 42%);
+}
+
+.awards-wall__detail {
+  animation: hall-detail-in 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .awards-wall__frame,
+  .awards-wall__cast,
+  .awards-wall__lamp {
+    will-change: auto;
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+  }
+
+  .awards-wall__detail {
+    animation: none;
+  }
+
+  .awards-wall__frame:active .awards-wall__mat {
+    transform: none;
+  }
+
+  .awards-wall__item {
+    min-height: 0;
+  }
+}
+
 .page-section-pad {
   width: 100%;
   padding-left: max(1rem, env(safe-area-inset-left));
@@ -5030,7 +5339,10 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: flex-end;
-  padding: 0;
+  /* Area de toque accesible sin desplazar el indicador visual. */
+  min-height: 2.75rem;
+  min-width: 2.75rem;
+  padding: 0.75rem 0.5rem 0;
   border: none;
   background: transparent;
   box-shadow: none;

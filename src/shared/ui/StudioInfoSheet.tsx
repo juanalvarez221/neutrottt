@@ -72,14 +72,14 @@ export function StudioInfoSheet({ open, onClose }: StudioInfoSheetProps) {
               <button
                 type="button"
                 onClick={onClose}
-                className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-white/5 text-zinc-200 transition hover:bg-white/10"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-zinc-200 transition hover:bg-white/10"
                 aria-label={t("studioClose")}
               >
                 <X className="h-3.5 w-3.5" strokeWidth={2} />
               </button>
             </div>
 
-            <div className="relative flex flex-1 flex-col items-center px-5 pb-5 pt-4 text-center sm:px-7 sm:pb-6">
+            <div className="relative flex min-h-0 flex-1 flex-col items-center overflow-y-auto overscroll-contain px-5 pb-5 pt-4 text-center sm:px-7 sm:pb-6">
               <div className="relative h-28 w-28 overflow-hidden rounded-2xl border border-emerald-500/35 shadow-[0_16px_48px_rgba(0,0,0,0.45)] sm:h-32 sm:w-32">
                 <Image
                   src={STUDIO.logoSrc}
@@ -137,7 +137,7 @@ export function StudioInfoSheet({ open, onClose }: StudioInfoSheetProps) {
                 href={STUDIO.mapsUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="studio-card-cta mt-4 inline-flex items-center justify-center gap-1 rounded-md px-2.5 py-1.5 text-[0.6rem] font-bold uppercase tracking-[0.1em] sm:text-[0.62rem]"
+                className="studio-card-cta mt-4 inline-flex min-h-11 items-center justify-center gap-1.5 rounded-md px-4 text-[0.6rem] font-bold uppercase tracking-[0.1em] sm:text-[0.62rem]"
               >
                 <MapPin className="h-3 w-3 shrink-0" strokeWidth={2} />
                 {t("studioMapsCta")}

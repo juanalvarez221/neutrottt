@@ -42,7 +42,7 @@ export function QuoteShell({
           <button
             type="button"
             onClick={() => router.back()}
-            className="opacity-80 transition hover:opacity-100 active:scale-[0.98]"
+            className="-m-2.5 inline-flex h-11 w-11 items-center justify-center opacity-80 transition hover:opacity-100 active:scale-[0.98]"
             aria-label="Volver"
           >
             <ArrowLeft className="h-6 w-6 text-[rgba(var(--rgb-sand),0.85)]" strokeWidth={1.5} />

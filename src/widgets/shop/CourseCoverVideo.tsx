@@ -106,7 +106,7 @@ export function CourseCoverVideo({ title, coverSrc, videoSrc }: CourseCoverVideo
                 <button
                   type="button"
                   onClick={reveal}
-                  className="pointer-events-auto inline-flex h-9 items-center gap-2.5 rounded-full border border-[rgba(var(--rgb-sand),0.28)] bg-[rgba(18,12,14,0.78)] px-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-md transition active:scale-[0.98]"
+                  className="pointer-events-auto inline-flex h-11 items-center gap-2.5 rounded-full border border-[rgba(var(--rgb-sand),0.28)] bg-[rgba(18,12,14,0.78)] px-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-md transition active:scale-[0.98]"
                 >
                   <span className="relative flex h-4 w-3 items-center justify-center" aria-hidden>
                     <motion.span

@@ -178,7 +178,7 @@ export function CartDrawer() {
                                 <motion.button
                                   type="button"
                                   whileTap={{ scale: 0.9 }}
-                                  className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-[rgba(var(--rgb-sand),0.18)] text-[rgba(var(--rgb-ivory),0.8)] transition hover:border-[rgba(var(--rgb-sand),0.35)]"
+                                  className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-[rgba(var(--rgb-sand),0.18)] text-[rgba(var(--rgb-ivory),0.8)] transition hover:border-[rgba(var(--rgb-sand),0.35)]"
                                   onClick={() =>
                                     dispatch({
                                       type: "SET_QTY",
@@ -201,7 +201,7 @@ export function CartDrawer() {
                                 <motion.button
                                   type="button"
                                   whileTap={{ scale: 0.9 }}
-                                  className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-[rgba(var(--rgb-sand),0.18)] text-[rgba(var(--rgb-ivory),0.8)] transition hover:border-[rgba(var(--rgb-sand),0.35)]"
+                                  className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-[rgba(var(--rgb-sand),0.18)] text-[rgba(var(--rgb-ivory),0.8)] transition hover:border-[rgba(var(--rgb-sand),0.35)]"
                                   onClick={() =>
                                     dispatch({
                                       type: "SET_QTY",

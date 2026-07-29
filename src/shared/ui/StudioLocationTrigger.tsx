@@ -29,7 +29,7 @@ export function StudioLocationTrigger({
           type="button"
           onClick={openSheet}
           className={cn(
-            "group inline-flex items-center gap-1.5 border-b border-transparent pb-0.5 text-left transition hover:border-[rgba(var(--rgb-sand),0.4)]",
+            "group inline-flex min-h-11 items-center gap-1.5 border-b border-transparent pb-0.5 text-left transition hover:border-[rgba(var(--rgb-sand),0.4)] lg:min-h-0",
             className,
           )}
           aria-label={`${STUDIO.displayName}, ${STUDIO.locationShort}`}

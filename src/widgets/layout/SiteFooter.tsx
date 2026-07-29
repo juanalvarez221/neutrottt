@@ -9,7 +9,7 @@ import { SocialBrandIcon } from "@/shared/ui/SocialBrandIcon";
 
 const FOOTER_LINKS = [
   { href: "/proyectos", labelKey: "navPortfolio" as const },
-  { href: "/#trayectoria", labelKey: "navAwards" as const },
+  { href: "/premios", labelKey: "navAwards" as const },
   { href: "/#aprender", labelKey: "navSeminar" as const },
   { href: "/#artista", labelKey: "merchTag" as const },
   { href: "/tienda", labelKey: "navShop" as const },
@@ -49,7 +49,7 @@ export function SiteFooter() {
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="text-[0.72rem] font-semibold uppercase tracking-[0.12em] text-[rgba(var(--rgb-ivory),0.62)] transition hover:text-[rgba(var(--rgb-sand),0.95)]"
+                    className="inline-flex min-h-10 items-center text-[0.72rem] font-semibold uppercase tracking-[0.12em] text-[rgba(var(--rgb-ivory),0.62)] transition hover:text-[rgba(var(--rgb-sand),0.95)]"
                     style={{ fontFamily: "var(--font-stack-display)" }}
                   >
                     {t(link.labelKey)}
@@ -65,7 +65,7 @@ export function SiteFooter() {
               target="_blank"
               rel="noopener noreferrer"
               aria-label={t("footerInstagramAria")}
-              className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-[rgba(var(--rgb-sand),0.16)] text-[rgba(var(--rgb-sand),0.8)] transition hover:border-[rgba(var(--rgb-sand),0.35)] hover:bg-[rgba(var(--rgb-terracotta),0.12)] active:scale-[0.98]"
+              className="inline-flex h-11 w-11 items-center justify-center rounded-lg border border-[rgba(var(--rgb-sand),0.16)] text-[rgba(var(--rgb-sand),0.8)] transition hover:border-[rgba(var(--rgb-sand),0.35)] hover:bg-[rgba(var(--rgb-terracotta),0.12)] active:scale-[0.98]"
             >
               <SocialBrandIcon network="instagram" framed={false} className="h-4 w-4 text-current" />
             </a>
@@ -74,7 +74,7 @@ export function SiteFooter() {
               target="_blank"
               rel="noopener noreferrer"
               aria-label={t("footerWhatsappAria")}
-              className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-[rgba(var(--rgb-sand),0.16)] text-[rgba(var(--rgb-sand),0.8)] transition hover:border-[rgba(var(--rgb-sand),0.35)] hover:bg-[rgba(var(--rgb-terracotta),0.12)] active:scale-[0.98]"
+              className="inline-flex h-11 w-11 items-center justify-center rounded-lg border border-[rgba(var(--rgb-sand),0.16)] text-[rgba(var(--rgb-sand),0.8)] transition hover:border-[rgba(var(--rgb-sand),0.35)] hover:bg-[rgba(var(--rgb-terracotta),0.12)] active:scale-[0.98]"
             >
               <SocialBrandIcon network="whatsapp" framed={false} className="h-4 w-4 text-current" />
             </a>
@@ -89,7 +89,7 @@ export function SiteFooter() {
             href={STUDIO.mapsUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="font-mono text-[0.6rem] uppercase tracking-[0.14em] text-[rgba(var(--rgb-ivory),0.4)] transition hover:text-[rgba(var(--rgb-sand),0.85)]"
+            className="inline-flex min-h-10 items-center font-mono text-[0.6rem] uppercase tracking-[0.14em] text-[rgba(var(--rgb-ivory),0.4)] transition hover:text-[rgba(var(--rgb-sand),0.85)] lg:min-h-0"
           >
             {STUDIO.locationShort}
           </a>

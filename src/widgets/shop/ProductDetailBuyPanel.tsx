@@ -87,7 +87,7 @@ export function ProductDetailBuyPanel({
 
       <Link
         href="/tienda"
-        className="mt-6 inline-flex font-mono text-[0.62rem] uppercase tracking-[0.14em] text-[rgba(var(--rgb-ivory),0.4)] transition hover:text-[rgba(var(--rgb-sand),0.85)]"
+        className="mt-4 inline-flex min-h-11 items-center font-mono text-[0.62rem] uppercase tracking-[0.14em] text-[rgba(var(--rgb-ivory),0.4)] transition hover:text-[rgba(var(--rgb-sand),0.85)]"
       >
         {t("shopBackToStore")}
       </Link>

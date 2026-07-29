@@ -15,10 +15,19 @@ import { cn } from "@/shared/lib/cn";
 type NavLink = {
   href: string;
   labelKey: SiteCopyKey;
+  /** Etiqueta abreviada para que el carrito nunca quede fuera de pantalla en moviles estrechos. */
+  shortLabelKey?: SiteCopyKey;
+  /** Se oculta por debajo de 320px para evitar etiquetas truncadas. */
+  optional?: boolean;
 };
 
 const NAV_LINKS: NavLink[] = [
-  { href: "/#trayectoria", labelKey: "navAwards" },
+  {
+    href: "/premios",
+    labelKey: "navAwards",
+    shortLabelKey: "navAwardsShort",
+    optional: true,
+  },
   { href: "/tienda", labelKey: "navShop" },
 ];
 
@@ -29,6 +38,7 @@ function isHiddenRoute(pathname: string): boolean {
 function isActiveLink(pathname: string, href: string): boolean {
   if (href.startsWith("/#")) return false;
   if (href === "/tienda") return pathname.startsWith("/tienda");
+  if (href === "/premios") return pathname === "/premios" || pathname.startsWith("/premios/");
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
@@ -102,7 +112,7 @@ export function SiteHeader() {
         </Link>
 
         <nav
-          className="ml-auto flex items-center gap-0.5 sm:gap-1"
+          className="ml-auto flex min-w-0 items-center gap-0.5 sm:gap-1"
           aria-label={t("navPrimaryLabel")}
         >
           {NAV_LINKS.map((item) => {
@@ -112,17 +122,27 @@ export function SiteHeader() {
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "relative px-2.5 py-2 text-[0.62rem] font-semibold uppercase tracking-[0.14em] transition sm:px-3 sm:text-[0.68rem] sm:tracking-[0.16em]",
+                  "relative inline-flex min-h-11 min-w-0 items-center px-2 text-[0.62rem] font-semibold uppercase tracking-[0.1em] transition min-[400px]:px-2.5 min-[400px]:tracking-[0.14em] sm:px-3 sm:text-[0.68rem] sm:tracking-[0.16em]",
+                  item.optional && "hidden min-[320px]:inline-flex",
                   active
                     ? "text-[rgba(var(--rgb-sand),0.96)]"
                     : "text-[rgba(var(--rgb-ivory),0.55)] hover:text-[rgba(var(--rgb-sand),0.92)]",
                 )}
                 style={{ fontFamily: "var(--font-stack-display)" }}
               >
-                {t(item.labelKey)}
+                <span className="truncate">
+                  {item.shortLabelKey ? (
+                    <>
+                      <span className="min-[520px]:hidden">{t(item.shortLabelKey)}</span>
+                      <span className="hidden min-[520px]:inline">{t(item.labelKey)}</span>
+                    </>
+                  ) : (
+                    t(item.labelKey)
+                  )}
+                </span>
                 {active ? (
                   <span
-                    className="absolute inset-x-2.5 -bottom-px h-px bg-[rgba(var(--rgb-honey),0.55)] sm:inset-x-3"
+                    className="absolute inset-x-2 bottom-1 h-px bg-[rgba(var(--rgb-honey),0.55)] min-[400px]:inset-x-2.5 sm:inset-x-3"
                     aria-hidden
                   />
                 ) : null}
@@ -133,7 +153,7 @@ export function SiteHeader() {
           <button
             type="button"
             onClick={() => dispatch({ type: "OPEN" })}
-            className="relative ml-1 inline-flex h-10 w-10 items-center justify-center rounded-xl border border-[rgba(var(--rgb-sand),0.14)] bg-[rgba(255,255,255,0.03)] text-[rgba(var(--rgb-sand),0.88)] transition hover:border-[rgba(var(--rgb-sand),0.28)] hover:bg-[rgba(255,255,255,0.06)] active:scale-[0.98]"
+            className="relative ml-1 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[rgba(var(--rgb-sand),0.14)] bg-[rgba(255,255,255,0.03)] text-[rgba(var(--rgb-sand),0.88)] transition hover:border-[rgba(var(--rgb-sand),0.28)] hover:bg-[rgba(255,255,255,0.06)] active:scale-[0.98]"
             aria-label={t("shopCartOpen")}
           >
             <ShoppingBag className="h-4 w-4" strokeWidth={1.6} />

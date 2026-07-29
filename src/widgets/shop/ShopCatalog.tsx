@@ -104,7 +104,9 @@ function FeaturedCourseCard({
               {productTypeLabel(product.type, language)}
             </p>
             <h2 className="typo-gothic mt-3 text-[clamp(1.85rem,3.5vw,2.6rem)] text-[rgba(var(--rgb-sand),0.96)]">
-              <Link href={`/tienda/${product.id}`}>{product.title}</Link>
+              <Link href={`/tienda/${product.id}`} className="-my-2.5 inline-block py-2.5">
+                {product.title}
+              </Link>
             </h2>
             <p className="mt-4 max-w-[36ch] text-sm leading-relaxed text-[rgba(var(--rgb-ivory),0.58)]">
               {product.description}
@@ -170,7 +172,9 @@ function CatalogCard({
 
       <div className="flex flex-1 flex-col p-5 sm:p-6">
         <h3 className="text-lg font-semibold tracking-tight text-[rgba(var(--rgb-ivory),0.95)]">
-          <Link href={`/tienda/${product.id}`}>{product.title}</Link>
+          <Link href={`/tienda/${product.id}`} className="-my-2.5 inline-block py-2.5">
+            {product.title}
+          </Link>
         </h3>
         <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-[rgba(var(--rgb-ivory),0.5)]">
           {product.description}
