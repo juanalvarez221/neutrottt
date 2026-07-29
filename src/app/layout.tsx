@@ -1,5 +1,13 @@
 import type { Metadata, Viewport } from "next";
-import { Bebas_Neue, Montserrat, Space_Mono, UnifrakturMaguntia } from "next/font/google";
+import {
+  Alex_Brush,
+  Bebas_Neue,
+  Marck_Script,
+  Meddon,
+  Montserrat,
+  Space_Mono,
+  UnifrakturMaguntia,
+} from "next/font/google";
 import "./globals.css";
 import { LanguageProvider } from "@/shared/i18n/LanguageProvider";
 import { HtmlLangSync } from "@/widgets/i18n/HtmlLangSync";
@@ -40,9 +48,34 @@ const fontGothic = UnifrakturMaguntia({
   preload: false,
 });
 
+/** Lettering candidates — preview at /dev/fonts; product uses --font-lettering after lock. */
+const fontLetteringMarck = Marck_Script({
+  variable: "--font-lettering-marck",
+  subsets: ["latin"],
+  weight: ["400"],
+  display: "swap",
+  preload: false,
+});
+
+const fontLetteringMeddon = Meddon({
+  variable: "--font-lettering-meddon",
+  subsets: ["latin"],
+  weight: ["400"],
+  display: "swap",
+  preload: false,
+});
+
+const fontLetteringAlex = Alex_Brush({
+  variable: "--font-lettering-alex",
+  subsets: ["latin"],
+  weight: ["400"],
+  display: "swap",
+  preload: false,
+});
+
 export const metadata: Metadata = {
-  title: "Neutrottt, Sombras y Lettering",
-  description: "Tatuador en sombras y lettering · Emerald Tattoo Studio, Medellín.",
+  title: "Danniel Cuervo · Lettering · Emerald Tattoo",
+  description: "Tatuador especializado en lettering · Emerald Tattoo Studio, Medellín, Colombia.",
   metadataBase: process.env.NEXT_PUBLIC_SITE_URL
     ? new URL(process.env.NEXT_PUBLIC_SITE_URL)
     : undefined,
@@ -63,7 +96,7 @@ export default function RootLayout({
     <html
       lang="es"
       suppressHydrationWarning
-      className={`${fontSans.variable} ${fontDisplay.variable} ${fontMono.variable} ${fontGothic.variable} h-full antialiased`}
+      className={`${fontSans.variable} ${fontDisplay.variable} ${fontMono.variable} ${fontGothic.variable} ${fontLetteringMarck.variable} ${fontLetteringMeddon.variable} ${fontLetteringAlex.variable} h-full antialiased`}
     >
       <body suppressHydrationWarning className="min-h-full flex flex-col bg-background text-ivory">
         <LanguageProvider>
