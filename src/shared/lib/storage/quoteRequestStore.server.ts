@@ -11,6 +11,7 @@ export type QuoteConnectionAnswers = {
   values?: string;
   collaboration?: string;
   purpose?: string;
+  marketingOptIn?: boolean;
 };
 
 /**

@@ -150,6 +150,9 @@ describe("quote body location integration", () => {
     const fields = buildLegacyQuoteLocationFromBodyTargets(["full_back"]);
     expect(fields).toEqual({
       selectedBodyTargets: ["full_back"],
+      selectedBodyPlacements: [
+        { regionId: "full_back", coverage: "complete" },
+      ],
       zone: "otro",
       zoneOther: "Espalda completa",
     });

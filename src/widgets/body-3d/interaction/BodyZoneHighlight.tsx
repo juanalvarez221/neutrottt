@@ -24,7 +24,7 @@ function disposeMaterial(material: Material | Material[]) {
 /** Neutro camel / sand — piel tintada, no polígono de debug */
 const HOVER_COLOR = "#c49a6c";
 const PREVIEW_COLOR = "#d4a066";
-const SELECTED_COLOR = "#e8a840";
+const SELECTED_COLOR = "#d4b45c";
 
 type HighlightKind = "hover" | "preview" | "selected" | null;
 

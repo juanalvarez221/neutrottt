@@ -3,7 +3,12 @@
 import { useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { QuoteShell } from "@/widgets/quote/QuoteShell";
-import { BadgeDollarSign, CalendarDays, CheckCircle2, Sparkles } from "lucide-react";
+import {
+  QuotePanel,
+  QuotePrimaryCta,
+  QuoteStepHeader,
+} from "@/widgets/quote/QuoteStepChrome";
+import { CalendarDays } from "lucide-react";
 import { useSiteLanguage } from "@/shared/i18n/LanguageProvider";
 import { getQuoteProfile } from "@/shared/lib/quoteProfile";
 import { getQuoteConnection, mapConnectionToSmartQuote } from "@/shared/lib/quoteConnection";
@@ -16,7 +21,7 @@ import { receivesOnlinePricing, getQuoteDraft, setQuoteCompletionType } from "@/
 import { formatQuoteLocationLabel } from "@/widgets/quote/quoteBodyLocation";
 import { buildQuoteSessionEstimate } from "@/shared/lib/quoteSessionPricing";
 
-const DEFAULT_QUOTE_STYLE = "Neutrottt Style";
+const DEFAULT_QUOTE_STYLE = "Por definir";
 
 function PricingTierCard({
   title,
@@ -38,50 +43,47 @@ function PricingTierCard({
   return (
     <article
       className={[
-        "relative overflow-hidden rounded-2xl border p-4 transition-colors sm:p-5",
+        "relative overflow-hidden rounded-2xl border p-4 sm:p-5",
         accent
-          ? "border-amber-400/30 bg-gradient-to-b from-amber-500/10 to-amber-950/10"
-          : "border-white/10 bg-white/[0.03]",
+          ? "border-[rgba(var(--rgb-honey),0.28)] bg-[rgba(var(--rgb-cafe),0.55)]"
+          : "border-[rgba(var(--rgb-sand),0.12)] bg-[rgba(12,10,8,0.45)]",
       ].join(" ")}
     >
-      {accent ? (
-        <div
-          className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-amber-300/45 to-transparent"
-          aria-hidden
-        />
-      ) : null}
-
       <div className="flex items-start gap-3">
         <span
           className={[
-            "inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border",
+            "inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border",
             accent
-              ? "border-amber-400/35 bg-amber-500/15 text-amber-100"
-              : "border-white/12 bg-white/5 text-zinc-200",
+              ? "border-[rgba(var(--rgb-honey),0.3)] bg-[rgba(var(--rgb-honey),0.1)] text-[rgba(var(--rgb-honey),0.9)]"
+              : "border-[rgba(var(--rgb-sand),0.14)] bg-white/5 text-[rgba(var(--rgb-sand),0.8)]",
           ].join(" ")}
         >
-          <CalendarDays className="h-4 w-4" strokeWidth={1.75} />
+          <CalendarDays className="h-4 w-4" strokeWidth={1.5} />
         </span>
         <div className="min-w-0">
-          <h3 className="text-sm font-bold tracking-tight text-zinc-50">{title}</h3>
-          <p className="mt-0.5 text-xs leading-relaxed text-zinc-400">{hint}</p>
+          <h3 className="text-sm font-semibold tracking-tight text-[rgba(var(--rgb-sand),0.95)]">
+            {title}
+          </h3>
+          <p className="mt-0.5 text-xs leading-relaxed text-[rgba(var(--rgb-ivory),0.5)]">{hint}</p>
         </div>
       </div>
 
-      <div className="mt-4 border-t border-white/8 pt-4">
-        <p className="font-mono text-[1.65rem] font-semibold leading-none tracking-tight text-zinc-50 sm:text-[1.85rem]">
+      <div className="mt-4 border-t border-[rgba(var(--rgb-sand),0.1)] pt-4">
+        <p className="font-mono text-[1.65rem] font-semibold leading-none tracking-tight text-[rgba(var(--rgb-sand),0.96)] sm:text-[1.85rem]">
           {price}
         </p>
-        <p className="mt-1 text-xs font-medium uppercase tracking-[0.12em] text-zinc-500">
+        <p className="mt-1 text-xs font-medium uppercase tracking-[0.12em] text-[rgba(var(--rgb-sand),0.4)]">
           {perSessionLabel}
         </p>
       </div>
 
-      <div className="mt-4 rounded-xl border border-white/8 bg-black/20 px-3 py-2.5">
-        <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
+      <div className="mt-4 rounded-xl border border-[rgba(var(--rgb-sand),0.1)] bg-black/25 px-3 py-2.5">
+        <p className="font-mono text-[0.58rem] uppercase tracking-[0.14em] text-[rgba(var(--rgb-sand),0.4)]">
           {totalLabel}
         </p>
-        <p className="mt-0.5 font-mono text-sm font-semibold text-zinc-100">{total}</p>
+        <p className="mt-0.5 font-mono text-sm font-semibold text-[rgba(var(--rgb-ivory),0.9)]">
+          {total}
+        </p>
       </div>
     </article>
   );
@@ -149,42 +151,28 @@ export function QuoteConfirmationStep({
 
   return (
     <QuoteShell greetingKey="quoteGreetConfirm">
-      <section className="relative overflow-hidden rounded-3xl border border-white/10 bg-[radial-gradient(560px_260px_at_15%_0%,rgba(251,191,36,0.26),transparent_60%),linear-gradient(180deg,rgba(255,255,255,0.05),transparent_35%),#0d0d0e] p-5 md:p-8">
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(560px_280px_at_90%_100%,rgba(217,119,6,0.14),transparent_62%)]" />
+      <QuoteStepHeader
+        eyebrow={t("quoteSummaryTag")}
+        title={t("quoteSummaryTitle")}
+        body={t("quoteSummaryBody")}
+      />
 
-        <div className="relative z-10">
-          <p className="typo-tech uppercase tracking-[0.16em] text-amber-200/85">
-            {t("quoteSummaryTag")}
-          </p>
-          <h1 className="typo-section quote-step-title mt-2">{t("quoteSummaryTitle")}</h1>
-          <p className="typo-body mt-3 max-w-2xl leading-relaxed">{t("quoteSummaryBody")}</p>
-        </div>
-      </section>
-
-      <section className="mt-5 grid gap-4 md:grid-cols-[1.15fr_.85fr]">
-        <article className="glass-card rounded-2xl p-5">
-          <div className="flex items-center justify-between gap-3">
-            <p className="typo-subtitle inline-flex items-center gap-2 text-sm uppercase tracking-[0.14em] text-zinc-300">
-              <BadgeDollarSign className="h-4 w-4 text-amber-300" />
-              {t("quotePricingSectionTitle")}
+      <section className="mt-2 grid gap-4 md:grid-cols-[1.15fr_.85fr]">
+        <QuotePanel label={t("quotePricingSectionTitle")}>
+          <div className="mb-4 flex items-center justify-between gap-3">
+            <p className="font-mono text-[0.68rem] uppercase tracking-[0.14em] text-[rgba(var(--rgb-sand),0.7)]">
+              {t("quotePricingSizeLabel")}: {size}
             </p>
-            <span className="typo-tech rounded-full border border-white/12 bg-white/5 px-3 py-1 text-zinc-200">
+            <span className="rounded-lg border border-[rgba(var(--rgb-sand),0.14)] bg-black/30 px-3 py-1 font-mono text-[0.65rem] text-[rgba(var(--rgb-sand),0.75)]">
               {estimate.sessions}
             </span>
           </div>
 
-          <div className="typo-tech mt-4 grid gap-2 rounded-2xl border border-white/10 bg-black/35 p-4 text-zinc-200">
-            <p className="inline-flex items-center gap-2 text-zinc-200">
-              <Sparkles className="h-4 w-4 text-amber-300" />
-              {t("quotePricingSizeLabel")}: {size}
-            </p>
-            <p className="inline-flex items-center gap-2 text-zinc-200">
-              <CheckCircle2 className="h-4 w-4 text-amber-300" />
-              {t("quotePricingZoneLabel")}: {zoneLabel}
-            </p>
-          </div>
+          <p className="mb-4 text-sm text-[rgba(var(--rgb-ivory),0.55)]">
+            {t("quotePricingZoneLabel")}: {zoneLabel}
+          </p>
 
-          <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <PricingTierCard
               title={t("quotePricingConsecutiveTitle")}
               hint={t("quotePricingConsecutiveHint")}
@@ -204,25 +192,27 @@ export function QuoteConfirmationStep({
             />
           </div>
 
-          <p className="mt-4 text-sm leading-relaxed text-zinc-400">{t("quotePricingFootnote")}</p>
-        </article>
+          <p className="mt-4 text-sm leading-relaxed text-[rgba(var(--rgb-ivory),0.45)]">
+            {t("quotePricingFootnote")}
+          </p>
+        </QuotePanel>
 
-        <article className="glass-card flex flex-col justify-between gap-5 rounded-2xl p-5 md:sticky md:top-24 md:h-fit">
+        <aside className="flex flex-col justify-between gap-5 rounded-2xl border border-[rgba(var(--rgb-sand),0.14)] bg-[rgba(12,10,8,0.72)] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] backdrop-blur-md md:sticky md:top-24 md:h-fit">
           <div>
-            <p className="typo-subtitle text-sm uppercase tracking-[0.14em] text-zinc-300">
+            <p className="font-mono text-[0.62rem] uppercase tracking-[0.16em] text-[rgba(var(--rgb-sand),0.5)]">
               {t("quoteActionTitle")}
             </p>
-            <p className="typo-body mt-2 text-sm leading-relaxed text-zinc-400">{t("quoteActionBody")}</p>
-            <p className="typo-tech mt-3 text-xs leading-relaxed text-zinc-500">{t("quoteActionReply")}</p>
+            <p className="mt-2 text-sm leading-relaxed text-[rgba(var(--rgb-ivory),0.62)]">
+              {t("quoteActionBody")}
+            </p>
+            <p className="mt-3 font-mono text-[0.65rem] leading-relaxed text-[rgba(var(--rgb-sand),0.4)]">
+              {t("quoteActionReply")}
+            </p>
           </div>
-          <button
-            type="button"
-            onClick={registerQuoteAndContinue}
-            className="btn-accent focus-ring typo-cta inline-flex w-full items-center justify-center gap-2 rounded-xl px-5 py-4 active:scale-[0.98]"
-          >
+          <QuotePrimaryCta onClick={registerQuoteAndContinue}>
             {t("quoteActionCta")}
-          </button>
-        </article>
+          </QuotePrimaryCta>
+        </aside>
       </section>
     </QuoteShell>
   );

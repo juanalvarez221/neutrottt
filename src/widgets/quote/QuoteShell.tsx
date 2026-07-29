@@ -1,15 +1,15 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { MoreVertical, ArrowLeft } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { motion } from "framer-motion";
 import { getFirstName } from "@/shared/lib/quoteProfile";
 import type { SiteCopyKey } from "@/shared/i18n/siteLanguage";
 import { useSiteLanguage } from "@/shared/i18n/LanguageProvider";
 import { BRAND } from "@/shared/config/brand";
-import { QUOTE_BACKGROUND_VIDEO } from "@/shared/config/quote";
 import { HeroBrandTitle } from "@/widgets/home/HeroBrandTitle";
+import { QuoteAmbientBackground } from "@/widgets/quote/QuoteAmbientBackground";
 
 export function QuoteShell({
   children,
@@ -25,7 +25,6 @@ export function QuoteShell({
   const router = useRouter();
   const { t } = useSiteLanguage();
   const [firstName, setFirstName] = useState<string | null>(null);
-  const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
     const frame = window.requestAnimationFrame(() => {
@@ -34,39 +33,11 @@ export function QuoteShell({
     return () => window.cancelAnimationFrame(frame);
   }, []);
 
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
-
-    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reducedMotion) {
-      video.pause();
-      return;
-    }
-
-    video.play().catch(() => {
-      /* autoplay blocked, gradient fallback remains visible */
-    });
-  }, []);
-
   return (
     <div className="relative isolate min-h-dvh overflow-hidden bg-background text-ivory">
-      <div className="pointer-events-none absolute inset-0 -z-10" aria-hidden>
-        <video
-          ref={videoRef}
-          src={QUOTE_BACKGROUND_VIDEO}
-          className="quote-shell-video h-full w-full object-cover"
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="metadata"
-          disablePictureInPicture
-        />
-        <div className="absolute inset-0 quote-shell-overlay" />
-      </div>
+      <QuoteAmbientBackground />
 
-      <header className="sticky top-0 z-50 border-b border-white/10 bg-black/35 backdrop-blur-md">
+      <header className="sticky top-0 z-50 border-b border-[rgba(var(--rgb-sand),0.12)] bg-[rgba(10,8,6,0.55)] backdrop-blur-md">
         <div className="flex w-full items-center justify-between px-4 py-4 sm:px-6 md:px-10">
           <button
             type="button"
@@ -74,16 +45,10 @@ export function QuoteShell({
             className="opacity-80 transition hover:opacity-100 active:scale-[0.98]"
             aria-label="Volver"
           >
-            <ArrowLeft className="h-6 w-6 text-zinc-200" />
+            <ArrowLeft className="h-6 w-6 text-[rgba(var(--rgb-sand),0.85)]" strokeWidth={1.5} />
           </button>
           <HeroBrandTitle name={brand} variant="header" />
-          <button
-            type="button"
-            className="opacity-80 transition hover:opacity-100 active:scale-[0.98]"
-            aria-label="Más"
-          >
-            <MoreVertical className="h-6 w-6 text-zinc-200" />
-          </button>
+          <span className="w-6" aria-hidden />
         </div>
       </header>
 
@@ -99,7 +64,7 @@ export function QuoteShell({
             initial={{ opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-            className="typo-body mb-6 max-w-2xl text-sm leading-relaxed text-stone-300/92 sm:mb-8 md:text-[0.95rem]"
+            className="mb-6 max-w-[36ch] border-l border-[rgba(var(--rgb-honey),0.35)] pl-4 font-mono text-[0.78rem] leading-relaxed tracking-wide text-[rgba(var(--rgb-sand),0.72)] sm:mb-8 sm:text-[0.82rem]"
           >
             {t(greetingKey, { name: firstName })}
           </motion.p>

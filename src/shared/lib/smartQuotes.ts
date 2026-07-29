@@ -22,6 +22,7 @@ export type SmartQuoteRequest = {
   connectionCollaboration?: string;
   connectionPurpose?: string;
   connectionAftercare?: string;
+  marketingOptIn?: boolean;
   requiresAdvisory?: boolean;
   advisoryMode?: AdvisoryMode;
   advisoryScheduledAt?: string;
@@ -83,6 +84,7 @@ function toBackendPayload(request: SmartQuoteRequest) {
       values: request.connectionValues,
       collaboration: request.connectionCollaboration,
       purpose: request.connectionPurpose,
+      marketingOptIn: request.marketingOptIn,
     },
     collaborationMode: request.connectionCollaboration,
     advisoryMode: request.advisoryMode,

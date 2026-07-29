@@ -86,7 +86,7 @@ function buildEventBody(input: CalendarEventInput) {
   if (input.createMeet) {
     body.conferenceData = {
       createRequest: {
-        requestId: `neutrottt-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+        requestId: `danniel-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
         conferenceSolutionKey: { type: "hangoutsMeet" },
       },
     };

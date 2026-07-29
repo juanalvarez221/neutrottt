@@ -143,7 +143,7 @@ export async function installTempLeftRibsManifest(
 
 export async function seedQuoteOnboarding(page: Page) {
   await page.addInitScript(() => {
-    window.localStorage.setItem("neutrottt.language", "es");
+    window.localStorage.setItem("danniel.language", "es");
     window.localStorage.setItem(
       "quote_profile",
       JSON.stringify({
@@ -254,7 +254,7 @@ export async function openLabLeftRibs(
   refineHash: string,
 ) {
   await page.addInitScript(() => {
-    window.localStorage.setItem("neutrottt.language", "es");
+    window.localStorage.setItem("danniel.language", "es");
   });
   await installTempLeftRibsManifest(page, fieldHash, refineHash);
   await page.goto(`/lab/body-3d?mode=audit&v43=${fieldHash}`, {

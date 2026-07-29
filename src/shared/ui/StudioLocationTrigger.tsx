@@ -29,16 +29,16 @@ export function StudioLocationTrigger({
           type="button"
           onClick={openSheet}
           className={cn(
-            "group inline-flex items-center gap-1.5 border-b border-transparent pb-0.5 text-left transition hover:border-amber-400/35",
+            "group inline-flex items-center gap-1.5 border-b border-transparent pb-0.5 text-left transition hover:border-[rgba(var(--rgb-sand),0.4)]",
             className,
           )}
           aria-label={`${STUDIO.displayName}, ${STUDIO.locationShort}`}
         >
           <MapPin
-            className="h-3 w-3 shrink-0 text-amber-300/60 transition group-hover:text-amber-200/80"
+            className="h-3 w-3 shrink-0 text-[rgba(var(--rgb-sand),0.55)] transition group-hover:text-[rgba(var(--rgb-sand),0.85)]"
             strokeWidth={1.75}
           />
-          <span className="text-[0.625rem] font-semibold uppercase tracking-[0.28em] text-amber-100/65 sm:text-[0.68rem]">
+          <span className="text-[0.625rem] font-semibold uppercase tracking-[0.28em] text-[rgba(var(--rgb-sand),0.72)] sm:text-[0.68rem]">
             {STUDIO.locationShort}
           </span>
         </button>

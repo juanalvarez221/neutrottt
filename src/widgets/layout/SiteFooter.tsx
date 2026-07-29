@@ -1,69 +1,98 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
+import { BRAND, WHATSAPP_MESSAGES, whatsappUrl } from "@/shared/config/brand";
+import { STUDIO } from "@/shared/config/studio";
 import { useSiteLanguage } from "@/shared/i18n/LanguageProvider";
+import { SocialBrandIcon } from "@/shared/ui/SocialBrandIcon";
 
 const FOOTER_LINKS = [
-  { href: "/#tatuajes", labelKey: "navPortfolio" as const },
-  { href: "/#premios", labelKey: "navAwards" as const },
-  { href: "/#seminario", labelKey: "navSeminar" as const },
+  { href: "/proyectos", labelKey: "navPortfolio" as const },
+  { href: "/#trayectoria", labelKey: "navAwards" as const },
+  { href: "/#aprender", labelKey: "navSeminar" as const },
+  { href: "/#artista", labelKey: "merchTag" as const },
   { href: "/tienda", labelKey: "navShop" as const },
   { href: "/contacto", labelKey: "navContact" as const },
 ];
 
 export function SiteFooter() {
   const { t } = useSiteLanguage();
+  const year = new Date().getFullYear();
 
   return (
-    <footer className="section-surface border-t border-white/[0.06] px-4 py-14 sm:px-6 md:py-16">
-      <div className="mx-auto grid max-w-[1400px] gap-10 md:grid-cols-[1.2fr_0.8fr] md:gap-16">
-        <div>
-          <p
-            className="text-[2rem] leading-none text-[rgba(243,230,215,0.95)] sm:text-[2.4rem]"
-            style={{ fontFamily: "var(--font-stack-lettering)" }}
-          >
-            {t("footerTag")}
-          </p>
-          <p className="mt-3 max-w-[42ch] text-sm leading-relaxed text-[rgba(var(--rgb-sand),0.65)]">
-            {t("footerBody")}
-          </p>
-
-          <div className="mt-8 max-w-md border-t border-white/10 pt-6">
-            <p className="typo-eyebrow typo-eyebrow-muted">{t("footerNewsletterTitle")}</p>
-            <p className="mt-2 text-sm leading-relaxed text-[rgba(var(--rgb-sand),0.7)]">
-              {t("footerNewsletterBody")}
-            </p>
+    <footer className="border-t border-[rgba(var(--rgb-sand),0.12)] bg-[#0a0708] px-4 py-7 sm:px-6 md:py-8">
+      <div className="mx-auto flex max-w-[1400px] flex-col gap-6">
+        <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between lg:gap-8">
+          <div className="min-w-0">
             <Link
-              href="/cotizacion"
-              className="btn-accent typo-cta mt-5 inline-flex items-center justify-center rounded-xl px-5 py-3 active:scale-[0.98]"
+              href="/"
+              className="inline-flex items-center transition hover:opacity-95 active:scale-[0.98]"
+              aria-label={BRAND.name}
             >
-              {t("footerNewsletterCta")}
+              <Image
+                src={BRAND.logoMarkSrc}
+                alt=""
+                width={48}
+                height={48}
+                className="h-11 w-11 object-contain drop-shadow-[0_8px_16px_rgba(0,0,0,0.35)] sm:h-12 sm:w-12"
+              />
             </Link>
+            <p className="mt-2.5 font-mono text-[0.62rem] uppercase tracking-[0.16em] text-[rgba(var(--rgb-ivory),0.42)]">
+              {t("footerBody")}
+            </p>
+          </div>
+
+          <nav aria-label={t("footerNavLabel")}>
+            <ul className="flex flex-wrap items-center gap-x-4 gap-y-2">
+              {FOOTER_LINKS.map((link) => (
+                <li key={link.href}>
+                  <Link
+                    href={link.href}
+                    className="text-[0.72rem] font-semibold uppercase tracking-[0.12em] text-[rgba(var(--rgb-ivory),0.62)] transition hover:text-[rgba(var(--rgb-sand),0.95)]"
+                    style={{ fontFamily: "var(--font-stack-display)" }}
+                  >
+                    {t(link.labelKey)}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+
+          <div className="flex flex-wrap items-center gap-2.5">
+            <a
+              href={BRAND.instagramUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={t("footerInstagramAria")}
+              className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-[rgba(var(--rgb-sand),0.16)] text-[rgba(var(--rgb-sand),0.8)] transition hover:border-[rgba(var(--rgb-sand),0.35)] hover:bg-[rgba(var(--rgb-terracotta),0.12)] active:scale-[0.98]"
+            >
+              <SocialBrandIcon network="instagram" framed={false} className="h-4 w-4 text-current" />
+            </a>
+            <a
+              href={whatsappUrl(WHATSAPP_MESSAGES.contact)}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={t("footerWhatsappAria")}
+              className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-[rgba(var(--rgb-sand),0.16)] text-[rgba(var(--rgb-sand),0.8)] transition hover:border-[rgba(var(--rgb-sand),0.35)] hover:bg-[rgba(var(--rgb-terracotta),0.12)] active:scale-[0.98]"
+            >
+              <SocialBrandIcon network="whatsapp" framed={false} className="h-4 w-4 text-current" />
+            </a>
           </div>
         </div>
 
-        <div className="md:justify-self-end md:pt-2">
-          <p className="typo-eyebrow typo-eyebrow-muted">{t("footerNavLabel")}</p>
-          <ul className="mt-4 grid gap-2">
-            {FOOTER_LINKS.map((link) => (
-              <li key={link.href}>
-                <Link
-                  href={link.href}
-                  className="text-sm font-semibold text-[rgba(243,230,215,0.78)] transition hover:text-[rgba(243,230,215,0.98)]"
-                >
-                  {t(link.labelKey)}
-                </Link>
-              </li>
-            ))}
-            <li>
-              <Link
-                href="/cotizacion"
-                className="text-sm font-semibold text-[rgba(var(--rgb-sand),0.9)] transition hover:text-[rgba(var(--rgb-sand),1)]"
-              >
-                {t("navBookCta")}
-              </Link>
-            </li>
-          </ul>
+        <div className="flex flex-col gap-2 border-t border-[rgba(var(--rgb-sand),0.1)] pt-4 sm:flex-row sm:items-center sm:justify-between">
+          <p className="font-mono text-[0.6rem] uppercase tracking-[0.14em] text-[rgba(var(--rgb-ivory),0.35)]">
+            © {year} {BRAND.name}. {t("footerRights")}
+          </p>
+          <a
+            href={STUDIO.mapsUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-mono text-[0.6rem] uppercase tracking-[0.14em] text-[rgba(var(--rgb-ivory),0.4)] transition hover:text-[rgba(var(--rgb-sand),0.85)]"
+          >
+            {STUDIO.locationShort}
+          </a>
         </div>
       </div>
     </footer>

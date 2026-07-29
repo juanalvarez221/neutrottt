@@ -34,7 +34,7 @@ export const ART = path.join(ROOT, "artifacts/posterior-back-v52");
 
 export async function seedQuoteOnboarding(page: Page) {
   await page.addInitScript(() => {
-    window.localStorage.setItem("neutrottt.language", "es");
+    window.localStorage.setItem("danniel.language", "es");
     window.localStorage.setItem(
       "quote_profile",
       JSON.stringify({

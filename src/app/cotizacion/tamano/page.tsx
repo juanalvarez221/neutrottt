@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { QuoteShell } from "@/widgets/quote/QuoteShell";
+import { QuoteStepHeader } from "@/widgets/quote/QuoteStepChrome";
 import { Check, ArrowRight } from "lucide-react";
 import { saveQuoteDraft, getQuoteDraft } from "@/shared/lib/quoteDraft";
 import {
@@ -59,31 +60,14 @@ export default function CotizacionTamanoPage() {
 
   return (
     <QuoteShell greetingKey={shouldSkipToQuote() ? "quoteGreetResume" : "quoteGreetSize"}>
-      <section className="relative mb-8">
-        <div className="pointer-events-none absolute -left-10 -top-10 h-40 w-40 rounded-full bg-stone-600/12 blur-[60px]" />
-        <p className="typo-tech mb-2 uppercase tracking-[0.16em] text-stone-400">
-          {t("quoteSizeStep")}
-        </p>
-        <h2 className="typo-section quote-step-title">
-          {t("quoteSizeTitle")}
-          <br />
-          <span className="bg-gradient-to-r from-white to-zinc-400 bg-clip-text text-transparent">
-            {t("quoteSizeTitle2")}
-          </span>
-        </h2>
-        <p className="typo-body mt-4 max-w-2xl leading-relaxed">{t("quoteSizeBody")}</p>
-      </section>
+      <QuoteStepHeader
+        eyebrow={t("quoteSizeStep")}
+        title={t("quoteSizeTitle")}
+        titleAccent={t("quoteSizeTitle2")}
+        body={t("quoteSizeBody")}
+      />
 
       <section className="mb-10">
-        <div className="mb-4 flex items-center gap-3">
-          <div className="flex h-6 w-6 items-center justify-center rounded-full border border-stone-500/30 bg-stone-600/10">
-            <span className="text-[10px] font-bold text-white">3</span>
-          </div>
-          <h3 className="typo-subtitle text-sm uppercase tracking-[0.14em] text-zinc-200">
-            {t("quoteSizeSectionLabel")}
-          </h3>
-        </div>
-
         <div className="mx-auto grid max-w-2xl grid-cols-1 gap-4 sm:grid-cols-2">
           {options.map((o) => {
             const selected = size === o.id;
@@ -93,17 +77,18 @@ export default function CotizacionTamanoPage() {
                 type="button"
                 onClick={() => setSize(o.id)}
                 className={[
-                  "relative overflow-hidden rounded-xl p-4 transition-all duration-300",
-                  selected ? "glass-card-selected scale-[1.02]" : "glass-card",
-                  !selected ? "hover:-translate-y-1" : "",
+                  "relative overflow-hidden rounded-2xl border p-4 text-left transition-all duration-300 active:scale-[0.98]",
+                  selected
+                    ? "border-[rgba(var(--rgb-honey),0.4)] bg-[rgba(12,10,8,0.85)] shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]"
+                    : "border-[rgba(var(--rgb-sand),0.12)] bg-[rgba(12,10,8,0.55)] hover:border-[rgba(var(--rgb-sand),0.22)]",
                 ].join(" ")}
               >
                 <div className="relative">
                   <div
                     className={[
-                      "relative mb-4 aspect-square max-h-44 w-full overflow-hidden rounded-lg border md:max-h-48",
+                      "relative mb-4 aspect-square max-h-44 w-full overflow-hidden rounded-xl border md:max-h-48",
                       selected
-                        ? "border-stone-500/30 bg-black/60"
+                        ? "border-[rgba(var(--rgb-honey),0.25)] bg-black/60"
                         : "border-white/5 bg-black/40",
                     ].join(" ")}
                   >
@@ -118,20 +103,22 @@ export default function CotizacionTamanoPage() {
                       ].join(" ")}
                     />
                     {selected ? (
-                      <span className="absolute right-2 top-2 z-20 inline-flex h-6 w-6 items-center justify-center rounded-full bg-stone-600 text-white shadow-lg">
-                        <Check className="h-4 w-4" />
+                      <span className="absolute right-2 top-2 z-20 inline-flex h-6 w-6 items-center justify-center rounded-full border border-[rgba(var(--rgb-honey),0.4)] bg-[rgba(var(--rgb-cafe),0.9)] text-[rgba(var(--rgb-sand),0.95)]">
+                        <Check className="h-3.5 w-3.5" strokeWidth={2} />
                       </span>
                     ) : null}
                   </div>
 
-                  <div className="text-center">
-                    <span className="block text-xs font-bold uppercase tracking-wider text-white">
+                  <div>
+                    <span className="block font-mono text-[0.68rem] uppercase tracking-[0.16em] text-[rgba(var(--rgb-sand),0.9)]">
                       {o.label}
                     </span>
                     <span
                       className={[
-                        "mt-1 block font-mono text-sm font-semibold tabular-nums tracking-wide",
-                        selected ? "text-stone-200/85" : "text-zinc-300/80",
+                        "mt-1 block font-mono text-sm tabular-nums tracking-wide",
+                        selected
+                          ? "text-[rgba(var(--rgb-honey),0.85)]"
+                          : "text-[rgba(var(--rgb-ivory),0.55)]",
                       ].join(" ")}
                     >
                       {o.detail}
@@ -149,7 +136,7 @@ export default function CotizacionTamanoPage() {
           <button
             type="button"
             onClick={() => router.push(QUOTE_FLOW_PATHS.connection)}
-            className="quote-step-footer-back rounded-xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold text-zinc-100 transition hover:bg-white/8"
+            className="quote-step-footer-back rounded-xl border border-[rgba(var(--rgb-sand),0.14)] bg-white/5 px-5 py-3 text-sm font-semibold text-[rgba(var(--rgb-sand),0.9)] transition hover:bg-white/8"
           >
             {t("commonBack")}
           </button>
@@ -169,7 +156,7 @@ export default function CotizacionTamanoPage() {
           disabled={!size}
           aria-disabled={!size}
           className={[
-            "quote-step-footer-next btn-accent focus-ring typo-cta group inline-flex items-center justify-center gap-2 rounded-lg px-6 py-3 active:scale-[0.98]",
+            "quote-step-footer-next btn-accent focus-ring typo-cta group inline-flex items-center justify-center gap-2 rounded-xl px-6 py-3 active:scale-[0.98]",
             !size ? "cursor-not-allowed opacity-45" : "",
           ].join(" ")}
         >

@@ -11,7 +11,7 @@ type HeroBrandTitleProps = {
 };
 
 export function HeroBrandTitle({
-  name = "Neutrottt",
+  name = "Danniel Cuervo",
   tagline = "Tattoo Artist",
   variant = "hero",
   align = "center",
@@ -51,12 +51,12 @@ export function HeroBrandTitle({
     >
       <h1
         className={cn(
-          "hero-brand-name leading-[0.9]",
+          "hero-brand-name leading-[1.08]",
           variant === "hero" && "hero-brand-name--banner",
           textAlign,
           isWatermark
             ? "text-[3rem] md:text-[5.5rem]"
-            : "text-[clamp(2.25rem,10vw,6rem)]",
+            : "text-[clamp(2.5rem,9vw,5.5rem)]",
         )}
       >
         {name}

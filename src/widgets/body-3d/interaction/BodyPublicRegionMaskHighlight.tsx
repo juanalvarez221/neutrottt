@@ -51,7 +51,7 @@ const FIELD_MAX_AA_METERS = 0.0015;
 
 const HOVER_COLOR = "#c49a6c";
 const PREVIEW_COLOR = "#d4a066";
-const SELECTED_COLOR = "#e8a840";
+const SELECTED_COLOR = "#d4b45c";
 
 /** Intensidades visuales claras (capa limpia, sin moteado). */
 const HOVER_OPACITY = 0.24;

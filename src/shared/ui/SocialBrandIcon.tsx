@@ -1,4 +1,4 @@
-import { MessageCircle, Sparkles } from "lucide-react";
+import { MessageCircle, PenLine } from "lucide-react";
 import { cn } from "@/shared/lib/cn";
 
 const NETWORK_LABELS = {
@@ -64,7 +64,7 @@ function NetworkGlyph({
     case "whatsapp":
       return <MessageCircle {...strokeProps} />;
     case "quote":
-      return <Sparkles {...strokeProps} />;
+      return <PenLine {...strokeProps} />;
     case "tiktok":
       return <TikTokMark className={className} />;
   }
@@ -96,7 +96,7 @@ export function SocialBrandIcon({
   return (
     <span
       className={cn(
-        "social-brand-icon inline-flex shrink-0 items-center justify-center rounded-xl border border-white/10 bg-cacao/45 text-sand shadow-[inset_0_1px_0_rgba(243,230,215,0.06)]",
+        "social-brand-icon inline-flex shrink-0 items-center justify-center rounded-xl border border-white/10 bg-cacao/45 text-sand shadow-[inset_0_1px_0_rgba(244,239,232,0.06)]",
         className,
       )}
       aria-hidden

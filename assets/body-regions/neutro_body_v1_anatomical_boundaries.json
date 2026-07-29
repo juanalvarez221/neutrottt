@@ -1,0 +1,180 @@
+{
+  "model": "neutro_body_v1",
+  "schemaVersion": 1,
+  "description": "Fronteras anatomicas 3D curadas (control points). Autoridad visual del overlay de highlight. Editar puntos, re-ejecutar tools/anatomical-overlay/bake-highlight.mjs.",
+  "sourceMesh": "public/models/production/neutro_body_v1.glb",
+  "sourceHash": "f3d5259a80cbf0b7",
+  "landmarksRef": "assets/body-regions/neutro_body_v1_landmarks.json",
+  "note": "Coordenadas en model space runtime (+Y up, +Z front, +X anatomical left). El pectoral derecho se define completo; el izquierdo se obtiene por mirrorX salvo microajustes.",
+  "boundaries": {
+    "right_pectoral_closed": {
+      "id": "right_pectoral_closed",
+      "sides": ["right_pectoral_region", "outside"],
+      "closed": true,
+      "anchors": [
+        "sternumTop",
+        "clavicleRight",
+        "anteriorAxillaryFoldRight",
+        "inframammaryLateralRight",
+        "breastApexRight",
+        "inframammaryMedialRight",
+        "sternumBottom"
+      ],
+      "controlPoints": [
+        [0.0, 1.338, 0.008],
+        [-0.032, 1.355, 0.0],
+        [-0.068, 1.365, -0.01],
+        [-0.1, 1.35, -0.018],
+        [-0.132, 1.325, -0.016],
+        [-0.145, 1.3, -0.008],
+        [-0.142, 1.27, 0.006],
+        [-0.128, 1.24, 0.014],
+        [-0.108, 1.21, 0.016],
+        [-0.088, 1.192, 0.02],
+        [-0.068, 1.185, 0.024],
+        [-0.048, 1.188, 0.026],
+        [-0.03, 1.2, 0.026],
+        [-0.016, 1.218, 0.024],
+        [-0.006, 1.232, 0.022],
+        [0.0, 1.242, 0.02],
+        [0.0, 1.275, 0.015],
+        [0.0, 1.31, 0.01],
+        [0.0, 1.338, 0.008]
+      ]
+    },
+    "sternum_line": {
+      "id": "sternum_line",
+      "sides": ["left_pectoral_region", "right_pectoral_region"],
+      "closed": false,
+      "controlPoints": [
+        [0.0, 1.34, 0.008],
+        [0.0, 1.3, 0.015],
+        [0.0, 1.26, 0.022],
+        [0.0, 1.23, 0.022]
+      ]
+    },
+    "abdomen_top_shared": {
+      "id": "abdomen_top_shared",
+      "note": "Coincide con el inferior de ambos pectorales + transicion esternal central.",
+      "sides": ["full_abdomen_region", "pectoral"],
+      "closed": false,
+      "controlPoints": [
+        [-0.145, 1.3, -0.008],
+        [-0.128, 1.24, 0.014],
+        [-0.088, 1.192, 0.02],
+        [-0.048, 1.188, 0.026],
+        [-0.016, 1.218, 0.024],
+        [0.0, 1.242, 0.02],
+        [0.016, 1.218, 0.024],
+        [0.048, 1.188, 0.026],
+        [0.088, 1.192, 0.02],
+        [0.128, 1.24, 0.014],
+        [0.145, 1.3, -0.008]
+      ]
+    },
+    "abdomen_bottom": {
+      "id": "abdomen_bottom",
+      "sides": ["full_abdomen_region", "pelvis"],
+      "closed": false,
+      "controlPoints": [
+        [-0.09, 0.95, 0.04],
+        [-0.05, 0.92, 0.05],
+        [0.0, 0.9, 0.055],
+        [0.05, 0.92, 0.05],
+        [0.09, 0.95, 0.04]
+      ]
+    },
+    "right_ribs_front": {
+      "id": "right_ribs_front",
+      "sides": ["right_ribs_region", "front"],
+      "closed": false,
+      "controlPoints": [
+        [-0.138, 1.322, -0.018],
+        [-0.125, 1.235, 0.012],
+        [-0.11, 1.15, 0.03],
+        [-0.1, 1.05, 0.04],
+        [-0.095, 0.98, 0.03]
+      ]
+    },
+    "right_ribs_back": {
+      "id": "right_ribs_back",
+      "sides": ["right_ribs_region", "upper_back_region"],
+      "closed": false,
+      "controlPoints": [
+        [-0.12, 1.34, -0.12],
+        [-0.13, 1.25, -0.13],
+        [-0.125, 1.15, -0.135],
+        [-0.115, 1.05, -0.13],
+        [-0.105, 0.98, -0.11]
+      ]
+    },
+    "right_ribs_top": {
+      "id": "right_ribs_top",
+      "sides": ["right_ribs_region", "shoulder"],
+      "closed": false,
+      "controlPoints": [
+        [-0.138, 1.322, -0.018],
+        [-0.145, 1.33, -0.06],
+        [-0.13, 1.34, -0.1],
+        [-0.12, 1.34, -0.12]
+      ]
+    },
+    "right_ribs_bottom": {
+      "id": "right_ribs_bottom",
+      "sides": ["right_ribs_region", "waist"],
+      "closed": false,
+      "controlPoints": [
+        [-0.095, 0.98, 0.03],
+        [-0.11, 0.97, -0.02],
+        [-0.115, 0.97, -0.07],
+        [-0.105, 0.98, -0.11]
+      ]
+    },
+    "upper_back_bottom": {
+      "id": "upper_back_bottom",
+      "sides": ["upper_back_region", "lower_back_region"],
+      "closed": false,
+      "controlPoints": [
+        [-0.12, 1.08, -0.13],
+        [-0.06, 1.07, -0.15],
+        [0.0, 1.065, -0.155],
+        [0.06, 1.07, -0.15],
+        [0.12, 1.08, -0.13]
+      ]
+    },
+    "lower_back_bottom": {
+      "id": "lower_back_bottom",
+      "sides": ["lower_back_region", "glute"],
+      "closed": false,
+      "controlPoints": [
+        [-0.1, 0.92, -0.12],
+        [-0.05, 0.91, -0.135],
+        [0.0, 0.905, -0.14],
+        [0.05, 0.91, -0.135],
+        [0.1, 0.92, -0.12]
+      ]
+    },
+    "back_top": {
+      "id": "back_top",
+      "sides": ["upper_back_region", "neck"],
+      "closed": false,
+      "controlPoints": [
+        [-0.08, 1.42, -0.14],
+        [-0.04, 1.43, -0.15],
+        [0.0, 1.435, -0.155],
+        [0.04, 1.43, -0.15],
+        [0.08, 1.42, -0.14]
+      ]
+    }
+  },
+  "regions": {
+    "right_pectoral_region": {
+      "boundary": "right_pectoral_closed",
+      "mirrorOf": null
+    },
+    "left_pectoral_region": {
+      "boundary": "right_pectoral_closed",
+      "mirrorOf": "right_pectoral_region"
+    }
+  }
+}

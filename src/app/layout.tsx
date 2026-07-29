@@ -1,13 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import {
-  Alex_Brush,
-  Bebas_Neue,
-  Marck_Script,
-  Meddon,
-  Montserrat,
-  Space_Mono,
-  UnifrakturMaguntia,
-} from "next/font/google";
+import { Inter, Space_Mono, Syncopate, UnifrakturMaguntia } from "next/font/google";
 import "./globals.css";
 import { LanguageProvider } from "@/shared/i18n/LanguageProvider";
 import { CartProvider } from "@/shared/lib/cart";
@@ -18,19 +10,20 @@ import { ErrorBoundary } from "@/shared/ui/ErrorBoundary";
 import { CartDrawer } from "@/widgets/shop/CartDrawer";
 import { SiteHeader } from "@/features/navigation/SiteHeader";
 
-const fontSans = Montserrat({
+/** Body UI — clean, quiet, legible against gothic display. */
+const fontSans = Inter({
   variable: "--font-sans",
   subsets: ["latin"],
-  weight: ["400", "600", "700"],
+  weight: ["400", "500", "600", "700"],
   display: "swap",
   preload: true,
 });
 
-/** Integral CF EB no está en Google Fonts; Bebas Neue es el sustituto más cercano para títulos. */
-const fontDisplay = Bebas_Neue({
+/** Elegant display — wide, architectural Syncopate for section hierarchy. */
+const fontDisplay = Syncopate({
   variable: "--font-display",
   subsets: ["latin"],
-  weight: ["400"],
+  weight: ["400", "700"],
   display: "swap",
   preload: true,
 });
@@ -43,42 +36,40 @@ const fontMono = Space_Mono({
   preload: false,
 });
 
+/** Gothic lettering — blackletter mark aligned with Danniel's tattoo craft. */
 const fontGothic = UnifrakturMaguntia({
   variable: "--font-gothic",
   subsets: ["latin"],
   weight: ["400"],
   display: "swap",
-  preload: false,
-});
-
-/** Lettering candidates — preview at /dev/fonts; product uses --font-lettering after lock. */
-const fontLetteringMarck = Marck_Script({
-  variable: "--font-lettering-marck",
-  subsets: ["latin"],
-  weight: ["400"],
-  display: "swap",
-  preload: false,
-});
-
-const fontLetteringMeddon = Meddon({
-  variable: "--font-lettering-meddon",
-  subsets: ["latin"],
-  weight: ["400"],
-  display: "swap",
-  preload: false,
-});
-
-const fontLetteringAlex = Alex_Brush({
-  variable: "--font-lettering-alex",
-  subsets: ["latin"],
-  weight: ["400"],
-  display: "swap",
-  preload: false,
+  preload: true,
 });
 
 export const metadata: Metadata = {
-  title: "Danniel Cuervo · Lettering · Emerald Tattoo",
-  description: "Tatuador especializado en lettering · Emerald Tattoo Studio, Medellín, Colombia.",
+  title: {
+    default: "Danniel Cuervo · Oficio en piel",
+    template: "%s · Danniel Cuervo",
+  },
+  description:
+    "Tatuador en Emerald Tattoo Studio, Medellín. Piezas con oficio, de la idea a la piel.",
+  icons: {
+    icon: [{ url: "/brand/logo-dc-mark.png", type: "image/png", sizes: "any" }],
+    apple: [{ url: "/brand/logo-dc-mark.png", type: "image/png" }],
+    shortcut: ["/brand/logo-dc-mark.png"],
+  },
+  openGraph: {
+    title: "Danniel Cuervo · Oficio en piel",
+    description:
+      "Tatuador en Emerald Tattoo Studio, Medellín. Piezas con oficio, de la idea a la piel.",
+    type: "website",
+    locale: "es_CO",
+  },
+  twitter: {
+    card: "summary",
+    title: "Danniel Cuervo · Oficio en piel",
+    description:
+      "Tatuador en Emerald Tattoo Studio, Medellín. Piezas con oficio, de la idea a la piel.",
+  },
   metadataBase: process.env.NEXT_PUBLIC_SITE_URL
     ? new URL(process.env.NEXT_PUBLIC_SITE_URL)
     : undefined,
@@ -87,7 +78,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#17110d",
+  themeColor: "#0e0a0b",
 };
 
 export default function RootLayout({
@@ -99,7 +90,7 @@ export default function RootLayout({
     <html
       lang="es"
       suppressHydrationWarning
-      className={`${fontSans.variable} ${fontDisplay.variable} ${fontMono.variable} ${fontGothic.variable} ${fontLetteringMarck.variable} ${fontLetteringMeddon.variable} ${fontLetteringAlex.variable} h-full antialiased`}
+      className={`${fontSans.variable} ${fontDisplay.variable} ${fontMono.variable} ${fontGothic.variable} h-full antialiased`}
     >
       <body suppressHydrationWarning className="min-h-full flex flex-col bg-background text-ivory">
         <LanguageProvider>

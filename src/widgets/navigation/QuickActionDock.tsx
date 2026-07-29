@@ -1,10 +1,11 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { X, Zap } from "lucide-react";
+import { X } from "lucide-react";
 import { BRAND, WHATSAPP_MESSAGES, whatsappUrl } from "@/shared/config/brand";
 import { useSiteLanguage } from "@/shared/i18n/LanguageProvider";
 import type { SiteCopyKey } from "@/shared/i18n/siteLanguage";
@@ -28,6 +29,7 @@ const DOCK_ACTIONS: DockAction[] = [
     id: "quote",
     labelKey: "quickActionsQuote",
     href: "/cotizacion",
+    external: true,
     icon: "quote",
     primary: true,
   },
@@ -82,6 +84,7 @@ function QuickActionDockPanel({ pathname }: { pathname: string }) {
   const [isIdle, setIsIdle] = useState(false);
 
   const placement = resolveDockPlacement(pathname);
+  const showInviteLoop = !open && !reduceMotion;
 
   const resetIdleTimer = useCallback(() => {
     setIsIdle(false);
@@ -145,7 +148,7 @@ function QuickActionDockPanel({ pathname }: { pathname: string }) {
     return () => clearTimeout(timer);
   }, [open, closeDock]);
 
-  const dockOpacity = open ? 1 : isScrolling ? 0.72 : isIdle ? 0.58 : 0.92;
+  const dockOpacity = open ? 1 : isScrolling ? 0.78 : isIdle ? 0.88 : 0.96;
 
   return (
     <div
@@ -236,27 +239,75 @@ function QuickActionDockPanel({ pathname }: { pathname: string }) {
           ) : null}
         </AnimatePresence>
 
-        <motion.button
-          type="button"
-          aria-expanded={open}
-          aria-haspopup="menu"
-          aria-label={open ? t("quickActionsClose") : t("quickActionsToggle")}
-          onClick={() => {
-            resetIdleTimer();
-            setOpen((value) => !value);
-          }}
-          className={cn(
-            "quick-action-dock__toggle",
-            open && "quick-action-dock__toggle--open",
-          )}
-          whileTap={reduceMotion ? undefined : { scale: 0.96 }}
-        >
-          {open ? (
-            <X className="h-[1.15rem] w-[1.15rem]" strokeWidth={2.25} />
-          ) : (
-            <Zap className="h-[1.15rem] w-[1.15rem]" strokeWidth={2.25} />
-          )}
-        </motion.button>
+        <div className="relative">
+          {showInviteLoop ? (
+            <span className="quick-action-dock__pulse" aria-hidden />
+          ) : null}
+
+          <motion.button
+            type="button"
+            aria-expanded={open}
+            aria-haspopup="menu"
+            aria-label={open ? t("quickActionsClose") : t("quickActionsToggle")}
+            onClick={() => {
+              resetIdleTimer();
+              setOpen((value) => !value);
+            }}
+            className={cn(
+              "quick-action-dock__toggle",
+              open && "quick-action-dock__toggle--open",
+              showInviteLoop && "quick-action-dock__toggle--invite",
+            )}
+            animate={
+              showInviteLoop
+                ? { scale: [1, 1.04, 1], y: [0, -2, 0] }
+                : { scale: 1, y: 0 }
+            }
+            transition={
+              showInviteLoop
+                ? {
+                    duration: 2.6,
+                    repeat: Infinity,
+                    ease: [0.45, 0.05, 0.55, 0.95],
+                  }
+                : { type: "spring", stiffness: 380, damping: 28 }
+            }
+            whileTap={reduceMotion ? undefined : { scale: 0.94 }}
+          >
+            <AnimatePresence mode="wait" initial={false}>
+              {open ? (
+                <motion.span
+                  key="close"
+                  initial={reduceMotion ? false : { opacity: 0, rotate: -40, scale: 0.85 }}
+                  animate={{ opacity: 1, rotate: 0, scale: 1 }}
+                  exit={reduceMotion ? undefined : { opacity: 0, scale: 0.85 }}
+                  transition={{ duration: 0.18 }}
+                  className="inline-flex"
+                >
+                  <X className="h-[1.15rem] w-[1.15rem]" strokeWidth={2.1} />
+                </motion.span>
+              ) : (
+                <motion.span
+                  key="logo"
+                  initial={reduceMotion ? false : { opacity: 0, scale: 0.88 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={reduceMotion ? undefined : { opacity: 0, scale: 0.88 }}
+                  transition={{ duration: 0.2 }}
+                  className="quick-action-dock__logo"
+                >
+                  <Image
+                    src={BRAND.logoMarkSrc}
+                    alt=""
+                    width={36}
+                    height={36}
+                    className="h-9 w-9 object-contain"
+                    priority
+                  />
+                </motion.span>
+              )}
+            </AnimatePresence>
+          </motion.button>
+        </div>
       </motion.div>
     </div>
   );

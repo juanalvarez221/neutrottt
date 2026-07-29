@@ -616,7 +616,7 @@ export function BodyPremiumSelector({
         {ariaZoneAnnouncement}
       </div>
       <div
-        className="relative min-h-[380px] overflow-hidden rounded-2xl border border-white/10 bg-[#17110d] sm:min-h-[420px]"
+        className="relative min-h-[380px] overflow-hidden rounded-2xl border border-white/10 bg-[#0e0a0b] sm:min-h-[420px]"
         style={{ height: frameHeight }}
         onPointerDown={(e) => {
           dragStartRef.current = { x: e.clientX, y: e.clientY };

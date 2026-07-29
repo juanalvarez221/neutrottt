@@ -45,15 +45,12 @@ export function TattooProjectsGrid() {
       className="section-surface section-surface--portfolio scroll-mt-24 px-4 py-16 sm:px-6 md:py-20"
     >
       <div className="mx-auto max-w-[1400px]">
-        <header className="max-w-xl border-l border-[rgba(var(--rgb-camel),0.45)] pl-4 sm:pl-5">
+        <header className="max-w-xl border-l border-[rgba(var(--rgb-terracotta),0.4)] pl-4 sm:pl-5">
           <p className="typo-eyebrow typo-eyebrow-muted">{t("tattoosTag")}</p>
-          <h2
-            className="typo-section-sm mt-2"
-            style={{ fontFamily: "var(--font-stack-lettering)" }}
-          >
+          <h2 className="typo-gothic mt-2 text-[clamp(1.85rem,4vw,2.75rem)] text-[rgba(var(--rgb-sand),0.96)]">
             {t("tattoosTitle")}
           </h2>
-          <p className="mt-3 max-w-[55ch] text-sm leading-relaxed text-[rgba(var(--rgb-sand),0.72)]">
+          <p className="mt-3 max-w-[55ch] text-sm leading-relaxed text-[rgba(var(--rgb-ivory),0.68)]">
             {t("tattoosBody")}
           </p>
         </header>

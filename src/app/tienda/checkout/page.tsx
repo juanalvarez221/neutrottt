@@ -3,9 +3,18 @@
 import Link from "next/link";
 import { useMemo, useState, useTransition } from "react";
 import { AppShell } from "@/widgets/layout/AppShell";
-import { formatCop, getProductById } from "@/shared/config/products";
+import { getCheckoutCountry } from "@/shared/config/checkoutGeo";
+import { resolveCheckoutRequirements } from "@/shared/lib/checkoutRequirements";
 import { useCart } from "@/shared/lib/cart";
 import { useSiteLanguage } from "@/shared/i18n/LanguageProvider";
+import {
+  CheckoutBuyerForm,
+  type CheckoutBuyerValues,
+} from "@/widgets/shop/CheckoutBuyerForm";
+import {
+  CheckoutOrderPanel,
+  resolveCheckoutLines,
+} from "@/widgets/shop/CheckoutOrderPanel";
 
 type CheckoutPhase = "form" | "loading" | "done";
 
@@ -15,26 +24,57 @@ function fakeOrderId() {
   return `DC-${stamp.slice(-5)}${rand}`;
 }
 
+const INITIAL_BUYER: CheckoutBuyerValues = {
+  email: "",
+  name: "",
+  docType: "cc",
+  docNumber: "",
+  phoneDial: "+57",
+  phoneLocal: "",
+  countryIso: "co",
+  department: "",
+  city: "",
+  address: "",
+  deliveryNotes: "",
+};
+
 export default function CheckoutPage() {
   const { t, language } = useSiteLanguage();
   const { state, dispatch, subtotal } = useCart();
   const [phase, setPhase] = useState<CheckoutPhase>("form");
   const [orderId, setOrderId] = useState("");
   const [error, setError] = useState("");
+  const [buyer, setBuyer] = useState<CheckoutBuyerValues>(INITIAL_BUYER);
   const [pending, startTransition] = useTransition();
-  const locale = language === "en" ? "en-US" : "es-CO";
 
   const lines = useMemo(
-    () =>
-      state.lines
-        .map((line) => {
-          const product = getProductById(line.productId);
-          if (!product) return null;
-          return { ...line, product };
-        })
-        .filter(Boolean),
+    () => resolveCheckoutLines(state.lines),
     [state.lines],
   );
+
+  const requirements = useMemo(
+    () => resolveCheckoutRequirements(lines.map((line) => line.product)),
+    [lines],
+  );
+
+  const headerCopy = useMemo(() => {
+    if (requirements.profile === "physical") {
+      return {
+        title: t("shopCheckoutPhysicalTitle"),
+        body: t("shopCheckoutPhysicalBody"),
+      };
+    }
+    if (requirements.profile === "mixed") {
+      return {
+        title: t("shopCheckoutMixedTitle"),
+        body: t("shopCheckoutMixedBody"),
+      };
+    }
+    return {
+      title: t("shopCheckoutDigitalTitle"),
+      body: t("shopCheckoutDigitalBody"),
+    };
+  }, [requirements.profile, t]);
 
   const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -44,14 +84,40 @@ export default function CheckoutPage() {
       return;
     }
 
-    const form = new FormData(event.currentTarget);
-    const name = String(form.get("name") ?? "").trim();
-    const email = String(form.get("email") ?? "").trim();
-    const phone = String(form.get("phone") ?? "").trim();
-    const city = String(form.get("city") ?? "").trim();
-    if (!name || !email || !phone || !city) {
-      setError(t("shopCheckoutFormError"));
-      return;
+    const email = buyer.email.trim().toLowerCase();
+    const name = buyer.name.trim();
+    const docType = buyer.docType.trim();
+    const docNumber = buyer.docNumber.trim();
+    const phoneLocal = buyer.phoneLocal.trim().replace(/\D/g, "");
+    const department = buyer.department.trim();
+    const city = buyer.city.trim();
+    const address = buyer.address.trim();
+    const deliveryNotes = buyer.deliveryNotes.trim();
+    const isColombia = buyer.countryIso === "co";
+    const country = getCheckoutCountry(buyer.countryIso);
+    const phone = `${buyer.phoneDial} ${phoneLocal}`.trim();
+    const digitalOnly = requirements.profile === "digital";
+    const needsShipping = requirements.needsShipping;
+
+    if (digitalOnly) {
+      if (!email || !email.includes("@")) {
+        setError(t("shopCheckoutFormError"));
+        return;
+      }
+    } else {
+      const baseOk =
+        name &&
+        email &&
+        docType &&
+        docNumber &&
+        phoneLocal &&
+        city &&
+        (!isColombia || department);
+
+      if (!baseOk || (needsShipping && !address)) {
+        setError(t("shopCheckoutFormError"));
+        return;
+      }
     }
 
     // SIMULADO: reemplazar con Stripe/MercadoPago antes de producción
@@ -69,15 +135,28 @@ export default function CheckoutPage() {
               {
                 id,
                 createdAt: new Date().toISOString(),
-                name,
+                profile: requirements.profile,
+                name: digitalOnly ? null : name,
                 email,
-                phone,
-                city,
+                phone: digitalOnly ? null : phone,
+                docType: digitalOnly ? null : docType,
+                docNumber: digitalOnly ? null : docNumber,
+                countryIso: digitalOnly ? null : country.iso,
+                countryName: digitalOnly
+                  ? null
+                  : language === "en"
+                    ? country.en
+                    : country.es,
+                department: digitalOnly ? null : isColombia ? department : null,
+                city: digitalOnly ? null : city,
+                address: needsShipping ? address : null,
+                deliveryNotes: needsShipping ? deliveryNotes || null : null,
                 total: subtotal,
                 items: lines.map((line) => ({
-                  productId: line!.productId,
-                  quantity: line!.quantity,
-                  title: line!.product.title,
+                  productId: line.productId,
+                  quantity: line.quantity,
+                  title: line.product.title,
+                  fulfillment: line.product.fulfillment,
                 })),
                 status: "Pagada/Agendada",
               },
@@ -100,10 +179,7 @@ export default function CheckoutPage() {
           <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-zinc-500">
             {t("shopCheckoutDoneTag")}
           </p>
-          <h1
-            className="mt-3 text-[clamp(2rem,4vw,3rem)] leading-none"
-            style={{ fontFamily: "var(--font-stack-lettering)" }}
-          >
+          <h1 className="typo-gothic mt-3 text-[clamp(2.15rem,4.5vw,3.2rem)] text-[rgba(var(--rgb-sand),0.96)]">
             {t("shopCheckoutDoneTitle")}
           </h1>
           <p className="mt-4 text-sm leading-relaxed text-zinc-400">
@@ -127,83 +203,30 @@ export default function CheckoutPage() {
     <AppShell>
       <header className="max-w-xl">
         <p className="typo-eyebrow typo-eyebrow-muted">{t("shopCheckoutTag")}</p>
-        <h1 className="typo-section-sm mt-2">{t("shopCheckoutTitle")}</h1>
-        <p className="mt-2 text-sm text-zinc-500">{t("shopCheckoutBody")}</p>
+        <h1 className="typo-section-sm mt-2">{headerCopy.title}</h1>
+        <p className="mt-2 text-sm text-zinc-500">{headerCopy.body}</p>
       </header>
 
-      <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-[1fr_0.85fr]">
-        <form onSubmit={onSubmit} className="grid gap-4" noValidate>
-          <label className="grid gap-2 text-sm">
-            <span>{t("shopFieldName")}</span>
-            <input
-              name="name"
-              required
-              className="min-h-11 border border-white/12 bg-[#0c0a08] px-3 text-zinc-100 outline-none focus:border-[rgba(var(--rgb-camel),0.45)]"
-            />
-          </label>
-          <label className="grid gap-2 text-sm">
-            <span>{t("shopFieldEmail")}</span>
-            <input
-              name="email"
-              type="email"
-              required
-              className="min-h-11 border border-white/12 bg-[#0c0a08] px-3 text-zinc-100 outline-none focus:border-[rgba(var(--rgb-camel),0.45)]"
-            />
-          </label>
-          <label className="grid gap-2 text-sm">
-            <span>{t("shopFieldPhone")}</span>
-            <input
-              name="phone"
-              required
-              className="min-h-11 border border-white/12 bg-[#0c0a08] px-3 text-zinc-100 outline-none focus:border-[rgba(var(--rgb-camel),0.45)]"
-            />
-          </label>
-          <label className="grid gap-2 text-sm">
-            <span>{t("shopFieldCity")}</span>
-            <input
-              name="city"
-              required
-              className="min-h-11 border border-white/12 bg-[#0c0a08] px-3 text-zinc-100 outline-none focus:border-[rgba(var(--rgb-camel),0.45)]"
-            />
-            <span className="text-xs text-zinc-600">{t("shopFieldCityHint")}</span>
-          </label>
+      <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-[1.05fr_0.8fr] lg:items-start">
+        <form onSubmit={onSubmit} className="grid gap-5" noValidate>
+          <CheckoutBuyerForm
+            values={buyer}
+            profile={requirements.profile}
+            onChange={(patch) => setBuyer((prev) => ({ ...prev, ...patch }))}
+          />
+
           {error ? <p className="text-sm text-rose-300">{error}</p> : null}
+
           <button
             type="submit"
             disabled={phase === "loading" || pending}
-            className="mt-2 min-h-12 border border-[rgba(var(--rgb-camel),0.35)] bg-[rgba(var(--rgb-cacao),0.55)] px-4 text-sm font-semibold transition active:scale-[0.98] disabled:opacity-60"
+            className="btn-accent typo-cta mt-1 min-h-12 rounded-xl px-4 text-sm transition active:scale-[0.98] disabled:opacity-60"
           >
             {phase === "loading" ? t("shopCheckoutLoading") : t("shopCheckoutSubmit")}
           </button>
         </form>
 
-        <aside className="border border-white/10 bg-[#120e0b] p-5">
-          <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-zinc-500">
-            {t("shopOrderSummary")}
-          </p>
-          {lines.length === 0 ? (
-            <p className="mt-4 text-sm text-zinc-500">{t("shopCartEmpty")}</p>
-          ) : (
-            <ul className="mt-4 grid gap-3">
-              {lines.map((line) => (
-                <li key={line!.productId} className="flex items-start justify-between gap-3 text-sm">
-                  <span className="text-zinc-200">
-                    {line!.product.title} × {line!.quantity}
-                  </span>
-                  <span className="font-mono text-zinc-400">
-                    {line!.product.price == null
-                      ? t("shopPricePending")
-                      : formatCop(line!.product.price * line!.quantity, locale)}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          )}
-          <div className="mt-5 flex items-center justify-between border-t border-white/10 pt-4 text-sm">
-            <span className="text-zinc-400">{t("shopSubtotal")}</span>
-            <span className="font-mono font-semibold">{formatCop(subtotal, locale)}</span>
-          </div>
-        </aside>
+        <CheckoutOrderPanel lines={lines} />
       </div>
     </AppShell>
   );

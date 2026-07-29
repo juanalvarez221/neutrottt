@@ -43,7 +43,7 @@ import {
   type FittedBodyFraming,
 } from "@/widgets/body-3d/ux/bodyFitFraming";
 
-const BG = "#17110d";
+const BG = "#0e0a0b";
 const CAMERA_FOV = 42;
 
 /** off | debug zones | technical interaction | premium UX */
@@ -375,7 +375,7 @@ export function Body3DViewer({
     <div
       ref={hostRef}
       className={[
-        "relative w-full overflow-hidden bg-[#17110d]",
+        "relative w-full overflow-hidden bg-[#0e0a0b]",
         chrome ? "rounded-2xl border border-white/10" : "",
         className,
       ]

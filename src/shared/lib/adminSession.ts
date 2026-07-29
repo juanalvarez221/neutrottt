@@ -3,7 +3,7 @@
  * Funciona tanto en el runtime Edge (middleware) como en Node (route handlers).
  * NUNCA importar desde componentes client: usa secretos del servidor.
  */
-export const ADMIN_SESSION_COOKIE = "neutrottt_admin_session";
+export const ADMIN_SESSION_COOKIE = "danniel_admin_session";
 
 /** Duración de la sesión: 10 horas. */
 export const ADMIN_SESSION_TTL_SECONDS = 10 * 60 * 60;

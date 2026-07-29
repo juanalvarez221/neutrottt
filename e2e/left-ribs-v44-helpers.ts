@@ -46,7 +46,7 @@ export const EXTERIOR: { id: string; xyz: [number, number, number] }[] = [
 
 export async function seedQuoteOnboarding(page: Page) {
   await page.addInitScript(() => {
-    window.localStorage.setItem("neutrottt.language", "es");
+    window.localStorage.setItem("danniel.language", "es");
     window.localStorage.setItem(
       "quote_profile",
       JSON.stringify({
@@ -117,7 +117,7 @@ export async function raycastWorld(
 
 export async function openLabLeftRibs(page: Page, fieldHash: string) {
   await page.addInitScript(() => {
-    window.localStorage.setItem("neutrottt.language", "es");
+    window.localStorage.setItem("danniel.language", "es");
   });
   await page.goto(`/lab/body-3d?mode=audit&v44=${fieldHash}`, {
     waitUntil: "domcontentloaded",

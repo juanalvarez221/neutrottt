@@ -54,7 +54,7 @@ for (const file of walk(SRC)) {
 const order = { error: 0, warn: 1, info: 2 };
 findings.sort((a, b) => order[a.severity] - order[b.severity] || a.file.localeCompare(b.file));
 
-console.log("Neutrott — auditoria de responsividad\n");
+console.log("Danniel Cuervo — auditoria de responsividad\n");
 
 if (!findings.length) {
   console.log("Sin hallazgos en reglas estaticas.");

@@ -1,6 +1,6 @@
 /**
  * Adaptadores de ubicación corporal para el cotizador.
- * selectedBodyTargets es la fuente canónica.
+ * selectedBodyTargets / selectedBodyPlacements son la fuente canónica.
  * zone / zoneOther solo salen del adapter legacy explícito.
  */
 
@@ -12,9 +12,13 @@ import {
 } from "@/shared/lib/quoteZones";
 import { upgradeBodySelectionToPublicTargets } from "@/widgets/body-3d/domain/bodyPublicSelectionRouting";
 import { isPublicSelectableBodyTarget } from "@/widgets/body-3d/domain/bodyPublicSelectionTargets";
+import {
+  placementsToTokens,
+  tokensToPlacements,
+  type BodySelectionTargetId,
+} from "@/widgets/body-3d/ux/bodySelectionSerialization";
 import { getSelectionDisplayLabel } from "@/widgets/body-3d/interaction/bodyInteractionLabels";
 import { normalizeSelectedTargetIds } from "@/widgets/body-3d/interaction/bodySelectionEngine";
-import type { BodySelectionTargetId } from "@/widgets/body-3d/ux/bodySelectionSerialization";
 
 /** Sentinel legacy para pasos que aún exigen `zone` truthy. */
 export const BODY_3D_ZONE_SENTINEL = "otro" as const;
@@ -40,7 +44,10 @@ export function formatBodyTargetsDisplay(
 export function hasCanonicalBodyTargets(
   draft: QuoteDraft | null | undefined,
 ): boolean {
-  return (draft?.selectedBodyTargets?.length ?? 0) > 0;
+  return (
+    (draft?.selectedBodyPlacements?.length ?? 0) > 0 ||
+    (draft?.selectedBodyTargets?.length ?? 0) > 0
+  );
 }
 
 /**
@@ -52,8 +59,9 @@ export function formatQuoteLocationLabel(
   t: (key: SiteCopyKey) => string,
   fallback?: { zone?: string; zoneOther?: string },
 ): string {
-  if (hasCanonicalBodyTargets(draft)) {
-    return formatBodyTargetsDisplay(draft!.selectedBodyTargets!);
+  const targets = readBodyTargetsFromDraft(draft);
+  if (targets.length > 0) {
+    return formatBodyTargetsDisplay(targets);
   }
 
   const zone = fallback?.zone ?? draft?.zone ?? "";
@@ -81,17 +89,22 @@ export function isBody3DLocationComplete(
  */
 export function buildLegacyQuoteLocationFromBodyTargets(
   targets: readonly BodySelectionTargetId[],
-): Pick<QuoteDraft, "selectedBodyTargets" | "zone" | "zoneOther"> {
+): Pick<
+  QuoteDraft,
+  "selectedBodyTargets" | "selectedBodyPlacements" | "zone" | "zoneOther"
+> {
   const normalized = normalizeQuoteBodyTargets(targets);
   if (normalized.length === 0) {
     return {
       selectedBodyTargets: [],
+      selectedBodyPlacements: [],
       zone: undefined,
       zoneOther: undefined,
     };
   }
   return {
     selectedBodyTargets: normalized,
+    selectedBodyPlacements: tokensToPlacements(normalized),
     zone: BODY_3D_ZONE_SENTINEL,
     zoneOther: formatBodyTargetsDisplay(normalized),
   };
@@ -100,13 +113,21 @@ export function buildLegacyQuoteLocationFromBodyTargets(
 /** @deprecated alias — usar buildLegacyQuoteLocationFromBodyTargets */
 export function buildBody3DDraftFields(
   targets: readonly BodySelectionTargetId[],
-): Pick<QuoteDraft, "selectedBodyTargets" | "zone" | "zoneOther"> {
+): Pick<
+  QuoteDraft,
+  "selectedBodyTargets" | "selectedBodyPlacements" | "zone" | "zoneOther"
+> {
   return buildLegacyQuoteLocationFromBodyTargets(targets);
 }
 
 export function readBodyTargetsFromDraft(
   draft: QuoteDraft | null | undefined,
 ): BodySelectionTargetId[] {
+  if (draft?.selectedBodyPlacements?.length) {
+    return normalizeQuoteBodyTargets(
+      placementsToTokens(draft.selectedBodyPlacements),
+    );
+  }
   if (!draft?.selectedBodyTargets?.length) return [];
   return normalizeQuoteBodyTargets(draft.selectedBodyTargets);
 }

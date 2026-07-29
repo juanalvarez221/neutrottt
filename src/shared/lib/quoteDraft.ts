@@ -21,9 +21,17 @@ export type QuoteDraft = {
   legExtent?: string;
   /**
    * Selección conceptual del selector 3D (fuente de verdad de ubicación).
-   * Vacío / ausente = sin selección 3D. Nunca guardar atomics aquí.
+   * Wire format: `regionId` o `regionId@inner|outer`. Nunca atomics ni labels.
    */
   selectedBodyTargets?: string[];
+  /**
+   * Forma estructurada opcional (regionId + coverage).
+   * Si está presente, tiene prioridad al hidratar el draft.
+   */
+  selectedBodyPlacements?: Array<{
+    regionId: string;
+    coverage?: "complete" | "inner" | "outer";
+  }>;
   /** @deprecated */
   armSide?: string;
   /** @deprecated */

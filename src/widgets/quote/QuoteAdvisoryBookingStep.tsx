@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { CalendarDays, Check, Loader2, MapPin, Monitor } from "lucide-react";
 import { QuoteShell } from "@/widgets/quote/QuoteShell";
+import { QuoteStepHeader } from "@/widgets/quote/QuoteStepChrome";
 import { useSiteLanguage } from "@/shared/i18n/LanguageProvider";
 import { getQuoteConnection, mapConnectionToSmartQuote } from "@/shared/lib/quoteConnection";
 import {
@@ -252,37 +253,34 @@ export function QuoteAdvisoryBookingStep({
 
   return (
     <QuoteShell greetingKey="quoteGreetAdvisoryBook">
-      <section className="relative mb-8">
-        <div className="pointer-events-none absolute -left-10 -top-10 h-40 w-40 rounded-full bg-amber-600/15 blur-[60px]" />
-        <p className="typo-tech mb-2 uppercase tracking-[0.16em] text-amber-200/85">
-          {t("quoteAdvisoryBookingStep")}
-        </p>
-        <h2 className="typo-section text-[2rem] leading-[1.05] md:text-[2.8rem]">
-          {t("quoteAdvisoryBookingTitle")}
-        </h2>
-        <p className="typo-body mt-4 max-w-2xl leading-relaxed">{t("quoteAdvisoryBookingBody")}</p>
+      <QuoteStepHeader
+        eyebrow={t("quoteAdvisoryBookingStep")}
+        title={t("quoteAdvisoryBookingTitle")}
+        body={t("quoteAdvisoryBookingBody")}
+      />
 
-        <div className="mt-4 flex flex-wrap items-center gap-2">
-          <span className="inline-flex items-center gap-2 rounded-full border border-stone-500/30 bg-stone-600/10 px-4 py-2 text-sm text-stone-100">
-            {mode === "presencial" ? (
-              <MapPin className="h-4 w-4" />
-            ) : (
-              <Monitor className="h-4 w-4" />
-            )}
-            {modeTitle}
-          </span>
-          <span className="typo-tech rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs uppercase tracking-[0.14em] text-zinc-300">
-            {t("quoteAdvisoryBookingDuration").replace("{minutes}", String(durationMin))}
-          </span>
-        </div>
-        {mode === "presencial" ? (
-          <p className="typo-tech mt-2 text-xs text-zinc-500">{getStudioFullAddress()}</p>
-        ) : null}
-      </section>
+      <div className="mb-8 flex flex-wrap items-center gap-2">
+        <span className="inline-flex items-center gap-2 rounded-xl border border-[rgba(var(--rgb-sand),0.14)] bg-[rgba(12,10,8,0.55)] px-4 py-2 text-sm text-[rgba(var(--rgb-sand),0.88)]">
+          {mode === "presencial" ? (
+            <MapPin className="h-4 w-4" strokeWidth={1.5} />
+          ) : (
+            <Monitor className="h-4 w-4" strokeWidth={1.5} />
+          )}
+          {modeTitle}
+        </span>
+        <span className="rounded-xl border border-[rgba(var(--rgb-sand),0.12)] bg-white/5 px-3 py-1.5 font-mono text-[0.62rem] uppercase tracking-[0.14em] text-[rgba(var(--rgb-sand),0.55)]">
+          {t("quoteAdvisoryBookingDuration").replace("{minutes}", String(durationMin))}
+        </span>
+      </div>
+      {mode === "presencial" ? (
+        <p className="-mt-5 mb-8 font-mono text-[0.65rem] text-[rgba(var(--rgb-sand),0.4)]">
+          {getStudioFullAddress()}
+        </p>
+      ) : null}
 
       {loading ? (
-        <div className="glass-card flex min-h-48 items-center justify-center rounded-2xl p-6">
-          <Loader2 className="h-6 w-6 animate-spin text-amber-300" />
+        <div className="flex min-h-48 items-center justify-center rounded-2xl border border-[rgba(var(--rgb-sand),0.12)] bg-[rgba(12,10,8,0.55)] p-6">
+          <Loader2 className="h-6 w-6 animate-spin text-[rgba(var(--rgb-honey),0.75)]" />
         </div>
       ) : null}
 
@@ -302,8 +300,8 @@ export function QuoteAdvisoryBookingStep({
         <>
           <section className="mb-6">
             <div className="mb-3 flex items-center gap-2">
-              <CalendarDays className="h-4 w-4 text-amber-300" />
-              <h3 className="typo-subtitle text-sm uppercase tracking-[0.14em] text-zinc-200">
+              <CalendarDays className="h-4 w-4 text-[rgba(var(--rgb-honey),0.75)]" strokeWidth={1.5} />
+              <h3 className="font-mono text-[0.62rem] uppercase tracking-[0.16em] text-[rgba(var(--rgb-sand),0.55)]">
                 {t("quoteAdvisoryBookingDayLabel")}
               </h3>
             </div>
@@ -321,8 +319,8 @@ export function QuoteAdvisoryBookingStep({
                     className={[
                       "shrink-0 rounded-xl border px-4 py-3.5 text-left transition min-h-[44px]",
                       selected
-                        ? "border-amber-500/35 bg-amber-600/15 text-amber-50"
-                        : "border-white/10 bg-white/5 text-zinc-200 hover:bg-white/8",
+                        ? "border-[rgba(var(--rgb-honey),0.4)] bg-[rgba(var(--rgb-cafe),0.65)] text-[rgba(var(--rgb-sand),0.95)]"
+                        : "border-[rgba(var(--rgb-sand),0.12)] bg-white/5 text-[rgba(var(--rgb-ivory),0.8)] hover:bg-white/8",
                     ].join(" ")}
                   >
                     <span className="block text-sm font-semibold">
@@ -335,19 +333,19 @@ export function QuoteAdvisoryBookingStep({
           </section>
 
           <section className="mb-8">
-            <h3 className="typo-subtitle mb-3 text-sm uppercase tracking-[0.14em] text-zinc-200">
+            <h3 className="mb-3 font-mono text-[0.62rem] uppercase tracking-[0.16em] text-[rgba(var(--rgb-sand),0.55)]">
               {t("quoteAdvisoryBookingTimeLabel")}
             </h3>
-            <p className="mb-3 text-sm text-zinc-400">
+            <p className="mb-3 text-sm text-[rgba(var(--rgb-ivory),0.55)]">
               Primero elige un día. Después aparecerán las horas disponibles para esa fecha.
             </p>
             {!hasSelectedDate ? (
-              <div className="rounded-2xl border border-dashed border-white/10 bg-white/5 p-4 text-sm text-zinc-300">
+              <div className="rounded-2xl border border-dashed border-[rgba(var(--rgb-sand),0.14)] bg-white/5 p-4 text-sm text-[rgba(var(--rgb-ivory),0.65)]">
                 Selecciona un día arriba para ver los horarios disponibles.
               </div>
             ) : loadingSlots ? (
-              <div className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-zinc-300">
-                <Loader2 className="h-4 w-4 animate-spin text-amber-300" />
+              <div className="flex items-center gap-2 rounded-xl border border-[rgba(var(--rgb-sand),0.12)] bg-white/5 px-4 py-3 text-sm text-[rgba(var(--rgb-ivory),0.7)]">
+                <Loader2 className="h-4 w-4 animate-spin text-[rgba(var(--rgb-honey),0.75)]" />
                 Cargando horarios...
               </div>
             ) : slotsForSelectedDay.length > 0 ? (
@@ -362,8 +360,8 @@ export function QuoteAdvisoryBookingStep({
                       className={[
                         "rounded-xl border px-3 py-3.5 text-sm font-semibold transition min-h-[44px]",
                         selected
-                          ? "border-amber-500/35 bg-amber-600/15 text-amber-50"
-                          : "border-white/10 bg-white/5 text-zinc-100 hover:bg-white/8",
+                          ? "border-[rgba(var(--rgb-honey),0.4)] bg-[rgba(var(--rgb-cafe),0.65)] text-[rgba(var(--rgb-sand),0.95)]"
+                          : "border-[rgba(var(--rgb-sand),0.12)] bg-white/5 text-[rgba(var(--rgb-ivory),0.9)] hover:bg-white/8",
                       ].join(" ")}
                     >
                       {slot.time}
@@ -372,19 +370,19 @@ export function QuoteAdvisoryBookingStep({
                 })}
               </div>
             ) : (
-              <div className="rounded-2xl border border-amber-500/20 bg-amber-600/10 p-4 text-sm text-amber-100">
+              <div className="rounded-2xl border border-[rgba(var(--rgb-honey),0.22)] bg-[rgba(var(--rgb-cafe),0.45)] p-4 text-sm text-[rgba(var(--rgb-sand),0.88)]">
                 No hay horarios disponibles para este día. Elige otro día para seguir con la reserva.
               </div>
             )}
           </section>
 
           {selectedSlot ? (
-            <section className="glass-card mb-6 rounded-2xl p-5">
-              <p className="typo-tech text-xs uppercase tracking-[0.14em] text-zinc-400">
+            <section className="mb-6 rounded-2xl border border-[rgba(var(--rgb-sand),0.14)] bg-[rgba(12,10,8,0.72)] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
+              <p className="font-mono text-[0.58rem] uppercase tracking-[0.14em] text-[rgba(var(--rgb-sand),0.45)]">
                 {t("quoteAdvisoryBookingSummary")}
               </p>
-              <p className="typo-subtitle mt-2 text-lg text-zinc-50">{selectedSlot.label}</p>
-              <p className="typo-body mt-2 text-sm text-zinc-300">
+              <p className="mt-2 text-lg font-semibold text-[rgba(var(--rgb-sand),0.95)]">{selectedSlot.label}</p>
+              <p className="mt-2 text-sm text-[rgba(var(--rgb-ivory),0.6)]">
                 {profile?.name} · {modeTitle} ·{" "}
                 {t("quoteAdvisoryBookingDuration").replace("{minutes}", String(durationMin))}
               </p>

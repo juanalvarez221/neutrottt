@@ -12,6 +12,9 @@
 
 # testing
 /coverage
+/test-results/
+/playwright-report/
+/blob-report/
 
 # next.js
 /.next/
@@ -43,7 +46,14 @@ next-env.d.ts
 # local QA / authoring
 /artifacts/
 *.blend1
+*.blend
 tools/body-regions/.blender-path.local
 tools/blender/__pycache__/
 **/__pycache__/
 assets/body-regions/backups/
+assets/blender/
+public/models/interaction/fields/temp/
+public/models/interaction/pilot/
+tools/_tmp_*
+data/quote-requests.json
+data/*.local.json

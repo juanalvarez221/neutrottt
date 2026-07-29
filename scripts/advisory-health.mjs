@@ -139,7 +139,7 @@ async function main() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          summary: "[TEST] Neutrottt — borrar",
+          summary: "[TEST] Danniel Cuervo — borrar",
           description: "Evento de prueba del diagnóstico. Puedes eliminarlo.",
           start: { dateTime: new Date(now.getTime() + 7 * 86_400_000).toISOString(), timeZone: "America/Bogota" },
           end: { dateTime: new Date(now.getTime() + 7 * 86_400_000 + 15 * 60_000).toISOString(), timeZone: "America/Bogota" },

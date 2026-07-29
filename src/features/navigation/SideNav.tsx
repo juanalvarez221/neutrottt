@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { isNavItemActive, PUBLIC_NAV_ITEMS } from "@/features/navigation/navConfig";
-import { LanguageToggle } from "@/features/navigation/LanguageToggle";
 import { cn } from "@/shared/lib/cn";
 
 export function SideNav() {
@@ -13,16 +12,13 @@ export function SideNav() {
     <aside className="hidden lg:block lg:sticky lg:top-0 lg:h-dvh">
       <div className="h-full w-[280px] p-6">
         <div className="app-surface noise flex h-full flex-col rounded-3xl p-5">
-          <div className="flex items-center justify-between gap-3">
-            <div className="leading-none">
-              <p className="hero-brand-name text-[2.1rem] leading-[0.9] sm:text-[2.5rem]">
-                Danniel Cuervo
-              </p>
-              <p className="hero-brand-tagline mt-2 text-[0.58rem] tracking-[0.38em] text-stone-400/80">
-                Tattoo Artist
-              </p>
-            </div>
-            <LanguageToggle />
+          <div className="leading-none">
+            <p className="hero-brand-name text-[2.1rem] leading-[1.08] sm:text-[2.5rem]">
+              Danniel Cuervo
+            </p>
+            <p className="hero-brand-tagline mt-2 text-[0.58rem] tracking-[0.22em] text-stone-400/80">
+              Tattoo Artist
+            </p>
           </div>
 
           <div className="mt-8 grid gap-1">
@@ -33,7 +29,9 @@ export function SideNav() {
                 <Link
                   key={it.href}
                   href={it.href}
-                  aria-current={active ? "page" : undefined}
+                  target={it.openInNewTab ? "_blank" : undefined}
+                  rel={it.openInNewTab ? "noopener noreferrer" : undefined}
+                  aria-current={active && !it.openInNewTab ? "page" : undefined}
                   className={cn(
                     "group flex items-center gap-3 rounded-2xl border px-3 py-2.5 text-sm font-semibold transition",
                     active

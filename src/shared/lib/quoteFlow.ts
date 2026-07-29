@@ -1,4 +1,4 @@
-import { getQuoteConnection, isRejectedCollaboration } from "@/shared/lib/quoteConnection";
+import { getQuoteConnection } from "@/shared/lib/quoteConnection";
 import { clearQuoteCompletionType, clearQuoteDraft } from "@/shared/lib/quoteDraft";
 import { getQuoteProfile } from "@/shared/lib/quoteProfile";
 import {
@@ -21,16 +21,14 @@ export function hasCompleteQuoteProfile() {
   return getQuoteProfile() !== null;
 }
 
-export function hasApprovedQuoteConnection() {
-  const connection = getQuoteConnection();
-  if (!connection) return false;
-  return !isRejectedCollaboration(connection.adjustments);
+export function hasQuoteReferral() {
+  return getQuoteConnection() !== null;
 }
 
-/** Onboarding = perfil + conexión aprobada. Se conserva entre visitas. */
+/** Onboarding = perfil + origen/marketing. Se conserva entre visitas. */
 export function hasCompletedQuoteOnboarding() {
   if (safeLocalStorageGet(QUOTE_ONBOARDING_KEY) === "1") return true;
-  if (hasCompleteQuoteProfile() && hasApprovedQuoteConnection()) {
+  if (hasCompleteQuoteProfile() && hasQuoteReferral()) {
     markQuoteOnboardingComplete();
     return true;
   }
@@ -54,7 +52,6 @@ export function resolveQuoteEntryPath(): QuoteFlowPath {
 
 /**
  * Para pasos del tatuaje: devuelve el paso de onboarding pendiente o null si ya está listo.
- * No redirige al inicio del flujo de pieza, solo valida datos permanentes del usuario.
  */
 export function resolveOnboardingFallbackPath(): QuoteFlowPath | null {
   if (!hasCompleteQuoteProfile()) return QUOTE_FLOW_PATHS.profile;

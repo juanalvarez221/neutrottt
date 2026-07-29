@@ -17,7 +17,7 @@ export const TATTOO_PROJECTS: TattooProject[] = [
   {
     id: "ghetto-money",
     title: "Ghetto Money",
-    images: projectImages("ghetto-money", [0, 1, 2, 3]),
+    images: projectImages("ghetto-money", [1, 2, 3]),
   },
   {
     id: "love",

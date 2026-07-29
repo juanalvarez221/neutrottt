@@ -51,7 +51,7 @@ for (const file of files) {
 critical.sort((a, b) => b.mb - a.mb);
 warnings.sort((a, b) => b.mb - a.mb);
 
-console.log("Neutrott — auditoria de assets\n");
+console.log("Danniel Cuervo — auditoria de assets\n");
 console.log(`Total public/: ~${totalMb.toFixed(1)} MB en ${files.length} archivos revisables`);
 
 if (warnings.length) {

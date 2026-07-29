@@ -25,6 +25,9 @@ export default function ContactoPage() {
           <div className="p-4">
             <SocialBrandIcon network="whatsapp" className="h-12 w-12" />
             <p className="typo-subtitle mt-3 text-sm">WhatsApp</p>
+            <p className="mt-1 font-mono text-sm text-[rgba(var(--rgb-sand),0.85)]">
+              {BRAND.whatsappDisplay}
+            </p>
             <p className="typo-body mt-1 text-sm text-zinc-400">Cotizaciones y agenda.</p>
             <div className="mt-3">
               <Button className="w-full" href={whatsappUrl(WHATSAPP_MESSAGES.contact)}>
@@ -42,6 +45,19 @@ export default function ContactoPage() {
             <div className="mt-3">
               <Button className="w-full" href={BRAND.instagramUrl}>
                 Abrir Instagram
+              </Button>
+            </div>
+          </div>
+        </Card>
+
+        <Card>
+          <div className="p-4">
+            <SocialBrandIcon network="tiktok" className="h-12 w-12" />
+            <p className="mt-3 text-sm font-semibold text-zinc-50">TikTok</p>
+            <p className="mt-1 text-xs text-zinc-400">@{BRAND.tiktokHandle}</p>
+            <div className="mt-3">
+              <Button className="w-full" href={BRAND.tiktokUrl}>
+                Abrir TikTok
               </Button>
             </div>
           </div>

@@ -20,7 +20,9 @@ export function NavBar() {
                 <Link
                   key={it.href}
                   href={it.href}
-                  aria-current={active ? "page" : undefined}
+                  target={it.openInNewTab ? "_blank" : undefined}
+                  rel={it.openInNewTab ? "noopener noreferrer" : undefined}
+                  aria-current={active && !it.openInNewTab ? "page" : undefined}
                   className={cn(
                     "flex min-h-[52px] flex-col items-center justify-center gap-1 px-1.5 py-2.5 text-[0.6875rem] font-semibold tracking-wide transition sm:min-h-[56px] sm:px-2 sm:py-3 sm:text-xs",
                     active ? "text-stone-200" : "text-zinc-400 hover:text-zinc-100",

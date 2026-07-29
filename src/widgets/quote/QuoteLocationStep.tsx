@@ -185,20 +185,20 @@ export function QuoteLocationStep({ size }: { size: string }) {
   }
 
   return (
-    <QuoteShell>
-      <section className="relative mb-4 sm:mb-5">
-        <p className="typo-tech mb-2 uppercase tracking-[0.16em] text-amber-200/85">
+    <QuoteShell greetingKey="quoteGreetLocation">
+      <header className="mb-5 max-w-2xl border-b border-[rgba(var(--rgb-sand),0.14)] pb-5 sm:mb-6">
+        <p className="font-mono text-[0.62rem] uppercase tracking-[0.18em] text-[rgba(var(--rgb-sand),0.55)]">
           {t("quoteLocationStep")}
         </p>
-
-        <h2 className="typo-section text-[1.85rem] leading-[1.08] tracking-tight sm:text-[2.35rem] md:text-[2.75rem]">
+        <h2 className="typo-gothic mt-3 text-[clamp(1.85rem,4.5vw,2.75rem)] leading-[0.95] text-[rgba(var(--rgb-sand),0.96)]">
           {t("quoteLocationTitle")}
+          <br />
+          <span className="text-[rgba(var(--rgb-ivory),0.72)]">{t("quoteLocationTitle2")}</span>
         </h2>
-
-        <p className="typo-body mt-2 max-w-xl text-[0.95rem] leading-relaxed text-stone-300/90 sm:mt-2.5">
+        <p className="mt-3 max-w-[42ch] text-sm leading-relaxed text-[rgba(var(--rgb-ivory),0.62)]">
           {t("quoteLocationBody")}
         </p>
-      </section>
+      </header>
 
       <section className="mb-4 sm:mb-5">
         <QuoteBodyLocationSelector
@@ -225,7 +225,7 @@ export function QuoteLocationStep({ size }: { size: string }) {
       </section>
 
       {!isLocationComplete ? (
-        <div className="mb-3 rounded-xl border border-amber-300/20 bg-amber-500/10 px-4 py-3 text-sm font-medium text-amber-100">
+        <div className="mb-3 rounded-xl border border-[rgba(var(--rgb-honey),0.22)] bg-[rgba(var(--rgb-cafe),0.45)] px-4 py-3 text-sm font-medium text-[rgba(var(--rgb-sand),0.88)]">
           {selectorMode === "3d"
             ? t("quoteBody3dEmptyContinue")
             : t("quoteRefinementIncomplete")}

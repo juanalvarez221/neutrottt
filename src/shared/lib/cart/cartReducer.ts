@@ -1,3 +1,5 @@
+import { getExcludedCartProductId } from "@/shared/config/products";
+
 export type CartLine = {
   productId: string;
   quantity: number;
@@ -9,7 +11,7 @@ export type CartState = {
 };
 
 export type CartAction =
-  | { type: "ADD"; productId: string; quantity?: number }
+  | { type: "ADD"; productId: string; quantity?: number; open?: boolean }
   | { type: "REMOVE"; productId: string }
   | { type: "SET_QTY"; productId: string; quantity: number }
   | { type: "CLEAR" }
@@ -22,16 +24,24 @@ export const initialCartState: CartState = {
   isOpen: false,
 };
 
+function withoutExcludedFormat(lines: CartLine[], productId: string): CartLine[] {
+  const excluded = getExcludedCartProductId(productId);
+  if (!excluded) return lines;
+  return lines.filter((line) => line.productId !== excluded);
+}
+
 export function cartReducer(state: CartState, action: CartAction): CartState {
   switch (action.type) {
     case "ADD": {
       const quantity = action.quantity ?? 1;
-      const existing = state.lines.find((line) => line.productId === action.productId);
+      const openDrawer = action.open !== false;
+      const lines = withoutExcludedFormat(state.lines, action.productId);
+      const existing = lines.find((line) => line.productId === action.productId);
       if (existing) {
         return {
           ...state,
-          isOpen: true,
-          lines: state.lines.map((line) =>
+          isOpen: openDrawer ? true : state.isOpen,
+          lines: lines.map((line) =>
             line.productId === action.productId
               ? { ...line, quantity: line.quantity + quantity }
               : line,
@@ -40,8 +50,8 @@ export function cartReducer(state: CartState, action: CartAction): CartState {
       }
       return {
         ...state,
-        isOpen: true,
-        lines: [...state.lines, { productId: action.productId, quantity }],
+        isOpen: openDrawer ? true : state.isOpen,
+        lines: [...lines, { productId: action.productId, quantity }],
       };
     }
     case "REMOVE":

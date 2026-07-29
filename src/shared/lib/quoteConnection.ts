@@ -5,109 +5,42 @@ import {
   safeLocalStorageSet,
 } from "@/shared/lib/safeStorage";
 
-export type ReferralSource = "instagram" | "tiktok" | "acquaintance" | "other";
-export type PersonalValue =
-  | "duality"
-  | "joy"
-  | "light"
-  | "inner_darkness"
-  | "vulnerability"
-  | "loyalty"
-  | "freedom"
-  | "resilience"
-  | "roots"
-  | "memory"
-  | "transcendence"
-  | "silence";
-export type AdjustmentOption =
-  | "trust_artist"
-  | "open_composition"
-  | "fixed_idea_only";
+/**
+ * Datos de origen / marketing del lead.
+ * Se mantiene el nombre de storage `quote_connection` por compatibilidad
+ * con borradores locales y payloads existentes (connectionAnswers).
+ */
+export type ReferralSource =
+  | "instagram"
+  | "tiktok"
+  | "recommended"
+  | "google"
+  | "existing_client"
+  | "other";
 
 export type QuoteConnection = {
-  referralSources: ReferralSource[];
-  referralOther?: string;
-  personalValues: PersonalValue[];
-  adjustments: AdjustmentOption[];
+  source: ReferralSource;
+  sourceOther?: string;
+  marketingOptIn: boolean;
   openNote: string;
 };
 
 export const REFERRAL_SOURCES: ReferralSource[] = [
   "instagram",
   "tiktok",
-  "acquaintance",
+  "recommended",
+  "google",
+  "existing_client",
   "other",
 ];
-
-export const PERSONAL_VALUES: PersonalValue[] = [
-  "duality",
-  "joy",
-  "light",
-  "inner_darkness",
-  "vulnerability",
-  "loyalty",
-  "freedom",
-  "resilience",
-  "roots",
-  "memory",
-  "transcendence",
-  "silence",
-];
-
-export const ADJUSTMENT_OPTIONS: AdjustmentOption[] = [
-  "trust_artist",
-  "open_composition",
-  "fixed_idea_only",
-];
-
-/** Opción más cerrada: sin asesoría ni evolución de la idea. */
-export const REJECTED_COLLABORATION_OPTION: AdjustmentOption = "fixed_idea_only";
-
-export function isRejectedCollaboration(adjustments: AdjustmentOption[]): boolean {
-  return adjustments.includes(REJECTED_COLLABORATION_OPTION);
-}
-
-export type ConnectionSelectionMode = "single" | "multiple";
-
-/** Modo de selección por bloque del paso de conexión. */
-export const CONNECTION_SELECTION_MODES = {
-  referral: "single",
-  values: "multiple",
-  adjustments: "single",
-} as const satisfies Record<string, ConnectionSelectionMode>;
 
 export const REFERRAL_LABEL_KEYS: Record<ReferralSource, SiteCopyKey> = {
   instagram: "quoteConnectionReferralInstagram",
   tiktok: "quoteConnectionReferralTiktok",
-  acquaintance: "quoteConnectionReferralAcquaintance",
+  recommended: "quoteConnectionReferralRecommended",
+  google: "quoteConnectionReferralGoogle",
+  existing_client: "quoteConnectionReferralExistingClient",
   other: "quoteConnectionReferralOther",
-};
-
-export const VALUE_LABEL_KEYS: Record<PersonalValue, SiteCopyKey> = {
-  duality: "quoteConnectionValueDuality",
-  joy: "quoteConnectionValueJoy",
-  light: "quoteConnectionValueLight",
-  inner_darkness: "quoteConnectionValueInnerDarkness",
-  vulnerability: "quoteConnectionValueVulnerability",
-  loyalty: "quoteConnectionValueLoyalty",
-  freedom: "quoteConnectionValueFreedom",
-  resilience: "quoteConnectionValueResilience",
-  roots: "quoteConnectionValueRoots",
-  memory: "quoteConnectionValueMemory",
-  transcendence: "quoteConnectionValueTranscendence",
-  silence: "quoteConnectionValueSilence",
-};
-
-export const ADJUSTMENT_LABEL_KEYS: Record<AdjustmentOption, SiteCopyKey> = {
-  trust_artist: "quoteConnectionAdjustTrust",
-  open_composition: "quoteConnectionAdjustComposition",
-  fixed_idea_only: "quoteConnectionAdjustFixed",
-};
-
-export const ADJUSTMENT_DETAIL_KEYS: Record<AdjustmentOption, SiteCopyKey> = {
-  trust_artist: "quoteConnectionAdjustTrustDetail",
-  open_composition: "quoteConnectionAdjustCompositionDetail",
-  fixed_idea_only: "quoteConnectionAdjustFixedDetail",
 };
 
 const QUOTE_CONNECTION_KEY = "quote_connection";
@@ -115,25 +48,17 @@ const QUOTE_CONNECTION_KEY = "quote_connection";
 function isValidConnection(parsed: unknown): parsed is QuoteConnection {
   if (!parsed || typeof parsed !== "object") return false;
   const data = parsed as QuoteConnection;
-  return (
-    Array.isArray(data.referralSources) &&
-    data.referralSources.length > 0 &&
-    Array.isArray(data.personalValues) &&
-    data.personalValues.every((value) => PERSONAL_VALUES.includes(value as PersonalValue)) &&
-    data.personalValues.length > 0 &&
-    Array.isArray(data.adjustments) &&
-    data.adjustments.every((option) => ADJUSTMENT_OPTIONS.includes(option as AdjustmentOption)) &&
-    data.adjustments.length > 0 &&
-    typeof data.openNote === "string"
-  );
+  if (!REFERRAL_SOURCES.includes(data.source as ReferralSource)) return false;
+  if (typeof data.marketingOptIn !== "boolean") return false;
+  if (typeof data.openNote !== "string") return false;
+  if (data.source === "other" && !data.sourceOther?.trim()) return false;
+  return true;
 }
 
 export function saveQuoteConnection(connection: QuoteConnection) {
   if (typeof window === "undefined") return;
   safeLocalStorageSet(QUOTE_CONNECTION_KEY, JSON.stringify(connection));
-  if (!isRejectedCollaboration(connection.adjustments)) {
-    markQuoteOnboardingComplete();
-  }
+  markQuoteOnboardingComplete();
 }
 
 export function getQuoteConnection(): QuoteConnection | null {
@@ -143,9 +68,6 @@ export function getQuoteConnection(): QuoteConnection | null {
   try {
     const parsed = JSON.parse(raw) as unknown;
     if (!isValidConnection(parsed)) return null;
-    if (parsed.referralSources.includes("other") && !parsed.referralOther?.trim()) {
-      return null;
-    }
     return parsed;
   } catch {
     return null;
@@ -156,70 +78,45 @@ export function formatReferralSummary(
   connection: QuoteConnection,
   t: (key: SiteCopyKey) => string,
 ) {
-  const parts = connection.referralSources
-    .filter((source) => source !== "other")
-    .map((source) => t(REFERRAL_LABEL_KEYS[source]));
-  if (connection.referralSources.includes("other")) {
-    parts.push(`${t(REFERRAL_LABEL_KEYS.other)}: ${connection.referralOther?.trim() ?? ""}`);
+  if (connection.source === "other") {
+    return `${t(REFERRAL_LABEL_KEYS.other)}: ${connection.sourceOther?.trim() ?? ""}`;
   }
-  return parts.join(", ");
+  return t(REFERRAL_LABEL_KEYS[connection.source]);
 }
 
+/** Mapea al shape histórico de SmartQuoteRequest / connectionAnswers. */
 export function mapConnectionToSmartQuote(
   connection: QuoteConnection,
   t: (key: SiteCopyKey) => string,
 ) {
   return {
     connectionAftercare: formatReferralSummary(connection, t),
-    connectionValues: connection.personalValues
-      .map((value) => t(VALUE_LABEL_KEYS[value]))
-      .join(", "),
-    connectionCollaboration: connection.adjustments
-      .map((option) => t(ADJUSTMENT_LABEL_KEYS[option]))
-      .join(", "),
+    connectionValues: connection.marketingOptIn
+      ? t("quoteConnectionMarketingYes")
+      : t("quoteConnectionMarketingNo"),
+    connectionCollaboration: undefined as string | undefined,
     connectionPurpose: connection.openNote.trim() || undefined,
+    marketingOptIn: connection.marketingOptIn,
   };
 }
 
 export function formatQuoteConnectionForAdmin(connection: QuoteConnection): string {
-  const referralLabels: Record<ReferralSource, string> = {
+  const labels: Record<ReferralSource, string> = {
     instagram: "Instagram",
     tiktok: "TikTok",
-    acquaintance: "Conocido/a",
+    recommended: "Recomendado por alguien",
+    google: "Google / búsqueda",
+    existing_client: "Ya soy cliente",
     other: "Otro",
   };
-  const valueLabels: Record<PersonalValue, string> = {
-    duality: "Dualidad",
-    joy: "Alegría",
-    light: "Luz",
-    inner_darkness: "Oscuridad interna",
-    vulnerability: "Superación Personal",
-    loyalty: "Lealtad",
-    freedom: "Libertad",
-    resilience: "Resiliencia",
-    roots: "Raíces",
-    memory: "Memoria",
-    transcendence: "Trascendencia",
-    silence: "Silencio",
-  };
-  const adjustmentLabels: Record<AdjustmentOption, string> = {
-    trust_artist: "Libertad creativa completa",
-    open_composition: "Elegimos juntos la dirección del proyecto",
-    fixed_idea_only: "No estoy abierto a temáticas",
-  };
-
-  const referral = connection.referralSources
-    .map((source) =>
-      source === "other"
-        ? `Otro (${connection.referralOther?.trim() ?? ""})`
-        : referralLabels[source],
-    )
-    .join(", ");
+  const source =
+    connection.source === "other"
+      ? `Otro (${connection.sourceOther?.trim() ?? ""})`
+      : labels[connection.source];
 
   return [
-    `Origen: ${referral}`,
-    `Valores: ${connection.personalValues.map((v) => valueLabels[v]).join(", ")}`,
-    `Ajustes: ${connection.adjustments.map((a) => adjustmentLabels[a]).join(", ")}`,
+    `Origen: ${source}`,
+    `Marketing: ${connection.marketingOptIn ? "Sí" : "No"}`,
     connection.openNote.trim() ? `Nota: ${connection.openNote.trim()}` : null,
   ]
     .filter(Boolean)

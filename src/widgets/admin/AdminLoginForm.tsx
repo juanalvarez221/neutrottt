@@ -69,7 +69,7 @@ export function AdminLoginForm() {
           Acceso reservado
         </p>
         <h1 className="mt-1 text-2xl font-semibold tracking-tight text-zinc-50">
-          Estudio Neutrottt
+          Estudio Danniel Cuervo
         </h1>
         <p className="mt-2 text-sm leading-relaxed text-zinc-400">
           Este panel es privado. Ingresa tu clave para gestionar agenda y cotizaciones.

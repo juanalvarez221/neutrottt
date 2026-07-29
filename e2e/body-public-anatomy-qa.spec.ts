@@ -5,7 +5,7 @@ const OUT = path.join("artifacts", "body-public-region-atlas-v2");
 
 async function openPublicAnatomyQa(page: Page) {
   await page.addInitScript(() => {
-    window.localStorage.setItem("neutrottt.language", "es");
+    window.localStorage.setItem("danniel.language", "es");
   });
   await page.goto("/lab/body-3d?mode=audit", { waitUntil: "domcontentloaded" });
   await page.waitForTimeout(800);

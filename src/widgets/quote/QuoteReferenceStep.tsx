@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import type { ChangeEvent, DragEvent } from "react";
 import { ImageIcon } from "lucide-react";
 import { QuoteShell } from "@/widgets/quote/QuoteShell";
+import { QuoteStepHeader } from "@/widgets/quote/QuoteStepChrome";
 import { useSiteLanguage } from "@/shared/i18n/LanguageProvider";
 import {
   getQuoteDraft,
@@ -130,30 +131,20 @@ export function QuoteReferenceStep({
 
   return (
     <QuoteShell greetingKey="quoteGreetReference">
-      <section className="relative mb-8">
-        <div className="pointer-events-none absolute -left-10 -top-10 h-40 w-40 rounded-full bg-amber-600/15 blur-[60px]" />
-        <p className="typo-tech mb-2 uppercase tracking-[0.16em] text-amber-200/85">
-          {t("quoteReferenceStep")}
-        </p>
-        <h2 className="typo-section quote-step-title">
-          {t("quoteReferenceTitle")}
-          <br />
-          <span className="bg-gradient-to-r from-white to-zinc-400 bg-clip-text text-transparent">
-            {t("quoteReferenceTitle2")}
-          </span>
-        </h2>
-        <p className="typo-body mt-4 max-w-2xl leading-relaxed">
-          {t("quoteReferenceBody")}
-        </p>
-      </section>
+      <QuoteStepHeader
+        eyebrow={t("quoteReferenceStep")}
+        title={t("quoteReferenceTitle")}
+        titleAccent={t("quoteReferenceTitle2")}
+        body={t("quoteReferenceBody")}
+      />
 
       <section className="mb-6">
-        <div className="glass-card rounded-2xl p-5 md:p-6">
+        <div className="rounded-2xl border border-[rgba(var(--rgb-sand),0.14)] bg-[rgba(12,10,8,0.72)] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] backdrop-blur-md md:p-6">
           <div className="mb-4 flex flex-wrap items-center gap-2">
-            <h3 className="typo-subtitle text-sm uppercase tracking-[0.14em] text-zinc-200">
+            <h3 className="font-mono text-[0.62rem] uppercase tracking-[0.16em] text-[rgba(var(--rgb-sand),0.55)]">
               {t("quoteReferenceVisualCard")}
             </h3>
-            <span className="typo-tech rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-[10px] uppercase tracking-[0.12em] text-zinc-400">
+            <span className="rounded-md border border-[rgba(var(--rgb-sand),0.14)] bg-white/5 px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.12em] text-[rgba(var(--rgb-sand),0.45)]">
               {t("quoteReferenceOptional")}
             </span>
           </div>
@@ -237,11 +228,11 @@ export function QuoteReferenceStep({
       </section>
 
       <section className="mb-8">
-        <div className="glass-card rounded-2xl p-5 md:p-6">
+        <div className="rounded-2xl border border-[rgba(var(--rgb-sand),0.14)] bg-[rgba(12,10,8,0.72)] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] backdrop-blur-md md:p-6">
           <label className="block" htmlFor="quote-reference-note">
             <div className="mb-3 flex flex-wrap items-center gap-2">
               <span className="connection-step__question">{t("quoteReferenceNoteLabel")}</span>
-              <span className="typo-tech rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-[10px] uppercase tracking-[0.12em] text-zinc-400">
+              <span className="rounded-md border border-[rgba(var(--rgb-sand),0.14)] bg-white/5 px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.12em] text-[rgba(var(--rgb-sand),0.45)]">
                 {t("quoteReferenceOptional")}
               </span>
             </div>

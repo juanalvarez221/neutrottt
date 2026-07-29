@@ -20,7 +20,6 @@ vi.mock("@/shared/lib/quoteProfile", () => ({
 
 vi.mock("@/shared/lib/quoteConnection", () => ({
   getQuoteConnection: vi.fn(),
-  isRejectedCollaboration: vi.fn(),
 }));
 
 vi.mock("@/shared/lib/quoteDraft", () => ({
@@ -30,7 +29,7 @@ vi.mock("@/shared/lib/quoteDraft", () => ({
   clearQuoteCompletionType: vi.fn(),
 }));
 
-import { getQuoteConnection, isRejectedCollaboration, type QuoteConnection } from "@/shared/lib/quoteConnection";
+import { getQuoteConnection, type QuoteConnection } from "@/shared/lib/quoteConnection";
 import { getQuoteProfile } from "@/shared/lib/quoteProfile";
 import {
   hasCompletedQuoteOnboarding,
@@ -47,10 +46,9 @@ const profile = {
   email: "mateo@ejemplo.com",
 };
 
-const approvedConnection: QuoteConnection = {
-  referralSources: ["instagram"],
-  personalValues: ["loyalty"],
-  adjustments: ["trust_artist"],
+const referral: QuoteConnection = {
+  source: "instagram",
+  marketingOptIn: true,
   openNote: "",
 };
 
@@ -59,7 +57,6 @@ describe("quoteFlow", () => {
     storage.clear();
     vi.mocked(getQuoteProfile).mockReturnValue(null);
     vi.mocked(getQuoteConnection).mockReturnValue(null);
-    vi.mocked(isRejectedCollaboration).mockReturnValue(false);
   });
 
   it("envía al perfil si no hay datos del usuario", () => {
@@ -67,15 +64,15 @@ describe("quoteFlow", () => {
     expect(resolveOnboardingFallbackPath()).toBe(QUOTE_FLOW_PATHS.profile);
   });
 
-  it("envía a conexión si hay perfil pero onboarding incompleto", () => {
+  it("envía a origen/marketing si hay perfil pero falta el paso de referral", () => {
     vi.mocked(getQuoteProfile).mockReturnValue(profile);
     expect(resolveQuoteEntryPath()).toBe(QUOTE_FLOW_PATHS.connection);
     expect(resolveOnboardingFallbackPath()).toBe(QUOTE_FLOW_PATHS.connection);
   });
 
-  it("salta al tatuaje si perfil y conexión aprobada están guardados", () => {
+  it("salta al tatuaje si perfil y origen están guardados", () => {
     vi.mocked(getQuoteProfile).mockReturnValue(profile);
-    vi.mocked(getQuoteConnection).mockReturnValue(approvedConnection);
+    vi.mocked(getQuoteConnection).mockReturnValue(referral);
     expect(resolveQuoteEntryPath()).toBe(QUOTE_FLOW_PATHS.quoteStart);
     expect(resolveOnboardingFallbackPath()).toBeNull();
     expect(hasCompletedQuoteOnboarding()).toBe(true);
