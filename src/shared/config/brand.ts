@@ -1,10 +1,10 @@
 export const BRAND = {
-  name: "Neutrottt",
-  nameUpper: "NEUTROTTT",
-  instagramHandle: "neutrottt",
-  instagramUrl: "https://www.instagram.com/neutrottt/",
-  tiktokHandle: "neutrottt",
-  tiktokUrl: "https://www.tiktok.com/@neutrottt",
+  name: "Danniel Cuervo",
+  nameUpper: "DANNIEL CUERVO",
+  instagramHandle: "dannielcuervo",
+  instagramUrl: "https://www.instagram.com/dannielcuervo/",
+  tiktokHandle: "TODO: confirmar TikTok", // was dannielcuervo — unconfirmed
+  tiktokUrl: "https://www.tiktok.com/@TODO-confirmar-TikTok",
   whatsappPhone: "573127311382",
 } as const;
 
@@ -13,10 +13,10 @@ export function whatsappUrl(message: string): string {
 }
 
 export const WHATSAPP_MESSAGES = {
-  quote: "Hola quiero cotizar un tatuaje ✴️🔥",
-  quoteContinue: "Hola quiero continuar mi cotización ✴️🔥",
-  quoteFollowUp: "Hola quiero seguir con mi cotización ✴️🔥",
-  contact: "Hola quiero cotizar un tatuaje ✴️🔥",
+  quote: "Hola quiero cotizar un tatuaje",
+  quoteContinue: "Hola quiero continuar mi cotizacion",
+  quoteFollowUp: "Hola quiero seguir con mi cotizacion",
+  contact: "Hola quiero cotizar un tatuaje",
 } as const;
 
 export function buildAdvisoryWhatsAppMessage({
@@ -29,5 +29,5 @@ export function buildAdvisoryWhatsAppMessage({
   clientName: string;
 }) {
   const modality = mode === "presencial" ? "presencial" : "virtual";
-  return `Hola Neutro, soy ${clientName}. Tengo una consulta sobre mi asesoría ${modality} del ${slotLabel}.`;
+  return `Hola Danniel, soy ${clientName}. Tengo una consulta sobre mi asesoria ${modality} del ${slotLabel}.`;
 }

@@ -11,7 +11,7 @@ import type { SiteCopyKey } from "@/shared/i18n/siteLanguage";
 import { SocialBrandIcon } from "@/shared/ui/SocialBrandIcon";
 import { cn } from "@/shared/lib/cn";
 
-const APP_SHELL_ROUTES = ["/contacto", "/proyectos"] as const;
+const APP_SHELL_ROUTES = ["/contacto", "/proyectos", "/tienda"] as const;
 const QUOTE_ROUTE_PREFIX = "/cotizacion";
 
 type DockAction = {

@@ -1,5 +1,5 @@
 import type { LucideIcon } from "lucide-react";
-import { Home, Image as ImageIcon, Sparkles, MessageCircle } from "lucide-react";
+import { Home, Image as ImageIcon, Sparkles, MessageCircle, ShoppingBag } from "lucide-react";
 
 export type NavItem = {
   href: string;
@@ -12,8 +12,9 @@ export type NavItem = {
 export const PUBLIC_NAV_ITEMS: NavItem[] = [
   { href: "/", label: "Inicio", icon: Home },
   { href: "/proyectos", label: "Proyectos", icon: ImageIcon, matchPrefix: true },
+  { href: "/tienda", label: "Tienda", icon: ShoppingBag, matchPrefix: true },
   { href: "/cotizacion", label: "Cotizar", icon: Sparkles, matchPrefix: true },
-  { href: "/contacto", label: "Contacto", icon: MessageCircle, matchPrefix: true },
+  { href: "/contacto", label: "Contacto", icon: MessageCircle },
 ];
 
 export function isNavItemActive(pathname: string, item: NavItem): boolean {

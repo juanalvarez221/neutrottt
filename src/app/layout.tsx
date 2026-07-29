@@ -10,10 +10,12 @@ import {
 } from "next/font/google";
 import "./globals.css";
 import { LanguageProvider } from "@/shared/i18n/LanguageProvider";
+import { CartProvider } from "@/shared/lib/cart";
 import { HtmlLangSync } from "@/widgets/i18n/HtmlLangSync";
 import { NavigationScrollManager } from "@/widgets/navigation/NavigationScrollManager";
 import { DeferredChrome } from "@/widgets/layout/DeferredChrome";
 import { ErrorBoundary } from "@/shared/ui/ErrorBoundary";
+import { CartDrawer } from "@/widgets/shop/CartDrawer";
 
 const fontSans = Montserrat({
   variable: "--font-sans",
@@ -100,17 +102,20 @@ export default function RootLayout({
     >
       <body suppressHydrationWarning className="min-h-full flex flex-col bg-background text-ivory">
         <LanguageProvider>
-          <HtmlLangSync />
-          <NavigationScrollManager />
-          <div aria-hidden className="amber-storm">
-            <span className="amber-storm__flash amber-storm__flash--a" />
-            <span className="amber-storm__flash amber-storm__flash--b" />
-            <span className="amber-storm__flash amber-storm__flash--c" />
-          </div>
-          <div className="relative z-10">
-            <ErrorBoundary>{children}</ErrorBoundary>
-          </div>
-          <DeferredChrome />
+          <CartProvider>
+            <HtmlLangSync />
+            <NavigationScrollManager />
+            <div aria-hidden className="amber-storm">
+              <span className="amber-storm__flash amber-storm__flash--a" />
+              <span className="amber-storm__flash amber-storm__flash--b" />
+              <span className="amber-storm__flash amber-storm__flash--c" />
+            </div>
+            <div className="relative z-10">
+              <ErrorBoundary>{children}</ErrorBoundary>
+            </div>
+            <CartDrawer />
+            <DeferredChrome />
+          </CartProvider>
         </LanguageProvider>
       </body>
     </html>
