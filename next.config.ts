@@ -39,6 +39,15 @@ const nextConfig: NextConfig = {
         ],
       },
       {
+        source: "/danniel/:path*",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable",
+          },
+        ],
+      },
+      {
         source: "/portfolio/:path*",
         headers: [
           {
