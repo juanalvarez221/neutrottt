@@ -21,7 +21,7 @@ export function AwardsGallery() {
         <ul className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 md:gap-4">
           {AWARDS.map((award) => (
             <li key={award.id}>
-              <figure className="group relative overflow-hidden border border-white/8 bg-[#0c0a08] shadow-[0_12px_28px_rgba(0,0,0,0.28)] transition duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:scale-[1.02] hover:shadow-[0_18px_40px_rgba(0,0,0,0.4)] active:scale-[0.99]">
+              <figure className="group relative overflow-hidden border border-white/8 bg-[#0c0a08] shadow-[0_12px_28px_rgba(0,0,0,0.28)] transition duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] motion-safe:hover:scale-[1.02] motion-safe:hover:shadow-[0_18px_40px_rgba(0,0,0,0.4)] motion-safe:active:scale-[0.99]">
                 <div className="relative aspect-[4/5] w-full">
                   <Image
                     src={award.image}

@@ -36,21 +36,38 @@ export function CartDrawer() {
       const panel = panelRef.current;
       if (!root || !panel) return;
 
-      if (!state.isOpen) {
-        gsap.set(root, { autoAlpha: 0, pointerEvents: "none" });
-        gsap.set(panel, { x: "100%" });
-        return;
-      }
-
       if (reduceMotion) {
-        gsap.set(root, { autoAlpha: 1, pointerEvents: "auto" });
-        gsap.set(panel, { x: 0 });
+        gsap.set(root, {
+          autoAlpha: state.isOpen ? 1 : 0,
+          pointerEvents: state.isOpen ? "auto" : "none",
+        });
+        gsap.set(panel, { x: state.isOpen ? 0 : "100%" });
         return;
       }
 
-      gsap.set(root, { pointerEvents: "auto" });
-      gsap.fromTo(root, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.28, ease: "power2.out" });
-      gsap.fromTo(panel, { x: "100%" }, { x: 0, duration: 0.42, ease: "power3.out" });
+      if (state.isOpen) {
+        gsap.set(root, { pointerEvents: "auto" });
+        gsap.fromTo(
+          root,
+          { autoAlpha: 0 },
+          { autoAlpha: 1, duration: 0.28, ease: "power2.out", overwrite: "auto" },
+        );
+        gsap.fromTo(
+          panel,
+          { x: "100%" },
+          { x: 0, duration: 0.42, ease: "power3.out", overwrite: "auto" },
+        );
+        return;
+      }
+
+      const tl = gsap.timeline({
+        defaults: { ease: "power2.in", overwrite: "auto" },
+        onComplete: () => {
+          gsap.set(root, { pointerEvents: "none" });
+        },
+      });
+      tl.to(panel, { x: "100%", duration: 0.32 }, 0);
+      tl.to(root, { autoAlpha: 0, duration: 0.24 }, 0);
     },
     { scope: rootRef, dependencies: [state.isOpen, reduceMotion] },
   );

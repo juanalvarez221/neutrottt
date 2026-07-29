@@ -74,7 +74,7 @@ export default function ProyectosPage() {
                 alt={project.title}
                 fill
                 sizes="(max-width: 640px) 50vw, 33vw"
-                className="object-cover transition duration-300 group-hover:scale-[1.03]"
+                className="object-cover transition duration-300 motion-safe:group-hover:scale-[1.03]"
               />
               <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-3 pt-10">
                 <p className="truncate text-sm font-semibold text-zinc-50">{project.title}</p>

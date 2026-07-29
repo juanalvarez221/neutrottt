@@ -26,28 +26,28 @@ export function TattooProjectCard({ project }: TattooProjectCardProps) {
       const root = rootRef.current;
       if (!root || images.length < 2) return;
 
-      if (reduceMotion) {
-        gsap.set(root.querySelectorAll("[data-slide]"), { opacity: 0 });
-        gsap.set(root.querySelector('[data-slide="0"]'), { opacity: 1 });
-        setActiveIndex(0);
-        return;
-      }
-
       const slides = Array.from(root.querySelectorAll<HTMLElement>("[data-slide]"));
       gsap.set(slides, { opacity: 0 });
       gsap.set(slides[0], { opacity: 1 });
+      setActiveIndex(0);
+
+      if (reduceMotion) return;
 
       let index = 0;
       const timer = window.setInterval(() => {
         const next = (index + 1) % slides.length;
-        gsap.to(slides[index], { opacity: 0, duration: 0.7, ease: "power2.inOut" });
-        gsap.to(slides[next], { opacity: 1, duration: 0.7, ease: "power2.inOut" });
+        const tl = gsap.timeline({
+          defaults: { duration: 0.7, ease: "power2.inOut", overwrite: "auto" },
+        });
+        tl.to(slides[index], { opacity: 0 }, 0);
+        tl.to(slides[next], { opacity: 1 }, 0);
         index = next;
         setActiveIndex(next);
       }, CROSSFADE_MS);
 
       return () => {
         window.clearInterval(timer);
+        gsap.killTweensOf(slides);
       };
     },
     { scope: rootRef, dependencies: [images.length, reduceMotion] },
