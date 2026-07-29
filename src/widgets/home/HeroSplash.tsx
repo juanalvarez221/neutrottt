@@ -23,14 +23,6 @@ const AboutIntroSection = dynamic(
   () => import("@/widgets/home/AboutIntroSection").then((mod) => mod.AboutIntroSection),
   { ssr: false },
 );
-const FamousClientsSection = dynamic(
-  () => import("@/widgets/home/FamousClientsSection").then((mod) => mod.FamousClientsSection),
-  { ssr: false },
-);
-const CollaborationsSection = dynamic(
-  () => import("@/widgets/home/CollaborationsSection").then((mod) => mod.CollaborationsSection),
-  { ssr: false },
-);
 const ProjectsCarousel = dynamic(
   () => import("@/widgets/home/ProjectsCarousel").then((mod) => mod.ProjectsCarousel),
   { ssr: false },
@@ -317,12 +309,6 @@ export function HeroSplash({
           <AboutIntroSection />
         </LazyMount>
       </div>
-      <LazyMount minHeight="36rem">
-        <FamousClientsSection />
-      </LazyMount>
-      <LazyMount minHeight="32rem">
-        <CollaborationsSection />
-      </LazyMount>
       <LazyMount minHeight="34rem">
         <ProjectsCarousel />
       </LazyMount>
