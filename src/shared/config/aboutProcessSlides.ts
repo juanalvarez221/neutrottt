@@ -33,6 +33,12 @@ export const ABOUT_PROCESS_SLIDES: AboutProcessSlide[] = [
   },
   {
     type: "image",
+    src: "/brand/about-kris-moment.png",
+    altKey: "aboutImgKrisMomentAlt",
+    captionKey: "aboutProcessCaptionKrisMoment",
+  },
+  {
+    type: "image",
     src: "/brand/about-roa-moment.png",
     altKey: "aboutImgRoaMomentAlt",
     captionKey: "aboutProcessCaptionRoaMoment",

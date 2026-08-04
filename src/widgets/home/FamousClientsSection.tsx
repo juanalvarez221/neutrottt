@@ -59,6 +59,7 @@ const FEATURED_CLIENTS: FeaturedClient[] = [
         captionKey: "famousPostCaptionKris",
         media: [
           { type: "image", src: "/brand/client-kris-r-1.png", altKey: "famousClientKrisAlt" },
+          { type: "image", src: "/brand/client-kris-r-2.png", altKey: "famousClientKrisMomentAlt" },
           {
             type: "video",
             src: "/brand/client-kris-r-video.mp4",
