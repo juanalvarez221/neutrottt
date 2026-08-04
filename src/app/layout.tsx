@@ -41,11 +41,11 @@ const fontGothic = UnifrakturMaguntia({
 });
 
 export const metadata: Metadata = {
-  title: "Neutrottt, Sombras y Lettering",
-  description: "Tatuador en sombras y lettering · Emerald Tattoo Studio, Medellín.",
-  metadataBase: process.env.NEXT_PUBLIC_SITE_URL
-    ? new URL(process.env.NEXT_PUBLIC_SITE_URL)
-    : undefined,
+  title: "Neutrottt · Sombras y Lettering",
+  description: "Lettering y sombras · Neutrottt · Medellín.",
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL?.trim() || "https://neutrott.vercel.app",
+  ),
 };
 
 export const viewport: Viewport = {

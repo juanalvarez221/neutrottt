@@ -13,10 +13,10 @@ export function whatsappUrl(message: string): string {
 }
 
 export const WHATSAPP_MESSAGES = {
-  quote: "Hola quiero cotizar un tatuaje ✴️🔥",
-  quoteContinue: "Hola quiero continuar mi cotización ✴️🔥",
-  quoteFollowUp: "Hola quiero seguir con mi cotización ✴️🔥",
-  contact: "Hola quiero cotizar un tatuaje ✴️🔥",
+  quote: "Hola quiero cotizar un tatuaje",
+  quoteContinue: "Hola quiero continuar mi cotización",
+  quoteFollowUp: "Hola quiero seguir con mi cotización",
+  contact: "Hola quiero cotizar un tatuaje",
 } as const;
 
 export function buildAdvisoryWhatsAppMessage({
