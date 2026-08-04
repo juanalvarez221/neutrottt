@@ -993,48 +993,12 @@ body {
   max-width: 42ch;
 }
 
-.about-process__head {
-  margin-bottom: 0.15rem;
-}
-
 .about-hero-glow {
   background: radial-gradient(
     520px 280px at 18% 0%,
     rgba(var(--rgb-taupe), 0.14),
     transparent 68%
   );
-}
-
-.about-timeline-track {
-  background: linear-gradient(
-    180deg,
-    rgba(var(--rgb-amber), 0.55) 0%,
-    rgba(var(--rgb-terracotta), 0.35) 55%,
-    rgba(var(--rgb-amber), 0.12) 100%
-  );
-}
-
-.about-milestone-card {
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  transition:
-    border-color 0.25s ease,
-    box-shadow 0.25s ease,
-    transform 0.25s ease;
-}
-
-.about-milestone-card:hover {
-  border-color: rgba(var(--rgb-amber), 0.35);
-  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.35);
-  transform: translateY(-2px);
-}
-
-.about-milestone-card--compact {
-  padding: 0.75rem;
-}
-
-.about-milestone-card--compact:hover {
-  transform: translateY(-1px);
 }
 
 .studio-info-dialog::backdrop {
@@ -1090,34 +1054,6 @@ body {
 
 @media (prefers-reduced-motion: reduce) {
   .quote-shell-video {
-    display: none;
-  }
-}
-
-.about-process-step {
-  position: relative;
-}
-
-.about-process-step::before {
-  content: "";
-  position: absolute;
-  left: 1.25rem;
-  top: 4.5rem;
-  bottom: -2rem;
-  width: 1px;
-  background: linear-gradient(
-    180deg,
-    rgba(var(--rgb-amber), 0.45),
-    rgba(var(--rgb-amber), 0.08)
-  );
-}
-
-.about-process-step:last-child::before {
-  display: none;
-}
-
-@media (min-width: 768px) {
-  .about-process-step::before {
     display: none;
   }
 }

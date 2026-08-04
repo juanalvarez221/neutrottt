@@ -16,17 +16,8 @@ export const SITE_COPY = {
     aboutTag: "Sobre mí",
     aboutTitle: "Sombras y letras",
     aboutLead: "Escucho. Diseño contigo.",
-    aboutBody:
-      "Diseño contigo, sin plantillas.",
-    aboutStory:
-      "Dibujo primero. Tinta después.",
-    aboutExpertiseShadows: "Sombras",
-    aboutExpertiseLettering: "Lettering",
-    aboutSpecialtyNote: "Lo que más tatúo",
     aboutLocationNote: "Estudio",
     aboutProcessLabel: "Momentos que guardo",
-    aboutProcessIntro:
-      "Fragmentos del proceso: donde nace el diseño, donde se gana el oficio y donde trabajo cada día.",
     aboutProcessCaption1: "2.º La Sabana · Sombras",
     aboutProcessCaption3: "1.er lugar internacional · Perú · Sombras",
     aboutProcessCaption4: "1.er lugar internacional · Lima · pieza en costillas",
@@ -641,17 +632,8 @@ export const SITE_COPY = {
     aboutTag: "About me",
     aboutTitle: "Shadows and letters",
     aboutLead: "I listen. I design with you.",
-    aboutBody:
-      "Designed with you, no templates.",
-    aboutStory:
-      "Drawing first. Ink after.",
-    aboutExpertiseShadows: "Shadows",
-    aboutExpertiseLettering: "Lettering",
-    aboutSpecialtyNote: "What I tattoo most",
     aboutLocationNote: "Studio",
     aboutProcessLabel: "Moments I keep",
-    aboutProcessIntro:
-      "Fragments of the process: where the design starts, where the craft is earned, and where I work every day.",
     aboutProcessCaption1: "2nd La Sabana · Shadows",
     aboutProcessCaption3: "1st international · Peru · Shadows",
     aboutProcessCaption4: "1st international · Lima · rib piece",

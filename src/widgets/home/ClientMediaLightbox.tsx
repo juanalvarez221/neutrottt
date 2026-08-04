@@ -13,7 +13,7 @@ const easeOut = [0.22, 1, 0.36, 1] as const;
 const SWIPE_OFFSET = 48;
 const SWIPE_VELOCITY = 380;
 
-export type ClientLightboxMedia =
+type ClientLightboxMedia =
   | { type: "image"; src: string; altKey: SiteCopyKey }
   | { type: "video"; src: string; altKey: SiteCopyKey; poster?: string };
 
@@ -62,7 +62,7 @@ function LightboxVideo({
   );
 }
 
-export function ClientMediaLightbox({
+function ClientMediaLightbox({
   media,
   index,
   title,

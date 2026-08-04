@@ -80,7 +80,7 @@ function LightboxMedia({ slide }: { slide: AboutProcessSlide }) {
   );
 }
 
-export function AboutProcessLightbox({
+function AboutProcessLightbox({
   index,
   onClose,
   onPrev,

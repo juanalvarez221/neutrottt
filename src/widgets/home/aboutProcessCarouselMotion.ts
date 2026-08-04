@@ -16,12 +16,7 @@ export const USER_CONTROL_IDLE_MS = 2400;
 export const SNAP_SCROLL_MS = 480;
 export const VELOCITY_SAMPLE_WINDOW_MS = 100;
 export const SNAP_EASE = (t: number) => 1 - (1 - t) ** 3;
-export type MarqueeFlow = "left" | "right";
 export type MarqueeDirection = 1 | -1;
-
-export function directionToFlow(direction: MarqueeDirection): MarqueeFlow {
-  return direction === 1 ? "left" : "right";
-}
 
 /**
  * El dedo/mouse hacia +X mueve el contenido a la derecha (position baja).

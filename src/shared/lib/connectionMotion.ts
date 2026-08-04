@@ -90,4 +90,4 @@ export async function whenFontsReady(): Promise<void> {
   }
 }
 
-export { gsap, SplitText, Flip, DrawSVGPlugin, ScrambleTextPlugin, Observer };
+export { gsap, SplitText, Flip, Observer };

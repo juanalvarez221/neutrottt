@@ -1,6 +1,6 @@
 export type ProjectTag = "Realismo" | "Blackwork" | "Surrealismo" | "FineLine";
 
-export type Project = {
+type Project = {
   id: string;
   title: string;
   subtitle: string;
