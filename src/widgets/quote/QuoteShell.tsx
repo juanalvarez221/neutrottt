@@ -50,7 +50,7 @@ export function QuoteShell({
   }, []);
 
   return (
-    <div className="relative isolate min-h-dvh overflow-hidden bg-background text-ivory">
+    <div className="quote-shell relative isolate min-h-dvh overflow-hidden bg-background text-ivory">
       <div className="pointer-events-none absolute inset-0 -z-10" aria-hidden>
         <video
           ref={videoRef}

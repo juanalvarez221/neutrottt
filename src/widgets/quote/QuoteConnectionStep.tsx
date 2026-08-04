@@ -180,6 +180,7 @@ export function QuoteConnectionStep() {
   };
 
   const showOtherReferral = referralSources.includes("other");
+  const overlayActive = showReward || showDecline;
 
   if (!gateReady) {
     return (
@@ -195,36 +196,35 @@ export function QuoteConnectionStep() {
 
   return (
     <QuoteShell showGreeting={false}>
-      <AnimatePresence>
-        {showDecline ? (
-          <QuoteConnectionDecline
-            key="connection-decline"
-            tag={t("quoteConnectionDeclineTag")}
-            title1={t("quoteConnectionDeclineTitle1")}
-            title2={t("quoteConnectionDeclineTitle2")}
-            lead={t("quoteConnectionDeclineLead")}
-            lines={[
-              t("quoteConnectionDeclineLine1"),
-              t("quoteConnectionDeclineLine2"),
-            ]}
-            continueLabel={t("quoteConnectionDeclineContinue")}
-            onComplete={handleDeclineComplete}
-          />
-        ) : null}
-        {showReward && rewardPraise ? (
-          <QuoteConnectionReward
-            key="connection-reward"
-            title1={t("quoteConnectionRewardTitle1")}
-            title2={t("quoteConnectionRewardTitle2")}
-            tag={t("quoteConnectionRewardTag")}
-            continueLabel={t("quoteConnectionRewardContinue")}
-            tapHint={t("quoteConnectionRewardTapHint")}
-            praise={rewardPraise}
-            onComplete={handleRewardComplete}
-          />
-        ) : null}
-      </AnimatePresence>
+      {showDecline ? (
+        <QuoteConnectionDecline
+          key="connection-decline"
+          tag={t("quoteConnectionDeclineTag")}
+          title1={t("quoteConnectionDeclineTitle1")}
+          title2={t("quoteConnectionDeclineTitle2")}
+          lead={t("quoteConnectionDeclineLead")}
+          lines={[
+            t("quoteConnectionDeclineLine1"),
+            t("quoteConnectionDeclineLine2"),
+          ]}
+          continueLabel={t("quoteConnectionDeclineContinue")}
+          onComplete={handleDeclineComplete}
+        />
+      ) : null}
+      {showReward && rewardPraise ? (
+        <QuoteConnectionReward
+          key="connection-reward"
+          title1={t("quoteConnectionRewardTitle1")}
+          title2={t("quoteConnectionRewardTitle2")}
+          tag={t("quoteConnectionRewardTag")}
+          continueLabel={t("quoteConnectionRewardContinue")}
+          tapHint={t("quoteConnectionRewardTapHint")}
+          praise={rewardPraise}
+          onComplete={handleRewardComplete}
+        />
+      ) : null}
 
+      {!overlayActive ? (
       <QuoteConnectionIntroGate
         show={showIntro}
         intro={
@@ -232,25 +232,22 @@ export function QuoteConnectionStep() {
             title={t("quoteConnectionTitle")}
             title2={t("quoteConnectionTitle2")}
             manifest={t("quoteConnectionManifest")}
-            hook={t("quoteConnectionHook")}
             eyebrow={t("quoteConnectionStep")}
             onComplete={handleIntroComplete}
           />
         }
       >
         <div className="connection-step relative flex min-h-0 flex-1 flex-col">
-          <AnimatePresence>
-            {showForm ? (
-              <motion.header
-                key="connection-form-header"
-                initial={{ opacity: 0, y: 14, filter: "blur(6px)" }}
-                animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
-                className="connection-step__header"
-              >
+          {showForm ? (
+              <header className="connection-step__header">
                 <div className="connection-step__context">
                   <p className="connection-step__meta">
-                    <span className="connection-step__meta-step">{t("quoteConnectionStep")}</span>
+                    <span
+                      className="connection-step__meta-step"
+                      data-flip-id="connection-eyebrow"
+                    >
+                      {t("quoteConnectionStep")}
+                    </span>
                     <span className="connection-step__meta-dot" aria-hidden>
                       ·
                     </span>
@@ -285,19 +282,11 @@ export function QuoteConnectionStep() {
                 {step === 0 ? (
                   <p className="connection-step__pace">{t("quoteConnectionPace")}</p>
                 ) : null}
-              </motion.header>
+              </header>
             ) : null}
-          </AnimatePresence>
 
-          <AnimatePresence>
-            {showForm ? (
-              <motion.div
-                key="connection-form"
-                initial={{ opacity: 0, y: 20, filter: "blur(8px)" }}
-                animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                transition={{ duration: 0.55, delay: 0.08, ease: [0.22, 1, 0.36, 1] }}
-                className="connection-step__body flex flex-1 flex-col"
-              >
+          {showForm ? (
+              <div className="connection-step__body flex flex-1 flex-col">
                 <section className="connection-step__panel">
                   <AnimatePresence mode="wait">
                     <motion.div
@@ -451,11 +440,11 @@ export function QuoteConnectionStep() {
                     <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                   </button>
                 </div>
-              </motion.div>
+              </div>
             ) : null}
-          </AnimatePresence>
         </div>
       </QuoteConnectionIntroGate>
+      ) : null}
     </QuoteShell>
   );
 }

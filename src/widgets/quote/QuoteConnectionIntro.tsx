@@ -2,13 +2,21 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useReducedMotion } from "framer-motion";
-import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
-import { SplitText } from "gsap/SplitText";
 import { ConnectionManifestoStatement } from "@/widgets/quote/ConnectionManifestoStatement";
 import { ConnectionManifestoHeadline } from "@/widgets/quote/ConnectionManifestoHeadline";
+import {
+  CONNECTION_EASE,
+  CONNECTION_TIMING,
+  Flip,
+  gsap,
+  Observer,
+  registerConnectionMotion,
+  SplitText,
+  whenFontsReady,
+} from "@/shared/lib/connectionMotion";
 
-gsap.registerPlugin(useGSAP, SplitText);
+registerConnectionMotion();
 
 type QuoteConnectionIntroProps = {
   title: string;
@@ -19,8 +27,8 @@ type QuoteConnectionIntroProps = {
   onComplete: () => void;
 };
 
-/** Hold after copy lands so the viewer can read — cinematic title-card pacing. */
-const READ_HOLD_S = 2.4;
+/** Quiet hold after titles land — kept short; playbackScale handles the rest. */
+const READ_HOLD_S = CONNECTION_TIMING.introReadHoldS;
 
 export function QuoteConnectionIntro({
   title,
@@ -55,65 +63,94 @@ export function QuoteConnectionIntro({
       let cancelled = false;
       const splits: SplitText[] = [];
       let master: gsap.core.Timeline | null = null;
+      let parallaxObserver: ReturnType<typeof Observer.create> | null = null;
+      const ambientTweens: gsap.core.Tween[] = [];
 
       const run = async () => {
-        await document.fonts.ready;
+        await whenFontsReady();
         if (cancelled || !rootRef.current) return;
 
         const progress = root.querySelector<HTMLElement>(".connection-intro__progress-fill");
         const titleA = root.querySelector<HTMLElement>(".connection-intro__title-line--a");
         const titleB = root.querySelector<HTMLElement>(".connection-intro__title-line--b");
+        const titleRule = root.querySelector<SVGLineElement>(
+          ".connection-rule--intro-title line",
+        );
         const manifestLines = gsap.utils.toArray<HTMLElement>(
           root.querySelectorAll(".connection-intro__manifest-line"),
         );
         const hookEl = root.querySelector<HTMLElement>(".connection-intro__hook");
+        const eyebrowEl = root.querySelector<HTMLElement>(".connection-intro__eyebrow");
+        const impact = root.querySelector<HTMLElement>(".connection-intro__impact");
+        const barTop = root.querySelector<HTMLElement>(".connection-intro__bar--top");
+        const barBottom = root.querySelector<HTMLElement>(".connection-intro__bar--bottom");
 
         gsap.set(
           [
-            ".connection-intro__veil",
-            ".connection-intro__light",
             ".connection-intro__eyebrow",
-            ".connection-intro__title-rule",
-            ".connection-intro__bridge",
             ".connection-intro__progress",
             ".connection-intro__stage",
             ".connection-intro__hook",
+            ".connection-intro__title-line--a",
+            ".connection-intro__title-line--b",
+            ".connection-intro__impact",
           ],
           { opacity: 0 },
         );
 
-        gsap.set(".connection-intro__stage", { y: 24, scale: 1.02 });
-        gsap.set(".connection-intro__title-rule", { scaleX: 0, transformOrigin: "center" });
-        gsap.set(".connection-intro__bridge", { scaleX: 0, transformOrigin: "center" });
+        gsap.set(".connection-intro__stage", {
+          scale: 1.08,
+          y: 18,
+          willChange: "transform",
+          transformOrigin: "30% 40%",
+        });
+        gsap.set([barTop, barBottom], { scaleY: 0 });
+        if (barTop) gsap.set(barTop, { transformOrigin: "center top" });
+        if (barBottom) gsap.set(barBottom, { transformOrigin: "center bottom" });
+        if (titleRule) gsap.set(titleRule, { drawSVG: "50% 50%", opacity: 1 });
         gsap.set(".connection-intro__progress-fill", {
           scaleX: 0,
           transformOrigin: "left center",
         });
-        gsap.set(".connection-intro__light--a", { scale: 0.9, x: -20, y: 12 });
-        gsap.set(".connection-intro__light--b", { scale: 0.92, x: 16, y: -10 });
 
-        const titleSplits: SplitText[] = [];
+        // LINE A — Syncopate: masked chars + depth + scramble landing
+        let splitA: SplitText | null = null;
         if (titleA) {
-          const split = SplitText.create(titleA, {
+          splitA = SplitText.create(titleA, {
             type: "chars,words",
             mask: "chars",
             smartWrap: true,
           });
-          titleSplits.push(split);
-          splits.push(split);
-          gsap.set(split.chars, { yPercent: 110, opacity: 0 });
-        }
-        if (titleB) {
-          const split = SplitText.create(titleB, {
-            type: "chars,words",
-            mask: "chars",
-            smartWrap: true,
+          splits.push(splitA);
+          gsap.set(titleA, { opacity: 1, scale: 1.18, transformOrigin: "left center" });
+          gsap.set(splitA.chars, {
+            yPercent: 130,
+            opacity: 0,
+            rotateX: -70,
+            filter: "blur(10px)",
+            transformOrigin: "50% 100%",
           });
-          titleSplits.push(split);
-          splits.push(split);
-          gsap.set(split.chars, { yPercent: 110, opacity: 0 });
         }
 
+        // LINE B — Unifraktur: word cascade with scale punch
+        let splitB: SplitText | null = null;
+        if (titleB) {
+          splitB = SplitText.create(titleB, {
+            type: "words",
+            mask: "words",
+          });
+          splits.push(splitB);
+          gsap.set(titleB, { opacity: 1 });
+          gsap.set(splitB.words, {
+            yPercent: 110,
+            opacity: 0,
+            scale: 0.72,
+            filter: "blur(8px)",
+            transformOrigin: "left center",
+          });
+        }
+
+        // Manifest — masked word reveals (editorial verse)
         const manifestSplits: SplitText[] = [];
         manifestLines.forEach((line) => {
           const split = SplitText.create(line, {
@@ -122,170 +159,259 @@ export function QuoteConnectionIntro({
           });
           manifestSplits.push(split);
           splits.push(split);
-          gsap.set(split.words, { yPercent: 105, opacity: 0 });
+          gsap.set(line, { opacity: 1 });
+          gsap.set(split.words, {
+            yPercent: 120,
+            opacity: 0,
+            rotate: 2,
+          });
         });
 
         master = gsap.timeline({
-          defaults: { ease: "power3.out" },
+          defaults: { ease: CONNECTION_EASE.hero },
           onComplete: finish,
         });
 
-        // ACT I — atmosphere (video stays visible)
+        // ACT 0 — letterbox + camera push-in
         master
-          .to(".connection-intro__veil", { opacity: 1, duration: 0.9, ease: "power2.out" }, 0)
           .to(
-            [".connection-intro__light--a", ".connection-intro__light--b"],
-            {
-              opacity: 1,
-              scale: 1,
-              x: 0,
-              y: 0,
-              duration: 1.2,
-              stagger: 0.12,
-              ease: "power2.out",
-            },
-            0.1,
+            [barTop, barBottom],
+            { scaleY: 1, duration: 0.85, stagger: 0.08, ease: CONNECTION_EASE.soft },
+            0,
           )
           .to(
             ".connection-intro__stage",
-            { opacity: 1, y: 0, scale: 1, duration: 1, ease: "power3.out" },
+            {
+              opacity: 1,
+              scale: 1,
+              y: 0,
+              duration: 1.35,
+              ease: CONNECTION_EASE.soft,
+            },
             0.15,
           )
-          .to(".connection-intro__progress", { opacity: 1, duration: 0.4 }, 0.35);
+          .to(".connection-intro__progress", { opacity: 1, duration: 0.45 }, 0.55);
 
-        // ACT II — eyebrow
-        master.fromTo(
-          ".connection-intro__eyebrow",
-          { opacity: 0, y: 10, letterSpacing: "0.38em" },
-          {
-            opacity: 1,
-            y: 0,
-            letterSpacing: "0.22em",
-            duration: 0.85,
-            ease: "power3.out",
-          },
-          0.45,
-        );
+        // Beat of silence
+        master.to({}, { duration: 0.25 });
 
-        // ACT III — title (masked character reveal — studio standard)
-        master.addLabel("title", 0.85);
+        // ACT I — eyebrow transmission
+        if (eyebrowEl && eyebrow) {
+          gsap.set(eyebrowEl, { textContent: "" });
+          master.fromTo(
+            eyebrowEl,
+            { opacity: 0, y: -14, letterSpacing: "0.62em" },
+            {
+              opacity: 1,
+              y: 0,
+              letterSpacing: "0.28em",
+              duration: 1.15,
+              scrambleText: {
+                text: eyebrow,
+                chars: "upperCase",
+                speed: 0.48,
+                revealDelay: 0.22,
+              },
+              ease: CONNECTION_EASE.snap,
+            },
+            "+=0.05",
+          );
+        }
 
-        if (titleSplits[0]?.chars.length) {
+        master.addLabel("title", "+=0.2");
+
+        // ACT II — display title detonates
+        if (splitA?.chars.length) {
           master.to(
-            titleSplits[0].chars,
+            splitA.chars,
             {
               yPercent: 0,
               opacity: 1,
-              duration: 0.95,
-              stagger: 0.028,
-              ease: "power4.out",
+              rotateX: 0,
+              filter: "blur(0px)",
+              duration: 1.15,
+              stagger: {
+                each: 0.038,
+                from: "start",
+              },
+              ease: CONNECTION_EASE.hero,
               force3D: true,
             },
             "title",
           );
-        }
-
-        master.to(
-          ".connection-intro__title-rule",
-          { opacity: 1, scaleX: 1, duration: 0.7, ease: "power2.inOut" },
-          "title+=0.55",
-        );
-
-        if (titleSplits[1]?.chars.length) {
           master.to(
-            titleSplits[1].chars,
-            {
-              yPercent: 0,
-              opacity: 1,
-              duration: 0.95,
-              stagger: 0.026,
-              ease: "power4.out",
-              force3D: true,
-            },
-            "title+=0.7",
+            titleA,
+            { scale: 1, duration: 1.35, ease: CONNECTION_EASE.soft },
+            "title",
           );
         }
 
-        // Soft settle
+        // Impact flash + micro shake on title land
+        if (impact) {
+          master.fromTo(
+            impact,
+            { opacity: 0 },
+            { opacity: 0.55, duration: 0.08, ease: "power2.in" },
+            "title+=0.55",
+          );
+          master.to(
+            impact,
+            { opacity: 0, duration: 0.55, ease: CONNECTION_EASE.soft },
+            "title+=0.63",
+          );
+        }
+
         master.to(
           ".connection-intro__stage",
-          { scale: 1.01, duration: 0.8, ease: "sine.inOut" },
-          "title+=1.4",
+          { x: 3, duration: 0.05, ease: "power1.inOut" },
+          "title+=0.58",
         );
         master.to(
           ".connection-intro__stage",
-          { scale: 1, duration: 0.75, ease: "sine.inOut" },
+          { x: -2, duration: 0.06, ease: "power1.inOut" },
+          "title+=0.63",
+        );
+        master.to(
+          ".connection-intro__stage",
+          { x: 0, duration: 0.18, ease: CONNECTION_EASE.soft },
+          "title+=0.69",
+        );
+
+        if (titleRule) {
+          master.to(
+            titleRule,
+            { drawSVG: "0% 100%", duration: 0.9, ease: CONNECTION_EASE.hero },
+            "title+=0.85",
+          );
+        }
+
+        // ACT III — brand gothic line rises
+        if (splitB?.words.length) {
+          master.to(
+            splitB.words,
+            {
+              yPercent: 0,
+              opacity: 1,
+              scale: 1,
+              filter: "blur(0px)",
+              duration: 1.05,
+              stagger: 0.14,
+              ease: CONNECTION_EASE.hero,
+              force3D: true,
+            },
+            "title+=1.05",
+          );
+        }
+
+        // Soft settle breath on the whole card
+        master.to(
+          ".connection-intro__stage",
+          { scale: 1.015, duration: 1.1, ease: CONNECTION_EASE.soft },
+          "title+=1.85",
+        );
+        master.to(
+          ".connection-intro__stage",
+          { scale: 1, duration: 1.05, ease: CONNECTION_EASE.soft },
           ">",
         );
 
-        // ACT IV — manifesto (masked word reveal, reading pace)
-        master.to(
-          ".connection-intro__bridge",
-          { opacity: 1, scaleX: 1, duration: 0.55, ease: "power2.inOut" },
-          "title+=1.65",
-        );
-
+        // ACT IV — manifesto verses
         manifestSplits.forEach((split, index) => {
+          const at = index === 0 ? "title+=2.35" : `verse-${index - 1}+=0.55`;
           const label = `verse-${index}`;
-          const at = index === 0 ? "title+=1.9" : `verse-${index - 1}+=0.55`;
           master!.addLabel(label, at);
           master!.to(
             split.words,
             {
               yPercent: 0,
               opacity: 1,
-              duration: 0.75,
-              stagger: 0.045,
-              ease: "power3.out",
+              rotate: 0,
+              duration: 0.9,
+              stagger: 0.055,
+              ease: CONNECTION_EASE.hero,
               force3D: true,
             },
             label,
           );
         });
 
-        // ACT V — hook
         if (hookEl) {
           master.fromTo(
             hookEl,
-            { opacity: 0, y: 14 },
-            { opacity: 1, y: 0, duration: 0.9, ease: "power3.out" },
+            { opacity: 0, y: 12, letterSpacing: "0.12em" },
+            {
+              opacity: 1,
+              y: 0,
+              letterSpacing: "0.02em",
+              duration: 1,
+              ease: CONNECTION_EASE.soft,
+            },
             "+=0.35",
           );
         }
 
-        // ACT VI — hold for reading
+        master.add(() => {
+          gsap.set(".connection-intro__stage", { willChange: "auto" });
+          if (splitA?.chars) gsap.set(splitA.chars, { clearProps: "filter" });
+          if (splitB?.words) gsap.set(splitB.words, { clearProps: "filter" });
+        });
+
+        // ACT V — hold for reading
         master.to({}, { duration: READ_HOLD_S });
+
+        // Letterbox gently retreats at the very end (exit cue before form)
+        master.to(
+          [barTop, barBottom],
+          { opacity: 0.35, duration: 0.8, ease: CONNECTION_EASE.soft },
+          "-=0.8",
+        );
+
+        master.timeScale(CONNECTION_TIMING.playbackScale);
 
         if (progress) {
           gsap.to(progress, {
             scaleX: 1,
-            duration: Math.max((master.duration() || 1) - 0.5, 1),
+            duration: Math.max((master.duration() || 1) - 0.25, 0.8),
             ease: "none",
-            delay: 0.25,
+            delay: 0.12,
           });
         }
 
-        // Ambient light drift
-        gsap.to(".connection-intro__light--a", {
-          x: 12,
-          y: -8,
-          scale: 1.05,
-          duration: 8,
-          yoyo: true,
-          repeat: -1,
-          ease: "sine.inOut",
-          delay: 1.5,
-        });
-        gsap.to(".connection-intro__light--b", {
-          x: -10,
-          y: 8,
-          scale: 1.06,
-          duration: 9.5,
-          yoyo: true,
-          repeat: -1,
-          ease: "sine.inOut",
-          delay: 1.8,
-        });
+        // Ambient camera drift after titles land
+        ambientTweens.push(
+          gsap.to(".connection-intro__stage", {
+            scale: 1.01,
+            duration: 5.5,
+            yoyo: true,
+            repeat: -1,
+            ease: "sine.inOut",
+            delay: 1.6,
+          }),
+        );
+
+        if (window.matchMedia("(pointer: fine)").matches) {
+          parallaxObserver = Observer.create({
+            target: root,
+            type: "pointer",
+            onMove: (self) => {
+              const nx = ((self.x ?? 0) / root.clientWidth - 0.5) * 2;
+              const ny = ((self.y ?? 0) / root.clientHeight - 0.5) * 2;
+              gsap.to(".connection-intro__stage", {
+                x: nx * 8,
+                y: ny * 5,
+                duration: 1.5,
+                ease: "power2.out",
+                overwrite: "auto",
+              });
+              gsap.to(".connection-intro__letterbox", {
+                x: nx * -3,
+                duration: 1.8,
+                ease: "power2.out",
+                overwrite: "auto",
+              });
+            },
+          });
+        }
       };
 
       void run();
@@ -293,10 +419,12 @@ export function QuoteConnectionIntro({
       return () => {
         cancelled = true;
         master?.kill();
+        parallaxObserver?.kill();
+        ambientTweens.forEach((tween) => tween.kill());
         splits.forEach((split) => split.revert());
       };
     },
-    { scope: rootRef, dependencies: [reduceMotion, title, title2, manifest, hook] },
+    { scope: rootRef, dependencies: [reduceMotion, title, title2, manifest, hook, eyebrow] },
   );
 
   if (reduceMotion) return null;
@@ -304,21 +432,27 @@ export function QuoteConnectionIntro({
   return (
     <div
       ref={rootRef}
-      className="connection-intro absolute inset-0 z-30 flex min-h-0 items-center justify-center overflow-y-auto py-8 sm:py-10"
+      className="connection-intro absolute inset-0 z-30 flex min-h-0 items-center overflow-y-auto py-8 sm:py-12"
       aria-live="polite"
       aria-label={`${title} ${title2}`}
+      data-connection-intro="open"
     >
-      <div className="connection-intro__veil" aria-hidden />
-
-      <div className="connection-intro__ambient" aria-hidden>
-        <span className="connection-intro__light connection-intro__light--a" />
-        <span className="connection-intro__light connection-intro__light--b" />
+      <div className="connection-intro__letterbox" aria-hidden>
+        <span className="connection-intro__bar connection-intro__bar--top" />
+        <span className="connection-intro__bar connection-intro__bar--bottom" />
       </div>
 
-      <div className="connection-intro__content connection-intro__stage relative px-5 sm:px-8">
-        <ConnectionManifestoHeadline line1={title} line2={title2} eyebrow={eyebrow} />
+      <div className="connection-intro__impact" aria-hidden />
 
-        <ConnectionManifestoStatement text={manifest} />
+      <div className="connection-intro__content connection-intro__stage relative w-full px-5 sm:px-8 lg:px-12">
+        <ConnectionManifestoHeadline
+          line1={title}
+          line2={title2}
+          eyebrow={eyebrow}
+          align="start"
+        />
+
+        <ConnectionManifestoStatement text={manifest} align="start" />
 
         {hook ? <p className="connection-intro__hook">{hook}</p> : null}
 
@@ -357,7 +491,7 @@ export function QuoteConnectionIntroGate({
   useGSAP(
     () => {
       if (reduceMotion) {
-        if (!show) {
+        if (prevShow.current && !show) {
           setRenderIntro(false);
           setRenderForm(true);
         }
@@ -366,16 +500,63 @@ export function QuoteConnectionIntroGate({
       }
 
       if (prevShow.current && !show && introWrapRef.current) {
-        gsap.to(introWrapRef.current, {
-          opacity: 0,
-          y: -10,
-          filter: "blur(8px)",
-          duration: 0.55,
-          ease: "power2.inOut",
-          onComplete: () => {
-            setRenderIntro(false);
-            setRenderForm(true);
-          },
+        const introWrap = introWrapRef.current;
+
+        const eyebrowState = Flip.getState('[data-flip-id="connection-eyebrow"]', {
+          props: "letterSpacing,color,fontSize",
+        });
+
+        setRenderForm(true);
+
+        requestAnimationFrame(() => {
+          const formWrap = formWrapRef.current;
+          const label = formWrap?.querySelector<HTMLElement>(
+            '[data-flip-id="connection-eyebrow"]',
+          );
+
+          const tl = gsap.timeline({
+            onComplete: () => {
+              setRenderIntro(false);
+              gsap.set(introWrap, { clearProps: "all" });
+            },
+          });
+
+          tl.to(
+            introWrap,
+            {
+              opacity: 0,
+              scale: 1.03,
+              filter: "blur(12px)",
+              duration: 0.7,
+              ease: CONNECTION_EASE.soft,
+            },
+            0,
+          );
+
+          if (formWrap) {
+            tl.fromTo(
+              formWrap,
+              { opacity: 0, y: 18, filter: "blur(6px)" },
+              {
+                opacity: 1,
+                y: 0,
+                filter: "blur(0px)",
+                duration: 0.75,
+                ease: CONNECTION_EASE.hero,
+              },
+              0.12,
+            );
+          }
+
+          if (label && eyebrowState) {
+            Flip.from(eyebrowState, {
+              targets: label,
+              absolute: true,
+              fade: true,
+              duration: 0.75,
+              ease: CONNECTION_EASE.hero,
+            });
+          }
         });
       }
 
@@ -384,20 +565,12 @@ export function QuoteConnectionIntroGate({
     { scope: rootRef, dependencies: [show, reduceMotion] },
   );
 
-  useGSAP(
-    () => {
-      if (!renderForm || reduceMotion || !formWrapRef.current) return;
-      gsap.fromTo(
-        formWrapRef.current,
-        { opacity: 0, y: 16 },
-        { opacity: 1, y: 0, duration: 0.65, ease: "power3.out" },
-      );
-    },
-    { scope: rootRef, dependencies: [renderForm, reduceMotion] },
-  );
-
   return (
-    <div ref={rootRef} className="relative min-h-[clamp(26rem,82dvh,42rem)]">
+    <div
+      ref={rootRef}
+      className="relative min-h-[clamp(28rem,86dvh,46rem)]"
+      data-connection-gate={renderIntro ? "intro" : "form"}
+    >
       {renderIntro ? (
         <div ref={introWrapRef} className="absolute inset-0 will-change-transform">
           {intro}

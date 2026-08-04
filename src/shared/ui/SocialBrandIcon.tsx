@@ -1,4 +1,4 @@
-import { MessageCircle, Sparkles } from "lucide-react";
+import { MessageCircle, PenLine } from "lucide-react";
 import { cn } from "@/shared/lib/cn";
 
 const NETWORK_LABELS = {
@@ -64,7 +64,7 @@ function NetworkGlyph({
     case "whatsapp":
       return <MessageCircle {...strokeProps} />;
     case "quote":
-      return <Sparkles {...strokeProps} />;
+      return <PenLine {...strokeProps} />;
     case "tiktok":
       return <TikTokMark className={className} />;
   }

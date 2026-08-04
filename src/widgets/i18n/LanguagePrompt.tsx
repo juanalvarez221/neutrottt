@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Globe2, Sparkles } from "lucide-react";
+import { Globe2 } from "lucide-react";
 import { useSiteLanguage } from "@/shared/i18n/LanguageProvider";
 
 export function LanguagePrompt() {
@@ -60,10 +60,7 @@ export function LanguagePrompt() {
             </motion.button>
           </div>
 
-          <div className="mt-4 inline-flex items-center gap-2 text-xs text-zinc-400">
-            <Sparkles className="h-3.5 w-3.5 text-amber-300/90" />
-            {t("languageFooterHint")}
-          </div>
+          <p className="mt-4 text-xs text-zinc-400">{t("languageFooterHint")}</p>
         </div>
       </motion.div>
     </div>

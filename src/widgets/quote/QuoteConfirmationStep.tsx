@@ -3,7 +3,7 @@
 import { useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { QuoteShell } from "@/widgets/quote/QuoteShell";
-import { BadgeDollarSign, CalendarDays, CheckCircle2, Sparkles } from "lucide-react";
+import { BadgeDollarSign, CalendarDays, CheckCircle2, Ruler } from "lucide-react";
 import { useSiteLanguage } from "@/shared/i18n/LanguageProvider";
 import { getQuoteProfile } from "@/shared/lib/quoteProfile";
 import { getQuoteConnection, mapConnectionToSmartQuote } from "@/shared/lib/quoteConnection";
@@ -175,7 +175,7 @@ export function QuoteConfirmationStep({
 
           <div className="typo-tech mt-4 grid gap-2 rounded-2xl border border-white/10 bg-black/35 p-4 text-zinc-200">
             <p className="inline-flex items-center gap-2 text-zinc-200">
-              <Sparkles className="h-4 w-4 text-amber-300" />
+              <Ruler className="h-4 w-4 text-amber-300" />
               {t("quotePricingSizeLabel")}: {size}
             </p>
             <p className="inline-flex items-center gap-2 text-zinc-200">
