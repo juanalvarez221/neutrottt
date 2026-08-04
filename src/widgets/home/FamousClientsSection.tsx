@@ -50,9 +50,9 @@ const FEATURED_CLIENTS: FeaturedClient[] = [
     id: "kris-r",
     handle: "@krisrofficial",
     instagramUrl: "https://www.instagram.com/krisrofficial/",
-    avatar: "/brand/client-kris-r.png",
+    avatar: "/brand/client-kris-r.jpg",
     avatarAltKey: "famousClientKrisAvatarAlt",
-    avatarPosition: "center 28%",
+    avatarPosition: "center",
     tattoos: [
       {
         id: "kris-arm",
@@ -75,9 +75,9 @@ const FEATURED_CLIENTS: FeaturedClient[] = [
     id: "roapr",
     handle: "@roapr__",
     instagramUrl: "https://www.instagram.com/roapr__/",
-    avatar: "/brand/client-roapr.png",
+    avatar: "/brand/client-roapr.jpg",
     avatarAltKey: "famousClientRoaprAvatarAlt",
-    avatarPosition: "center 22%",
+    avatarPosition: "center",
     tattoos: [
       {
         id: "roa-lettering-floral",
@@ -114,9 +114,9 @@ const FEATURED_CLIENTS: FeaturedClient[] = [
     id: "eljoc07",
     handle: "@eljoc07",
     instagramUrl: "https://www.instagram.com/eljoc07/",
-    avatar: "/brand/client-eljoc07.png",
+    avatar: "/brand/client-eljoc07.jpg",
     avatarAltKey: "famousClientEljoc07AvatarAlt",
-    avatarPosition: "center 30%",
+    avatarPosition: "center",
     tattoos: [
       {
         id: "eljoc-shoulder",
@@ -133,9 +133,9 @@ const FEATURED_CLIENTS: FeaturedClient[] = [
     id: "camilog-12",
     handle: "@camilog_12",
     instagramUrl: "https://www.instagram.com/camilog_12/",
-    avatar: "/brand/client-camilog-12.png",
+    avatar: "/brand/client-camilog-12.jpg",
     avatarAltKey: "famousClientCamilog12AvatarAlt",
-    avatarPosition: "center 35%",
+    avatarPosition: "center",
     tattoos: [
       {
         id: "camilog-arms",
