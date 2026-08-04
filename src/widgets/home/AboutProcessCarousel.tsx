@@ -35,9 +35,8 @@ import {
   type MarqueeDirection,
 } from "@/widgets/home/aboutProcessCarouselMotion";
 
-/** video → foto → video → foto, ver aboutProcessSlides.ts */
+/** Alias local del catálogo de momentos. */
 const PROCESS_SLIDES = ABOUT_PROCESS_SLIDES;
-
 const LOOP_SETS = MARQUEE_LOOP_SETS;
 
 function ProcessCarouselVideo({

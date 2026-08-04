@@ -4,84 +4,73 @@ import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { X, Zap } from "lucide-react";
-import { BRAND, WHATSAPP_MESSAGES, whatsappUrl } from "@/shared/config/brand";
+import { PenLine } from "lucide-react";
 import { useSiteLanguage } from "@/shared/i18n/LanguageProvider";
-import type { SiteCopyKey } from "@/shared/i18n/siteLanguage";
-import { SocialBrandIcon } from "@/shared/ui/SocialBrandIcon";
 import { cn } from "@/shared/lib/cn";
 
+/** Rutas con nav inferior móvil: el dock sube para no taparla. */
 const APP_SHELL_ROUTES = ["/contacto", "/proyectos"] as const;
 const QUOTE_ROUTE_PREFIX = "/cotizacion";
 
-type DockAction = {
-  id: string;
-  labelKey: SiteCopyKey;
-  href: string;
-  external?: boolean;
-  primary?: boolean;
-  icon: "quote" | "whatsapp" | "instagram" | "tiktok";
-};
-
-const DOCK_ACTIONS: DockAction[] = [
-  {
-    id: "quote",
-    labelKey: "quickActionsQuote",
-    href: "/cotizacion",
-    icon: "quote",
-    primary: true,
-  },
-  {
-    id: "whatsapp",
-    labelKey: "quickActionsWhatsapp",
-    href: whatsappUrl(WHATSAPP_MESSAGES.quote),
-    external: true,
-    icon: "whatsapp",
-  },
-  {
-    id: "instagram",
-    labelKey: "quickActionsInstagram",
-    href: BRAND.instagramUrl,
-    external: true,
-    icon: "instagram",
-  },
-  {
-    id: "tiktok",
-    labelKey: "quickActionsTiktok",
-    href: BRAND.tiktokUrl,
-    external: true,
-    icon: "tiktok",
-  },
-];
+/** Ciclo del CTA: ícono → expandir etiqueta → colapsar. */
+const EXPAND_INTERVAL_MS = 7800;
+const EXPAND_VISIBLE_MS = 3200;
+const EXPAND_INITIAL_DELAY_MS = 2600;
 
 function resolveDockPlacement(pathname: string) {
   const hasMobileNav = APP_SHELL_ROUTES.some(
     (route) => pathname === route || pathname.startsWith(`${route}/`),
   );
-
-  if (hasMobileNav) {
-    return "quick-action-dock--nav";
-  }
-
-  return "quick-action-dock--default";
-}
-
-function ActionIcon({ icon }: { icon: DockAction["icon"] }) {
-  return <SocialBrandIcon network={icon} framed={false} className="text-sand" />;
+  return hasMobileNav ? "quick-action-dock--nav" : "quick-action-dock--default";
 }
 
 function QuickActionDockPanel({ pathname }: { pathname: string }) {
   const { t } = useSiteLanguage();
   const reduceMotion = useReducedMotion();
-  const dockRef = useRef<HTMLDivElement>(null);
   const idleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const scrollTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const expandCycleRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const expandHideRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pausedRef = useRef(false);
 
-  const [open, setOpen] = useState(false);
   const [isScrolling, setIsScrolling] = useState(false);
   const [isIdle, setIsIdle] = useState(false);
+  const [expanded, setExpanded] = useState(false);
 
   const placement = resolveDockPlacement(pathname);
+
+  const clearCycleTimer = useCallback(() => {
+    if (expandCycleRef.current) clearTimeout(expandCycleRef.current);
+    expandCycleRef.current = null;
+  }, []);
+
+  const clearHideTimer = useCallback(() => {
+    if (expandHideRef.current) clearTimeout(expandHideRef.current);
+    expandHideRef.current = null;
+  }, []);
+
+  const clearExpandTimers = useCallback(() => {
+    clearCycleTimer();
+    clearHideTimer();
+  }, [clearCycleTimer, clearHideTimer]);
+
+  const showExpanded = useCallback(() => {
+    if (pausedRef.current || reduceMotion) return;
+    clearHideTimer();
+    setExpanded(true);
+    expandHideRef.current = setTimeout(() => setExpanded(false), EXPAND_VISIBLE_MS);
+  }, [clearHideTimer, reduceMotion]);
+
+  const scheduleExpand = useCallback(
+    (delayMs: number) => {
+      if (reduceMotion) return;
+      clearCycleTimer();
+      expandCycleRef.current = setTimeout(() => {
+        if (!pausedRef.current) showExpanded();
+        scheduleExpand(EXPAND_INTERVAL_MS);
+      }, delayMs);
+    },
+    [clearCycleTimer, reduceMotion, showExpanded],
+  );
 
   const resetIdleTimer = useCallback(() => {
     setIsIdle(false);
@@ -89,185 +78,109 @@ function QuickActionDockPanel({ pathname }: { pathname: string }) {
     idleTimerRef.current = setTimeout(() => setIsIdle(true), 4200);
   }, []);
 
-  const closeDock = useCallback(() => setOpen(false), []);
+  const pauseAndExpand = useCallback(() => {
+    pausedRef.current = true;
+    setIsIdle(false);
+    setExpanded(true);
+    clearHideTimer();
+  }, [clearHideTimer]);
+
+  const resumeIdle = useCallback(() => {
+    pausedRef.current = false;
+    setExpanded(false);
+    resetIdleTimer();
+  }, [resetIdleTimer]);
 
   useEffect(() => {
     const timer = setTimeout(() => setIsIdle(true), 4200);
+    scheduleExpand(EXPAND_INITIAL_DELAY_MS);
     return () => {
       clearTimeout(timer);
       if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
-      if (scrollTimerRef.current) clearTimeout(scrollTimerRef.current);
+      clearExpandTimers();
     };
-  }, []);
+  }, [clearExpandTimers, scheduleExpand]);
 
   useEffect(() => {
-    if (!open) return;
-
-    const handlePointerDown = (event: PointerEvent) => {
-      if (!dockRef.current?.contains(event.target as Node)) {
-        closeDock();
-      }
-    };
-
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") closeDock();
-    };
-
-    window.addEventListener("pointerdown", handlePointerDown);
-    window.addEventListener("keydown", handleKeyDown);
-    return () => {
-      window.removeEventListener("pointerdown", handlePointerDown);
-      window.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [open, closeDock]);
-
-  useEffect(() => {
-    const onScroll = () => {
+    let scrollClear: ReturnType<typeof setTimeout> | null = null;
+    const handleScroll = () => {
       setIsScrolling(true);
-      if (!open) setIsIdle(false);
-      if (scrollTimerRef.current) clearTimeout(scrollTimerRef.current);
-      scrollTimerRef.current = setTimeout(() => {
+      setIsIdle(false);
+      setExpanded(false);
+      if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
+      if (scrollClear) clearTimeout(scrollClear);
+      scrollClear = setTimeout(() => {
         setIsScrolling(false);
         resetIdleTimer();
       }, 680);
     };
-
-    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("scroll", handleScroll, { passive: true });
     return () => {
-      window.removeEventListener("scroll", onScroll);
-      if (scrollTimerRef.current) clearTimeout(scrollTimerRef.current);
+      window.removeEventListener("scroll", handleScroll);
+      if (scrollClear) clearTimeout(scrollClear);
     };
-  }, [open, resetIdleTimer]);
+  }, [resetIdleTimer]);
 
-  useEffect(() => {
-    if (!open) return;
-    const timer = setTimeout(closeDock, 9000);
-    return () => clearTimeout(timer);
-  }, [open, closeDock]);
-
-  const dockOpacity = open ? 1 : isScrolling ? 0.72 : isIdle ? 0.58 : 0.92;
+  const dockOpacity = isScrolling ? 0.72 : isIdle ? 0.78 : 0.96;
 
   return (
     <div
-      ref={dockRef}
       className={cn("quick-action-dock pointer-events-none", placement)}
       onMouseEnter={() => {
-        setIsIdle(false);
+        pauseAndExpand();
         if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
       }}
-      onMouseLeave={resetIdleTimer}
-      onFocusCapture={resetIdleTimer}
+      onMouseLeave={resumeIdle}
+      onFocusCapture={() => {
+        pauseAndExpand();
+        resetIdleTimer();
+      }}
+      onBlurCapture={resumeIdle}
     >
       <motion.div
-        className="pointer-events-auto flex flex-col items-end gap-2"
+        className="pointer-events-auto relative flex flex-col items-end"
         animate={{ opacity: dockOpacity }}
         transition={{ duration: reduceMotion ? 0 : 0.35, ease: "easeOut" }}
       >
-        <AnimatePresence initial={false}>
-          {open ? (
-            <motion.div
-              key="quick-action-menu"
-              initial={{ opacity: 0, y: 10, scale: 0.96 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 8, scale: 0.97 }}
-              transition={{ duration: reduceMotion ? 0.12 : 0.28, ease: [0.22, 1, 0.36, 1] }}
-              className="quick-action-dock__menu"
-              role="menu"
-              aria-label={t("quickActionsMenu")}
-            >
-              {DOCK_ACTIONS.map((action, index) => {
-                const label = t(action.labelKey);
-                const itemClass = cn(
-                  "quick-action-dock__item",
-                  action.primary && "quick-action-dock__item--primary",
-                );
-
-                const content = (
-                  <>
-                    <span className="quick-action-dock__icon" aria-hidden>
-                      <ActionIcon icon={action.icon} />
-                    </span>
-                    <span className="quick-action-dock__label">{label}</span>
-                  </>
-                );
-
-                const motionProps = {
-                  initial: reduceMotion ? false : { opacity: 0, x: 10 },
-                  animate: { opacity: 1, x: 0 },
-                  exit: reduceMotion ? undefined : { opacity: 0, x: 8 },
-                  transition: {
-                    duration: 0.22,
-                    delay: reduceMotion ? 0 : index * 0.045,
-                    ease: [0.22, 1, 0.36, 1] as const,
-                  },
-                };
-
-                if (action.external) {
-                  return (
-                    <motion.a
-                      key={action.id}
-                      {...motionProps}
-                      href={action.href}
-                      target="_blank"
-                      rel="noreferrer"
-                      role="menuitem"
-                      className={itemClass}
-                      onClick={closeDock}
-                    >
-                      {content}
-                    </motion.a>
-                  );
-                }
-
-                return (
-                  <motion.div key={action.id} {...motionProps}>
-                    <Link
-                      href={action.href}
-                      role="menuitem"
-                      className={itemClass}
-                      onClick={closeDock}
-                    >
-                      {content}
-                    </Link>
-                  </motion.div>
-                );
-              })}
-            </motion.div>
-          ) : null}
-        </AnimatePresence>
-
-        <motion.button
-          type="button"
-          aria-expanded={open}
-          aria-haspopup="menu"
-          aria-label={open ? t("quickActionsClose") : t("quickActionsToggle")}
-          onClick={() => {
-            resetIdleTimer();
-            setOpen((value) => !value);
-          }}
-          className={cn(
-            "quick-action-dock__toggle",
-            open && "quick-action-dock__toggle--open",
-          )}
-          whileTap={reduceMotion ? undefined : { scale: 0.96 }}
-        >
-          {open ? (
-            <X className="h-[1.15rem] w-[1.15rem]" strokeWidth={2.25} />
-          ) : (
-            <Zap className="h-[1.15rem] w-[1.15rem]" strokeWidth={2.25} />
-          )}
-        </motion.button>
+        <motion.div layout whileTap={reduceMotion ? undefined : { scale: 0.97 }}>
+          <Link
+            href="/cotizacion"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={t("quickActionsQuote")}
+            className={cn(
+              "quick-action-dock__cta",
+              expanded && "quick-action-dock__cta--expanded",
+            )}
+            onClick={() => setExpanded(false)}
+          >
+            <span className="quick-action-dock__cta-icon" aria-hidden>
+              <PenLine className="h-[1.1rem] w-[1.1rem]" strokeWidth={2.15} />
+            </span>
+            <AnimatePresence initial={false}>
+              {expanded ? (
+                <motion.span
+                  key="quote-label"
+                  initial={reduceMotion ? false : { opacity: 0, maxWidth: 0 }}
+                  animate={{ opacity: 1, maxWidth: "12rem" }}
+                  exit={reduceMotion ? undefined : { opacity: 0, maxWidth: 0 }}
+                  transition={{ type: "spring", stiffness: 320, damping: 28 }}
+                  className="quick-action-dock__cta-label"
+                >
+                  {t("quickActionsQuoteShout")}
+                </motion.span>
+              ) : null}
+            </AnimatePresence>
+          </Link>
+        </motion.div>
       </motion.div>
     </div>
   );
 }
 
+/** CTA flotante de cotización; se oculta dentro del flujo /cotizacion. */
 export function QuickActionDock() {
   const pathname = usePathname();
-
-  if (pathname.startsWith(QUOTE_ROUTE_PREFIX)) {
-    return null;
-  }
-
+  if (pathname.startsWith(QUOTE_ROUTE_PREFIX)) return null;
   return <QuickActionDockPanel key={pathname} pathname={pathname} />;
 }

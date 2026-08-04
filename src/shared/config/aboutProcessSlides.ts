@@ -1,17 +1,12 @@
 import type { SiteCopyKey } from "@/shared/i18n/siteLanguage";
 
+/** Slide del carrusel "Momentos que guardo". */
 export type AboutProcessSlide =
   | { type: "image"; src: string; altKey: SiteCopyKey; captionKey: SiteCopyKey }
   | { type: "video"; src: string; altKey: SiteCopyKey; captionKey: SiteCopyKey };
 
-/** video → foto → video → foto */
+/** Orden del carrusel: premios, Perú y momentos con Kris R. */
 export const ABOUT_PROCESS_SLIDES: AboutProcessSlide[] = [
-  {
-    type: "video",
-    src: "/brand/neutro-avion.mp4",
-    altKey: "aboutProcessVideoAlt",
-    captionKey: "aboutProcessVideoCaption",
-  },
   {
     type: "image",
     src: "/brand/about-award.png",
@@ -32,8 +27,14 @@ export const ABOUT_PROCESS_SLIDES: AboutProcessSlide[] = [
   },
   {
     type: "image",
-    src: "/brand/about-studio.png",
-    altKey: "aboutImgStudioAlt",
-    captionKey: "aboutProcessCaption2",
+    src: "/brand/client-kris-r-1.png",
+    altKey: "aboutImgKrisAlt",
+    captionKey: "aboutProcessCaptionKris",
+  },
+  {
+    type: "image",
+    src: "/brand/about-kris-moment.png",
+    altKey: "aboutImgKrisMomentAlt",
+    captionKey: "aboutProcessCaptionKrisMoment",
   },
 ];

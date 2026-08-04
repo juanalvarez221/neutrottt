@@ -52,7 +52,7 @@ const FEATURED_CLIENTS: FeaturedClient[] = [
     instagramUrl: "https://www.instagram.com/krisrofficial/",
     avatar: "/brand/client-kris-r.png",
     avatarAltKey: "famousClientKrisAvatarAlt",
-    avatarPosition: "center 20%",
+    avatarPosition: "center 28%",
     tattoos: [
       {
         id: "kris-arm",
@@ -76,7 +76,7 @@ const FEATURED_CLIENTS: FeaturedClient[] = [
     instagramUrl: "https://www.instagram.com/roapr__/",
     avatar: "/brand/client-roapr.png",
     avatarAltKey: "famousClientRoaprAvatarAlt",
-    avatarPosition: "center 35%",
+    avatarPosition: "center 22%",
     tattoos: [
       {
         id: "roa-lettering-floral",

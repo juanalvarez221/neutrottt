@@ -1,10 +1,8 @@
+/** Identidad y canales oficiales Neutrottt. */
 export const BRAND = {
   name: "Neutrottt",
-  nameUpper: "NEUTROTTT",
   instagramHandle: "neutrottt",
   instagramUrl: "https://www.instagram.com/neutrottt/",
-  tiktokHandle: "neutrottt",
-  tiktokUrl: "https://www.tiktok.com/@neutrottt",
   whatsappPhone: "573127311382",
 } as const;
 
@@ -12,11 +10,10 @@ export function whatsappUrl(message: string): string {
   return `https://wa.me/${BRAND.whatsappPhone}?text=${encodeURIComponent(message)}`;
 }
 
+/** Mensajes prearmados para WhatsApp. */
 export const WHATSAPP_MESSAGES = {
-  quote: "Hola quiero cotizar un tatuaje",
-  quoteContinue: "Hola quiero continuar mi cotización",
-  quoteFollowUp: "Hola quiero seguir con mi cotización",
   contact: "Hola quiero cotizar un tatuaje",
+  quoteFollowUp: "Hola quiero seguir con mi cotización",
 } as const;
 
 export function buildAdvisoryWhatsAppMessage({

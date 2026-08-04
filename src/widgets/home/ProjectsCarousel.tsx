@@ -20,6 +20,7 @@ type PortfolioPiece = {
   rotate: number;
 };
 
+/** Piezas del muro "1%" (lettering + sombras). */
 const PORTFOLIO_PIECES: PortfolioPiece[] = [
   {
     src: "/portfolio/piece-lettering-1.png",

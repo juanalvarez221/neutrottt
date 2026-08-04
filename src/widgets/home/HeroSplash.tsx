@@ -233,8 +233,11 @@ export function HeroSplash({
             transition={{ delay: 0.12, duration: 0.5, ease: "easeOut" }}
             className="w-full"
           >
+            {/* Cotizar diseño: abre el flujo en pestaña nueva */}
             <Link
               href="/cotizacion"
+              target="_blank"
+              rel="noopener noreferrer"
               className="btn-accent typo-cta group inline-flex w-full items-center justify-center gap-2 rounded-xl px-5 py-3.5 active:translate-y-0 md:py-4"
             >
               {t("heroCta")}

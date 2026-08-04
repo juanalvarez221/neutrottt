@@ -44,14 +44,12 @@ export const GREETINGS_ANON = pack(
 export const SUBTITLES = pack(
   [
     "Así empieza una conexión que vale la pena.",
-    "Hay sintonía. Sigamos con cuidado.",
     "Esto ya suena como un proceso real.",
     "Me gusta el tono. Aquí hay espacio para construir.",
     "Entre nosotros ya hay un idioma en común.",
   ],
   [
     "This is how a connection worth keeping starts.",
-    "There is chemistry. Let's continue with care.",
     "This already sounds like a real process.",
     "I like the tone. There is room here to build.",
     "Between us, there is already a shared language.",
