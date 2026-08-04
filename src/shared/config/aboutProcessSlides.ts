@@ -5,7 +5,7 @@ export type AboutProcessSlide =
   | { type: "image"; src: string; altKey: SiteCopyKey; captionKey: SiteCopyKey }
   | { type: "video"; src: string; altKey: SiteCopyKey; captionKey: SiteCopyKey };
 
-/** Orden del carrusel: premios, Perú y momentos con Kris R. */
+/** Orden del carrusel: premios, Perú, Kris R y Roa PR. */
 export const ABOUT_PROCESS_SLIDES: AboutProcessSlide[] = [
   {
     type: "image",
@@ -33,8 +33,8 @@ export const ABOUT_PROCESS_SLIDES: AboutProcessSlide[] = [
   },
   {
     type: "image",
-    src: "/brand/about-kris-moment.png",
-    altKey: "aboutImgKrisMomentAlt",
-    captionKey: "aboutProcessCaptionKrisMoment",
+    src: "/brand/about-roa-moment.png",
+    altKey: "aboutImgRoaMomentAlt",
+    captionKey: "aboutProcessCaptionRoaMoment",
   },
 ];
