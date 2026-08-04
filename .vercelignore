@@ -1,0 +1,13 @@
+# Local authoring / QA — never ship to Vercel
+assets/blender/
+*.blend
+*.blend1
+public/models/interaction/fields/temp/
+public/models/interaction/pilot/
+test-results/
+data/quote-requests.json
+tools/_tmp*
+artifacts/
+.vercel
+.next
+node_modules

@@ -42,7 +42,14 @@ next-env.d.ts
 
 # local QA / authoring
 /artifacts/
+*.blend
 *.blend1
+/assets/blender/
+/public/models/interaction/fields/temp/
+/public/models/interaction/pilot/
+/test-results/
+/data/quote-requests.json
+tools/_tmp*
 tools/body-regions/.blender-path.local
 tools/blender/__pycache__/
 **/__pycache__/
