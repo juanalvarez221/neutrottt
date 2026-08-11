@@ -19,6 +19,11 @@ type HumanBodyModelProps = Omit<ThreeElements["group"], "children"> & {
   wireframe?: boolean;
   /** Cuando false, el BodyVisual no captura pointer (InteractionModel lo hace). */
   raycastEnabled?: boolean;
+  /**
+   * 0 = brillo normal.
+   * 1 = cuerpo atenuado mientras hay zona en foco (hover/selección).
+   */
+  focusDim?: number;
 };
 
 function createNeutralMaterial(wireframe: boolean) {
@@ -47,6 +52,16 @@ function collectMeshes(root: Object3D) {
   return meshes;
 }
 
+function forEachStandardMaterial(
+  material: Material | Material[],
+  fn: (mat: MeshStandardMaterial) => void,
+) {
+  const list = Array.isArray(material) ? material : [material];
+  for (const mat of list) {
+    if (mat && "color" in mat) fn(mat as MeshStandardMaterial);
+  }
+}
+
 /**
  * Carga y presenta un cuerpo 3D a partir de una `BodyModelDefinition`.
  * No conoce assets concretos ni el dominio de zonas.
@@ -56,10 +71,12 @@ export function HumanBodyModel({
   appearance = "original",
   wireframe = false,
   raycastEnabled = true,
+  focusDim = 0,
   ...props
 }: HumanBodyModelProps) {
   const { scene } = useGLTF(model.src);
   const neutralMaterialRef = useRef<MeshStandardMaterial | null>(null);
+  const baseColorsRef = useRef(new Map<string, Color>());
 
   const prepared = useMemo(() => {
     const cloned = scene.clone(true);
@@ -70,7 +87,6 @@ export function HumanBodyModel({
       if (!mesh.isMesh) return;
       mesh.frustumCulled = false;
 
-      // Clonar materiales del mesh para no mutar el cache de useGLTF.
       if (Array.isArray(mesh.material)) {
         mesh.material = mesh.material.map((mat) => mat.clone());
       } else if (mesh.material) {
@@ -93,6 +109,7 @@ export function HumanBodyModel({
   useEffect(() => {
     const { cloned, originals } = prepared;
     const meshes = collectMeshes(cloned);
+    baseColorsRef.current.clear();
 
     if (appearance === "neutral") {
       if (!neutralMaterialRef.current) {
@@ -123,6 +140,24 @@ export function HumanBodyModel({
   }, [appearance, prepared, wireframe]);
 
   useEffect(() => {
+    const strength = Math.min(1, Math.max(0, focusDim));
+    // Mild dim outside the painted zone (zone paint is separate overlay).
+    const brightness = 1 - strength * 0.38;
+    const baseColors = baseColorsRef.current;
+
+    for (const mesh of collectMeshes(prepared.cloned)) {
+      forEachStandardMaterial(mesh.material, (mat) => {
+        if (!baseColors.has(mat.uuid)) {
+          baseColors.set(mat.uuid, mat.color.clone());
+        }
+        const base = baseColors.get(mat.uuid)!;
+        mat.color.copy(base).multiplyScalar(brightness);
+        mat.needsUpdate = true;
+      });
+    }
+  }, [focusDim, prepared, appearance, wireframe]);
+
+  useEffect(() => {
     const originals = prepared.originals;
     return () => {
       if (neutralMaterialRef.current) {
@@ -132,6 +167,7 @@ export function HumanBodyModel({
       for (const material of originals.values()) {
         disposeMaterial(material);
       }
+      baseColorsRef.current.clear();
     };
   }, [prepared]);
 

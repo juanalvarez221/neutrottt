@@ -7,8 +7,8 @@ import { ArrowRight, UserRound, Mail, Phone } from "lucide-react";
 import { getQuoteProfile, saveQuoteProfile } from "@/shared/lib/quoteProfile";
 import {
   QUOTE_FLOW_PATHS,
-  resolveQuoteEntryPath,
-  startNewQuoteSession,
+  getQuoteResumePath,
+  resolveQuoteResumePath,
 } from "@/shared/lib/quoteFlow";
 import { useSiteLanguage } from "@/shared/i18n/LanguageProvider";
 import { PhoneCountryField } from "@/widgets/quote/PhoneCountryField";
@@ -23,15 +23,19 @@ export default function CotizacionPage() {
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
   const [ready, setReady] = useState(false);
+  const [editing, setEditing] = useState(false);
 
   useEffect(() => {
-    const entry = resolveQuoteEntryPath();
-    if (entry !== QUOTE_FLOW_PATHS.profile) {
-      if (entry === QUOTE_FLOW_PATHS.quoteStart) {
-        startNewQuoteSession();
+    const params = new URLSearchParams(window.location.search);
+    const isEditing = params.get("edit") === "1";
+    setEditing(isEditing);
+
+    if (!isEditing) {
+      const destination = resolveQuoteResumePath();
+      if (destination !== QUOTE_FLOW_PATHS.profile) {
+        router.replace(destination);
+        return;
       }
-      router.replace(entry);
-      return;
     }
 
     const frame = window.requestAnimationFrame(() => {
@@ -69,6 +73,13 @@ export default function CotizacionPage() {
     }
     const fullPhone = `${countryCode} ${cleanPhone}`.replace(/\s+/g, " ").trim();
     saveQuoteProfile({ name: cleanName, phone: fullPhone, email: cleanEmail });
+
+    if (editing) {
+      const resume = getQuoteResumePath() || QUOTE_FLOW_PATHS.quoteStart;
+      router.push(resume);
+      return;
+    }
+
     router.push(QUOTE_FLOW_PATHS.connection);
   };
 
@@ -181,7 +192,7 @@ export default function CotizacionPage() {
           onClick={onNext}
           className="btn-accent focus-ring typo-cta group inline-flex w-full items-center justify-center gap-2 rounded-lg py-5 active:scale-[0.98]"
         >
-          {t("quoteContinue")}
+          {editing ? t("quoteContactSaveContinue") : t("quoteContinue")}
           <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
         </button>
       </div>

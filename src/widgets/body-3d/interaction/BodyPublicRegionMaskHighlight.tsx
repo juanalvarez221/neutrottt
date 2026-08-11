@@ -7,9 +7,11 @@ import {
   BufferAttribute,
   Color,
   DataTexture,
+  FrontSide,
   DoubleSide,
   NearestFilter,
   NoColorSpace,
+  NormalBlending,
   RGBAFormat,
   ShaderMaterial,
   UnsignedByteType,
@@ -38,7 +40,10 @@ import {
   regionFieldCacheKey,
 } from "@/widgets/body-3d/interaction/bodyRegionGeometryFieldLoader";
 import { buildRefinedFieldGeometry } from "@/widgets/body-3d/interaction/bodyRegionFieldGeometry";
-import type { RegionFieldRefinement } from "@/widgets/body-3d/domain/bodyRegionGeometryField";
+import type {
+  RegionFieldRefinement,
+  RegionGeometryFieldEntry,
+} from "@/widgets/body-3d/domain/bodyRegionGeometryField";
 
 const LUT_SIZE = 256;
 
@@ -46,18 +51,33 @@ const LUT_SIZE = 256;
 const FIELD_ATTRIBUTE = "aActiveRegionDistance";
 /** Neutral value: fully outside, so an unloaded field renders nothing. */
 const FIELD_NEUTRAL = -1;
-const FIELD_MIN_AA_METERS = 0.00025;
-const FIELD_MAX_AA_METERS = 0.0015;
+const FIELD_MIN_AA_METERS = 0.0004;
+const FIELD_MAX_AA_METERS = 0.0028;
 
-const HOVER_COLOR = "#c49a6c";
-const PREVIEW_COLOR = "#d4a066";
-const SELECTED_COLOR = "#e8a840";
+/** Amarillo de senalizacion — solo sobre la zona activa. */
+const HOVER_COLOR = "#f0c020";
+const PREVIEW_COLOR = "#f5c828";
+const SELECTED_COLOR = "#ffd23a";
+/** Contorno suave del perimetro. */
+const EDGE_COLOR = "#ffe9a0";
+/** Unused dim (kept for uniform ABI / tests). Body dimming is HumanBodyModel. */
+const DIM_COLOR = "#120e0b";
 
-/** Intensidades visuales claras (capa limpia, sin moteado). */
-const HOVER_OPACITY = 0.24;
-const PREVIEW_OPACITY = 0.38;
-const SELECTED_OPACITY = 0.55;
-const OPACITY_FADE_MS = 150;
+const HOVER_OPACITY = 0.78;
+const PREVIEW_OPACITY = 0.84;
+const SELECTED_OPACITY = 0.9;
+const EDGE_OPACITY = 0.95;
+const DIM_OPACITY = 0.0;
+const OVERLAY_INFLATE = 1.006;
+const OPACITY_FADE_MS = 70;
+/**
+ * Product paint: categorical UV mask (dense torso) + geometry field on the
+ * base overlay mesh for sparse regions (neck/arms). Never swap refined
+ * geometry — that broke zone visibility.
+ */
+const ENABLE_GEOMETRY_FIELD_PAINT = true;
+/** Refinement mesh swap is disabled; field values bind to the BodyVisual clone. */
+const ENABLE_FIELD_REFINEMENT_GEOMETRY = false;
 
 const VERTEX_SHADER = /* glsl */ `
 varying vec2 vUv;
@@ -90,15 +110,26 @@ uniform vec2 uTexel;
 uniform vec3 uSelectedColor;
 uniform vec3 uPreviewColor;
 uniform vec3 uHoverColor;
+uniform vec3 uEdgeColor;
+uniform vec3 uDimColor;
 uniform float uSelectedOpacity;
 uniform float uPreviewOpacity;
 uniform float uHoverOpacity;
+uniform float uEdgeOpacity;
+uniform float uDimOpacity;
+uniform float uFocusActive;
 uniform float uFade;
 uniform float uFieldSelected;
 uniform float uFieldPreview;
 uniform float uFieldHover;
 uniform float uMinimumAaWidth;
 uniform float uMaximumAaWidth;
+/** Pull field isoline inward (m) — used for tighter neck paint. */
+uniform float uFieldShrinkMeters;
+/** Minimum field coverage to accept a field-only fragment. */
+uniform float uFieldMinCoverage;
+/** Scales field-only opacity (neck is less invasive). */
+uniform float uFieldOpacityScale;
 
 varying vec2 vUv;
 varying float vActiveRegionDistance;
@@ -106,45 +137,88 @@ varying float vActiveRegionDistance;
 ${REGION_MASK_COVERAGE_GLSL}
 
 void main() {
-  float selectedCovCat = sampleLutCoverage(uMask, uSelectedLut, uTexel, vUv);
-  float previewCovCat = sampleLutCoverage(uMask, uPreviewLut, uTexel, vUv);
-  float hoverCovCat = sampleLutCoverage(uMask, uHoverLut, uTexel, vUv);
+  // 1) Hard categorical membership (torso etc. — dense mask texels).
+  float id = maskIdAt(uMask, vUv);
+  float lutU = (id + 0.5) / 256.0;
+  float selectedMem = texture2D(uSelectedLut, vec2(lutU, 0.5)).r;
+  float previewMem = texture2D(uPreviewLut, vec2(lutU, 0.5)).r;
+  float hoverMem = texture2D(uHoverLut, vec2(lutU, 0.5)).r;
 
-  // Geometry distance field: continuous across triangles, UV independent.
-  float distanceMeters = vActiveRegionDistance;
+  // 2) Geometry field (neck/arms). Optional inward shrink for precision.
+  float distanceMeters = vActiveRegionDistance - uFieldShrinkMeters;
   float aaWidth = clamp(
     fwidth(distanceMeters),
     uMinimumAaWidth,
     uMaximumAaWidth
   );
   float fieldCov = smoothstep(-aaWidth, aaWidth, distanceMeters);
+  float fieldSelected = fieldCov * uFieldSelected;
+  float fieldPreview = fieldCov * uFieldPreview;
+  float fieldHover = fieldCov * uFieldHover;
+  float fieldGate = uFieldMinCoverage;
 
-  float selectedCov = max(selectedCovCat, fieldCov * uFieldSelected);
-  float previewCov = max(previewCovCat, fieldCov * uFieldPreview);
-  float hoverCov = max(hoverCovCat, fieldCov * uFieldHover);
+  bool hasMask =
+    selectedMem > 0.5 || previewMem > 0.5 || hoverMem > 0.5;
+  bool hasField =
+    fieldSelected > fieldGate ||
+    fieldPreview > fieldGate ||
+    fieldHover > fieldGate;
+  if (!hasMask && !hasField) discard;
 
   vec3 color = uHoverColor;
   float opacity = uHoverOpacity;
   float coverage = 0.0;
+  bool fieldOnly = false;
 
-  if (selectedCov > 0.001) {
-    coverage = selectedCov;
+  if (selectedMem > 0.5 || fieldSelected > fieldGate) {
     color = uSelectedColor;
     opacity = uSelectedOpacity;
-  } else if (previewCov > 0.001) {
-    coverage = previewCov;
+    float maskCov =
+      selectedMem > 0.5
+        ? sampleLutCoverage(uMask, uSelectedLut, uTexel, vUv)
+        : 0.0;
+    coverage = max(maskCov, fieldSelected);
+    fieldOnly = selectedMem <= 0.5 && fieldSelected > fieldGate;
+  } else if (previewMem > 0.5 || fieldPreview > fieldGate) {
     color = uPreviewColor;
     opacity = uPreviewOpacity;
-  } else if (hoverCov > 0.001) {
-    coverage = hoverCov;
+    float maskCov =
+      previewMem > 0.5
+        ? sampleLutCoverage(uMask, uPreviewLut, uTexel, vUv)
+        : 0.0;
+    coverage = max(maskCov, fieldPreview);
+    fieldOnly = previewMem <= 0.5 && fieldPreview > fieldGate;
+  } else {
     color = uHoverColor;
     opacity = uHoverOpacity;
+    float maskCov =
+      hoverMem > 0.5
+        ? sampleLutCoverage(uMask, uHoverLut, uTexel, vUv)
+        : 0.0;
+    coverage = max(maskCov, fieldHover);
+    fieldOnly = hoverMem <= 0.5 && fieldHover > fieldGate;
   }
 
-  float alpha = opacity * coverage * uFade;
-  if (alpha < 0.004) discard;
+  if (hasMask) coverage = max(coverage, 0.85);
+  if (fieldOnly) {
+    opacity *= uFieldOpacityScale;
+    // Prefer solid interior; soften fringe so neck feels less invasive.
+    coverage = smoothstep(fieldGate, 0.92, coverage);
+  }
+  if (coverage < 0.22) discard;
 
-  gl_FragColor = vec4(color, alpha);
+  float fw = max(fwidth(coverage), 1e-4);
+  float rim =
+    smoothstep(0.0, fw * (fieldOnly ? 2.2 : 1.8), coverage) *
+    (1.0 - smoothstep(fw * (fieldOnly ? 1.4 : 1.1), fw * (fieldOnly ? 8.0 : 6.5), coverage));
+
+  float fillAlpha = opacity * coverage * uFade;
+  float rimAlpha = uEdgeOpacity * rim * uFade * (fieldOnly ? 0.65 : 1.0);
+  vec3 highlightColor = mix(color, uEdgeColor, clamp(rim * 1.15, 0.0, 1.0));
+  float highlightAlpha = max(fillAlpha, rimAlpha);
+  if (highlightAlpha < 0.02) discard;
+
+  gl_FragColor = vec4(highlightColor, highlightAlpha);
 }
 `;
 
@@ -161,6 +235,7 @@ function createMembershipLut(): DataTexture {
   texture.minFilter = NearestFilter;
   texture.generateMipmaps = false;
   texture.colorSpace = NoColorSpace;
+  texture.flipY = false;
   texture.needsUpdate = true;
   return texture;
 }
@@ -211,27 +286,34 @@ function createMaskOverlayMaterial(
       uSelectedColor: { value: new Color(SELECTED_COLOR) },
       uPreviewColor: { value: new Color(PREVIEW_COLOR) },
       uHoverColor: { value: new Color(HOVER_COLOR) },
+      uEdgeColor: { value: new Color(EDGE_COLOR) },
+      uDimColor: { value: new Color(DIM_COLOR) },
       uSelectedOpacity: { value: SELECTED_OPACITY },
       uPreviewOpacity: { value: PREVIEW_OPACITY },
       uHoverOpacity: { value: HOVER_OPACITY },
+      uEdgeOpacity: { value: EDGE_OPACITY },
+      uDimOpacity: { value: DIM_OPACITY },
+      uFocusActive: { value: 0 },
       uFade: { value: 1 },
       uFieldSelected: { value: 0 },
       uFieldPreview: { value: 0 },
       uFieldHover: { value: 0 },
       uMinimumAaWidth: { value: FIELD_MIN_AA_METERS },
       uMaximumAaWidth: { value: FIELD_MAX_AA_METERS },
+      uFieldShrinkMeters: { value: 0 },
+      uFieldMinCoverage: { value: 0.32 },
+      uFieldOpacityScale: { value: 1 },
     },
     vertexShader: HIGHLIGHT_VERTEX_SHADER,
     fragmentShader: FRAGMENT_SHADER,
     transparent: true,
     depthWrite: false,
-    depthTest: true,
-    side: DoubleSide,
+    depthTest: false,
+    side: FrontSide,
     toneMapped: false,
+    blending: NormalBlending,
   });
-  material.polygonOffset = true;
-  material.polygonOffsetFactor = -4;
-  material.polygonOffsetUnits = -4;
+  material.polygonOffset = false;
   return material;
 }
 
@@ -245,7 +327,7 @@ function prepareOverlayScene(
     if (!mesh.isMesh) return;
     mesh.material = material;
     mesh.frustumCulled = false;
-    mesh.renderOrder = 4;
+    mesh.renderOrder = 20;
     mesh.raycast = () => undefined;
   });
   return cloned;
@@ -513,28 +595,66 @@ export function BodyPublicRegionMaskHighlight({
     const derivedCache = derivedCacheRef.current;
     let cancelled = false;
 
-    /** Categorical LUTs; the geometry-field region is drawn by the field only. */
-    const syncLuts = (fieldRegionId: string | null) => {
-      const suppressed = new Set(
-        visualIdsSuppressedByFieldRegion(fieldRegionId),
-      );
-      const strip = (ids: readonly string[]) =>
-        regionIdsToMaskIndices(ids.filter((id) => !suppressed.has(id)));
-      writeMembershipLut(selectedLut, strip(selectedIds));
-      writeMembershipLut(previewLut, strip(previewIds));
-      writeMembershipLut(hoverLut, strip(hoverIds));
+    /** Categorical LUTs always on — field only adds soft coverage. */
+    const syncLuts = (
+      fieldRegionId: string | null,
+      fieldEntry: RegionGeometryFieldEntry | null = null,
+    ) => {
+      writeMembershipLut(selectedLut, regionIdsToMaskIndices(selectedIds));
+      writeMembershipLut(previewLut, regionIdsToMaskIndices(previewIds));
+      writeMembershipLut(hoverLut, regionIdsToMaskIndices(hoverIds));
 
       const mat = materialRef.current;
       if (!mat?.uniforms.uFieldSelected) return;
-      const covers = (ids: readonly string[]) =>
-        fieldRegionId != null &&
-        (ids.includes(fieldRegionId) ||
-          visualIdsSuppressedByFieldRegion(fieldRegionId).some((id) =>
-            ids.includes(id),
-          ));
+      const covers = (ids: readonly string[]) => {
+        if (fieldRegionId == null) return false;
+        if (ids.includes(fieldRegionId)) return true;
+        if (
+          fieldEntry?.surfaceRegionId &&
+          ids.includes(fieldEntry.surfaceRegionId)
+        ) {
+          return true;
+        }
+        if (
+          fieldEntry?.visualRegionId &&
+          ids.includes(fieldEntry.visualRegionId)
+        ) {
+          return true;
+        }
+        // e.g. neck_front ↔ neck_front_surface
+        if (ids.includes(`${fieldRegionId}_surface`)) return true;
+        if (
+          ids.some(
+            (id) =>
+              id.replace(/_surface$/, "") === fieldRegionId ||
+              id.replace(/_region$/, "") ===
+                fieldRegionId.replace(/_region$/, ""),
+          )
+        ) {
+          return true;
+        }
+        return visualIdsSuppressedByFieldRegion(fieldRegionId).some((id) =>
+          ids.includes(id),
+        );
+      };
       mat.uniforms.uFieldSelected.value = covers(selectedIds) ? 1 : 0;
       mat.uniforms.uFieldPreview.value = covers(previewIds) ? 1 : 0;
       mat.uniforms.uFieldHover.value = covers(hoverIds) ? 1 : 0;
+
+      const neckField =
+        fieldRegionId != null &&
+        (fieldRegionId.includes("neck") ||
+          fieldEntry?.surfaceRegionId?.includes("neck") === true);
+      if (mat.uniforms.uFieldShrinkMeters) {
+        // Mild inward isoline; anatomy fixed in neck-quadrant-repair SDF.
+        mat.uniforms.uFieldShrinkMeters.value = neckField ? 0.0015 : 0;
+      }
+      if (mat.uniforms.uFieldMinCoverage) {
+        mat.uniforms.uFieldMinCoverage.value = neckField ? 0.4 : 0.32;
+      }
+      if (mat.uniforms.uFieldOpacityScale) {
+        mat.uniforms.uFieldOpacityScale.value = neckField ? 0.92 : 1;
+      }
     };
 
     syncLuts(null);
@@ -546,6 +666,9 @@ export function BodyPublicRegionMaskHighlight({
       }
     };
 
+    if (!ENABLE_GEOMETRY_FIELD_PAINT) {
+      clearField();
+    } else {
     const candidates = resolveGeometryFieldCandidateIds([
       ...selectedIds,
       ...previewIds,
@@ -598,8 +721,8 @@ export function BodyPublicRegionMaskHighlight({
             const applied = applyFieldToTarget(
               target,
               result.values,
-              result.refinement,
-              cacheKey,
+              ENABLE_FIELD_REFINEMENT_GEOMETRY ? result.refinement : null,
+              ENABLE_FIELD_REFINEMENT_GEOMETRY ? cacheKey : null,
               derivedCache,
             );
             if (applied.ok) installed = true;
@@ -610,7 +733,7 @@ export function BodyPublicRegionMaskHighlight({
           if (!installed) continue;
           const tUniforms = now();
           fieldRegionRef.current = regionId;
-          syncLuts(regionId);
+          syncLuts(result.entry.regionId, result.entry);
           const uniformUpdateMs = now() - tUniforms;
           const installMs = now() - installedAt;
           const microCachedMs =
@@ -655,11 +778,17 @@ export function BodyPublicRegionMaskHighlight({
         syncLuts(null);
       })();
     }
+    }
 
     fadeTarget.current = 1;
     const mat = materialRef.current;
-    if (!reducedMotionRef.current && mat?.uniforms.uFade) {
-      mat.uniforms.uFade.value = 0.35;
+    if (mat?.uniforms.uFocusActive) {
+      const hasFocus =
+        selectedIds.length > 0 || previewIds.length > 0 || hoverIds.length > 0;
+      mat.uniforms.uFocusActive.value = hasFocus ? 1 : 0;
+    }
+    if (mat?.uniforms.uFade) {
+      mat.uniforms.uFade.value = 1;
     }
 
     return () => {
@@ -704,8 +833,12 @@ export function BodyPublicRegionMaskHighlight({
     };
   }, [material, selectedLut, previewLut, hoverLut, maskTexture, overlay]);
 
+  const overlayScale = scale * OVERLAY_INFLATE;
   return (
-    <group rotation={rotation} scale={[scale, scale, scale]}>
+    <group
+      rotation={rotation}
+      scale={[overlayScale, overlayScale, overlayScale]}
+    >
       <primitive object={overlayScene} />
     </group>
   );

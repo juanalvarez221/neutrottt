@@ -21,10 +21,11 @@ function disposeMaterial(material: Material | Material[]) {
   }
 }
 
-/** Neutro camel / sand — piel tintada, no polígono de debug */
-const HOVER_COLOR = "#c49a6c";
-const PREVIEW_COLOR = "#d4a066";
-const SELECTED_COLOR = "#e8a840";
+/** Amarillo sólido de señalización — debe leerse al instante. */
+const HOVER_COLOR = "#ffcc33";
+const PREVIEW_COLOR = "#ffd54a";
+const SELECTED_COLOR = "#ffe566";
+const HIGHLIGHT_INFLATE = 1.018;
 
 type HighlightKind = "hover" | "preview" | "selected" | null;
 
@@ -60,7 +61,13 @@ function prepareHighlightScene(
     mesh.frustumCulled = false;
     mesh.visible = kind !== null;
     mesh.renderOrder =
-      kind === "selected" ? 5 : kind === "preview" ? 4 : kind === "hover" ? 3 : 2;
+      kind === "selected"
+        ? 120
+        : kind === "preview"
+          ? 110
+          : kind === "hover"
+            ? 100
+            : 2;
 
     if (!mesh.visible) {
       mesh.material = new ThreeMeshBasicMaterial({ visible: false });
@@ -74,22 +81,20 @@ function prepareHighlightScene(
         : kind === "preview"
           ? PREVIEW_COLOR
           : HOVER_COLOR;
-    // Opacidades suaves: “pintura sobre piel”, no debug wire
+    // Near-opaque: this is the guaranteed product signal for selection.
     const opacity =
-      kind === "selected" ? 0.38 : kind === "preview" ? 0.3 : 0.18;
+      kind === "selected" ? 1 : kind === "preview" ? 0.98 : 0.95;
 
     const mat = new ThreeMeshBasicMaterial({
       color,
       transparent: true,
       opacity,
       depthWrite: false,
-      depthTest: true,
+      depthTest: false,
       side: DoubleSide,
       toneMapped: false,
     }) as MeshBasicMaterial;
-    mat.polygonOffset = true;
-    mat.polygonOffsetFactor = -3;
-    mat.polygonOffsetUnits = -3;
+    mat.polygonOffset = false;
     materials.push(mat);
     mesh.material = mat;
     mesh.raycast = () => undefined;
@@ -146,7 +151,14 @@ export function BodyZoneHighlight({
   }, [prepared]);
 
   return (
-    <group rotation={rotation} scale={[scale, scale, scale]}>
+    <group
+      rotation={rotation}
+      scale={[
+        scale * HIGHLIGHT_INFLATE,
+        scale * HIGHLIGHT_INFLATE,
+        scale * HIGHLIGHT_INFLATE,
+      ]}
+    >
       <primitive object={prepared.cloned} />
     </group>
   );

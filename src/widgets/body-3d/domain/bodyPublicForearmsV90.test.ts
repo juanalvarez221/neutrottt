@@ -100,7 +100,7 @@ describe("Forearms V9.0 — official freeze + promotion", () => {
   it("promotes six sidecars with FA02 hashes within 45 KB", () => {
     const hashes = readJson(path.join(ART, "approved/hashes.json"));
     const manifest = readJson(MANIFEST) as RegionGeometryFieldManifest;
-    expect(manifest.version).toBe("9.0");
+    expect(manifest.version).toMatch(/^9\./);
     expect(hashes.candidateId).toBe("FA02");
     expect(CANDIDATES.FA02.innerBandOffsetMm).toBe(0);
     for (let i = 0; i < REGIONS.length; i++) {

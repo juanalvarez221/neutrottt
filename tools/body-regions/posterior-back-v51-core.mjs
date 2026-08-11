@@ -58,12 +58,12 @@ export const POSTERIOR_BACK_V51_OUT = path.join(
 export const U_BACK_SLICES = 112;
 export const U_BACK_SLICES_MAX = 128;
 export const RIBS_SEAM_FLOOR_Y = 1.073;
-export const S02_OFFSET_M = -0.012;
+export const S02_OFFSET_M = 0.018;
 export const RESIDUAL_ERROR_MM = 3.5;
 export const SURFACE_BAND_M = 0.038;
 export const QUERY_MAX_DIST_M = 0.06;
 export const REFINE_BAND_M = 0.005;
-export const INNER_OFFSETS_M = { S01: 0, S02: -0.012, S03: -0.024 };
+export const INNER_OFFSETS_M = { S01: 0, S02: 0.018, S03: -0.024 };
 /** Lateral past-seam band: points more outward than seam endpoints. */
 export const LATERAL_OUT_M = 0.008;
 
@@ -1099,7 +1099,7 @@ export function buildSuperiorBoundary(lm, derived) {
   };
 }
 
-/** Build exterior inferior boundary (waist lat → iliac post → sacrum → mirror). */
+/** Build exterior inferior boundary (waist lat → iliac post → above sacrum). */
 export function buildInferiorBoundary(lm, derived) {
   const sac =
     derived.superiorSacrum?.position ?? [
@@ -1108,28 +1108,28 @@ export function buildInferiorBoundary(lm, derived) {
       -0.14,
     ];
   const gluteY = derived.gluteFoldStart?.position?.[1] ?? sac[1] - 0.04;
-  // Stay above glute fold
-  const centerY = Math.max(sac[1], gluteY + 0.02);
+  // True lumbar floor: well above sacrum / glute (not sacral bowl).
+  const centerY = Math.max(sac[1] + 0.055, gluteY + 0.08, 0.965);
   const waistY = lm.points.waistBack[1];
-  const iliacY = Math.max(lm.points.iliacCrestRight[1], lm.points.hipRight[1]) + 0.02;
+  const iliacY = Math.max(lm.points.iliacCrestRight[1], lm.points.hipRight[1]) + 0.045;
   const controls = [
-    { u: 0.0, y: waistY - 0.04, z: -0.1 },
-    { u: 0.22, y: iliacY + 0.01, z: -0.12 },
+    { u: 0.0, y: Math.max(waistY - 0.01, centerY + 0.01), z: -0.1 },
+    { u: 0.22, y: Math.max(iliacY, centerY + 0.005), z: -0.12 },
     { u: 0.5, y: centerY, z: sac[2] },
-    { u: 0.78, y: iliacY + 0.01, z: -0.12 },
-    { u: 1.0, y: waistY - 0.04, z: -0.1 },
+    { u: 0.78, y: Math.max(iliacY, centerY + 0.005), z: -0.12 },
+    { u: 1.0, y: Math.max(waistY - 0.01, centerY + 0.01), z: -0.1 },
   ];
   const yFn = hermiteInterp(controls.map((c) => ({ x: c.u, y: c.y })));
   const zFn = hermiteInterp(controls.map((c) => ({ x: c.u, y: c.z })));
   return {
     kind: "inferior",
-    method: "cubic-hermite-C1-waist-iliac-sacrum",
+    method: "cubic-hermite-C1-lumbar-above-sacrum",
     controls,
     lowerY: (u) => yFn(clamp(u, 0, 1)),
     lowerZ: (u) => zFn(clamp(u, 0, 1)),
     yMin: Math.min(...controls.map((c) => c.y)),
     yMax: Math.max(...controls.map((c) => c.y)),
-    clearsGlute: centerY > gluteY + 0.015,
+    clearsGlute: centerY > gluteY + 0.05,
   };
 }
 

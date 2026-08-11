@@ -5,10 +5,12 @@
  *   anterior  → C07.rightS / C07.leftS + B01.rightS / B01.leftS
  *   posterior → 96-slice curvature normal-turn seam on that side's arc
  *   superior  → base of that side's axilla
- *   inferior  → that side's upper lateral waist
+ *   inferior  → costal margin (IMF lateral band), NOT waist/flank
  *
+ * Soft flank below the costal margin is a separate public region (costado).
  * Nothing here mirrors vertices or negates the opposite side's sidecar.
- * With side === "right" the arithmetic reduces to the frozen V4.0 formulas.
+ * With side === "right" the arithmetic reduces to the frozen V4.0 formulas
+ * except for the costal inferior frontier (V4.5 anatomical correction).
  */
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
@@ -45,11 +47,19 @@ export const POSTERIOR_S = Object.freeze({
 export const R02 = Object.freeze({
   id: "R02",
   posteriorCoverage: "medium",
-  waistClearance: 0.01,
+  /** Drop below IMF lateral at mid-axillary (meters). */
+  costalClearance: 0.028,
 });
 
 export const L01 = Object.freeze({
   id: "L01",
+  posteriorCoverage: "medium",
+  costalClearance: 0.028,
+});
+
+/** Flank (costado) params — soft wall from costal margin down to waist. */
+export const F01 = Object.freeze({
+  id: "F01",
   posteriorCoverage: "medium",
   waistClearance: 0.01,
 });
@@ -59,7 +69,7 @@ export const OFFICIAL_TORSO_REGIONS = Object.freeze({
   geometryHash: "c62e81edaa1f",
   indexHash: "52494d471398c",
   vertexCount: 14517,
-  maskHash: "b628b15261da",
+  maskHash: "e0580d10c901",
   chest: {
     regionId: "full_chest",
     candidateId: "C07",
@@ -78,17 +88,17 @@ export const OFFICIAL_TORSO_REGIONS = Object.freeze({
   },
   rightRibs: {
     regionId: "right_ribs",
-    candidateId: "V4.1",
-    fieldHash: "69a61207dd331a1d",
-    refinementHash: "4a17658fa0cec820",
+    candidateId: "V4.5",
+    fieldHash: "f98b4f43fdd25853",
+    refinementHash: "89633f2397a8cd60",
     fieldBin: "neutro_body_v1_right_ribs_sdf.bin",
     refineBin: "neutro_body_v1_right_ribs_refine.bin",
   },
   leftRibs: {
     regionId: "left_ribs",
-    candidateId: "L01",
-    fieldHash: "3a1a0e9368a98095",
-    refinementHash: "d4691c229a59a804",
+    candidateId: "L02",
+    fieldHash: "764c29af40b03841",
+    refinementHash: "b57e39e6bd36ce78",
     fieldBin: "neutro_body_v1_left_ribs_sdf.bin",
     refineBin: "neutro_body_v1_left_ribs_refine.bin",
   },
@@ -460,7 +470,89 @@ export function buildAxillaSuperior(lm, field, geometryHash, side = "right") {
 }
 
 /**
+ * Inferior frontier at the true costal margin (caja torácica lateral).
+ * Anchored to inframammary lateral landmarks — does NOT descend to waist/iliac.
+ * Soft flank below this line belongs to left_flank / right_flank.
+ * @param {BodySide} side
+ */
+export function buildCostalMarginInferior(
+  lm,
+  field,
+  frontS,
+  backS,
+  costalClearance,
+  side = "right",
+) {
+  const { sSign } = getRibsSideConfig(side);
+  const imfKey =
+    side === "right" ? "inframammaryLateralRight" : "inframammaryLateralLeft";
+  const imfLat = lm.points[imfKey];
+  const waistF = lm.points.waistFront;
+  const waistB = lm.points.waistBack;
+  const iliac = sideLandmark(lm, side, "iliacCrest");
+
+  // Costal margin: near IMF laterally; slight mid-axillary drop for ribs 10–12.
+  // Never below waist front — that tissue is soft flank (costado).
+  const yImf = imfLat[1];
+  const yFloor = Math.max(waistF[1] + 0.008, yImf - costalClearance - 0.012);
+  const yFront = Math.max(yImf - costalClearance * 0.45, yFloor);
+  const yMid = Math.max(yImf - costalClearance, yFloor);
+  const yBack = Math.max(
+    Math.min(yImf - costalClearance * 1.15, waistB[1] + 0.035),
+    yFloor,
+  );
+  const yEnd = yMid;
+
+  const sFront = frontS(yFront);
+  const sBack = backS(yBack);
+  const sMid = 0.5 * (sFront + sBack);
+
+  const half = hermiteInterp([
+    { x: Math.abs(sFront), y: yFront, dy: 0 },
+    {
+      x: Math.abs(sMid),
+      y: yMid,
+      dy: (yBack - yFront) / Math.max(0.05, Math.abs(sBack - sFront)),
+    },
+    { x: Math.abs(sBack), y: yBack, dy: 0 },
+  ]);
+  const lowerY = (s) => {
+    const abs = Math.abs(sSign < 0 ? clamp(s, -1.6, -0.5) : clamp(s, 0.5, 1.6));
+    return half(
+      clamp(
+        abs,
+        Math.min(Math.abs(sFront), Math.abs(sBack)),
+        Math.max(Math.abs(sFront), Math.abs(sBack)),
+      ),
+    );
+  };
+
+  const aboveWaist = yEnd >= waistF[1] - 0.002;
+  const aboveIliac = yEnd > iliac[1] + 0.08;
+  return {
+    side,
+    lowerY,
+    yEnd,
+    diagnostics: {
+      method: "costal-margin-imf",
+      beforeHip: true,
+      beforeIliac: aboveIliac,
+      aboveWaist,
+      notHardCut: Math.abs(yFront - yBack) > 0.002,
+      pass: aboveWaist && aboveIliac && Math.abs(yFront - yBack) > 0.002,
+      yImf,
+      yEnd,
+      yFront,
+      yMid,
+      yBack,
+      costalClearance,
+    },
+  };
+}
+
+/**
  * Inferior frontier: upper lateral waist on this side, above hip / iliac crest.
+ * Used for soft flank (costado), NOT for true costillas.
  * @param {BodySide} side
  */
 export function buildWaistInferior(
@@ -512,6 +604,7 @@ export function buildWaistInferior(
     lowerY,
     yEnd,
     diagnostics: {
+      method: "waist-lateral-hermite",
       beforeHip,
       beforeIliac: true,
       notHardCut: Math.abs(yFront - yBack) > 0.002,

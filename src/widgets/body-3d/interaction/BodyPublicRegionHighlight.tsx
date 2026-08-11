@@ -23,9 +23,9 @@ function disposeMaterial(material: Material | Material[]) {
   }
 }
 
-const HOVER_COLOR = "#c49a6c";
-const PREVIEW_COLOR = "#d4a066";
-const SELECTED_COLOR = "#e8a840";
+const HOVER_COLOR = "#ffe066";
+const PREVIEW_COLOR = "#ffe066";
+const SELECTED_COLOR = "#ffe066";
 
 type HighlightKind = "hover" | "preview" | "selected" | null;
 
@@ -82,20 +82,18 @@ function prepareHighlightScene(
           ? PREVIEW_COLOR
           : HOVER_COLOR;
     const opacity =
-      kind === "selected" ? 0.55 : kind === "preview" ? 0.38 : 0.24;
+      kind === "selected" ? 0.95 : kind === "preview" ? 0.92 : 0.9;
 
     const mat = new ThreeMeshBasicMaterial({
       color,
       transparent: true,
       opacity,
       depthWrite: false,
-      depthTest: true,
+      depthTest: false,
       side: DoubleSide,
       toneMapped: false,
     }) as MeshBasicMaterial;
-    mat.polygonOffset = true;
-    mat.polygonOffsetFactor = -4;
-    mat.polygonOffsetUnits = -4;
+    mat.polygonOffset = false;
     materials.push(mat);
     mesh.material = mat;
     mesh.raycast = () => undefined;

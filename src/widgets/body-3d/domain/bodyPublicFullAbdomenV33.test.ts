@@ -220,7 +220,7 @@ describe("full_abdomen V3.3 UX + adjacency", () => {
     expect(abdomen[0]!.id).toBe("full_abdomen");
     expect(abdomen[0]!.shortLabel).toBe("Abdomen completo");
     expect(abdomen[0]!.description).toBe(
-      "Superficie frontal completa del abdomen",
+      "Superficie frontal del abdomen bajo el pecho, hasta la zona púbica",
     );
     expect(abdomen[0]!.supportedCoverages).toEqual(["complete"]);
     expect(abdomen[0]!.preferredView).toBe("front");

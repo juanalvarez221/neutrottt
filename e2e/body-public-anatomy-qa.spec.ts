@@ -60,7 +60,7 @@ test.describe("Public Anatomy browser QA", () => {
   });
 
   test("responsive framing evidence", async ({ page }) => {
-    test.setTimeout(180_000);
+    test.setTimeout(240_000);
     await page.setViewportSize({ width: 1440, height: 900 });
     await openPublicAnatomyQa(page);
 
@@ -70,6 +70,18 @@ test.describe("Public Anatomy browser QA", () => {
     await shot(page, "30-desktop-full-back.png");
     await selectTarget(page, "right_ribs");
     await shot(page, "31-desktop-ribs.png");
+    await expect(
+      page.locator('select').filter({ has: page.locator('option[value="right_ribs"]') }).first(),
+    ).toHaveValue("right_ribs");
+    await selectTarget(page, "right_flank");
+    await shot(page, "31b-desktop-costado.png");
+    await expect(
+      page.locator('select').filter({ has: page.locator('option[value="right_flank"]') }).first(),
+    ).toHaveValue("right_flank");
+    await selectTarget(page, "full_abdomen");
+    await shot(page, "31c-desktop-abdomen.png");
+    await selectTarget(page, "left_biceps_region");
+    await shot(page, "31d-desktop-brazo-anterior.png");
 
     await page.setViewportSize({ width: 820, height: 1180 });
     await page.waitForTimeout(400);

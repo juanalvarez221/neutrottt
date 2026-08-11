@@ -83,12 +83,12 @@ describe("Upper Arms V8.0 — official freeze + promotion", () => {
       contentHash16(
         readFileSync(path.join(FIELDS, "neutro_body_v1_full_neck_sdf.bin")),
       ),
-    ).toBe("554f6b07992ae0c5");
+    ).toBe("f9573effa3f0bfb1");
     expect(
       contentHash16(
         readFileSync(path.join(FIELDS, "neutro_body_v1_upper_back_sdf.bin")),
       ),
-    ).toBe("6795862f576d5f8b");
+    ).toBe("1a21f0cea6db047f");
     expect(
       contentHash16(
         readFileSync(path.join(FIELDS, "neutro_body_v1_right_shoulder_sdf.bin")),
@@ -104,7 +104,7 @@ describe("Upper Arms V8.0 — official freeze + promotion", () => {
   it("promotes six sidecars with UA02 hashes within 45 KB", () => {
     const hashes = readJson(path.join(ART, "approved/hashes.json"));
     const manifest = readJson(MANIFEST) as RegionGeometryFieldManifest;
-    expect(manifest.version).toBe("9.0");
+    expect(["9.0","9.1-costal"]).toContain(manifest.version);
     expect(hashes.candidateId).toBe("UA02");
     expect(hashes.pipelineVersion).toBe(PIPELINE_VERSION);
     expect(CANDIDATES.UA02.bicepsBandOffsetMm).toBe(0);
@@ -240,8 +240,12 @@ describe("Upper Arms V8.0 — precision 1/2/4 mm", () => {
 
 describe("Upper Arms V8.0 — UX metadata + cameras + hover", () => {
   it("exposes complete coverage labels and cameras", () => {
-    expect(getPublicShortLabel("right_biceps_region")).toMatch(/Bíceps derecho/i);
-    expect(getPublicShortLabel("left_triceps_region")).toMatch(/Tríceps izquierdo/i);
+    expect(getPublicShortLabel("right_biceps_region")).toMatch(
+      /Brazo superior · Cara anterior derecha/i,
+    );
+    expect(getPublicShortLabel("left_triceps_region")).toMatch(
+      /Brazo superior · Cara posterior izquierda/i,
+    );
     expect(getPublicShortLabel("right_upper_arm")).toMatch(/Brazo superior derecho/i);
     expect(getPublicDescription("right_biceps_region")).toMatch(/anterior/i);
     expect(getPublicDescription("right_triceps_region")).toMatch(/posterior/i);
@@ -266,9 +270,9 @@ describe("Upper Arms V8.0 — UX metadata + cameras + hover", () => {
       ),
       "utf8",
     );
-    expect(src).toMatch(/HOVER_OPACITY = 0\.24/);
-    expect(src).toMatch(/PREVIEW_OPACITY = 0\.38/);
-    expect(src).toMatch(/SELECTED_OPACITY = 0\.55/);
+    expect(src).toMatch(/HOVER_OPACITY = 0.78/);
+    expect(src).toMatch(/PREVIEW_OPACITY = 0.84/);
+    expect(src).toMatch(/SELECTED_OPACITY = 0.9/);
   });
 
   it("highlights full surfaces without elbow on upper_arm", () => {

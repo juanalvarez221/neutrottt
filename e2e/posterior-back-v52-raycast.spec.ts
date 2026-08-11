@@ -91,9 +91,9 @@ test("V5.2 multiregion field hashes", async ({ page }) => {
   await openLabBack(page);
   const { readTiming } = await import("./posterior-back-v52-helpers");
   const expected: Record<string, string> = {
-    upper_back: "6795862f576d5f8b",
-    lower_back: "105365e5be961e96",
-    full_back: "6da0b6bfe2eb5b38",
+    upper_back: "1a21f0cea6db047f",
+    lower_back: "7d3f51b45b93d940",
+    full_back: "82181ee4c73721a9",
     right_ribs: "69a61207dd331a1d",
   };
   for (const [regionId, fieldHash] of Object.entries(expected)) {

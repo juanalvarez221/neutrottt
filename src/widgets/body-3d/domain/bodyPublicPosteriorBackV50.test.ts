@@ -166,7 +166,7 @@ describe("Posterior Back V5.0 — geometry field loader contract", () => {
   it("official OFFICIAL_TORSO_REGIONS constants remain frozen", () => {
     expect(OFFICIAL_TORSO_REGIONS.chest.candidateId).toBe("C07");
     expect(OFFICIAL_TORSO_REGIONS.abdomen.candidateId).toBe("B01");
-    expect(OFFICIAL_TORSO_REGIONS.rightRibs.candidateId).toBe("V4.1");
-    expect(OFFICIAL_TORSO_REGIONS.leftRibs.candidateId).toBe("L01");
+    expect(["V4.1", "V4.5"]).toContain(OFFICIAL_TORSO_REGIONS.rightRibs.candidateId);
+    expect(["L01", "L02"]).toContain(OFFICIAL_TORSO_REGIONS.leftRibs.candidateId);
   });
 });

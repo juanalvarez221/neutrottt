@@ -13,7 +13,7 @@ describe("Posterior Back V5.2 — micro cache key", () => {
       indexHash: "52494d471398c",
       vertexCount: 14517,
       fieldUrl: "/x.bin",
-      fieldHash: "6da0b6bfe2eb5b38",
+      fieldHash: "82181ee4c73721a9",
       encoding: "snorm16",
       distanceRangeMeters: 0.02,
       refinement: {
@@ -25,7 +25,7 @@ describe("Posterior Back V5.2 — micro cache key", () => {
       },
     } as RegionGeometryFieldEntry;
     expect(regionFieldCacheKey(entry)).toBe(
-      "c62e81edaa1f:52494d471398c:6da0b6bfe2eb5b38:c79f8241b89fecb2",
+      "c62e81edaa1f:52494d471398c:82181ee4c73721a9:c79f8241b89fecb2",
     );
   });
 });

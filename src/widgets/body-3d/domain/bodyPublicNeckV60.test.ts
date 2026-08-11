@@ -59,8 +59,8 @@ describe("Neck V6.0 — official torso freeze", () => {
     const front = manifest.fields.find(
       (f: { regionId: string }) => f.regionId === "neck_front",
     );
-    expect(front?.anatomicalParameters?.sourceGate).toBe("neck-v63");
-    expect(front?.refinement?.encoding).toBe("u32-t16-snorm16x3");
+    expect(front?.anatomicalParameters?.sourceGate).toBe("neck-quadrant-repair");
+    expect(front?.refinement).toBeUndefined();
   });
 });
 

@@ -35,26 +35,21 @@ export const CANDIDATES = Object.freeze({
 export const OFFICIAL_NECK = Object.freeze({
   candidateId: "N02",
   neck_front: {
-    fieldHash: "376e678b00283b36",
-    refinementHash: "e33047d118d648f5",
+    fieldHash: "45583a99fef6a5d5",
   },
   neck_right: {
-    fieldHash: "d81238c49302414a",
-    refinementHash: "13b7a1970307e540",
+    fieldHash: "c7c19743eeb5d7c8",
   },
   neck_back: {
-    fieldHash: "83bf04075339c4f8",
-    refinementHash: "bcc8b728ecb931fc",
+    fieldHash: "e62386ae9584c6d8",
   },
   neck_left: {
-    fieldHash: "70d905978e955df4",
-    refinementHash: "136144f494cb9ec1",
+    fieldHash: "1abf594b89e37ab2",
   },
   full_neck: {
-    fieldHash: "554f6b07992ae0c5",
-    refinementHash: "ff1424a32a248592",
+    fieldHash: "f9573effa3f0bfb1",
   },
-  maskHash: "829f2c9ab5dd",
+  maskHash: "8351bbbebd6e",
 });
 
 export const GEOMETRY_IDENTITY = Object.freeze({
@@ -123,21 +118,18 @@ export function assertOfficialNeckFrozen(root = ROOT) {
     const fieldBuf = readFileSync(
       path.join(fieldsDir, path.basename(f.fieldUrl.split("?")[0])),
     );
-    const refineBuf = readFileSync(
-      path.join(fieldsDir, path.basename(f.refinement.url.split("?")[0])),
-    );
     const fieldHash = contentHash16(fieldBuf);
-    const refinementHash = contentHash16(refineBuf);
-    if (
-      fieldHash !== expected.fieldHash ||
-      refinementHash !== expected.refinementHash ||
-      f.candidateId !== "N02"
-    ) {
+    if (fieldHash !== expected.fieldHash || f.candidateId !== "N02") {
       const err = new Error("OFFICIAL_BODY_REGRESSION_DETECTED");
-      err.details = { id, fieldHash, refinementHash, candidateId: f.candidateId };
+      err.details = { id, fieldHash, candidateId: f.candidateId };
       throw err;
     }
-    return { fieldHash, refinementHash };
+    if (f.refinement) {
+      const err = new Error("OFFICIAL_BODY_REGRESSION_DETECTED");
+      err.details = { id, reason: "unexpected neck refinement after quadrant-repair" };
+      throw err;
+    }
+    return { fieldHash };
   };
   return {
     intact: true,

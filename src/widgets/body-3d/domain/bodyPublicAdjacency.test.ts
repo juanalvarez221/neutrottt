@@ -114,9 +114,9 @@ describe("public targets resolve + camera", () => {
     }
   });
 
-  it("no flank public targets remain selectable", () => {
-    expect(PUBLIC_SELECTABLE_BODY_TARGET_IDS.has("left_flank")).toBe(false);
-    expect(PUBLIC_SELECTABLE_BODY_TARGET_IDS.has("right_flank")).toBe(false);
+  it("exposes public costado (flank) targets as selectable", () => {
+    expect(PUBLIC_SELECTABLE_BODY_TARGET_IDS.has("left_flank")).toBe(true);
+    expect(PUBLIC_SELECTABLE_BODY_TARGET_IDS.has("right_flank")).toBe(true);
   });
 });
 

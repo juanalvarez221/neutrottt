@@ -335,9 +335,9 @@ export function BodyPremiumSelector({
   }, [activeAtomicZoneId, selectedTargetIds, showContainedOverride]);
 
   function commitTargets(next: BodySelectionTargetId[]) {
-    const publicOnly = upgradeBodySelectionToPublicTargets(next)
-      .filter(isPublicSelectableBodyTarget)
-      .filter((id) => id !== "left_flank" && id !== "right_flank");
+    const publicOnly = upgradeBodySelectionToPublicTargets(next).filter(
+      isPublicSelectableBodyTarget,
+    );
     const normalized = normalizeConnectedBodySelection(publicOnly);
     applySelectionChange(normalized, {
       controlled,

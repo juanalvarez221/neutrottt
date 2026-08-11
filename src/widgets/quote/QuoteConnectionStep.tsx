@@ -36,6 +36,7 @@ import { getFirstName, getQuoteProfile } from "@/shared/lib/quoteProfile";
 import {
   hasCompletedQuoteOnboarding,
   QUOTE_FLOW_PATHS,
+  resolveQuoteResumePath,
   startNewQuoteSession,
 } from "@/shared/lib/quoteFlow";
 
@@ -89,8 +90,7 @@ export function QuoteConnectionStep() {
       return;
     }
     if (hasCompletedQuoteOnboarding()) {
-      startNewQuoteSession();
-      router.replace(QUOTE_FLOW_PATHS.quoteStart);
+      router.replace(resolveQuoteResumePath());
       return;
     }
     const saved = getQuoteConnection();

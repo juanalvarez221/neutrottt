@@ -92,15 +92,16 @@ function entry(
 
 /**
  * Catálogo público definitivo (zonas grandes / músculos claros).
- * Microzonas (pectorales, codo, muñeca, rodilla, tobillo, flancos, etc.)
- * no aparecen aquí como publicSelectable.
+ * Microzonas (pectorales, codo, muñeca, rodilla, tobillo, etc.)
+ * no aparecen aquí como publicSelectable. Costados sí son públicos.
  */
 export const BODY_PUBLIC_SELECTION_CATALOG: readonly PublicBodyCatalogEntry[] = [
   // —— Torso ——
   entry({
     id: "full_chest",
     shortLabel: "Pecho completo",
-    description: "Superficie frontal completa del pecho",
+    description:
+      "Banda pectoral frontal completa, de axila a axila (superficie del pecho)",
     side: "both",
     surface: "anterior",
     category: "torso",
@@ -108,12 +109,14 @@ export const BODY_PUBLIC_SELECTION_CATALOG: readonly PublicBodyCatalogEntry[] = 
     preferredView: "front",
     focusSection: "torso",
     memberIds: ["left_chest", "right_chest"],
-    fullLabel: "Pecho completo · Superficie frontal completa del pecho",
+    fullLabel:
+      "Pecho completo · Banda pectoral frontal de axila a axila",
   }),
   entry({
     id: "full_abdomen",
     shortLabel: "Abdomen completo",
-    description: "Superficie frontal completa del abdomen",
+    description:
+      "Superficie frontal del abdomen bajo el pecho, hasta la zona púbica",
     side: "center",
     surface: "anterior",
     category: "torso",
@@ -121,12 +124,13 @@ export const BODY_PUBLIC_SELECTION_CATALOG: readonly PublicBodyCatalogEntry[] = 
     preferredView: "front",
     focusSection: "torso",
     memberIds: ["upper_abdomen", "lower_abdomen"],
-    fullLabel: "Abdomen completo · Superficie frontal completa del abdomen",
+    fullLabel:
+      "Abdomen completo · Superficie frontal bajo el pecho hasta la zona púbica",
   }),
   entry({
     id: "right_ribs",
     shortLabel: "Costillas derechas",
-    description: "Superficie lateral derecha del torso",
+    description: "Margen costal lateral derecho (caja torácica)",
     side: "right",
     surface: "lateral",
     category: "torso",
@@ -134,12 +138,12 @@ export const BODY_PUBLIC_SELECTION_CATALOG: readonly PublicBodyCatalogEntry[] = 
     preferredView: "front-right",
     focusSection: "torso",
     memberIds: ["right_ribs"],
-    fullLabel: "Costillas derechas · Superficie lateral derecha del torso",
+    fullLabel: "Costillas derechas · Margen costal lateral derecho",
   }),
   entry({
     id: "left_ribs",
     shortLabel: "Costillas izquierdas",
-    description: "Superficie lateral izquierda del torso",
+    description: "Margen costal lateral izquierdo (caja torácica)",
     side: "left",
     surface: "lateral",
     category: "torso",
@@ -147,12 +151,38 @@ export const BODY_PUBLIC_SELECTION_CATALOG: readonly PublicBodyCatalogEntry[] = 
     preferredView: "front-left",
     focusSection: "torso",
     memberIds: ["left_ribs"],
-    fullLabel: "Costillas izquierdas · Superficie lateral izquierda del torso",
+    fullLabel: "Costillas izquierdas · Margen costal lateral izquierdo",
+  }),
+  entry({
+    id: "right_flank",
+    shortLabel: "Costado derecho",
+    description: "Flanco lateral derecho bajo el margen costal",
+    side: "right",
+    surface: "lateral",
+    category: "torso",
+    supportedCoverages: COMPLETE_ONLY,
+    preferredView: "front-right",
+    focusSection: "torso",
+    memberIds: ["right_flank"],
+    fullLabel: "Costado derecho · Flanco lateral bajo el margen costal",
+  }),
+  entry({
+    id: "left_flank",
+    shortLabel: "Costado izquierdo",
+    description: "Flanco lateral izquierdo bajo el margen costal",
+    side: "left",
+    surface: "lateral",
+    category: "torso",
+    supportedCoverages: COMPLETE_ONLY,
+    preferredView: "front-left",
+    focusSection: "torso",
+    memberIds: ["left_flank"],
+    fullLabel: "Costado izquierdo · Flanco lateral bajo el margen costal",
   }),
   entry({
     id: "upper_back",
-    shortLabel: "Espalda alta",
-    description: "Superficie superior de la espalda",
+    shortLabel: "Espalda alta y media",
+    description: "Superficie superior y media de la espalda",
     side: "both",
     surface: "posterior",
     category: "back",
@@ -227,8 +257,8 @@ export const BODY_PUBLIC_SELECTION_CATALOG: readonly PublicBodyCatalogEntry[] = 
       }),
       entry({
         id: `${side}_biceps_region`,
-        shortLabel: `Bíceps ${L}`,
-        description: `Superficie anterior del brazo superior ${L}`,
+        shortLabel: `Brazo superior · Cara anterior ${Lfem}`,
+        description: `Cara anterior del brazo superior ${L}`,
         side,
         surface: "anterior",
         category: "arm",
@@ -239,8 +269,8 @@ export const BODY_PUBLIC_SELECTION_CATALOG: readonly PublicBodyCatalogEntry[] = 
       }),
       entry({
         id: `${side}_triceps_region`,
-        shortLabel: `Tríceps ${L}`,
-        description: `Superficie posterior del brazo superior ${L}`,
+        shortLabel: `Brazo superior · Cara posterior ${Lfem}`,
+        description: `Cara posterior del brazo superior ${L}`,
         side,
         surface: "posterior",
         category: "arm",
@@ -495,8 +525,8 @@ export const BODY_PUBLIC_SELECTION_CATALOG: readonly PublicBodyCatalogEntry[] = 
   // —— Cabeza ——
   entry({
     id: "head_top",
-    shortLabel: "Cabeza · Parte superior",
-    description: "Zona superior del cráneo",
+    shortLabel: "Coronilla",
+    description: "Zona superior del cráneo (coronilla)",
     side: "center",
     surface: "top",
     category: "head",
@@ -532,7 +562,7 @@ export const BODY_PUBLIC_SELECTION_CATALOG: readonly PublicBodyCatalogEntry[] = 
   entry({
     id: "head_back",
     shortLabel: "Cabeza · Parte posterior",
-    description: "Occipital y nuca alta",
+    description: "Occipital y parte posterior del cráneo",
     side: "center",
     surface: "posterior",
     category: "head",
@@ -544,7 +574,7 @@ export const BODY_PUBLIC_SELECTION_CATALOG: readonly PublicBodyCatalogEntry[] = 
   entry({
     id: "full_scalp",
     shortLabel: "Cuero cabelludo completo",
-    description: "Calota completa",
+    description: "Calota y laterales del cráneo (incluye orejas)",
     side: "both",
     surface: "full",
     category: "head",
@@ -576,8 +606,8 @@ export const BODY_PUBLIC_SELECTION_CATALOG: readonly PublicBodyCatalogEntry[] = 
   }),
   entry({
     id: "neck_back",
-    shortLabel: "Cuello posterior",
-    description: "Superficie posterior del cuello",
+    shortLabel: "Nuca",
+    description: "Superficie posterior del cuello (nuca)",
     side: "center",
     surface: "posterior",
     category: "neck",
@@ -627,7 +657,7 @@ export const BODY_PUBLIC_SELECTION_CATALOG: readonly PublicBodyCatalogEntry[] = 
   entry({
     id: "right_hip",
     shortLabel: "Cadera derecha",
-    description: "Región de cadera",
+    description: "Región ilíaca / cadera lateral derecha",
     side: "right",
     surface: "full",
     category: "hip",
@@ -639,7 +669,7 @@ export const BODY_PUBLIC_SELECTION_CATALOG: readonly PublicBodyCatalogEntry[] = 
   entry({
     id: "left_hip",
     shortLabel: "Cadera izquierda",
-    description: "Región de cadera",
+    description: "Región ilíaca / cadera lateral izquierda",
     side: "left",
     surface: "full",
     category: "hip",

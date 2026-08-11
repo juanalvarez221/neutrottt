@@ -91,7 +91,7 @@ describe("full_chest V2.7 official C07 promotion", () => {
 
   it("official manifest registers C07 with hash-versioned metadata", () => {
     // Manifest version advances with multi-region promotions (V5.2 posterior back).
-    expect(["2.7", "3.3", "4.2", "4.4", "5.2", "6.3", "7.0", "8.0", "9.0"]).toContain(manifest.version);
+    expect(["2.7", "3.3", "4.2", "4.4", "5.2", "6.3", "7.0", "8.0", "9.0", "9.1-costal"]).toContain(manifest.version);
     expect(entry.regionId).toBe("full_chest");
     expect(entry.geometryHash).toBe("c62e81edaa1f");
     expect(entry.indexHash).toBe("52494d471398c");
@@ -146,7 +146,7 @@ describe("full_chest V2.7 official C07 promotion", () => {
   it("UX contract remains Pecho completo / complete-only", () => {
     expect(getPublicShortLabel("full_chest")).toBe("Pecho completo");
     expect(getPublicDescription("full_chest")).toBe(
-      "Superficie frontal completa del pecho",
+      "Banda pectoral frontal completa, de axila a axila (superficie del pecho)",
     );
     expect(getSupportedCoverages("full_chest")).toEqual(["complete"]);
     expect(regionSupportsCoverage("full_chest")).toBe(false);

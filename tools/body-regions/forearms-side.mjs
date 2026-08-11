@@ -80,7 +80,7 @@ export const OFFICIAL_UPPER_ARMS = Object.freeze({
     fieldHash: "345e104eed76ee18",
     refinementHash: "cd3c73a4993014f7",
   },
-  maskHash: "829f2c9ab5dd",
+  maskHash: "e0580d10c901",
   maskHashPrev: "b6894a5ed2b7",
   proximalSeamHashes: {
     right: "c99c05240fbd7ab9",

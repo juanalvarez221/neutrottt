@@ -171,7 +171,7 @@ test.describe("left ribs V4.4 fallback", () => {
       expect(hit?.publicTargetId).toBe("left_ribs");
       await page
         .getByRole("button", {
-          name: /Costillas izquierdas · Superficie lateral izquierda del torso/i,
+          name: /Costillas izquierdas · Margen costal lateral izquierdo/i,
         })
         .click();
       await page.waitForTimeout(800);

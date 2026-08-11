@@ -26,6 +26,18 @@
       "maskIndex": 12
     },
     {
+      "regionId": "right_flank",
+      "visualRegionId": "right_flank_surface",
+      "surfaceRegionId": "right_flank_region",
+      "maskIndex": 54
+    },
+    {
+      "regionId": "left_flank",
+      "visualRegionId": "left_flank_surface",
+      "surfaceRegionId": "left_flank_region",
+      "maskIndex": 10
+    },
+    {
       "regionId": "upper_back",
       "visualRegionId": "upper_back_surface",
       "surfaceRegionId": "upper_back_surface",

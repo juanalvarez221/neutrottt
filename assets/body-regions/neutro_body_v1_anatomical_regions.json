@@ -937,6 +937,18 @@
       "part": "torso",
       "side": "center",
       "public": true
+    },
+    "left_flank_region": {
+      "maskIndex": 10,
+      "part": "torso",
+      "side": "left",
+      "public": true
+    },
+    "right_flank_region": {
+      "maskIndex": 54,
+      "part": "torso",
+      "side": "right",
+      "public": true
     }
   },
   "composites": {
@@ -952,6 +964,10 @@
     [
       "left_ribs_region",
       "right_ribs_region"
+    ],
+    [
+      "left_flank_region",
+      "right_flank_region"
     ],
     [
       "left_shoulder_surface",

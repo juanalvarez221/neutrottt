@@ -78,9 +78,9 @@ describe("full_chest V2.3 region mask coverage", () => {
     expect(src).toMatch(/REGION_MASK_COVERAGE_GLSL/);
     expect(src).toMatch(/sampleLutCoverage/);
     expect(src).toMatch(/prefers-reduced-motion/);
-    expect(src).toMatch(/HOVER_OPACITY = 0\.24/);
-    expect(src).toMatch(/PREVIEW_OPACITY = 0\.38/);
-    expect(src).toMatch(/SELECTED_OPACITY = 0\.55/);
+    expect(src).toMatch(/HOVER_OPACITY = 0.78/);
+    expect(src).toMatch(/PREVIEW_OPACITY = 0.84/);
+    expect(src).toMatch(/SELECTED_OPACITY = 0.9/);
   });
 
   it("maskHash changes URL when PNG hash changes", () => {

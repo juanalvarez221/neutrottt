@@ -64,10 +64,11 @@ describe("public taxonomy — no microzones", () => {
       "sternum",
       "sacrum",
       "left_ear",
-      "right_flank",
     ]) {
       expect(isPublicSelectableBodyTarget(id)).toBe(false);
     }
+    expect(isPublicSelectableBodyTarget("left_flank")).toBe(true);
+    expect(isPublicSelectableBodyTarget("right_flank")).toBe(true);
   });
 
   it("hides half sleeves and full_head from public", () => {

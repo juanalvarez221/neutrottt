@@ -36,7 +36,7 @@ test.describe("left ribs V4.4 performance", () => {
     await clickLandmark(page, mid.xyz, "left_ribs");
     await page
       .getByRole("button", {
-        name: /Costillas izquierdas · Superficie lateral izquierda del torso/i,
+        name: /Costillas izquierdas · Margen costal lateral izquierdo/i,
       })
       .click();
     await expect

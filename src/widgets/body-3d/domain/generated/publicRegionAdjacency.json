@@ -8,14 +8,18 @@
     "head_left_surface",
     "head_right_surface",
     "head_top_surface",
+    "left_ankle_transition",
     "left_biceps_surface",
     "left_calf_surface",
+    "left_elbow_transition",
+    "left_flank_region",
     "left_foot_surface",
     "left_forearm_inner_surface",
     "left_forearm_outer_surface",
     "left_glute_surface",
     "left_hand_surface",
     "left_hip_surface",
+    "left_knee_transition",
     "left_ribs_region",
     "left_shin_surface",
     "left_shoulder_surface",
@@ -24,19 +28,24 @@
     "left_thigh_inner_surface",
     "left_thigh_outer_surface",
     "left_triceps_surface",
+    "left_wrist_transition",
     "lower_back_surface",
     "neck_back_surface",
     "neck_front_surface",
     "neck_left_surface",
     "neck_right_surface",
+    "right_ankle_transition",
     "right_biceps_surface",
     "right_calf_surface",
+    "right_elbow_transition",
+    "right_flank_region",
     "right_foot_surface",
     "right_forearm_inner_surface",
     "right_forearm_outer_surface",
     "right_glute_surface",
     "right_hand_surface",
     "right_hip_surface",
+    "right_knee_transition",
     "right_ribs_region",
     "right_shin_surface",
     "right_shoulder_surface",
@@ -45,6 +54,7 @@
     "right_thigh_inner_surface",
     "right_thigh_outer_surface",
     "right_triceps_surface",
+    "right_wrist_transition",
     "upper_back_surface"
   ],
   "routingOnlyRegions": [
@@ -58,320 +68,68 @@
     "left_ankle_transition"
   ],
   "adjacency": {
-    "full_abdomen_region": [
-      "full_chest_surface",
-      "left_hip_surface",
-      "left_ribs_region",
-      "lower_back_surface",
-      "right_hip_surface",
-      "right_ribs_region"
-    ],
     "head_back_surface": [
       "head_left_surface",
       "head_right_surface",
       "head_top_surface",
-      "neck_back_surface"
+      "neck_back_surface",
+      "neck_front_surface",
+      "neck_left_surface",
+      "neck_right_surface"
     ],
-    "head_left_surface": [
+    "neck_front_surface": [
+      "full_chest_surface",
       "head_back_surface",
-      "head_top_surface",
-      "neck_left_surface"
+      "head_left_surface",
+      "head_right_surface",
+      "neck_left_surface",
+      "neck_right_surface"
     ],
     "head_right_surface": [
       "head_back_surface",
       "head_top_surface",
+      "neck_front_surface",
       "neck_right_surface"
+    ],
+    "neck_right_surface": [
+      "head_back_surface",
+      "head_right_surface",
+      "neck_back_surface",
+      "neck_front_surface",
+      "right_shoulder_surface"
+    ],
+    "neck_back_surface": [
+      "head_back_surface",
+      "neck_left_surface",
+      "neck_right_surface",
+      "upper_back_surface"
     ],
     "head_top_surface": [
       "head_back_surface",
       "head_left_surface",
       "head_right_surface"
     ],
-    "left_ankle_transition": [
-      "left_calf_surface",
-      "left_foot_surface",
-      "left_shin_surface"
-    ],
-    "left_biceps_surface": [
-      "left_elbow_transition",
-      "left_ribs_region",
-      "left_shoulder_surface",
-      "left_triceps_surface"
-    ],
-    "left_calf_surface": [
-      "left_ankle_transition",
-      "left_knee_transition",
-      "left_shin_surface"
-    ],
-    "left_elbow_transition": [
-      "left_biceps_surface",
-      "left_forearm_inner_surface",
-      "left_forearm_outer_surface",
-      "left_triceps_surface"
-    ],
-    "left_foot_surface": [
-      "left_ankle_transition"
-    ],
-    "left_forearm_inner_surface": [
-      "left_elbow_transition",
-      "left_forearm_outer_surface",
-      "left_wrist_transition"
-    ],
-    "left_forearm_outer_surface": [
-      "left_elbow_transition",
-      "left_forearm_inner_surface",
-      "left_wrist_transition"
-    ],
-    "left_glute_surface": [
-      "left_hip_surface",
-      "left_thigh_back_surface",
-      "left_thigh_inner_surface",
-      "lower_back_surface",
-      "right_glute_surface"
-    ],
-    "left_hand_surface": [
-      "left_wrist_transition"
-    ],
-    "left_hip_surface": [
-      "full_abdomen_region",
-      "left_glute_surface",
-      "left_thigh_back_surface",
-      "left_thigh_front_surface",
-      "left_thigh_outer_surface",
-      "lower_back_surface"
-    ],
-    "left_knee_transition": [
-      "left_calf_surface",
-      "left_shin_surface",
-      "left_thigh_back_surface",
-      "left_thigh_front_surface",
-      "left_thigh_inner_surface",
-      "left_thigh_outer_surface"
-    ],
-    "left_ribs_region": [
-      "full_abdomen_region",
-      "full_chest_surface",
-      "left_biceps_surface",
-      "left_shoulder_surface",
-      "left_triceps_surface",
-      "lower_back_surface",
-      "upper_back_surface"
-    ],
-    "left_shin_surface": [
-      "left_ankle_transition",
-      "left_calf_surface",
-      "left_knee_transition"
-    ],
-    "left_shoulder_surface": [
-      "full_chest_surface",
-      "left_biceps_surface",
-      "left_ribs_region",
-      "left_triceps_surface",
-      "neck_back_surface",
-      "neck_front_surface",
-      "neck_left_surface",
-      "upper_back_surface"
-    ],
-    "left_thigh_back_surface": [
-      "left_glute_surface",
-      "left_hip_surface",
-      "left_knee_transition",
-      "left_thigh_inner_surface",
-      "left_thigh_outer_surface"
-    ],
-    "left_thigh_front_surface": [
-      "left_hip_surface",
-      "left_knee_transition",
-      "left_thigh_inner_surface",
-      "left_thigh_outer_surface"
-    ],
-    "left_thigh_inner_surface": [
-      "left_glute_surface",
-      "left_knee_transition",
-      "left_thigh_back_surface",
-      "left_thigh_front_surface"
-    ],
-    "left_thigh_outer_surface": [
-      "left_hip_surface",
-      "left_knee_transition",
-      "left_thigh_back_surface",
-      "left_thigh_front_surface"
-    ],
-    "left_triceps_surface": [
-      "left_biceps_surface",
-      "left_elbow_transition",
-      "left_ribs_region",
-      "left_shoulder_surface"
-    ],
-    "left_wrist_transition": [
-      "left_forearm_inner_surface",
-      "left_forearm_outer_surface",
-      "left_hand_surface"
-    ],
-    "lower_back_surface": [
-      "full_abdomen_region",
-      "left_glute_surface",
-      "left_hip_surface",
-      "left_ribs_region",
-      "right_glute_surface",
-      "right_hip_surface",
-      "right_ribs_region",
-      "upper_back_surface"
-    ],
-    "neck_back_surface": [
-      "head_back_surface",
-      "left_shoulder_surface",
-      "neck_left_surface",
-      "neck_right_surface",
-      "right_shoulder_surface",
-      "upper_back_surface"
-    ],
-    "neck_front_surface": [
-      "full_chest_surface",
-      "left_shoulder_surface",
-      "neck_left_surface",
-      "neck_right_surface",
-      "right_shoulder_surface"
-    ],
-    "neck_left_surface": [
-      "head_left_surface",
-      "left_shoulder_surface",
-      "neck_back_surface",
-      "neck_front_surface"
-    ],
-    "neck_right_surface": [
-      "head_right_surface",
-      "neck_back_surface",
-      "neck_front_surface",
-      "right_shoulder_surface"
-    ],
-    "right_ankle_transition": [
-      "right_calf_surface",
-      "right_foot_surface",
-      "right_shin_surface"
-    ],
     "right_biceps_surface": [
       "right_elbow_transition",
-      "right_ribs_region",
-      "right_shoulder_surface",
-      "right_triceps_surface"
-    ],
-    "right_calf_surface": [
-      "right_ankle_transition",
-      "right_knee_transition",
-      "right_shin_surface"
-    ],
-    "right_elbow_transition": [
-      "right_biceps_surface",
       "right_forearm_inner_surface",
-      "right_forearm_outer_surface",
-      "right_triceps_surface"
-    ],
-    "right_foot_surface": [
-      "right_ankle_transition"
-    ],
-    "right_forearm_inner_surface": [
-      "right_elbow_transition",
-      "right_forearm_outer_surface",
-      "right_wrist_transition"
-    ],
-    "right_forearm_outer_surface": [
-      "right_elbow_transition",
-      "right_forearm_inner_surface",
-      "right_wrist_transition"
-    ],
-    "right_glute_surface": [
-      "left_glute_surface",
-      "lower_back_surface",
-      "right_hip_surface",
-      "right_thigh_back_surface",
-      "right_thigh_inner_surface"
-    ],
-    "right_hand_surface": [
-      "right_wrist_transition"
-    ],
-    "right_hip_surface": [
-      "full_abdomen_region",
-      "lower_back_surface",
-      "right_glute_surface",
-      "right_thigh_back_surface",
-      "right_thigh_front_surface",
-      "right_thigh_outer_surface"
-    ],
-    "right_knee_transition": [
-      "right_calf_surface",
-      "right_shin_surface",
-      "right_thigh_back_surface",
-      "right_thigh_front_surface",
-      "right_thigh_inner_surface",
-      "right_thigh_outer_surface"
-    ],
-    "right_ribs_region": [
-      "full_abdomen_region",
-      "full_chest_surface",
-      "lower_back_surface",
-      "right_biceps_surface",
       "right_shoulder_surface",
       "right_triceps_surface",
       "upper_back_surface"
-    ],
-    "right_shin_surface": [
-      "right_ankle_transition",
-      "right_calf_surface",
-      "right_knee_transition"
     ],
     "right_shoulder_surface": [
       "full_chest_surface",
-      "neck_back_surface",
-      "neck_front_surface",
       "neck_right_surface",
       "right_biceps_surface",
       "right_ribs_region",
       "right_triceps_surface",
       "upper_back_surface"
     ],
-    "right_thigh_back_surface": [
-      "right_glute_surface",
-      "right_hip_surface",
-      "right_knee_transition",
-      "right_thigh_inner_surface",
-      "right_thigh_outer_surface"
-    ],
-    "right_thigh_front_surface": [
-      "right_hip_surface",
-      "right_knee_transition",
-      "right_thigh_inner_surface",
-      "right_thigh_outer_surface"
-    ],
-    "right_thigh_inner_surface": [
-      "right_glute_surface",
-      "right_knee_transition",
-      "right_thigh_back_surface",
-      "right_thigh_front_surface"
-    ],
-    "right_thigh_outer_surface": [
-      "right_hip_surface",
-      "right_knee_transition",
-      "right_thigh_back_surface",
-      "right_thigh_front_surface"
-    ],
-    "right_triceps_surface": [
-      "right_biceps_surface",
-      "right_elbow_transition",
-      "right_ribs_region",
-      "right_shoulder_surface"
-    ],
-    "right_wrist_transition": [
-      "right_forearm_inner_surface",
-      "right_forearm_outer_surface",
-      "right_hand_surface"
-    ],
     "upper_back_surface": [
-      "left_ribs_region",
+      "left_biceps_surface",
       "left_shoulder_surface",
       "lower_back_surface",
       "neck_back_surface",
-      "right_ribs_region",
+      "right_biceps_surface",
       "right_shoulder_surface"
     ],
     "full_chest_surface": [
@@ -381,1298 +139,1614 @@
       "neck_front_surface",
       "right_ribs_region",
       "right_shoulder_surface"
+    ],
+    "right_ribs_region": [
+      "full_chest_surface",
+      "right_flank_region",
+      "right_shoulder_surface"
+    ],
+    "right_triceps_surface": [
+      "right_biceps_surface",
+      "right_elbow_transition",
+      "right_forearm_inner_surface",
+      "right_shoulder_surface"
+    ],
+    "right_hand_surface": [
+      "right_wrist_transition"
+    ],
+    "right_wrist_transition": [
+      "right_forearm_inner_surface",
+      "right_forearm_outer_surface",
+      "right_hand_surface"
+    ],
+    "right_forearm_inner_surface": [
+      "right_biceps_surface",
+      "right_elbow_transition",
+      "right_forearm_outer_surface",
+      "right_triceps_surface",
+      "right_wrist_transition"
+    ],
+    "right_forearm_outer_surface": [
+      "right_elbow_transition",
+      "right_forearm_inner_surface",
+      "right_wrist_transition"
+    ],
+    "right_elbow_transition": [
+      "right_biceps_surface",
+      "right_forearm_inner_surface",
+      "right_forearm_outer_surface",
+      "right_triceps_surface"
+    ],
+    "right_flank_region": [
+      "right_ribs_region"
+    ],
+    "lower_back_surface": [
+      "upper_back_surface"
+    ],
+    "full_abdomen_region": [
+      "full_chest_surface",
+      "left_ribs_region",
+      "right_hip_surface"
+    ],
+    "left_glute_surface": [
+      "left_hip_surface",
+      "left_thigh_back_surface",
+      "left_thigh_inner_surface",
+      "right_glute_surface"
+    ],
+    "right_glute_surface": [
+      "left_glute_surface",
+      "right_hip_surface",
+      "right_thigh_back_surface",
+      "right_thigh_inner_surface"
+    ],
+    "right_thigh_back_surface": [
+      "right_glute_surface",
+      "right_hip_surface",
+      "right_knee_transition",
+      "right_thigh_inner_surface",
+      "right_thigh_outer_surface"
+    ],
+    "right_hip_surface": [
+      "full_abdomen_region",
+      "right_glute_surface",
+      "right_thigh_back_surface",
+      "right_thigh_front_surface",
+      "right_thigh_inner_surface",
+      "right_thigh_outer_surface"
+    ],
+    "right_thigh_outer_surface": [
+      "right_hip_surface",
+      "right_knee_transition",
+      "right_thigh_back_surface",
+      "right_thigh_front_surface"
+    ],
+    "right_thigh_front_surface": [
+      "right_hip_surface",
+      "right_knee_transition",
+      "right_thigh_inner_surface",
+      "right_thigh_outer_surface"
+    ],
+    "right_thigh_inner_surface": [
+      "right_glute_surface",
+      "right_hip_surface",
+      "right_knee_transition",
+      "right_thigh_back_surface",
+      "right_thigh_front_surface"
+    ],
+    "right_knee_transition": [
+      "right_calf_surface",
+      "right_shin_surface",
+      "right_thigh_back_surface",
+      "right_thigh_front_surface",
+      "right_thigh_inner_surface",
+      "right_thigh_outer_surface"
+    ],
+    "right_shin_surface": [
+      "right_ankle_transition",
+      "right_calf_surface",
+      "right_knee_transition"
+    ],
+    "right_calf_surface": [
+      "right_ankle_transition",
+      "right_knee_transition",
+      "right_shin_surface"
+    ],
+    "right_ankle_transition": [
+      "right_calf_surface",
+      "right_foot_surface",
+      "right_shin_surface"
+    ],
+    "right_foot_surface": [
+      "right_ankle_transition"
+    ],
+    "head_left_surface": [
+      "head_back_surface",
+      "head_top_surface",
+      "neck_front_surface",
+      "neck_left_surface"
+    ],
+    "neck_left_surface": [
+      "head_back_surface",
+      "head_left_surface",
+      "left_shoulder_surface",
+      "neck_back_surface",
+      "neck_front_surface"
+    ],
+    "left_biceps_surface": [
+      "left_elbow_transition",
+      "left_forearm_inner_surface",
+      "left_shoulder_surface",
+      "left_triceps_surface",
+      "upper_back_surface"
+    ],
+    "left_shoulder_surface": [
+      "full_chest_surface",
+      "left_biceps_surface",
+      "left_ribs_region",
+      "left_triceps_surface",
+      "neck_left_surface",
+      "upper_back_surface"
+    ],
+    "left_ribs_region": [
+      "full_abdomen_region",
+      "full_chest_surface",
+      "left_flank_region",
+      "left_shoulder_surface"
+    ],
+    "left_triceps_surface": [
+      "left_biceps_surface",
+      "left_elbow_transition",
+      "left_forearm_inner_surface",
+      "left_shoulder_surface"
+    ],
+    "left_hand_surface": [
+      "left_wrist_transition"
+    ],
+    "left_wrist_transition": [
+      "left_forearm_inner_surface",
+      "left_forearm_outer_surface",
+      "left_hand_surface"
+    ],
+    "left_forearm_inner_surface": [
+      "left_biceps_surface",
+      "left_elbow_transition",
+      "left_forearm_outer_surface",
+      "left_triceps_surface",
+      "left_wrist_transition"
+    ],
+    "left_forearm_outer_surface": [
+      "left_elbow_transition",
+      "left_forearm_inner_surface",
+      "left_wrist_transition"
+    ],
+    "left_elbow_transition": [
+      "left_biceps_surface",
+      "left_forearm_inner_surface",
+      "left_forearm_outer_surface",
+      "left_triceps_surface"
+    ],
+    "left_flank_region": [
+      "left_ribs_region"
+    ],
+    "left_thigh_back_surface": [
+      "left_glute_surface",
+      "left_hip_surface",
+      "left_knee_transition",
+      "left_thigh_inner_surface",
+      "left_thigh_outer_surface"
+    ],
+    "left_hip_surface": [
+      "left_glute_surface",
+      "left_thigh_back_surface",
+      "left_thigh_front_surface",
+      "left_thigh_inner_surface",
+      "left_thigh_outer_surface"
+    ],
+    "left_thigh_outer_surface": [
+      "left_hip_surface",
+      "left_knee_transition",
+      "left_thigh_back_surface",
+      "left_thigh_front_surface"
+    ],
+    "left_thigh_front_surface": [
+      "left_hip_surface",
+      "left_knee_transition",
+      "left_thigh_inner_surface",
+      "left_thigh_outer_surface"
+    ],
+    "left_thigh_inner_surface": [
+      "left_glute_surface",
+      "left_hip_surface",
+      "left_knee_transition",
+      "left_thigh_back_surface",
+      "left_thigh_front_surface"
+    ],
+    "left_knee_transition": [
+      "left_calf_surface",
+      "left_shin_surface",
+      "left_thigh_back_surface",
+      "left_thigh_front_surface",
+      "left_thigh_inner_surface",
+      "left_thigh_outer_surface"
+    ],
+    "left_shin_surface": [
+      "left_ankle_transition",
+      "left_calf_surface",
+      "left_knee_transition"
+    ],
+    "left_calf_surface": [
+      "left_ankle_transition",
+      "left_knee_transition",
+      "left_shin_surface"
+    ],
+    "left_ankle_transition": [
+      "left_calf_surface",
+      "left_foot_surface",
+      "left_shin_surface"
+    ],
+    "left_foot_surface": [
+      "left_ankle_transition"
     ]
   },
-  "edgeCount": 113,
+  "edgeCount": 106,
   "stats": {
     "head_top_surface": {
-      "faceCount": 398,
-      "surfaceArea": 0.041198016656079244,
+      "faceCount": 415,
+      "surfaceArea": 0.04131644409762169,
       "centroid": [
-        2.1869284021893542e-18,
-        1.6909716342961216,
-        -0.05381080477032024
+        -0.00015628302552133597,
+        1.689588078916313,
+        -0.049317031452454696
       ],
-      "widthX": 0.14402136206626892,
-      "heightY": 0.08135056495666504,
-      "depthZ": 0.19659307599067688,
+      "widthX": 0.14224272966384888,
+      "heightY": 0.07805673281351733,
+      "depthZ": 0.19066087404886883,
       "bbox": [
         [
-          -0.07201068103313446,
-          1.6528491973876953,
-          -0.1783352792263031
+          -0.07112136483192444,
+          1.6545429229736328,
+          -0.17297284801801047
         ],
         [
-          0.07201068103313446,
-          1.7341997623443604,
-          0.01825779676437378
+          0.07112136483192444,
+          1.7325996557871501,
+          0.017688026030858357
         ]
       ],
       "connectedComponents": 1
     },
     "head_left_surface": {
-      "faceCount": 879,
-      "surfaceArea": 0.011822111696496107,
+      "faceCount": 943,
+      "surfaceArea": 0.015833756376795554,
       "centroid": [
-        0.07249732455538899,
-        1.6020223453363986,
-        -0.07912817652484548
+        0.06990394764653905,
+        1.600247779428516,
+        -0.07748181312043753
       ],
-      "widthX": 0.04468805715441704,
-      "heightY": 0.15077662467956543,
-      "depthZ": 0.10132402926683426,
+      "widthX": 0.076890647256126,
+      "heightY": 0.1388711531956992,
+      "depthZ": 0.0940747285882632,
       "bbox": [
         [
-          0.04161948338150978,
-          1.5200650691986084,
-          -0.12585671246051788
+          0.008354959543794394,
+          1.5254861911137898,
+          -0.11731252819299698
         ],
         [
-          0.08630754053592682,
-          1.6708416938781738,
-          -0.024532683193683624
+          0.0852456067999204,
+          1.664357344309489,
+          -0.023237799604733784
         ]
       ],
       "connectedComponents": 1
     },
     "head_right_surface": {
-      "faceCount": 879,
-      "surfaceArea": 0.011822112021036413,
+      "faceCount": 943,
+      "surfaceArea": 0.015820938338703325,
       "centroid": [
-        -0.07249732455680169,
-        1.602022345245986,
-        -0.07912817652484545
+        -0.06984221267297643,
+        1.6001805644357272,
+        -0.07750297193183381
       ],
-      "widthX": 0.04468805715441704,
-      "heightY": 0.15077662467956543,
-      "depthZ": 0.10132402926683426,
+      "widthX": 0.07860422258575757,
+      "heightY": 0.1388711531956992,
+      "depthZ": 0.0940747285882632,
       "bbox": [
         [
-          -0.08630754053592682,
-          1.5200650691986084,
-          -0.12585671246051788
+          -0.0852456067999204,
+          1.5254861911137898,
+          -0.11731252819299698
         ],
         [
-          -0.04161948338150978,
-          1.6708416938781738,
-          -0.024532683193683624
+          -0.0066413842141628265,
+          1.664357344309489,
+          -0.023237799604733784
         ]
       ],
       "connectedComponents": 1
     },
     "head_back_surface": {
-      "faceCount": 366,
-      "surfaceArea": 0.024958221967300465,
+      "faceCount": 477,
+      "surfaceArea": 0.02802887124654324,
       "centroid": [
-        -3.5013657400916706e-8,
-        1.5902998957694756,
-        -0.1408402667480954
+        0.000013896355901366772,
+        1.586859484138729,
+        -0.12638058819027742
       ],
-      "widthX": 0.14159192144870758,
-      "heightY": 0.1525782346725464,
-      "depthZ": 0.08581624925136566,
+      "widthX": 0.13720309237639108,
+      "heightY": 0.14329397678375244,
+      "depthZ": 0.12253477176030478,
       "bbox": [
         [
-          -0.07079596072435379,
-          1.520227074623108,
-          -0.1783352792263031
+          -0.06860154618819554,
+          1.523174564043681,
+          -0.17694365978240967
         ],
         [
-          0.07079596072435379,
-          1.6728053092956543,
-          -0.09251902997493744
+          0.06860154618819554,
+          1.6664685408274333,
+          -0.0544088880221049
         ]
       ],
       "connectedComponents": 1
     },
     "neck_front_surface": {
-      "faceCount": 462,
-      "surfaceArea": 0.021109442594982406,
+      "faceCount": 319,
+      "surfaceArea": 0.014952244512863538,
       "centroid": [
-        -2.6088353496531284e-7,
-        1.4822197353513034,
-        -0.03225458205864372
+        -0.00012384107286953505,
+        1.506978357598076,
+        -0.04545285595559527
       ],
-      "widthX": 0.12083474546670914,
-      "heightY": 0.18943655490875244,
-      "depthZ": 0.09647008776664734,
+      "widthX": 0.09709115078051885,
+      "heightY": 0.13016211986541748,
+      "depthZ": 0.049688920378685,
       "bbox": [
         [
-          -0.06043431535363197,
-          1.3418201208114624,
-          -0.0781414806842804
+          -0.04854557539025942,
+          1.4517871538798015,
+          -0.07063335180282593
         ],
         [
-          0.060400430113077164,
-          1.5312566757202148,
-          0.018328607082366943
+          0.04854557539025942,
+          1.581949273745219,
+          -0.02094443142414093
         ]
       ],
       "connectedComponents": 1
     },
     "neck_back_surface": {
-      "faceCount": 174,
-      "surfaceArea": 0.016385771044632364,
+      "faceCount": 85,
+      "surfaceArea": 0.0077292574341980445,
       "centroid": [
-        3.0751486367124055e-8,
-        1.484392616712272,
-        -0.1523071942258614
+        0.0007707620514374145,
+        1.4857238236595602,
+        -0.15727603733539586
       ],
-      "widthX": 0.21253535151481628,
-      "heightY": 0.12252616882324219,
-      "depthZ": 0.09027481824159622,
+      "widthX": 0.12761629993716875,
+      "heightY": 0.08015433947245287,
+      "depthZ": 0.03188391029834747,
       "bbox": [
         [
-          -0.10626767575740814,
-          1.4103498458862305,
-          -0.19154095649719238
+          -0.062101525564988456,
+          1.4511528809865315,
+          -0.1721391131480535
         ],
         [
-          0.10626767575740814,
-          1.5328760147094727,
-          -0.10126613825559616
+          0.0655147743721803,
+          1.5313072204589844,
+          -0.14025520284970602
         ]
       ],
       "connectedComponents": 1
     },
     "neck_left_surface": {
-      "faceCount": 117,
-      "surfaceArea": 0.010232239295284652,
+      "faceCount": 127,
+      "surfaceArea": 0.008809302384788307,
       "centroid": [
-        0.069673127959087,
-        1.4846576438670143,
-        -0.10128716381526735
+        0.057622831525021956,
+        1.488670511508551,
+        -0.10819371588273938
       ],
-      "widthX": 0.12952668592333794,
-      "heightY": 0.08848309516906738,
-      "depthZ": 0.12986109405755997,
+      "widthX": 0.06315423858662446,
+      "heightY": 0.07909512519836426,
+      "depthZ": 0.09867567817370097,
       "bbox": [
         [
-          0.035051170736551285,
-          1.4442673921585083,
-          -0.17607620358467102
+          0.030720556154847145,
+          1.449919621149699,
+          -0.16660129030545553
         ],
         [
-          0.16457785665988922,
-          1.5327504873275757,
-          -0.04621510952711105
+          0.0938747947414716,
+          1.5290147463480632,
+          -0.06792561213175456
         ]
       ],
       "connectedComponents": 1
     },
     "neck_right_surface": {
-      "faceCount": 117,
-      "surfaceArea": 0.010231572707056857,
+      "faceCount": 127,
+      "surfaceArea": 0.008898065105942156,
       "centroid": [
-        -0.06967267102198384,
-        1.4846573911840755,
-        -0.10128716381526735
+        -0.05782825698748504,
+        1.4886985022251995,
+        -0.10897421410546843
       ],
-      "widthX": 0.12952777743339539,
-      "heightY": 0.08848631381988525,
-      "depthZ": 0.12986109405755997,
+      "widthX": 0.06315329484641552,
+      "heightY": 0.07908868789672852,
+      "depthZ": 0.09905614455540974,
       "bbox": [
         [
-          -0.16457895934581757,
-          1.4442641735076904,
-          -0.17607620358467102
+          -0.09387385100126266,
+          1.4499260584513347,
+          -0.1670488864183426
         ],
         [
-          -0.03505118191242218,
-          1.5327504873275757,
-          -0.04621510952711105
+          -0.030720556154847145,
+          1.5290147463480632,
+          -0.06799274186293285
+        ]
+      ],
+      "connectedComponents": 1
+    },
+    "full_chest_surface": {
+      "faceCount": 668,
+      "surfaceArea": 0.05844915683918835,
+      "centroid": [
+        -0.0001234247939022247,
+        1.27064824395789,
+        0.014421759225323981
+      ],
+      "widthX": 0.2890160083770752,
+      "heightY": 0.20617922147115086,
+      "depthZ": 0.07141817112763724,
+      "bbox": [
+        [
+          -0.14450683693091074,
+          1.163799246152242,
+          -0.04127811392148336
+        ],
+        [
+          0.14450917144616446,
+          1.3699784676233928,
+          0.03014005720615387
+        ]
+      ],
+      "connectedComponents": 1
+    },
+    "left_flank_region": {
+      "faceCount": 24,
+      "surfaceArea": 0.0037728164065470087,
+      "centroid": [
+        0.13104547022117508,
+        1.1075045267740886,
+        -0.057473267428576946
+      ],
+      "widthX": 0.020062863826751695,
+      "heightY": 0.04641238848368312,
+      "depthZ": 0.0664858768383662,
+      "bbox": [
+        [
+          0.11818453172842662,
+          1.0849888722101848,
+          -0.08900282035271327
+        ],
+        [
+          0.13824739555517832,
+          1.131401260693868,
+          -0.022516943514347076
         ]
       ],
       "connectedComponents": 1
     },
     "full_abdomen_region": {
-      "faceCount": 417,
-      "surfaceArea": 0.1067109380401946,
+      "faceCount": 258,
+      "surfaceArea": 0.06138256475885451,
       "centroid": [
-        -0.0003394370859124345,
-        1.0367814569259832,
-        -0.003913046662613069
+        -0.003729139156951197,
+        1.0468059508683458,
+        0.01309767201812384
       ],
-      "widthX": 0.3321714550256729,
-      "heightY": 0.3705304265022278,
-      "depthZ": 0.19655470550060272,
+      "widthX": 0.23323955635229746,
+      "heightY": 0.26234281063079823,
+      "depthZ": 0.04266497492790222,
       "bbox": [
         [
-          -0.16608555614948273,
-          0.8642949461936951,
-          -0.16759291291236877
+          -0.11972073962291081,
+          0.9116347630818685,
+          -0.01496166487534841
         ],
         [
-          0.16608589887619019,
-          1.2348253726959229,
-          0.028961792588233948
+          0.11351881672938664,
+          1.1739775737126668,
+          0.027703310052553814
         ]
       ],
       "connectedComponents": 1
     },
     "left_ribs_region": {
-      "faceCount": 436,
-      "surfaceArea": 0.0684839922163262,
+      "faceCount": 62,
+      "surfaceArea": 0.013189096285553259,
       "centroid": [
-        0.1625685298513473,
-        1.2422283736573128,
-        -0.10497215075207599
+        0.13961366772331213,
+        1.2164484858512883,
+        -0.06217648197085624
       ],
-      "widthX": 0.14050102978944778,
-      "heightY": 0.3985220789909363,
-      "depthZ": 0.18403692543506622,
+      "widthX": 0.034912514189879104,
+      "heightY": 0.16131174564361572,
+      "depthZ": 0.08772108455499014,
       "bbox": [
         [
-          0.10936286300420761,
-          0.9738035798072815,
-          -0.18878963589668274
+          0.1177769626180331,
+          1.1339155038197835,
+          -0.10378864655892055
         ],
         [
-          0.2498638927936554,
-          1.3723256587982178,
-          -0.004752710461616516
+          0.1526894768079122,
+          1.2952272494633992,
+          -0.01606756200393041
         ]
       ],
       "connectedComponents": 1
     },
     "right_ribs_region": {
-      "faceCount": 435,
-      "surfaceArea": 0.06823920634176371,
+      "faceCount": 60,
+      "surfaceArea": 0.012717203729929252,
       "centroid": [
-        -0.16260989782796476,
-        1.242694981436163,
-        -0.10505120968910017
+        -0.1400637160158819,
+        1.2183846029970382,
+        -0.06264654981593289
       ],
-      "widthX": 0.14049866050481796,
-      "heightY": 0.3985195755958557,
-      "depthZ": 0.18403692543506622,
+      "widthX": 0.03491160521904628,
+      "heightY": 0.16008484363555908,
+      "depthZ": 0.08720800777276358,
       "bbox": [
         [
-          -0.24986152350902557,
-          0.9738060832023621,
-          -0.18878963589668274
+          -0.15268856783707938,
+          1.1351423263549805,
+          -0.10378864655892055
         ],
         [
-          -0.10936286300420761,
-          1.3723256587982178,
-          -0.004752710461616516
+          -0.1177769626180331,
+          1.2952271699905396,
+          -0.01658063878615697
         ]
       ],
       "connectedComponents": 1
     },
     "upper_back_surface": {
-      "faceCount": 516,
-      "surfaceArea": 0.0855949491047068,
+      "faceCount": 685,
+      "surfaceArea": 0.10862413588727687,
       "centroid": [
-        4.159426202943227e-8,
-        1.2462322511722284,
-        -0.18363909669778788
+        -0.0000736117471743807,
+        1.239498631855578,
+        -0.16796898894791462
       ],
-      "widthX": 0.2906672954559326,
-      "heightY": 0.34578609466552734,
-      "depthZ": 0.07265739142894745,
+      "widthX": 0.3197118937969208,
+      "heightY": 0.33904413382212306,
+      "depthZ": 0.11767855286598206,
       "bbox": [
         [
-          -0.1453336477279663,
-          1.0761736631393433,
-          -0.20835429430007935
+          -0.1598559468984604,
+          1.08713964621226,
+          -0.20773056149482727
         ],
         [
-          0.1453336477279663,
-          1.4219597578048706,
-          -0.1356969028711319
+          0.1598559468984604,
+          1.426183780034383,
+          -0.09005200862884521
         ]
       ],
       "connectedComponents": 1
     },
     "lower_back_surface": {
-      "faceCount": 232,
-      "surfaceArea": 0.047053308468764175,
+      "faceCount": 246,
+      "surfaceArea": 0.04774979192398207,
       "centroid": [
-        -0.000018515947258820453,
-        1.0237646886500809,
-        -0.18544454091153662
+        -0.000859747341705296,
+        1.0326807517507857,
+        -0.17520263599267186
       ],
-      "widthX": 0.2954670637845993,
-      "heightY": 0.15892904996871948,
-      "depthZ": 0.09066142141819,
+      "widthX": 0.29433176914850867,
+      "heightY": 0.1371526916821798,
+      "depthZ": 0.11959420641263327,
       "bbox": [
         [
-          -0.14773811399936676,
-          0.9395784735679626,
-          -0.2294110208749771
+          -0.14791560173034668,
+          0.9510179956754049,
+          -0.22518407305081686
         ],
         [
-          0.14772894978523254,
-          1.0985075235366821,
-          -0.1387495994567871
+          0.14641616741816202,
+          1.0881706873575847,
+          -0.1055898666381836
         ]
       ],
       "connectedComponents": 1
     },
     "right_shoulder_surface": {
-      "faceCount": 229,
-      "surfaceArea": 0.04349788032677893,
+      "faceCount": 376,
+      "surfaceArea": 0.06394699466732348,
       "centroid": [
-        -0.14471232273996845,
-        1.4038548913758582,
-        -0.10227516899766552
+        -0.15447520669912979,
+        1.3803397875728343,
+        -0.10631634719035718
       ],
-      "widthX": 0.21031928807497025,
-      "heightY": 0.13406825065612793,
-      "depthZ": 0.18903620541095734,
+      "widthX": 0.209787134702007,
+      "heightY": 0.16049206256866455,
+      "depthZ": 0.20432079583406448,
       "bbox": [
         [
-          -0.24011048674583435,
-          1.324905276298523,
-          -0.2031794786453247
+          -0.24683417876561484,
+          1.297171155611674,
+          -0.20721637705961862
         ],
         [
-          -0.029791198670864105,
-          1.4589735269546509,
-          -0.01414327323436737
+          -0.03704704406360785,
+          1.4576632181803386,
+          -0.002895581225554148
         ]
       ],
       "connectedComponents": 1
     },
     "left_shoulder_surface": {
-      "faceCount": 229,
-      "surfaceArea": 0.04349854727796652,
+      "faceCount": 375,
+      "surfaceArea": 0.06374593984981616,
       "centroid": [
-        0.14471325030471743,
-        1.4038551367352998,
-        -0.10227516897597533
+        0.15479660534693127,
+        1.3797460163964161,
+        -0.10554880157444205
       ],
-      "widthX": 0.2103186920285225,
-      "heightY": 0.1340733766555786,
-      "depthZ": 0.18903620541095734,
+      "widthX": 0.2097898094604413,
+      "heightY": 0.16725428899129224,
+      "depthZ": 0.20657731592655182,
       "bbox": [
         [
-          0.029791198670864105,
-          1.3249032497406006,
-          -0.2031794786453247
+          0.037044369305173554,
+          1.2971712350845337,
+          -0.20721637705961862
         ],
         [
-          0.2401098906993866,
-          1.4589766263961792,
-          -0.01414327323436737
+          0.24683417876561484,
+          1.464425524075826,
+          -0.0006390611330668131
         ]
       ],
       "connectedComponents": 1
     },
     "right_biceps_surface": {
-      "faceCount": 123,
-      "surfaceArea": 0.01539359886589459,
+      "faceCount": 208,
+      "surfaceArea": 0.027014497483438968,
       "centroid": [
-        -0.2502299589193289,
-        1.2032952657560032,
-        -0.07497197242206352
+        -0.24826768585122555,
+        1.2019319071983678,
+        -0.07127246452877536
       ],
-      "widthX": 0.11724504828453064,
-      "heightY": 0.1643505096435547,
-      "depthZ": 0.0544457733631134,
+      "widthX": 0.1488888462384542,
+      "heightY": 0.19862675666809082,
+      "depthZ": 0.09530283759037654,
       "bbox": [
         [
-          -0.3016429841518402,
-          1.1464346647262573,
-          -0.11181677877902985
+          -0.31422824660936993,
+          1.1194092432657878,
+          -0.10914259652296703
         ],
         [
-          -0.18439793586730957,
-          1.310785174369812,
-          -0.05737100541591644
+          -0.16533940037091574,
+          1.3180359999338787,
+          -0.013839758932590485
         ]
       ],
       "connectedComponents": 1
     },
     "left_biceps_surface": {
-      "faceCount": 123,
-      "surfaceArea": 0.015393959364137295,
+      "faceCount": 208,
+      "surfaceArea": 0.027014091090477088,
       "centroid": [
-        0.2502306526511665,
-        1.203293550305251,
-        -0.0749644496980398
+        0.24826806575919574,
+        1.2019309667058478,
+        -0.07126823373329946
       ],
-      "widthX": 0.11724504828453064,
-      "heightY": 0.1643505096435547,
-      "depthZ": 0.0544457733631134,
+      "widthX": 0.1488888462384542,
+      "heightY": 0.19862675666809082,
+      "depthZ": 0.09530283759037654,
       "bbox": [
         [
-          0.18439793586730957,
-          1.1464346647262573,
-          -0.11181677877902985
+          0.16533940037091574,
+          1.1194092432657878,
+          -0.10914259652296703
         ],
         [
-          0.3016429841518402,
-          1.310785174369812,
-          -0.05737100541591644
+          0.31422824660936993,
+          1.3180359999338787,
+          -0.013839758932590485
         ]
       ],
       "connectedComponents": 1
     },
     "right_triceps_surface": {
-      "faceCount": 162,
-      "surfaceArea": 0.020489402473100445,
+      "faceCount": 166,
+      "surfaceArea": 0.021152703936403883,
       "centroid": [
-        -0.23975917555913048,
-        1.2070381754219772,
-        -0.13442977755464658
+        -0.2490382799841315,
+        1.2157502708186112,
+        -0.13903244493536682
       ],
-      "widthX": 0.12497100234031677,
-      "heightY": 0.1791982650756836,
-      "depthZ": 0.07143545150756836,
+      "widthX": 0.13238154351711273,
+      "heightY": 0.19816958904266357,
+      "depthZ": 0.07086000343163808,
       "bbox": [
         [
-          -0.30123183131217957,
-          1.1399368047714233,
-          -0.16050928831100464
+          -0.30359259247779846,
+          1.1287471453348796,
+          -0.16334383189678192
         ],
         [
-          -0.1762608289718628,
-          1.319135069847107,
-          -0.08907383680343628
+          -0.17121104896068573,
+          1.3269167343775432,
+          -0.09248382846514384
         ]
       ],
       "connectedComponents": 1
     },
     "left_triceps_surface": {
-      "faceCount": 162,
-      "surfaceArea": 0.020491606589740263,
+      "faceCount": 164,
+      "surfaceArea": 0.020964983825927392,
       "centroid": [
-        0.2397589777354843,
-        1.2070387400717393,
-        -0.13442736746045794
+        0.24917138691961283,
+        1.2156084298602936,
+        -0.13900650226003755
       ],
-      "widthX": 0.12497100234031677,
-      "heightY": 0.1791982650756836,
-      "depthZ": 0.07143545150756836,
+      "widthX": 0.13238154351711273,
+      "heightY": 0.19816807905832912,
+      "depthZ": 0.06980444987614949,
       "bbox": [
         [
-          0.1762608289718628,
-          1.1399368047714233,
-          -0.16050928831100464
+          0.17121104896068573,
+          1.1287471453348796,
+          -0.16228827834129333
         ],
         [
-          0.30123183131217957,
-          1.319135069847107,
-          -0.08907383680343628
+          0.30359259247779846,
+          1.3269152243932087,
+          -0.09248382846514384
         ]
       ],
       "connectedComponents": 1
     },
     "right_forearm_inner_surface": {
-      "faceCount": 157,
-      "surfaceArea": 0.01819136945519784,
+      "faceCount": 144,
+      "surfaceArea": 0.02218038333076321,
       "centroid": [
-        -0.3109655627019844,
-        1.0556209278461024,
-        0.05199356892812535
+        -0.28802002704253893,
+        1.0926622511060142,
+        -0.029571273070932578
       ],
-      "widthX": 0.10500094294548035,
-      "heightY": 0.15445822477340698,
-      "depthZ": 0.1988789662718773,
+      "widthX": 0.10306792457898459,
+      "heightY": 0.10897751649220777,
+      "depthZ": 0.21010342240333557,
       "bbox": [
         [
-          -0.35169273614883423,
-          0.9971035122871399,
-          -0.06159838289022446
+          -0.33613402644793194,
+          1.0345349311828613,
+          -0.12536457180976868
         ],
         [
-          -0.24669179320335388,
-          1.1515617370605469,
-          0.13728058338165283
+          -0.23306610186894736,
+          1.143512447675069,
+          0.0847388505935669
         ]
       ],
       "connectedComponents": 1
     },
     "left_forearm_inner_surface": {
-      "faceCount": 157,
-      "surfaceArea": 0.01819137180788393,
+      "faceCount": 145,
+      "surfaceArea": 0.022270834819321947,
       "centroid": [
-        0.3109655613732181,
-        1.0556209331611655,
-        0.05199357269296225
+        0.2880658762208346,
+        1.092999291145938,
+        -0.030157493911255388
       ],
-      "widthX": 0.10500091314315796,
-      "heightY": 0.15445822477340698,
-      "depthZ": 0.1988789662718773,
+      "widthX": 0.10306792457898459,
+      "heightY": 0.10897751649220777,
+      "depthZ": 0.21010342240333557,
       "bbox": [
         [
-          0.24669179320335388,
-          0.9971035122871399,
-          -0.06159838289022446
+          0.23306610186894736,
+          1.0345349311828613,
+          -0.12536457180976868
         ],
         [
-          0.35169270634651184,
-          1.1515617370605469,
-          0.13728058338165283
+          0.33613402644793194,
+          1.143512447675069,
+          0.0847388505935669
         ]
       ],
       "connectedComponents": 1
     },
     "right_forearm_outer_surface": {
-      "faceCount": 288,
-      "surfaceArea": 0.02154901336253511,
+      "faceCount": 241,
+      "surfaceArea": 0.020504411946014784,
       "centroid": [
-        -0.3304823417630466,
-        1.0134007690681353,
-        0.056067526237004346
+        -0.3280043655164015,
+        1.0270273414225342,
+        0.04441315910545787
       ],
-      "widthX": 0.10323241353034973,
-      "heightY": 0.15215516090393066,
-      "depthZ": 0.19570991396903992,
+      "widthX": 0.08286094665527344,
+      "heightY": 0.12164010604222608,
+      "depthZ": 0.20495382696390152,
       "bbox": [
         [
-          -0.3602102994918823,
-          0.9506450891494751,
-          -0.0695212185382843
+          -0.3558192551136017,
+          0.9833249449729919,
+          -0.09982068091630936
         ],
         [
-          -0.2569778859615326,
-          1.1028002500534058,
-          0.12618869543075562
+          -0.27295830845832825,
+          1.104965051015218,
+          0.10513314604759216
         ]
       ],
       "connectedComponents": 1
     },
     "left_forearm_outer_surface": {
-      "faceCount": 288,
-      "surfaceArea": 0.02154901359665661,
+      "faceCount": 242,
+      "surfaceArea": 0.020640797459127013,
       "centroid": [
-        0.33048234193551324,
-        1.0134007689301614,
-        0.05606752609903062
+        0.327855053970965,
+        1.0272799724553905,
+        0.04387364261488613
       ],
-      "widthX": 0.10323241353034973,
-      "heightY": 0.15215516090393066,
-      "depthZ": 0.19570991396903992,
+      "widthX": 0.08286095658938092,
+      "heightY": 0.12164010604222608,
+      "depthZ": 0.20492924998203915,
       "bbox": [
         [
-          0.2569778859615326,
-          0.9506450891494751,
-          -0.0695212185382843
+          0.27295830845832825,
+          0.9833249449729919,
+          -0.09979610393444698
         ],
         [
-          0.3602102994918823,
-          1.1028002500534058,
-          0.12618869543075562
+          0.35581926504770917,
+          1.104965051015218,
+          0.10513314604759216
         ]
       ],
       "connectedComponents": 1
     },
     "right_hand_surface": {
-      "faceCount": 2556,
-      "surfaceArea": 0.022027243426773525,
+      "faceCount": 2681,
+      "surfaceArea": 0.023550972217290505,
       "centroid": [
-        -0.33790167979215935,
-        0.917486009556741,
-        0.18477053052406248
+        -0.3355177952055171,
+        0.9203267423323716,
+        0.1851619601075541
       ],
-      "widthX": 0.06882861256599426,
-      "heightY": 0.11233997344970703,
-      "depthZ": 0.12715837359428406,
+      "widthX": 0.09544132153193158,
+      "heightY": 0.11550809939702344,
+      "depthZ": 0.13542422652244568,
       "bbox": [
         [
-          -0.36858999729156494,
-          0.8690530061721802,
-          0.10771489143371582
+          -0.36791133880615234,
+          0.8695064385732015,
+          0.09940075874328613
         ],
         [
-          -0.2997613847255707,
-          0.9813929796218872,
-          0.23487326502799988
+          -0.27247001727422077,
+          0.985014537970225,
+          0.2348249852657318
         ]
       ],
       "connectedComponents": 1
     },
     "left_hand_surface": {
-      "faceCount": 2556,
-      "surfaceArea": 0.022027383283360274,
+      "faceCount": 2676,
+      "surfaceArea": 0.023469467901496358,
       "centroid": [
-        0.3379016004320111,
-        0.9174862406063595,
-        0.1847701229030703
+        0.3355963049084327,
+        0.9202096093841354,
+        0.18516213917017982
       ],
-      "widthX": 0.06882861256599426,
-      "heightY": 0.11233186721801758,
-      "depthZ": 0.12715837359428406,
+      "widthX": 0.09544134140014648,
+      "heightY": 0.11550809939702344,
+      "depthZ": 0.13542422652244568,
       "bbox": [
         [
-          0.2997613847255707,
-          0.8690530061721802,
-          0.10771489143371582
+          0.27247001727422077,
+          0.8695064385732015,
+          0.09940075874328613
         ],
         [
-          0.36858999729156494,
-          0.9813848733901978,
-          0.23487326502799988
+          0.36791135867436725,
+          0.985014537970225,
+          0.2348249852657318
         ]
       ],
       "connectedComponents": 1
     },
     "right_thigh_front_surface": {
       "faceCount": 142,
-      "surfaceArea": 0.048978727935402755,
+      "surfaceArea": 0.049211082170570505,
       "centroid": [
-        -0.14090962016281666,
-        0.6918098795022202,
-        -0.01956010060690937
+        -0.134190103528855,
+        0.6944474200127831,
+        -0.0187720517177537
       ],
-      "widthX": 0.1622355543076992,
-      "heightY": 0.33559900522232056,
-      "depthZ": 0.07300757616758347,
+      "widthX": 0.15862044071157771,
+      "heightY": 0.3204805453618368,
+      "depthZ": 0.06175089379151662,
       "bbox": [
         [
-          -0.2059963494539261,
-          0.514642596244812,
-          -0.0677904412150383
+          -0.20155526200930277,
+          0.5237279534339905,
+          -0.057072545091311135
         ],
         [
-          -0.04376079514622688,
-          0.8502416014671326,
-          0.005217134952545166
+          -0.042934821297725044,
+          0.8442084987958273,
+          0.004678348700205485
         ]
       ],
       "connectedComponents": 1
     },
     "right_thigh_back_surface": {
-      "faceCount": 127,
-      "surfaceArea": 0.04176920381084784,
+      "faceCount": 123,
+      "surfaceArea": 0.041083386119054835,
       "centroid": [
-        -0.1337809799889253,
-        0.6870407933012393,
-        -0.16052873782676635
+        -0.13219447940749526,
+        0.7005545810309206,
+        -0.16239348770722462
       ],
-      "widthX": 0.168863657861948,
-      "heightY": 0.31905531883239746,
-      "depthZ": 0.08751604706048965,
+      "widthX": 0.1589537411928177,
+      "heightY": 0.30356740951538086,
+      "depthZ": 0.08555461466312408,
       "bbox": [
         [
-          -0.20532190799713135,
-          0.5220049619674683,
-          -0.21059365570545197
+          -0.20285476744174957,
+          0.5352452794710795,
+          -0.2133594204982122
         ],
         [
-          -0.036458250135183334,
-          0.8410602807998657,
-          -0.12307760864496231
+          -0.043901026248931885,
+          0.8388126889864603,
+          -0.1278048058350881
         ]
       ],
       "connectedComponents": 1
     },
     "right_thigh_inner_surface": {
-      "faceCount": 108,
-      "surfaceArea": 0.031524458866925356,
+      "faceCount": 107,
+      "surfaceArea": 0.03133012049253617,
       "centroid": [
-        -0.06265708102764175,
-        0.6649948410045946,
-        -0.09610806322760057
+        -0.06469183068757303,
+        0.6603175236428639,
+        -0.09937716936953712
       ],
-      "widthX": 0.1071237176656723,
-      "heightY": 0.2989063262939453,
-      "depthZ": 0.12733402848243713,
+      "widthX": 0.11016120140751204,
+      "heightY": 0.2753031849861145,
+      "depthZ": 0.10549032688140869,
       "bbox": [
         [
-          -0.12123195827007294,
-          0.5138998031616211,
-          -0.1565411239862442
+          -0.1281209190686544,
+          0.5221154888470968,
+          -0.14986130595207214
         ],
         [
-          -0.014108240604400635,
-          0.8128061294555664,
-          -0.029207095503807068
+          -0.01795971766114235,
+          0.7974186738332113,
+          -0.04437097907066345
         ]
       ],
       "connectedComponents": 1
     },
     "right_thigh_outer_surface": {
-      "faceCount": 87,
-      "surfaceArea": 0.027811796400503554,
+      "faceCount": 98,
+      "surfaceArea": 0.030319344258329585,
       "centroid": [
-        -0.2019258616527835,
-        0.6918064056685146,
-        -0.09332593219261978
+        -0.201497312559157,
+        0.6869401749299499,
+        -0.09010312594726783
       ],
-      "widthX": 0.04538664221763611,
-      "heightY": 0.32176464796066284,
-      "depthZ": 0.12416284531354904,
+      "widthX": 0.03342011570930481,
+      "heightY": 0.29727625846862793,
+      "depthZ": 0.10714596261580786,
       "bbox": [
         [
-          -0.2153029590845108,
-          0.5252174139022827,
-          -0.16352927684783936
+          -0.21550387144088745,
+          0.5404241681098938,
+          -0.14271076023578644
         ],
         [
-          -0.1699163168668747,
-          0.8469820618629456,
-          -0.039366431534290314
+          -0.18208375573158264,
+          0.8377004265785217,
+          -0.035564797619978585
         ]
       ],
       "connectedComponents": 1
     },
     "left_thigh_front_surface": {
       "faceCount": 142,
-      "surfaceArea": 0.04897928483429297,
+      "surfaceArea": 0.0492115584017233,
       "centroid": [
-        0.14090787445330563,
-        0.6918112655200866,
-        -0.01956010060690937
+        0.13418883626554776,
+        0.6944487632160454,
+        -0.018772051717753698
       ],
-      "widthX": 0.162203136831522,
-      "heightY": 0.3355993628501892,
-      "depthZ": 0.07300757616758347,
+      "widthX": 0.158602653692166,
+      "heightY": 0.3204823136329651,
+      "depthZ": 0.06175089379151662,
       "bbox": [
         [
-          0.0437932126224041,
-          0.514642596244812,
-          -0.0677904412150383
+          0.042952608317136765,
+          0.5237279534339905,
+          -0.057072545091311135
         ],
         [
-          0.2059963494539261,
-          0.8502419590950012,
-          0.005217134952545166
+          0.20155526200930277,
+          0.8442102670669556,
+          0.004678348700205485
         ]
       ],
       "connectedComponents": 1
     },
     "left_thigh_back_surface": {
-      "faceCount": 127,
-      "surfaceArea": 0.041770096326633574,
+      "faceCount": 123,
+      "surfaceArea": 0.04108394737517109,
       "centroid": [
-        0.13379184707138791,
-        0.6870424209304373,
-        -0.16052873763121311
+        0.13220638830245024,
+        0.7005560194573751,
+        -0.16239348750531185
       ],
-      "widthX": 0.168863657861948,
-      "heightY": 0.3190602660179138,
-      "depthZ": 0.08751604706048965,
+      "widthX": 0.1589544676244259,
+      "heightY": 0.3035580714543661,
+      "depthZ": 0.08555461466312408,
       "bbox": [
         [
-          0.036458250135183334,
-          0.5220049619674683,
-          -0.21059365570545197
+          0.043900299817323685,
+          0.5352452794710795,
+          -0.2133594204982122
         ],
         [
-          0.20532190799713135,
-          0.8410652279853821,
-          -0.12307760864496231
+          0.20285476744174957,
+          0.8388033509254456,
+          -0.1278048058350881
         ]
       ],
       "connectedComponents": 1
     },
     "left_thigh_inner_surface": {
-      "faceCount": 108,
-      "surfaceArea": 0.03152451829406542,
+      "faceCount": 107,
+      "surfaceArea": 0.0313310965698045,
       "centroid": [
-        0.06266217727651015,
-        0.6649928810419852,
-        -0.09610806322760057
+        0.06469617609364037,
+        0.6603158344732268,
+        -0.09937716936953714
       ],
-      "widthX": 0.10711966268718243,
-      "heightY": 0.2989024519920349,
-      "depthZ": 0.12733402848243713,
+      "widthX": 0.11016120637456575,
+      "heightY": 0.2753031849861145,
+      "depthZ": 0.10549032688140869,
       "bbox": [
         [
-          0.01411229558289051,
-          0.5138998031616211,
-          -0.1565411239862442
+          0.01795971766114235,
+          0.5221154888470968,
+          -0.14986130595207214
         ],
         [
-          0.12123195827007294,
-          0.812802255153656,
-          -0.029207095503807068
+          0.1281209240357081,
+          0.7974186738332113,
+          -0.04437097907066345
         ]
       ],
       "connectedComponents": 1
     },
     "left_thigh_outer_surface": {
-      "faceCount": 87,
-      "surfaceArea": 0.027810927427681032,
+      "faceCount": 98,
+      "surfaceArea": 0.03031815700563814,
       "centroid": [
-        0.2019263979233088,
-        0.6918067068889224,
-        -0.0933259321926198
+        0.20149759177853463,
+        0.6869403073171371,
+        -0.09010312592192571
       ],
-      "widthX": 0.04537476599216461,
-      "heightY": 0.32176464796066284,
-      "depthZ": 0.12416284531354904,
+      "widthX": 0.03342011570930481,
+      "heightY": 0.29727137088775635,
+      "depthZ": 0.10714596261580786,
       "bbox": [
         [
-          0.1699281930923462,
-          0.5252174139022827,
-          -0.16352927684783936
+          0.18208375573158264,
+          0.5404241681098938,
+          -0.14271076023578644
         ],
         [
-          0.2153029590845108,
-          0.8469820618629456,
-          -0.039366431534290314
+          0.21550387144088745,
+          0.8376955389976501,
+          -0.035564797619978585
         ]
       ],
       "connectedComponents": 1
     },
     "right_shin_surface": {
-      "faceCount": 120,
-      "surfaceArea": 0.033646207682784875,
+      "faceCount": 118,
+      "surfaceArea": 0.03444991700761313,
       "centroid": [
-        -0.2023638709551757,
-        0.30790226422250294,
-        -0.07842173772967523
+        -0.2054545870945279,
+        0.303913304277059,
+        -0.07806904157255329
       ],
-      "widthX": 0.1249319314956665,
-      "heightY": 0.3125716894865036,
-      "depthZ": 0.05806206911802292,
+      "widthX": 0.11500936249891916,
+      "heightY": 0.2774340113004049,
+      "depthZ": 0.04787446310122808,
       "bbox": [
         [
-          -0.2575852572917938,
-          0.14035774767398834,
-          -0.1135980635881424
+          -0.2584296365578969,
+          0.16273598869641623,
+          -0.10493525365988414
         ],
         [
-          -0.13265332579612732,
-          0.45292943716049194,
-          -0.055535994470119476
+          -0.14342027405897775,
+          0.4401699999968211,
+          -0.05706079055865606
         ]
       ],
       "connectedComponents": 1
     },
     "left_shin_surface": {
-      "faceCount": 121,
-      "surfaceArea": 0.03393523210056745,
+      "faceCount": 118,
+      "surfaceArea": 0.03440668089055886,
       "centroid": [
-        0.20247978078760717,
-        0.30700236209988907,
-        -0.07860543800533314
+        0.20565825986996883,
+        0.3038816922633662,
+        -0.07806568346538789
       ],
-      "widthX": 0.12537813186645508,
-      "heightY": 0.3126686364412308,
-      "depthZ": 0.05806206911802292,
+      "widthX": 0.11514278749624887,
+      "heightY": 0.27732224265734357,
+      "depthZ": 0.0479107399781545,
       "bbox": [
         [
-          0.13265332579612732,
-          0.14026080071926117,
-          -0.1135980635881424
+          0.14342027405897775,
+          0.16284775733947754,
+          -0.10497153053681056
         ],
         [
-          0.2580314576625824,
-          0.45292943716049194,
-          -0.055535994470119476
+          0.2585630615552266,
+          0.4401699999968211,
+          -0.05706079055865606
         ]
       ],
       "connectedComponents": 1
     },
     "right_calf_surface": {
-      "faceCount": 140,
-      "surfaceArea": 0.056127364580280906,
+      "faceCount": 141,
+      "surfaceArea": 0.05518561681946483,
       "centroid": [
-        -0.19951745583897576,
-        0.30571303420833196,
-        -0.14401388155917325
+        -0.19799035629059408,
+        0.3045128643089997,
+        -0.1450509362574446
       ],
-      "widthX": 0.13125693798065186,
-      "heightY": 0.32208113372325897,
-      "depthZ": 0.08892257511615753,
+      "widthX": 0.126066322127978,
+      "heightY": 0.2796536087989807,
+      "depthZ": 0.08624722063541412,
       "bbox": [
         [
-          -0.2614631652832031,
-          0.1340021938085556,
-          -0.18152689933776855
+          -0.2598506808280945,
+          0.15990924835205078,
+          -0.18083001673221588
         ],
         [
-          -0.13020622730255127,
-          0.4560833275318146,
-          -0.09260432422161102
+          -0.13378435870011648,
+          0.4395628571510315,
+          -0.09458279609680176
         ]
       ],
       "connectedComponents": 1
     },
     "left_calf_surface": {
-      "faceCount": 139,
-      "surfaceArea": 0.05587804625964445,
+      "faceCount": 141,
+      "surfaceArea": 0.05527028016130869,
       "centroid": [
-        0.19972196346421334,
-        0.3064923841032767,
-        -0.14430705398964352
+        0.19814014311518796,
+        0.30454924748439877,
+        -0.14503735950300314
       ],
-      "widthX": 0.13142144680023193,
-      "heightY": 0.32208018004894257,
-      "depthZ": 0.08891536295413971,
+      "widthX": 0.12633749345938364,
+      "heightY": 0.2796305318673452,
+      "depthZ": 0.08624481658140817,
       "bbox": [
         [
-          0.13020622730255127,
-          0.134003147482872,
-          -0.18151968717575073
+          0.13378435870011648,
+          0.1599323252836863,
+          -0.18082761267820993
         ],
         [
-          0.2616276741027832,
-          0.4560833275318146,
-          -0.09260432422161102
+          0.2601218521595001,
+          0.4395628571510315,
+          -0.09458279609680176
         ]
       ],
       "connectedComponents": 1
     },
     "right_foot_surface": {
       "faceCount": 1976,
-      "surfaceArea": 0.04402498004895422,
+      "surfaceArea": 0.04393211587549014,
       "centroid": [
-        -0.25453430088676665,
-        0.018088589397110746,
-        0.030763303133308318
+        -0.2546016687273418,
+        0.017918292598220087,
+        0.03062054211733795
       ],
-      "widthX": 0.09401118755340576,
-      "heightY": 0.10045737028121948,
-      "depthZ": 0.22861194610595703,
+      "widthX": 0.09218138953049979,
+      "heightY": 0.09035949502140284,
+      "depthZ": 0.21926793456077576,
       "bbox": [
         [
-          -0.29363808035850525,
-          0,
-          -0.14293909072875977
+          -0.2926677167415619,
+          0.0005249421422680219,
+          -0.13407737016677856
         ],
         [
-          -0.1996268928050995,
-          0.10045737028121948,
-          0.08567285537719727
+          -0.2004863272110621,
+          0.09088443716367085,
+          0.08519056439399719
         ]
       ],
       "connectedComponents": 1
     },
     "left_foot_surface": {
-      "faceCount": 1976,
-      "surfaceArea": 0.044023133337616184,
+      "faceCount": 1977,
+      "surfaceArea": 0.04399749464047348,
       "centroid": [
-        0.25452995370927534,
-        0.018088774604147217,
-        0.030763701829863155
+        0.2545925307672839,
+        0.017954755563865516,
+        0.03057260410095464
       ],
-      "widthX": 0.09401118755340576,
-      "heightY": 0.1004815548658371,
-      "depthZ": 0.22861194610595703,
+      "widthX": 0.09218138953049979,
+      "heightY": 0.09035572999467453,
+      "depthZ": 0.21926793456077576,
       "bbox": [
         [
-          0.1996268928050995,
-          0,
-          -0.14293909072875977
+          0.2004863272110621,
+          0.0005249421422680219,
+          -0.13407737016677856
         ],
         [
-          0.29363808035850525,
-          0.1004815548658371,
-          0.08567285537719727
+          0.2926677167415619,
+          0.09088067213694255,
+          0.08519056439399719
         ]
       ],
       "connectedComponents": 1
     },
     "left_hip_surface": {
-      "faceCount": 78,
-      "surfaceArea": 0.024023177963666258,
+      "faceCount": 92,
+      "surfaceArea": 0.026676882569833662,
       "centroid": [
-        0.1622716790526851,
-        0.8827307356728449,
-        -0.08227469176690806
+        0.14493812419865545,
+        0.8810387970744694,
+        -0.07293434532872146
       ],
-      "widthX": 0.10961582511663437,
-      "heightY": 0.11891728639602661,
-      "depthZ": 0.1998136192560196,
+      "widthX": 0.18422148718188205,
+      "heightY": 0.13654003540674842,
+      "depthZ": 0.18614892661571503,
       "bbox": [
         [
-          0.08383093029260635,
-          0.8290780186653137,
-          -0.20156365633010864
+          0.007621337038775285,
+          0.8031424283981323,
+          -0.19015257060527802
         ],
         [
-          0.19344675540924072,
-          0.9479953050613403,
-          -0.0017500370740890503
+          0.19184282422065735,
+          0.9396824638048807,
+          -0.004003643989562988
         ]
       ],
       "connectedComponents": 1
     },
     "right_hip_surface": {
-      "faceCount": 78,
-      "surfaceArea": 0.024023772510200932,
+      "faceCount": 91,
+      "surfaceArea": 0.025920807276658412,
       "centroid": [
-        -0.1622694846019786,
-        0.8827266372167147,
-        -0.08227469176690806
+        -0.14401175354986073,
+        0.8795578331301066,
+        -0.07266835600901873
       ],
-      "widthX": 0.10963112115859985,
-      "heightY": 0.11891847848892212,
-      "depthZ": 0.1998136192560196,
+      "widthX": 0.18463822609434524,
+      "heightY": 0.13654045263926196,
+      "depthZ": 0.17796585957209268,
       "bbox": [
         [
-          -0.1934572160243988,
-          0.8290780186653137,
-          -0.20156365633010864
+          -0.1918463110923767,
+          0.8031437198321024,
+          -0.18196950356165567
         ],
         [
-          -0.08382609486579895,
-          0.9479964971542358,
-          -0.0017500370740890503
+          -0.007208084998031457,
+          0.9396841724713644,
+          -0.004003643989562988
         ]
       ],
       "connectedComponents": 1
     },
     "left_glute_surface": {
-      "faceCount": 110,
-      "surfaceArea": 0.023625487305276197,
+      "faceCount": 116,
+      "surfaceArea": 0.025652596710284963,
       "centroid": [
-        0.03715612401244023,
-        0.8617016656832245,
-        -0.18908099615664192
+        0.041281012727394574,
+        0.865253120489504,
+        -0.18976713288789507
       ],
-      "widthX": 0.15394476271467283,
-      "heightY": 0.1577606201171875,
-      "depthZ": 0.14511516690254211,
+      "widthX": 0.16330640545735756,
+      "heightY": 0.16597245136896766,
+      "depthZ": 0.13292414198319116,
       "bbox": [
         [
-          -0.000040071376133710146,
-          0.7858714461326599,
-          -0.23487325012683868
+          -0.0027421467627088227,
+          0.7949922879536947,
+          -0.23359472552935281
         ],
         [
-          0.15390469133853912,
-          0.9436320662498474,
-          -0.08975808322429657
+          0.16056425869464874,
+          0.9609647393226624,
+          -0.10067058354616165
         ]
       ],
       "connectedComponents": 1
     },
     "right_glute_surface": {
-      "faceCount": 110,
-      "surfaceArea": 0.023620564373998933,
+      "faceCount": 111,
+      "surfaceArea": 0.025272867913063164,
       "centroid": [
-        -0.037144310916172915,
-        0.8617172618707024,
-        -0.18908099615664192
+        -0.04325722169683965,
+        0.8656587163965264,
+        -0.19088118675503285
       ],
-      "widthX": 0.15394051211478654,
-      "heightY": 0.15774071216583252,
-      "depthZ": 0.14511516690254211,
+      "widthX": 0.15953141875858518,
+      "heightY": 0.16540255149205518,
+      "depthZ": 0.13155520210663477,
       "bbox": [
         [
-          -0.15391023457050323,
-          0.7858714461326599,
-          -0.23487325012683868
+          -0.1605559637149175,
+          0.7949922879536947,
+          -0.23359472552935281
         ],
         [
-          0.00003027754428330809,
-          0.9436121582984924,
-          -0.08975808322429657
+          -0.0010245449563323443,
+          0.9603948394457499,
+          -0.10203952342271805
         ]
       ],
       "connectedComponents": 1
     },
     "right_elbow_transition": {
-      "faceCount": 159,
-      "surfaceArea": 0.01878901588645026,
+      "faceCount": 10,
+      "surfaceArea": 0.0015760278110581766,
       "centroid": [
-        -0.2732070120875441,
-        1.128432340342043,
-        -0.09040285681278706
+        -0.28290804525216423,
+        1.0786784489949546,
+        -0.07096514428655307
       ],
-      "widthX": 0.10184147953987122,
-      "heightY": 0.09140658378601074,
-      "depthZ": 0.12319203466176987,
+      "widthX": 0.03550320863723755,
+      "heightY": 0.01918868223826098,
+      "depthZ": 0.0318754439552625,
       "bbox": [
         [
-          -0.3262832462787628,
-          1.0749270915985107,
-          -0.14417609572410583
+          -0.2997579077879588,
+          1.0689441760381062,
+          -0.0869291474421819
         ],
         [
-          -0.2244417667388916,
-          1.1663336753845215,
-          -0.020984061062335968
+          -0.26425469915072125,
+          1.0881328582763672,
+          -0.0550537034869194
         ]
       ],
       "connectedComponents": 1
     },
     "left_elbow_transition": {
-      "faceCount": 159,
-      "surfaceArea": 0.01877537808344515,
+      "faceCount": 9,
+      "surfaceArea": 0.001431921503550775,
       "centroid": [
-        0.2732035814466216,
-        1.1284408319421275,
-        -0.0903664383748293
+        0.28189910010055264,
+        1.0776568518744574,
+        -0.06910304338843734
       ],
-      "widthX": 0.10184147953987122,
-      "heightY": 0.09140658378601074,
-      "depthZ": 0.12319203466176987,
+      "widthX": 0.035527726014455197,
+      "heightY": 0.018812020619710434,
+      "depthZ": 0.03143044312795003,
       "bbox": [
         [
-          0.2244417667388916,
-          1.0749270915985107,
-          -0.14417609572410583
+          0.2642301817735036,
+          1.0689441760381062,
+          -0.08648414661486943
         ],
         [
-          0.3262832462787628,
-          1.1663336753845215,
-          -0.020984061062335968
+          0.2997579077879588,
+          1.0877561966578166,
+          -0.0550537034869194
         ]
       ],
       "connectedComponents": 1
     },
     "right_wrist_transition": {
-      "faceCount": 521,
-      "surfaceArea": 0.013120680401438276,
+      "faceCount": 103,
+      "surfaceArea": 0.005633697277664566,
       "centroid": [
-        -0.3048096824859244,
-        0.9867686531670314,
-        0.17108651001294714
+        -0.34318202975112627,
+        0.9744713508967056,
+        0.12856781048682128
       ],
-      "widthX": 0.09294146299362183,
-      "heightY": 0.08062833547592163,
-      "depthZ": 0.11633984744548798,
+      "widthX": 0.054345299800237,
+      "heightY": 0.06112116575241089,
+      "depthZ": 0.09826491276423135,
       "bbox": [
         [
-          -0.36483585834503174,
-          0.9404512047767639,
-          0.09247194230556488
+          -0.364041268825531,
+          0.9472553133964539,
+          0.08981937170028687
         ],
         [
-          -0.2718943953514099,
-          1.0210795402526855,
-          0.20881178975105286
+          -0.309695969025294,
+          1.0083764791488647,
+          0.18808428446451822
         ]
       ],
       "connectedComponents": 1
     },
     "left_wrist_transition": {
-      "faceCount": 521,
-      "surfaceArea": 0.013120744815658242,
+      "faceCount": 107,
+      "surfaceArea": 0.005706801487567379,
       "centroid": [
-        0.3048101913562889,
-        0.9867668440917001,
-        0.17108472900480592
+        0.3414824966143968,
+        0.9747752526838833,
+        0.1305800115579385
       ],
-      "widthX": 0.09294146299362183,
-      "heightY": 0.08062833547592163,
-      "depthZ": 0.11633984744548798,
+      "widthX": 0.08261040846506756,
+      "heightY": 0.06112116575241089,
+      "depthZ": 0.09826110800107321,
       "bbox": [
         [
-          0.2718943953514099,
-          0.9404512047767639,
-          0.09247194230556488
+          0.28143086036046344,
+          0.9472553133964539,
+          0.08981937170028687
         ],
         [
-          0.36483585834503174,
-          1.0210795402526855,
-          0.20881178975105286
+          0.364041268825531,
+          1.0083764791488647,
+          0.18808047970136008
         ]
       ],
       "connectedComponents": 1
     },
     "right_knee_transition": {
-      "faceCount": 183,
-      "surfaceArea": 0.03628860088449267,
+      "faceCount": 187,
+      "surfaceArea": 0.037384867972760735,
       "centroid": [
-        -0.17697516302213406,
-        0.4854282104361035,
-        -0.09969767014782713
+        -0.1754337210281223,
+        0.48451318115049097,
+        -0.09963702366632575
       ],
-      "widthX": 0.14346331357955933,
-      "heightY": 0.1396639049053192,
-      "depthZ": 0.15463820844888687,
+      "widthX": 0.1393121654788653,
+      "heightY": 0.11600445707639057,
+      "depthZ": 0.14578438301881153,
       "bbox": [
         [
-          -0.24491864442825317,
-          0.409249871969223,
-          -0.176699697971344
+          -0.24041263262430826,
+          0.42319052418073017,
+          -0.17261673013369241
         ],
         [
-          -0.10145533084869385,
-          0.5489137768745422,
-          -0.022061489522457123
+          -0.10110046714544296,
+          0.5391949812571207,
+          -0.02683234711488088
         ]
       ],
       "connectedComponents": 1
     },
     "left_knee_transition": {
-      "faceCount": 183,
-      "surfaceArea": 0.03628860057897823,
+      "faceCount": 187,
+      "surfaceArea": 0.03738486747543928,
       "centroid": [
-        0.1769751635106968,
-        0.48542820978468665,
-        -0.09969767003925765
+        0.1754337216124815,
+        0.48451318051300823,
+        -0.0996370235733595
       ],
-      "widthX": 0.14346331357955933,
-      "heightY": 0.1396639049053192,
-      "depthZ": 0.15463820844888687,
+      "widthX": 0.1393121654788653,
+      "heightY": 0.11600445707639057,
+      "depthZ": 0.14578438301881153,
       "bbox": [
         [
-          0.10145533084869385,
-          0.409249871969223,
-          -0.176699697971344
+          0.10110046714544296,
+          0.42319052418073017,
+          -0.17261673013369241
         ],
         [
-          0.24491864442825317,
-          0.5489137768745422,
-          -0.022061489522457123
+          0.24041263262430826,
+          0.5391949812571207,
+          -0.02683234711488088
         ]
       ],
       "connectedComponents": 1
     },
     "right_ankle_transition": {
-      "faceCount": 272,
-      "surfaceArea": 0.02856048655609079,
+      "faceCount": 270,
+      "surfaceArea": 0.02799548877772737,
       "centroid": [
-        -0.23546971457407667,
-        0.0774891670706555,
-        -0.12288560996781675
+        -0.2348192253414495,
+        0.07810884907002338,
+        -0.12136724360379182
       ],
-      "widthX": 0.07535609602928162,
-      "heightY": 0.178898423910141,
-      "depthZ": 0.10257554799318314,
+      "widthX": 0.06869509319464365,
+      "heightY": 0.16499606457849342,
+      "depthZ": 0.09900142749150595,
       "bbox": [
         [
-          -0.2689853310585022,
-          0,
-          -0.1618061363697052
+          -0.2682538529237111,
+          0.0008430810024340948,
+          -0.1610218733549118
         ],
         [
-          -0.19362923502922058,
-          0.178898423910141,
-          -0.059230588376522064
+          -0.19955875972906748,
+          0.16583914558092752,
+          -0.06202044586340586
         ]
       ],
       "connectedComponents": 1
     },
     "left_ankle_transition": {
-      "faceCount": 272,
-      "surfaceArea": 0.02855795563874206,
+      "faceCount": 269,
+      "surfaceArea": 0.0279240113692511,
       "centroid": [
-        0.23558216021560513,
-        0.07748107104699184,
-        -0.12290032997763915
+        0.23489514807564618,
+        0.07805865584518366,
+        -0.1215907658416838
       ],
-      "widthX": 0.07521310448646545,
-      "heightY": 0.17877592146396637,
-      "depthZ": 0.10258272290229797,
+      "widthX": 0.06851798792680103,
+      "heightY": 0.164864353214701,
+      "depthZ": 0.09898527463277182,
       "bbox": [
         [
-          0.19377222657203674,
-          0,
-          -0.1618061363697052
+          0.1997358649969101,
+          0.0008430810024340948,
+          -0.1610218733549118
         ],
         [
-          0.2689853310585022,
-          0.17877592146396637,
-          -0.05922341346740723
+          0.2682538529237111,
+          0.1657074342171351,
+          -0.06203659872213999
         ]
       ],
       "connectedComponents": 1
     },
-    "full_chest_surface": {
-      "note": "merged from legacy pecs",
-      "faceCount": 638,
-      "widthX": 0.2885903095602771,
+    "right_flank_region": {
+      "faceCount": 25,
+      "surfaceArea": 0.003973755295911851,
       "centroid": [
-        0,
-        1.278082359484869,
-        0.014854573211637549
-      ]
+        -0.1311604785919189,
+        1.1085609817504882,
+        -0.0583775899807612
+      ],
+      "widthX": 0.020062178373336806,
+      "heightY": 0.04892663160959865,
+      "depthZ": 0.0664858768383662,
+      "bbox": [
+        [
+          -0.13824709256490073,
+          1.0849888722101848,
+          -0.08900282035271327
+        ],
+        [
+          -0.11818491419156392,
+          1.1339155038197835,
+          -0.022516943514347076
+        ]
+      ],
+      "connectedComponents": 1
     }
   },
   "landmarks": {
-    "sternum_x": 0
+    "sternum_x": -0.016,
+    "inframammary_y": 1.175,
+    "waist_y": 1.123,
+    "iliac_y": 0.934
   },
   "validation": {
     "overlaps": 0,
@@ -1691,6 +1765,14 @@
       }
     },
     "backCoverageRatio": 0.7920734584331512,
-    "intentionalUnassignedAreaRatio": 0.045152557964583916
-  }
+    "intentionalUnassignedAreaRatio": 0.045152557964583916,
+    "costalRibs": {
+      "rightYMin": 1.1351423263549805,
+      "leftYMin": 1.1339155038197835,
+      "rightHeightY": 0.16008484363555908,
+      "leftHeightY": 0.16131174564361572
+    }
+  },
+  "rebuiltAt": "2026-08-04T22:48:20.776Z",
+  "maskHash": "8351bbbebd6e"
 }

@@ -163,7 +163,7 @@ export function QuoteThanksStep() {
             <a
               href={whatsappHref}
               target="_blank"
-              rel="noreferrer"
+              rel="noopener noreferrer"
               className="quote-thanks__cta quote-thanks__cta--primary focus-ring btn-accent"
             >
               <SocialBrandIcon network="whatsapp" className="h-8 w-8" />

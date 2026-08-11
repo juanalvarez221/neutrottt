@@ -54,18 +54,18 @@ describe("Shoulders V7.0 — official freeze + promotion", () => {
       contentHash16(
         readFileSync(path.join(FIELDS, "neutro_body_v1_full_neck_sdf.bin")),
       ),
-    ).toBe("554f6b07992ae0c5");
+    ).toBe("f9573effa3f0bfb1");
     expect(
       contentHash16(
         readFileSync(path.join(FIELDS, "neutro_body_v1_upper_back_sdf.bin")),
       ),
-    ).toBe("6795862f576d5f8b");
+    ).toBe("1a21f0cea6db047f");
   });
 
   it("promotes bilateral shoulder sidecars with SH02 hashes", () => {
     const hashes = readJson(path.join(ART, "approved/hashes.json"));
     const manifest = readJson(MANIFEST) as RegionGeometryFieldManifest;
-    expect(["7.0", "8.0", "9.0"]).toContain(manifest.version);
+    expect(["7.0", "8.0", "9.0", "9.1-costal"]).toContain(manifest.version);
     expect(hashes.candidateId).toBe("SH02");
     expect(hashes.pipelineVersion).toBe(PIPELINE_VERSION);
     for (const region of SIDES) {
@@ -185,9 +185,16 @@ describe("Shoulders V7.0 — UX metadata + cameras", () => {
       ),
       "utf8",
     );
-    expect(src).toMatch(/HOVER_OPACITY = 0\.24/);
-    expect(src).toMatch(/PREVIEW_OPACITY = 0\.38/);
-    expect(src).toMatch(/SELECTED_OPACITY = 0\.55/);
+    expect(src).toMatch(/HOVER_OPACITY = 0.78/);
+    expect(src).toMatch(/PREVIEW_OPACITY = 0.84/);
+    expect(src).toMatch(/SELECTED_OPACITY = 0.9/);
+    expect(src).toMatch(/EDGE_OPACITY = 0\.95/);
+    expect(src).toMatch(/DIM_OPACITY = 0\.0/);
+    expect(src).toMatch(/depthTest: false/);
+    expect(src).toMatch(/NormalBlending/);
+    expect(src).toMatch(/uFocusActive/);
+    expect(src).toMatch(/uDimColor/);
+    expect(src).toMatch(/uEdgeColor/);
   });
 });
 

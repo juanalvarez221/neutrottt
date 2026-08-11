@@ -548,7 +548,7 @@ export async function promoteRightRibsV41() {
         sourceCandidateId: EXPECTED.sourceCandidate,
         anatomicalParameters: {
           posteriorCoverage: R02.posteriorCoverage,
-          waistClearance: R02.waistClearance,
+          costalClearance: R02.costalClearance,
           uRibsSlices: 96,
         },
         sharedBoundary: "full_chest",

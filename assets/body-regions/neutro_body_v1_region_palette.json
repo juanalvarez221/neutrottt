@@ -34,6 +34,18 @@
       "shortLabel": "Ribs L",
       "gate": "torso"
     },
+    "left_flank_region": {
+      "runtimeIndex": 10,
+      "authoringColor": "#AFB42B",
+      "shortLabel": "Flank L",
+      "gate": "torso"
+    },
+    "right_flank_region": {
+      "runtimeIndex": 54,
+      "authoringColor": "#FBC02D",
+      "shortLabel": "Flank R",
+      "gate": "torso"
+    },
     "right_shoulder_surface": {
       "runtimeIndex": 16,
       "authoringColor": "#1E88E5",

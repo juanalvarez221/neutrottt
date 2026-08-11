@@ -29,7 +29,7 @@ const DATA = adjacencyData as {
     };
     backCoverageRatio?: number;
   };
-  landmarks: { sternum_x: number };
+  landmarks: { sternum_x: number; inframammary_y?: number; waist_y?: number; iliac_y?: number };
 };
 
 describe("pectoralis orientation sanity", () => {
@@ -61,15 +61,63 @@ describe("abdomen / ribs / back sanity", () => {
     const l = DATA.stats.left_ribs_region;
     expect(r?.centroid?.[0]).toBeLessThan(DATA.landmarks.sternum_x);
     expect(l?.centroid?.[0]).toBeGreaterThan(DATA.landmarks.sternum_x);
-    expect(r?.widthX ?? 0).toBeGreaterThan(0.08);
-    expect(l?.widthX ?? 0).toBeGreaterThan(0.08);
-    expect(r?.faceCount ?? 0).toBeGreaterThan(100);
+    expect(r?.widthX ?? 0).toBeGreaterThan(0.03);
+    expect(l?.widthX ?? 0).toBeGreaterThan(0.03);
+    expect(r?.faceCount ?? 0).toBeGreaterThan(40);
+  });
+
+  it("costillas stop at costal margin (not waist/iliac flank)", () => {
+    const imfY = DATA.landmarks.inframammary_y ?? 1.175;
+    const iliacY = DATA.landmarks.iliac_y ?? 0.934;
+    for (const id of ["right_ribs_region", "left_ribs_region"] as const) {
+      const ymin = DATA.stats[id]?.bbox?.[0]?.[1];
+      expect(ymin, id).toBeGreaterThan(imfY - 0.06);
+      expect(ymin, id).toBeGreaterThan(iliacY + 0.12);
+      expect(DATA.stats[id]?.heightY ?? 0, id).toBeLessThan(0.28);
+    }
+  });
+
+  it("costados (flanks) sit below costillas and above iliac", () => {
+    const iliacY = DATA.landmarks.iliac_y ?? 0.934;
+    for (const side of ["left", "right"] as const) {
+      const ribs = DATA.stats[`${side}_ribs_region`];
+      const flank = DATA.stats[`${side}_flank_region`];
+      expect(flank?.faceCount ?? 0, side).toBeGreaterThan(10);
+      const ribsYmin = ribs?.bbox?.[0]?.[1] ?? 0;
+      const flankYmax = flank?.bbox?.[1]?.[1] ?? 0;
+      const flankYmin = flank?.bbox?.[0]?.[1] ?? 0;
+      expect(flankYmax, side).toBeLessThanOrEqual(ribsYmin + 0.02);
+      expect(flankYmin, side).toBeGreaterThan(iliacY + 0.02);
+    }
+  });
+
+  it("public labels distinguish costillas vs costado", () => {
+    expect(resolvePublicTargetHighlightRegions("left_ribs")).toEqual([
+      "left_ribs_region",
+    ]);
+    expect(resolvePublicTargetHighlightRegions("left_flank")).toEqual([
+      "left_flank_region",
+    ]);
+    expect(resolvePublicTargetHighlightRegions("right_flank")).toEqual([
+      "right_flank_region",
+    ]);
   });
 
   it("upper / lower back posterior width sanity", () => {
     expect(DATA.stats.upper_back_surface?.widthX ?? 0).toBeGreaterThan(0.28);
     expect(DATA.stats.lower_back_surface?.widthX ?? 0).toBeGreaterThan(0.22);
     expect(DATA.stats.upper_back_surface?.faceCount ?? 0).toBeGreaterThan(200);
+  });
+
+  it("lower_back sits in lumbar band, not sacral bowl", () => {
+    const bbox = DATA.stats.lower_back_surface?.bbox;
+    expect(bbox).toBeTruthy();
+    const yMin = bbox![0][1];
+    const yMax = bbox![1][1];
+    // Above superior sacrum (~0.91) and below thoracolumbar mid (~1.10+)
+    expect(yMin).toBeGreaterThanOrEqual(0.945);
+    expect(yMax).toBeGreaterThan(1.04);
+    expect(yMax).toBeLessThan(1.12);
   });
 });
 

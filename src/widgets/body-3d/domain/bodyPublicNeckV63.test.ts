@@ -63,29 +63,29 @@ describe("Neck V6.3 — official freeze + promotion", () => {
     ).toBe(OFFICIAL_BACK.upper_back.fieldHash);
   });
 
-  it("promotes five official neck sidecars with V6.3 hashes", () => {
-    const hashes = readJson(path.join(ART, "approved/hashes.json"));
+  it("promotes five official neck sidecars with quadrant-repair hashes", () => {
+    const report = readJson(
+      path.join(ROOT, "artifacts/neck-quadrant-repair/report.json"),
+    );
     const manifest = readJson(MANIFEST) as RegionGeometryFieldManifest;
-    expect(["6.3", "7.0", "8.0", "9.0"]).toContain(manifest.version);
+    expect(["6.3", "7.0", "8.0", "9.0", "9.1-costal"]).toContain(manifest.version);
     for (const region of REGIONS) {
       const bin = path.join(FIELDS, `neutro_body_v1_${region}_sdf.bin`);
-      const ref = path.join(FIELDS, `neutro_body_v1_${region}_refine.bin`);
       expect(existsSync(bin)).toBe(true);
-      expect(existsSync(ref)).toBe(true);
-      expect(contentHash16(readFileSync(bin))).toBe(
-        hashes.regions[region].fieldHash,
-      );
-      expect(contentHash16(readFileSync(ref))).toBe(
-        hashes.regions[region].refineHash,
-      );
+      expect(contentHash16(readFileSync(bin))).toBe(report.hashes[region]);
       const entry = findRegionGeometryFieldEntry(manifest, region);
       expect(entry?.candidateId).toBe(CANDIDATE_ID);
-      expect(entry?.fieldHash).toBe(hashes.regions[region].fieldHash);
-      expect(entry?.refinement?.hash).toBe(hashes.regions[region].refineHash);
-      const total =
-        readFileSync(bin).byteLength + readFileSync(ref).byteLength;
-      expect(total / 1024).toBeLessThanOrEqual(45);
+      expect(entry?.fieldHash).toBe(report.hashes[region]);
+      expect(entry?.anatomicalParameters?.sourceGate).toBe(
+        "neck-quadrant-repair",
+      );
+      expect(entry?.refinement).toBeUndefined();
+      expect(readFileSync(bin).byteLength / 1024).toBeLessThanOrEqual(45);
     }
+    expect(report.regions.neck_back.post).toBeGreaterThan(
+      report.regions.neck_back.ant * 2,
+    );
+    expect(Math.abs(report.regions.neck_back.meanX)).toBeLessThan(0.025);
   });
 
   it("does not create full_neck_surface and uses hitVisualRegionIds", () => {
@@ -105,25 +105,15 @@ describe("Neck V6.3 — official freeze + promotion", () => {
     ).toBe(true);
   });
 
-  it("rejects bc-topology-v1 for official neck refinements", () => {
+  it("keeps official neck entries free of bc-topology refinement", () => {
     const manifest = readJson(MANIFEST) as RegionGeometryFieldManifest;
     for (const region of PARTIALS) {
       const entry = findRegionGeometryFieldEntry(manifest, region);
-      expect(entry?.refinement?.encoding).toBe(INDEP_ENCODING);
-      expect(entry?.refinement?.encoding).not.toBe("bc-topology-v1");
-      const buf = readFileSync(
-        path.join(FIELDS, `neutro_body_v1_${region}_refine.bin`),
-      );
-      const decoded = decodeRegionFieldRefinement(
-        buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength),
-        0.02,
-        INDEP_ENCODING,
-      );
-      expect(decoded.kind).toBe("independent-edge-v1");
-      expect(decoded.edgeTs?.length).toBe(decoded.triangles.length * 3);
+      expect(entry?.refinement).toBeUndefined();
+      expect(JSON.stringify(entry)).not.toContain("bc-topology-v1");
     }
     const full = findRegionGeometryFieldEntry(manifest, "full_neck");
-    expect(full?.refinement?.encoding).toBe("u32-snorm16x3");
+    expect(full?.refinement).toBeUndefined();
   });
 });
 
@@ -249,8 +239,8 @@ describe("Neck V6.3 — opacities", () => {
       ),
       "utf8",
     );
-    expect(src).toMatch(/HOVER_OPACITY = 0\.24/);
-    expect(src).toMatch(/PREVIEW_OPACITY = 0\.38/);
-    expect(src).toMatch(/SELECTED_OPACITY = 0\.55/);
+    expect(src).toMatch(/HOVER_OPACITY = 0.78/);
+    expect(src).toMatch(/PREVIEW_OPACITY = 0.84/);
+    expect(src).toMatch(/SELECTED_OPACITY = 0.9/);
   });
 });

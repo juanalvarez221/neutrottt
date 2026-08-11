@@ -28,7 +28,7 @@ export const INTERIOR: { id: string; xyz: [number, number, number] }[] = [
   { id: "under_axilla", xyz: [0.151155, 1.29255, -0.068944] },
   { id: "costado_superior", xyz: [0.140915, 1.257303, -0.043305] },
   { id: "costado_medio", xyz: [0.144485, 1.223858, -0.075954] },
-  { id: "costado_inferior", xyz: [0.125544, 1.147174, -0.028946] },
+  { id: "costado_inferior", xyz: [0.125544, 1.185000, -0.028946] },
   { id: "frente_lateral", xyz: [0.136909, 1.239205, -0.039851] },
   { id: "posterior_lateral", xyz: [0.152654, 1.270779, -0.088552] },
 ];

@@ -39,12 +39,12 @@ test.describe("left ribs V4.4 browser", () => {
       timeout: 15_000,
     });
     await expect(
-      page.getByText("Superficie lateral izquierda del torso").first(),
+      page.getByText("Margen costal lateral izquierdo").first(),
     ).toBeVisible({ timeout: 10_000 });
 
     await page
       .getByRole("button", {
-        name: /Costillas izquierdas · Superficie lateral izquierda del torso/i,
+        name: /Costillas izquierdas · Margen costal lateral izquierdo/i,
       })
       .click();
     await page.waitForTimeout(400);
@@ -135,7 +135,7 @@ test.describe("left ribs V4.4 browser", () => {
         await clickLandmark(page, mid.xyz, "left_ribs");
         await page
           .getByRole("button", {
-            name: /Costillas izquierdas · Superficie lateral izquierda del torso/i,
+            name: /Costillas izquierdas · Margen costal lateral izquierdo/i,
           })
           .click();
         await expect

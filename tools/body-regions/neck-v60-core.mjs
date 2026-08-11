@@ -72,18 +72,18 @@ export const SURFACE_IDS = Object.freeze({
 export const OFFICIAL_BACK = Object.freeze({
   candidateId: "S02",
   upper_back: {
-    fieldHash: "6795862f576d5f8b",
+    fieldHash: "1a21f0cea6db047f",
     refinementHash: "4d366898782d2c7f",
   },
   lower_back: {
-    fieldHash: "105365e5be961e96",
+    fieldHash: "7d3f51b45b93d940",
     refinementHash: "4c956c30646eb298",
   },
   full_back: {
-    fieldHash: "6da0b6bfe2eb5b38",
+    fieldHash: "82181ee4c73721a9",
     refinementHash: "c79f8241b89fecb2",
   },
-  maskHash: "829f2c9ab5dd",
+  maskHash: "8351bbbebd6e",
 });
 
 function lerp(a, b, t) {

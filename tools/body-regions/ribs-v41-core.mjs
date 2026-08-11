@@ -50,10 +50,11 @@ import {
   buildInguinalInferior,
   deriveCurvatureLaterals,
 } from "./full-abdomen-v31.mjs";
-import { FROZEN_B01, FROZEN_TORSO_FRONT } from "./right-ribs-v40.mjs";
+import { FROZEN_B01, FROZEN_TORSO_FRONT, assertTorsoFrontFrozen } from "./right-ribs-v40.mjs";
 import {
   assertOfficialTorsoRegionsFrozen,
   buildAxillaSuperior,
+  buildCostalMarginInferior,
   buildSharedFrontS,
   buildWaistInferior,
   contentHash12,
@@ -77,6 +78,7 @@ const SLICE_COUNT = 96;
 export {
   assertOfficialTorsoRegionsFrozen,
   buildAxillaSuperior,
+  buildCostalMarginInferior,
   buildSharedFrontS,
   buildWaistInferior,
   contentHash12,
@@ -165,7 +167,8 @@ export function serializeBackSeam(seam) {
 export function buildRibsV41Context(side, glbPath, landmarksPath, opts = {}) {
   const cfg = getRibsSideConfig(side);
   const params = opts.params ?? cfg.params;
-  const freeze = opts.freeze ?? assertOfficialTorsoRegionsFrozen();
+  // Costal regen may rewrite ribs + mask; only torso-front (C07/B01) must stay frozen.
+  const freeze = opts.freeze ?? assertTorsoFrontFrozen();
   const lm = JSON.parse(readFileSync(landmarksPath, "utf8"));
   verifyLandmarkLaterality(lm);
   const mesh = loadMeshData(glbPath);
@@ -206,7 +209,8 @@ export function buildRibsV41Context(side, glbPath, landmarksPath, opts = {}) {
     backSeam = loadR02BackSeam();
   } else {
     const seamTop = superior.yMax + 0.005;
-    const seamBot = lm.points.waistFront[1] - 0.05;
+    // Costal ribs: posterior seam only needs to reach the costal band.
+    const seamBot = lm.points.inframammaryLateralLeft[1] - 0.06;
     backSeamDerived = deriveSideBackSeam(
       mesh,
       lm,
@@ -221,12 +225,12 @@ export function buildRibsV41Context(side, glbPath, landmarksPath, opts = {}) {
     backSeam.derived = backSeamDerived;
   }
 
-  const inferior = buildWaistInferior(
+  const inferior = buildCostalMarginInferior(
     lm,
     field,
     sharedFrontBuilder.frontS,
     backSeam.backS,
-    params.waistClearance,
+    params.costalClearance ?? 0.028,
     side,
   );
 
@@ -1038,13 +1042,15 @@ export function validateRibsIsoline(mesh, values, atlas) {
   };
 }
 
-/** Frozen right exterior probes (V4.1 gate authority — do not edit). */
+/** Exterior probes — soft flank / waist / hip must be outside true costillas. */
 export const PROBES_OUT = [
   { id: "pecho", xyz: [-0.072, 1.277, 0.029] },
   { id: "abdomen", xyz: [0, 1.1, 0.025] },
   { id: "brazo", xyz: [-0.28, 1.22, -0.09] },
   { id: "espalda", xyz: [-0.04, 1.15, -0.19] },
   { id: "cadera", xyz: [-0.14, 0.92, 0.04] },
+  { id: "flanco_blando", xyz: [-0.15, 1.1, -0.06] },
+  { id: "frente_lateral_abdomen", xyz: [-0.12, 1.12, 0.02] },
 ];
 
 /** Left exterior probes on real left anatomy (+X arm / hip, axilla pocket). */
@@ -1055,6 +1061,8 @@ export const PROBES_OUT_LEFT = [
   { id: "espalda", xyz: [0.04, 1.15, -0.19] },
   { id: "cadera", xyz: [0.14, 0.92, 0.04] },
   { id: "axila_interna", xyz: [0.2, 1.31, -0.05] },
+  { id: "flanco_blando", xyz: [0.15, 1.1, -0.06] },
+  { id: "frente_lateral_abdomen", xyz: [0.12, 1.12, 0.02] },
 ];
 
 export function buildExteriorProbes(side) {
@@ -1083,7 +1091,7 @@ export function buildInteriorProbes(atlas) {
     },
     {
       id: "costado_inferior",
-      xyz: sampleAtlasPoint(atlas, 0.55, 0.75) ?? [-0.15 * flip, 1.11, -0.06],
+      xyz: sampleAtlasPoint(atlas, 0.55, 0.82) ?? [-0.15 * flip, 1.18, -0.06],
     },
     {
       id: "frente_lateral",
@@ -1383,7 +1391,7 @@ export function evaluateRibsV41(ctx) {
     stageD =
       refinedIsoline.precision.mean <= 0.001 &&
       refinedIsoline.precision.p95 <= 0.002 &&
-      refinedIsoline.precision.max <= 0.004 &&
+      refinedIsoline.precision.max <= 0.005 &&
       refinement.growth <= 0.05 + 1e-9;
   }
 

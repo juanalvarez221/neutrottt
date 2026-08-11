@@ -45,9 +45,9 @@ function sha16(buf: Buffer) {
 }
 
 const S02 = {
-  upper: { field: "6795862f576d5f8b", refine: "4d366898782d2c7f" },
-  lower: { field: "105365e5be961e96", refine: "4c956c30646eb298" },
-  full: { field: "6da0b6bfe2eb5b38", refine: "c79f8241b89fecb2" },
+  upper: { field: "1a21f0cea6db047f", refine: "4d366898782d2c7f" },
+  lower: { field: "7d3f51b45b93d940", refine: "4c956c30646eb298" },
+  full: { field: "82181ee4c73721a9", refine: "c79f8241b89fecb2" },
 };
 
 describe("Posterior Back V5.2 — official S02 promotion", () => {
@@ -124,15 +124,12 @@ describe("Posterior Back V5.2 — official S02 promotion", () => {
     ).toBe(expected.leftRibs.fieldHash);
   });
 
-  it("copies S02 approved hashes unchanged", () => {
-    for (const region of ["upper_back", "lower_back", "full_back"]) {
-      const approved = readFileSync(
-        path.join(ART51, "approved", `${region}_sdf.bin`),
-      );
+  it("keeps lumbar-raised back field hashes (post S02 raise)", () => {
+    for (const region of ["upper_back", "lower_back", "full_back"] as const) {
       const official = readFileSync(
         path.join(FIELDS, `neutro_body_v1_${region}_sdf.bin`),
       );
-      expect(sha16(official)).toBe(sha16(approved));
+      expect(sha16(official)).toBe(S02[region === "upper_back" ? "upper" : region === "lower_back" ? "lower" : "full"].field);
     }
   });
 });
@@ -162,7 +159,7 @@ describe("Posterior Back V5.2 — logical full_back + metadata", () => {
     expect(PUBLIC_SELECTABLE_BODY_TARGET_IDS.has("upper_back")).toBe(true);
     expect(PUBLIC_SELECTABLE_BODY_TARGET_IDS.has("lower_back")).toBe(true);
     expect(PUBLIC_SELECTABLE_BODY_TARGET_IDS.has("full_back")).toBe(true);
-    expect(getPublicShortLabel("upper_back")).toBe("Espalda alta");
+    expect(getPublicShortLabel("upper_back")).toBe("Espalda alta y media");
     expect(getPublicShortLabel("lower_back")).toBe("Espalda baja");
     expect(getPublicShortLabel("full_back")).toBe("Espalda completa");
     expect(getPublicDescription("upper_back")).toMatch(/superior/i);

@@ -33,20 +33,24 @@ describe("public region professional metadata", () => {
   });
 
   it("covers key professional labels", () => {
-    expect(getPublicShortLabel("right_biceps_region")).toBe("Bíceps derecho");
-    expect(getPublicFullLabel("right_biceps_region")).toContain(
-      "Superficie anterior del brazo superior",
+    expect(getPublicShortLabel("right_biceps_region")).toBe(
+      "Brazo superior · Cara anterior derecha",
     );
-    expect(getPublicShortLabel("right_triceps_region")).toBe("Tríceps derecho");
+    expect(getPublicFullLabel("right_biceps_region")).toContain(
+      "Cara anterior del brazo superior",
+    );
+    expect(getPublicShortLabel("right_triceps_region")).toBe(
+      "Brazo superior · Cara posterior derecha",
+    );
     expect(getPublicShortLabel("full_chest")).toBe("Pecho completo");
     expect(getPublicFullLabel("full_chest")).toContain("Pecho completo");
     expect(getPublicDescription("full_chest")).toBe(
-      "Superficie frontal completa del pecho",
+      "Banda pectoral frontal completa, de axila a axila (superficie del pecho)",
     );
     expect(isPublicSelectableBodyTarget("right_chest")).toBe(false);
-    expect(getPublicShortLabel("upper_back")).toBe("Espalda alta");
+    expect(getPublicShortLabel("upper_back")).toBe("Espalda alta y media");
     expect(getPublicDescription("upper_back")).toBe(
-      "Superficie superior de la espalda",
+      "Superficie superior y media de la espalda",
     );
     expect(getPublicShortLabel("lower_back")).toBe("Espalda baja");
     expect(getPublicDescription("lower_back")).toBe(
@@ -59,8 +63,12 @@ describe("public region professional metadata", () => {
     expect(getPublicShortLabel("right_thigh_front")).toBe(
       "Muslo derecho · Cara anterior",
     );
-    expect(getPublicShortLabel("head_top")).toBe("Cabeza · Parte superior");
+    expect(getPublicShortLabel("head_top")).toBe("Coronilla");
     expect(getPublicShortLabel("neck_front")).toBe("Cuello anterior");
+    expect(getPublicShortLabel("neck_back")).toBe("Nuca");
+    expect(getPublicShortLabel("right_ribs")).toBe("Costillas derechas");
+    expect(getPublicDescription("right_ribs")).toMatch(/margen costal/i);
+    expect(getPublicShortLabel("left_flank")).toBe("Costado izquierdo");
   });
 
   it("meta catalog covers all selectable public ids", () => {

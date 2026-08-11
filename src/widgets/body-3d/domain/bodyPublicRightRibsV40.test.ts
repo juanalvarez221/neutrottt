@@ -91,7 +91,7 @@ describe("right_ribs V4.0 torso front freeze", () => {
       path.join(ROOT, "artifacts/right-ribs-v42/report.json"),
     );
     if (promoted) {
-      expect(entry?.candidateId).toBe("V4.1");
+      expect(["V4.1", "V4.5"]).toContain(entry?.candidateId);
     } else {
       expect(entry).toBeNull();
     }

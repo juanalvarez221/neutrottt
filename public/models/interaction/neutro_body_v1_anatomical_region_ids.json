@@ -1,8 +1,8 @@
 {
   "model": "neutro_body_v1",
-  "maskTexture": "/models/interaction/neutro_body_v1_anatomical_region_ids.png",
-  "maskHash": "829f2c9ab5dd",
-  "maskUrl": "/models/interaction/neutro_body_v1_anatomical_region_ids.png?v=ebf1ac3f90b1",
+  "maskTexture": "/models/interaction/neutro_body_v1_anatomical_region_ids.png?v=8351bbbebd6e",
+  "maskHash": "8351bbbebd6e",
+  "maskUrl": "/models/interaction/neutro_body_v1_anatomical_region_ids.png?v=8351bbbebd6e",
   "resolution": 4096,
   "encoding": "r8_index",
   "indexScale": 255,
@@ -164,6 +164,12 @@
     },
     "lower_back_surface": {
       "maskIndex": 15
+    },
+    "left_flank_region": {
+      "maskIndex": 10
+    },
+    "right_flank_region": {
+      "maskIndex": 54
     }
   },
   "composites": {

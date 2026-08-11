@@ -38,8 +38,8 @@ describe("full_chest V2.4 visual SDF", () => {
       "utf8",
     );
     expect(src).toMatch(/NearestFilter/);
-    expect(src).toMatch(/HOVER_OPACITY = 0\.24/);
-    expect(src).toMatch(/SELECTED_OPACITY = 0\.55/);
+    expect(src).toMatch(/HOVER_OPACITY = 0.78/);
+    expect(src).toMatch(/SELECTED_OPACITY = 0.9/);
     expect(src).not.toMatch(/uUseSdf/);
     expect(src).not.toMatch(/sampleSdfVisualCoverage/);
     expect(src).not.toMatch(/getPublicRegionSdfSrc/);

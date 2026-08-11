@@ -80,7 +80,7 @@ describe("full_abdomen V3.0 product contract", () => {
   it("exposes a single complete-only Abdomen completo target", () => {
     expect(getPublicShortLabel("full_abdomen")).toBe("Abdomen completo");
     expect(getPublicDescription("full_abdomen")).toBe(
-      "Superficie frontal completa del abdomen",
+      "Superficie frontal del abdomen bajo el pecho, hasta la zona púbica",
     );
     expect(getSupportedCoverages("full_abdomen")).toEqual(["complete"]);
     expect(regionSupportsCoverage("full_abdomen")).toBe(false);

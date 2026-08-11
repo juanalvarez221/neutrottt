@@ -709,7 +709,7 @@ export async function promoteLeftRibsV44() {
         sourceCandidateId: EXPECTED.sourceCandidate,
         anatomicalParameters: {
           posteriorCoverage: L01.posteriorCoverage,
-          waistClearance: L01.waistClearance,
+          costalClearance: L01.costalClearance,
           uRibsSlices: 96,
         },
         sharedBoundaries: [

@@ -165,6 +165,12 @@ function BodyScene({
   const showInteraction =
     isProduction && isSpatialInteraction(labInteractionMode);
   const usePublicHighlight = labInteractionMode === "premium";
+  const selectionFocusActive =
+    previewPublicRegionIds.length > 0 ||
+    selectedPublicRegionIds.length > 0 ||
+    Boolean(hoveredAtomicZoneId) ||
+    previewAtomicZoneIds.length > 0 ||
+    selectedAtomicZoneIds.length > 0;
 
   const content = (
     <Center>
@@ -173,6 +179,7 @@ function BodyScene({
         appearance={appearance}
         wireframe={wireframe}
         raycastEnabled={!showInteraction}
+        focusDim={selectionFocusActive ? 1 : 0}
       />
       {showDebug ? (
         <InteractionZonesDebug
