@@ -62,7 +62,7 @@ test.describe("right ribs V4.2 browser", () => {
     expect(timing?.fieldHash).toBe(fieldHash);
     expect(timing?.refinementHash).toBe(report.field.refineHash);
 
-    const confirm = page.getByRole("button", { name: /Confirmar selección/i });
+    const confirm = page.getByRole("button", { name: /Confirmar/i });
     await expect(confirm).toBeVisible({ timeout: 10_000 });
     await confirm.click();
     await expect(page.getByText("Selección confirmada").first()).toBeVisible({

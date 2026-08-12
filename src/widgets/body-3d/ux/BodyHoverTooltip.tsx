@@ -40,10 +40,10 @@ export function BodyHoverTooltip({
     <div
       role="tooltip"
       aria-hidden
-      className="pointer-events-none fixed z-40 max-w-[11rem] rounded-lg border border-white/12 bg-[rgba(23,17,13,0.92)] px-2.5 py-1.5 shadow-[0_12px_40px_rgba(0,0,0,0.45),inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-md"
+      className="pointer-events-none fixed z-40 max-w-[13.5rem] rounded-lg border border-white/12 bg-[rgba(23,17,13,0.92)] px-2.5 py-1.5 shadow-[0_12px_40px_rgba(0,0,0,0.45),inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-md"
       style={{ left: placement.left, top: placement.top }}
     >
-      <p className="truncate text-[12px] font-semibold leading-tight tracking-tight text-[rgba(255,240,220,0.96)]">
+      <p className="whitespace-normal break-words text-[12px] font-semibold leading-snug tracking-tight text-[rgba(255,240,220,0.96)]">
         {label}
       </p>
     </div>

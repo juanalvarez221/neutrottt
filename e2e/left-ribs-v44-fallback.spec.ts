@@ -177,7 +177,7 @@ test.describe("left ribs V4.4 fallback", () => {
       await page.waitForTimeout(800);
       const timing = await readTiming(page);
       const confirm = page.getByRole("button", {
-        name: /Confirmar selección/i,
+        name: /Confirmar/i,
       });
       await expect(confirm).toBeVisible({ timeout: 10_000 });
       await confirm.click();

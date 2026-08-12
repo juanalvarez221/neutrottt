@@ -28,13 +28,13 @@ export default function CotizacionTamanoPage() {
           id: "mediano" as const,
           label: t("quoteSizeMediumLabel"),
           detail: t("quoteSizeMediumDetail"),
-          img: "/quote-sizes/medium-reference.png",
+          img: "/quote-sizes/medium-reference-v2.png",
         },
         {
           id: "grande" as const,
           label: t("quoteSizeLargeLabel"),
           detail: t("quoteSizeLargeDetail"),
-          img: "/quote-sizes/large-reference.png",
+          img: "/quote-sizes/large-reference-v2.png",
         },
       ] satisfies Array<{
         id: SizeOption;
@@ -101,20 +101,20 @@ export default function CotizacionTamanoPage() {
                 <div className="relative">
                   <div
                     className={[
-                      "relative mb-4 aspect-square max-h-44 w-full overflow-hidden rounded-lg border md:max-h-48",
+                      "relative mb-4 aspect-[3/4] w-full overflow-hidden rounded-lg border",
                       selected
-                        ? "border-stone-500/30 bg-black/60"
-                        : "border-white/5 bg-black/40",
+                        ? "border-stone-500/30 bg-black/70"
+                        : "border-white/5 bg-black/50",
                     ].join(" ")}
                   >
-                    <div className="absolute inset-0 z-10 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
                     <Image
                       src={o.img}
                       alt={o.label}
                       fill
+                      sizes="(max-width: 640px) 100vw, 320px"
                       className={[
-                        "object-cover transition duration-500",
-                        selected ? "scale-105 brightness-110" : "opacity-70",
+                        "object-contain object-center p-1 transition duration-500",
+                        selected ? "brightness-110" : "opacity-80",
                       ].join(" ")}
                     />
                     {selected ? (

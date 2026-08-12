@@ -56,7 +56,7 @@ test.describe("left ribs V4.4 browser", () => {
     expect(timing?.candidateId).toBe("L01");
     expect(timing?.fieldHash).toBe(report.field.fieldHash);
 
-    const confirm = page.getByRole("button", { name: /Confirmar selección/i });
+    const confirm = page.getByRole("button", { name: /Confirmar/i });
     await expect(confirm).toBeVisible({ timeout: 10_000 });
     await confirm.click();
     await expect(page.getByText("Selección confirmada").first()).toBeVisible({

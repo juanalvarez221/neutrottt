@@ -16,8 +16,9 @@ export type SelectorLayoutMode =
   | "tablet-sheet"
   | "mobile-sheet";
 
-const TOOLTIP_WIDTH = 176;
-const TOOLTIP_HEIGHT = 40;
+const TOOLTIP_WIDTH = 216;
+/** Allows up to two wrapped lines without clipping at the viewport edge. */
+const TOOLTIP_HEIGHT = 56;
 const GAP = 14;
 const EDGE = 12;
 

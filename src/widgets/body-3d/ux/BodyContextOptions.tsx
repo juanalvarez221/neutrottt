@@ -209,13 +209,13 @@ export function BodyContextOptions({
             </div>
           ) : null}
 
-          {stagingRegionId && onConfirmStaging ? (
+          {onConfirmStaging && (stagingRegionId || primary.length > 0) ? (
             <button
               type="button"
               onClick={onConfirmStaging}
               className="inline-flex min-h-12 w-full items-center justify-center rounded-xl border border-[rgba(232,168,64,0.45)] bg-[rgba(232,168,64,0.18)] px-4 text-sm font-semibold uppercase tracking-[0.08em] text-[rgba(255,236,210,0.97)] transition hover:bg-[rgba(232,168,64,0.28)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[rgba(232,168,64,0.7)] active:scale-[0.98]"
             >
-              Confirmar selección
+              Confirmar
             </button>
           ) : null}
         </div>
@@ -279,7 +279,7 @@ function PanelHeader({
       <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[rgba(184,137,88,0.85)]">
         Zona activa
       </p>
-      <h2 className="mt-1 text-base font-semibold uppercase tracking-[0.04em] text-[rgba(255,242,228,0.97)] sm:text-lg">
+      <h2 className="mt-1 text-base font-semibold uppercase tracking-[0.04em] text-[rgba(255,242,228,0.97)] sm:text-lg whitespace-normal break-words">
         {title}
       </h2>
       {subtitle ? (
@@ -337,7 +337,7 @@ function OptionGroup({
                 if (enablePreview) onPreviewOption(null);
               }}
               className={[
-                "min-h-11 rounded-xl border px-3 py-2.5 text-left text-sm font-semibold transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[rgba(232,168,64,0.7)] active:scale-[0.98]",
+                "min-h-11 rounded-xl border px-3 py-2.5 text-left text-sm font-semibold leading-snug whitespace-normal break-words transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[rgba(232,168,64,0.7)] active:scale-[0.98]",
                 already
                   ? "cursor-default border-white/8 bg-white/[0.03] text-zinc-500"
                   : emphasize
@@ -345,7 +345,9 @@ function OptionGroup({
                     : "border-white/10 bg-black/30 text-zinc-100 hover:border-white/18 hover:bg-black/45",
               ].join(" ")}
             >
-              {option.shortLabel || option.label}
+              <span className="block whitespace-normal break-words">
+                {option.shortLabel || option.label}
+              </span>
               {already ? (
                 <span className="mt-0.5 block text-[11px] font-normal text-zinc-500">
                   Ya seleccionada

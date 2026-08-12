@@ -262,7 +262,15 @@ export function BodyPremiumSelector({
     if (sourceId && isPublicSelectableBodyTarget(sourceId)) {
       return [...resolvePublicTargetHighlightRegions(sourceId)];
     }
-    const source = activeAtomicZoneId ?? hoveredAtomicZoneId;
+    // While the panel is open, prefer the hovered zone so exploring another
+    // area still shows the yellow signal (active alone would lock the highlight).
+    const hoveringOther =
+      hoveredAtomicZoneId != null &&
+      hoveredAtomicZoneId !== activeAtomicZoneId &&
+      !isNonSelectableSurfaceAtomic(hoveredAtomicZoneId);
+    const source = hoveringOther
+      ? hoveredAtomicZoneId
+      : (activeAtomicZoneId ?? hoveredAtomicZoneId);
     if (!source) return [];
     const primary = getPrimaryPublicSelectionTarget(source);
     return primary ? [...resolvePublicTargetHighlightRegions(primary)] : [];
@@ -279,7 +287,13 @@ export function BodyPremiumSelector({
     if (previewTargetId && isPublicSelectableBodyTarget(previewTargetId)) {
       return resolveTargetToAtomicZoneIds(previewTargetId);
     }
-    const source = activeAtomicZoneId ?? hoveredAtomicZoneId;
+    const hoveringOther =
+      hoveredAtomicZoneId != null &&
+      hoveredAtomicZoneId !== activeAtomicZoneId &&
+      !isNonSelectableSurfaceAtomic(hoveredAtomicZoneId);
+    const source = hoveringOther
+      ? hoveredAtomicZoneId
+      : (activeAtomicZoneId ?? hoveredAtomicZoneId);
     if (!source) return [];
     const primary = getPrimaryPublicSelectionTarget(source);
     return primary ? resolveTargetToAtomicZoneIds(primary) : [];
@@ -491,10 +505,15 @@ export function BodyPremiumSelector({
   }
 
   function handleConfirmStaging() {
-    if (!stagingRegionId) return;
+    const regionId =
+      stagingRegionId ??
+      (activeAtomicZoneId
+        ? getPrimaryPublicSelectionTarget(activeAtomicZoneId)
+        : null);
+    if (!regionId) return;
     const token = serializeBodyPlacement({
-      regionId: stagingRegionId,
-      coverage: stagingCoverage,
+      regionId,
+      coverage: stagingRegionId ? stagingCoverage : "complete",
     });
     commitStagedSelection(token);
   }
@@ -746,7 +765,7 @@ export function BodyPremiumSelector({
               <button
                 type="button"
                 onClick={handleCloseActive}
-                className="mt-4 inline-flex min-h-11 w-full items-center justify-center rounded-xl border border-white/10 text-xs font-semibold text-zinc-400 transition hover:bg-black/30 hover:text-zinc-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[rgba(232,168,64,0.7)] active:scale-[0.98]"
+                className="mt-3 inline-flex min-h-11 w-full items-center justify-center rounded-xl border border-white/10 text-xs font-semibold text-zinc-400 transition hover:bg-black/30 hover:text-zinc-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[rgba(232,168,64,0.7)] active:scale-[0.98]"
               >
                 Cerrar
               </button>
