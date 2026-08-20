@@ -9,8 +9,8 @@ describe("adminSession", () => {
     expect(await verifySessionToken(SECRET, token)).toBe(true);
   });
 
-  it("rechaza correo fuera del dominio", async () => {
-    await expect(signSessionToken(SECRET, "samuel@gmail.com")).rejects.toThrow();
+  it("rechaza un valor que no es correo", async () => {
+    await expect(signSessionToken(SECRET, "no-es-correo")).rejects.toThrow();
   });
 
   it("rechaza token sin firma válida", async () => {

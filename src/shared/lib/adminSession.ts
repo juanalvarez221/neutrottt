@@ -2,27 +2,44 @@
  * Sesión admin firmada con HMAC-SHA256 vía Web Crypto.
  * Funciona en Edge (proxy) y Node. No importar desde Client Components.
  */
-import { esCorreoAdmin } from "@/shared/lib/adminEmail";
+import { esCorreoValido, normalizarCorreo } from "@/shared/lib/adminEmail";
 
-export const LEGACY_ADMIN_SESSION_COOKIE = "neutrottt_admin_session";
+export const ADMIN_SESSION_COOKIE = "ntt_admin";
 
-/** Prefijo __Host- exige Secure, Path=/ y sin Domain. Solo en producción. */
-export const ADMIN_SESSION_COOKIE =
-  process.env.NODE_ENV === "production" ? "__Host-ntt_admin" : LEGACY_ADMIN_SESSION_COOKIE;
+/** Nombres viejos que hay que leer y borrar tras el cambio de cookie. */
+export const ADMIN_SESSION_COOKIE_LEGACY = [
+  "neutrottt_admin_session",
+  "__Host-ntt_admin",
+] as const;
 
-/** Duración de la sesión: 4 horas. */
-export const ADMIN_SESSION_TTL_SECONDS = 4 * 60 * 60;
+export const ADMIN_SESSION_COOKIE_CANDIDATES = [
+  ADMIN_SESSION_COOKIE,
+  ...ADMIN_SESSION_COOKIE_LEGACY,
+] as const;
 
-const SESSION_VERSION = 1;
+/** Duración de la sesión: 8 horas. */
+export const ADMIN_SESSION_TTL_SECONDS = 8 * 60 * 60;
+
+const SESSION_VERSION = 2;
 
 export function adminSessionCookieAttrs(maxAge: number) {
   return {
     httpOnly: true as const,
-    sameSite: "strict" as const,
+    sameSite: "lax" as const,
     secure: process.env.NODE_ENV === "production",
     path: "/" as const,
     maxAge,
   };
+}
+
+export function readSessionCookieValue(
+  getCookie: (name: string) => string | undefined,
+): string | undefined {
+  for (const name of ADMIN_SESSION_COOKIE_CANDIDATES) {
+    const value = getCookie(name);
+    if (value) return value;
+  }
+  return undefined;
 }
 
 function bytesToBase64Url(bytes: Uint8Array): string {
@@ -68,8 +85,8 @@ export async function signSessionToken(
   email: string,
   ttlSeconds = ADMIN_SESSION_TTL_SECONDS,
 ): Promise<string> {
-  const normalized = email.trim().toLowerCase();
-  if (!esCorreoAdmin(normalized)) {
+  const normalized = normalizarCorreo(email);
+  if (!esCorreoValido(normalized)) {
     throw new Error("invalid admin email");
   }
   const exp = Date.now() + ttlSeconds * 1000;
@@ -109,7 +126,7 @@ export async function readSessionEmail(
     const data = JSON.parse(new TextDecoder().decode(base64UrlToBytes(payload))) as SessionPayload;
     if (data.v !== SESSION_VERSION) return null;
     if (typeof data.exp !== "number" || Date.now() > data.exp) return null;
-    if (typeof data.email !== "string" || !esCorreoAdmin(data.email)) return null;
+    if (typeof data.email !== "string" || !esCorreoValido(data.email)) return null;
     return data.email;
   } catch {
     return null;

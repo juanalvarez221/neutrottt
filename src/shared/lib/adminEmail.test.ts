@@ -1,12 +1,17 @@
 import { describe, expect, it } from "vitest";
-import { esCorreoAdmin } from "@/shared/lib/adminEmail";
+import { esCorreoValido, normalizarCorreo } from "@/shared/lib/adminEmail";
 
-describe("esCorreoAdmin", () => {
-  it("solo admite correos @neutrottt.com", () => {
-    expect(esCorreoAdmin("samuel@neutrottt.com")).toBe(true);
-    expect(esCorreoAdmin(" Samuel@Neutrottt.com ")).toBe(true);
-    expect(esCorreoAdmin("samuel@gmail.com")).toBe(false);
-    expect(esCorreoAdmin("samuel@neutrottt.com.evil.com")).toBe(false);
-    expect(esCorreoAdmin("samuel@neutrottt.com@x")).toBe(false);
+describe("esCorreoValido", () => {
+  it("acepta correos reales y rechaza basura", () => {
+    expect(esCorreoValido("samuel@neutrottt.com")).toBe(true);
+    expect(esCorreoValido(" Samuel@Neutrottt.com ")).toBe(true);
+    expect(esCorreoValido("juan@neutrottt.com")).toBe(true);
+    expect(esCorreoValido("not-an-email")).toBe(false);
+    expect(esCorreoValido("samuel@neutrottt.com@x")).toBe(false);
+    expect(esCorreoValido("")).toBe(false);
+  });
+
+  it("normaliza mayúsculas y espacios", () => {
+    expect(normalizarCorreo(" Juan@Neutrottt.com ")).toBe("juan@neutrottt.com");
   });
 });

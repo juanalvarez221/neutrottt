@@ -1,6 +1,10 @@
+function stripPort(host: string): string {
+  return host.replace(/:\d+$/, "").toLowerCase();
+}
+
 function hostFromUrl(value: string): string | null {
   try {
-    return new URL(value).host.toLowerCase();
+    return stripPort(new URL(value).host);
   } catch {
     return null;
   }
@@ -9,7 +13,7 @@ function hostFromUrl(value: string): string | null {
 function requestHost(headers: Headers): string {
   const forwarded = headers.get("x-forwarded-host")?.split(",")[0]?.trim();
   const host = forwarded || headers.get("host") || "";
-  return host.toLowerCase();
+  return stripPort(host);
 }
 
 /**

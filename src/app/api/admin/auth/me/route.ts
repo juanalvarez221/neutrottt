@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import {
-  ADMIN_SESSION_COOKIE,
   getAdminSessionSecret,
+  readSessionCookieValue,
   verifySessionToken,
 } from "@/shared/lib/adminSession";
 
@@ -11,7 +11,9 @@ export const dynamic = "force-dynamic";
 export async function GET() {
   const secret = getAdminSessionSecret();
   const cookieStore = await cookies();
-  const token = cookieStore.get(ADMIN_SESSION_COOKIE)?.value;
+  const token = readSessionCookieValue((name) => cookieStore.get(name)?.value);
   const authenticated = secret ? await verifySessionToken(secret, token) : false;
-  return NextResponse.json({ authenticated });
+  const response = NextResponse.json({ authenticated });
+  response.headers.set("Cache-Control", "no-store");
+  return response;
 }

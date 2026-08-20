@@ -1,5 +1,5 @@
 import { hashPassword, verifyPassword } from "@/shared/lib/adminPassword";
-import { esCorreoAdmin } from "@/shared/lib/adminEmail";
+import { esCorreoValido, normalizarCorreo } from "@/shared/lib/adminEmail";
 import { getCrmSql, hasDatabaseConfig } from "@/shared/lib/crm/postgres.server";
 
 export type AdminAccount = {
@@ -36,9 +36,9 @@ export async function upsertAdminAccount(input: {
 }): Promise<AdminAccount | null> {
   const sql = await getCrmSql();
   if (!sql) return null;
-  const email = input.email.trim().toLowerCase();
+  const email = normalizarCorreo(input.email);
   const nombre = input.nombre.trim();
-  if (!esCorreoAdmin(email) || !nombre || !input.password) return null;
+  if (!esCorreoValido(email) || !nombre || !input.password) return null;
   const password_hash = await hashPassword(input.password);
   const rows = await sql<AdminRow[]>`
     INSERT INTO admins (email, nombre, password_hash, activo)
@@ -58,29 +58,53 @@ export async function authenticateAdminEmail(
   emailRaw: string,
   password: string,
 ): Promise<AdminAccount | null> {
-  const email = emailRaw.trim().toLowerCase();
-  if (!esCorreoAdmin(email) || !password) {
+  const email = normalizarCorreo(emailRaw);
+  if (!esCorreoValido(email) || !password) {
     return verifyWithDummy(password);
   }
+
   if (!hasDatabaseConfig()) {
+    console.error("[admin-auth] Falta DATABASE_URL.");
     return verifyWithDummy(password);
   }
-  const sql = await getCrmSql();
+
+  let sql: Awaited<ReturnType<typeof getCrmSql>> = null;
+  try {
+    sql = await getCrmSql();
+  } catch (error) {
+    console.error("[admin-auth] db", error);
+    return verifyWithDummy(password);
+  }
   if (!sql) {
     return verifyWithDummy(password);
   }
-  const rows = await sql<AdminRow[]>`
-    SELECT id, email, nombre, password_hash, activo
-    FROM admins
-    WHERE email = ${email}
-    LIMIT 1
-  `;
+
+  let rows: AdminRow[] = [];
+  try {
+    rows = await sql<AdminRow[]>`
+      SELECT id, email, nombre, password_hash, activo
+      FROM admins
+      WHERE email = ${email}
+      LIMIT 1
+    `;
+  } catch (error) {
+    console.error("[admin-auth] query", error);
+    return verifyWithDummy(password);
+  }
+
   const row = rows[0];
   if (!row || !row.activo) {
     return verifyWithDummy(password);
   }
+
   const ok = await verifyPassword(password, row.password_hash);
   if (!ok) return null;
-  await sql`UPDATE admins SET ultimo_acceso_en = now() WHERE id = ${row.id}`;
+
+  try {
+    await sql`UPDATE admins SET ultimo_acceso_en = now() WHERE id = ${row.id}`;
+  } catch (error) {
+    console.error("[admin-auth] acceso", error);
+  }
+
   return { id: row.id, email: row.email, nombre: row.nombre };
 }
