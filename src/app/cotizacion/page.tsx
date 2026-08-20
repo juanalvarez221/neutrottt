@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { QuoteShell } from "@/widgets/quote/QuoteShell";
 import { ArrowRight, UserRound, Mail, Phone } from "lucide-react";
 import { getQuoteProfile, saveQuoteProfile } from "@/shared/lib/quoteProfile";
+import { emitirCapturaCrm } from "@/shared/lib/crm/capturaCliente";
 import {
   QUOTE_FLOW_PATHS,
   getQuoteResumePath,
@@ -72,7 +73,9 @@ export default function CotizacionPage() {
       return;
     }
     const fullPhone = `${countryCode} ${cleanPhone}`.replace(/\s+/g, " ").trim();
-    saveQuoteProfile({ name: cleanName, phone: fullPhone, email: cleanEmail });
+    const profile = { name: cleanName, phone: fullPhone, email: cleanEmail };
+    saveQuoteProfile(profile);
+    emitirCapturaCrm(profile);
 
     if (editing) {
       const resume = getQuoteResumePath() || QUOTE_FLOW_PATHS.quoteStart;

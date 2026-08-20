@@ -1,4 +1,5 @@
 import {
+  brandMeetCalendarConfig,
   getGoogleCalendarConfig,
   isGoogleCalendarEnabled,
   usesSeparateMeetCalendar,
@@ -62,20 +63,34 @@ async function checkGoogleCalendar(): Promise<IntegrationCheck> {
 
     await getGoogleAccessToken(config);
     const now = new Date();
-    const busy = await queryBusyIntervals(
-      config,
-      now.toISOString(),
-      new Date(now.getTime() + 3_600_000).toISOString(),
-    );
+    const rangeEnd = new Date(now.getTime() + 3_600_000).toISOString();
+    const busy = await queryBusyIntervals(config, now.toISOString(), rangeEnd);
+
+    if (usesSeparateMeetCalendar(config)) {
+      try {
+        await queryBusyIntervals(brandMeetCalendarConfig(config), now.toISOString(), rangeEnd);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        return {
+          id: "google-calendar",
+          label: "Google Calendar",
+          state: "error",
+          detail: `Agenda del artista OK (${config.calendarId}). Neutrottt (${config.meetCalendarId}) no deja escribir: ${message}`,
+          hint: `En Calendar de ${config.meetCalendarId} → Permisos de acceso → comparte con ${config.clientEmail} y dale "Hacer cambios en eventos". Sin eso no aparecen las asesorías agendadas ni se puede pedir Meet.`,
+        };
+      }
+    }
 
     return {
       id: "google-calendar",
       label: "Google Calendar",
       state: "ok",
-      detail: `Conectado a ${config.calendarId}. ${busy.length} bloque(s) ocupado(s) en la próxima hora.`,
+      detail: usesSeparateMeetCalendar(config)
+        ? `Agenda ${config.calendarId}. Reservas y Meet en ${config.meetCalendarId}. ${busy.length} bloque(s) ocupado(s) en la próxima hora.`
+        : `Conectado a ${config.calendarId}. ${busy.length} bloque(s) ocupado(s) en la próxima hora.`,
       hint: config.createMeet
         ? usesSeparateMeetCalendar(config)
-          ? `Meet se crea en ${config.meetCalendarId} (cuenta Neutrottt). Comparte ese Calendar con el service account y dale permiso de "Hacer cambios en eventos".`
+          ? `Meet se pide en ${config.meetCalendarId}. Gmail personal a veces no entrega hangoutLink; la reserva igual queda marcada y el cliente recibe sala de marca.`
           : "Meet activo en el mismo calendario de agenda (requiere Google Workspace)."
         : "Meet desactivado (correcto para Gmail personal: la sala de respaldo es Jitsi Neutrottt).",
     };

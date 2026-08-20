@@ -12,7 +12,6 @@ import {
   LogOut,
   Plus,
   Send,
-  UserRound,
 } from "lucide-react";
 import Link from "next/link";
 import { AppShell } from "@/widgets/layout/AppShell";
@@ -35,6 +34,7 @@ import {
   type DesignTargetType,
 } from "@/shared/lib/designHistory";
 import { AdvisoryAgendaPanel } from "@/widgets/admin/AdvisoryAgendaPanel";
+import { CrmPersonasPanel } from "@/widgets/admin/CrmPersonasPanel";
 import {
   SESSION_PRICE_CONSECUTIVE_DAYS,
   SESSION_PRICE_SEPARATE_DAYS,
@@ -140,23 +140,6 @@ function mergeQuotes(
   return [...merged, ...localOnly].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 }
 
-const CLIENT_CRM = [
-  {
-    name: "Sara O.",
-    skinType: "Mixta / sensible",
-    allergies: "Latex",
-    sessions: "2 sesiones previas",
-    lastDesign: "Floral black & grey",
-  },
-  {
-    name: "Daniel R.",
-    skinType: "Normal",
-    allergies: "Sin registro",
-    sessions: "Cliente nuevo",
-    lastDesign: "Pendiente de primera sesión",
-  },
-];
-
 const money = new Intl.NumberFormat("es-CO", {
   style: "currency",
   currency: "COP",
@@ -213,7 +196,7 @@ export function NeutrotttAdminDashboard() {
   const [inkCost, setInkCost] = useState(90000);
   const [needleCost, setNeedleCost] = useState(65000);
   const [otherSupplies, setOtherSupplies] = useState(55000);
-  const [selectedClient, setSelectedClient] = useState(CLIENT_CRM[0].name);
+  const [selectedClient, setSelectedClient] = useState("");
   const [lastConsentSent, setLastConsentSent] = useState<string>("");
   const [agendaVisible, setAgendaVisible] = useState(false);
   const [designHistory, setDesignHistory] = useState<DesignHistoryEntry[]>(() =>
@@ -273,6 +256,12 @@ export function NeutrotttAdminDashboard() {
       active = false;
     };
   }, []);
+
+  useEffect(() => {
+    if (!selectedClient && quotes[0]?.clientName) {
+      setSelectedClient(quotes[0].clientName);
+    }
+  }, [quotes, selectedClient]);
 
   const updateAdjustment = (
     id: string,
@@ -906,30 +895,7 @@ export function NeutrotttAdminDashboard() {
               </div>
             </Card>
 
-            <Card>
-              <div className="p-4 sm:p-5">
-                <div className="flex items-center gap-2">
-                  <UserRound className="h-4 w-4 text-amber-300" />
-                  <h2 className="text-sm font-semibold text-zinc-50">CRM de Tatuajes</h2>
-                </div>
-                <div className="mt-3 space-y-2">
-                  {CLIENT_CRM.map((client) => (
-                    <div
-                      key={client.name}
-                      className="rounded-lg border border-white/10 bg-white/[0.03] px-3 py-3"
-                    >
-                      <p className="text-sm font-semibold text-zinc-100">{client.name}</p>
-                      <p className="text-xs text-zinc-400">
-                        Piel: {client.skinType} - Alergias: {client.allergies}
-                      </p>
-                      <p className="text-xs text-zinc-500">
-                        {client.sessions} - Ultimo diseno: {client.lastDesign}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </Card>
+            <CrmPersonasPanel />
 
             <Card>
               <div className="p-4 sm:p-5">
@@ -1002,11 +968,15 @@ export function NeutrotttAdminDashboard() {
                     onChange={(event) => setSelectedClient(event.target.value)}
                     className="rounded-lg border border-white/10 bg-black/40 px-3 py-2 text-sm text-zinc-100 outline-none"
                   >
-                    {CLIENT_CRM.map((client) => (
-                      <option key={client.name} value={client.name}>
-                        {client.name}
-                      </option>
-                    ))}
+                    {quotes.length === 0 ? (
+                      <option value="">Sin contactos aún</option>
+                    ) : (
+                      quotes.map((quote) => (
+                        <option key={quote.id} value={quote.clientName}>
+                          {quote.clientName}
+                        </option>
+                      ))
+                    )}
                   </select>
                   <button
                     onClick={sendConsent}

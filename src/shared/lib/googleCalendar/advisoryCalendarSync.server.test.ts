@@ -85,12 +85,34 @@ describe("syncOnReserved", () => {
       meetingLink: "https://meet.google.com/abc-defg-hij",
       meetEventId: "meet-456",
     });
+    expect(deleteCalendarEvent).not.toHaveBeenCalled();
   });
 
-  it("si el Meet de Neutrottt falla, deja una sala de marca y no toca la agenda del artista con conferenceData", async () => {
+  it("si Meet no sale, deja el evento en Neutrottt y usa sala de marca", async () => {
     insertCalendarEvent
       .mockResolvedValueOnce({ id: "event-123" })
-      .mockRejectedValueOnce(new Error("Meet no disponible"));
+      .mockResolvedValueOnce({ id: "brand-789" });
+    patchCalendarEvent.mockResolvedValue({ id: "event-123" });
+
+    const result = await syncOnReserved(virtualBooking);
+
+    expect(deleteCalendarEvent).not.toHaveBeenCalled();
+    expect(insertCalendarEvent).toHaveBeenNthCalledWith(
+      2,
+      expect.objectContaining({ calendarId: "neutrottt.tech@gmail.com" }),
+      expect.objectContaining({ createMeet: true }),
+    );
+    expect(result).toEqual({
+      eventId: "event-123",
+      meetingLink: expect.stringContaining("meet.jit.si/Neutrottt-AS-1"),
+      meetEventId: "brand-789",
+    });
+  });
+
+  it("si el Calendar de Neutrottt no está compartido, bloquea igual en el artista y deja sala de marca", async () => {
+    insertCalendarEvent
+      .mockResolvedValueOnce({ id: "event-123" })
+      .mockRejectedValueOnce(new Error("Calendar no disponible"));
     patchCalendarEvent.mockResolvedValue({ id: "event-123" });
 
     const result = await syncOnReserved(virtualBooking);
@@ -99,5 +121,29 @@ describe("syncOnReserved", () => {
     expect(result?.eventId).toBe("event-123");
     expect(result?.meetingLink).toContain("meet.jit.si/Neutrottt-AS-1");
     expect(result?.meetEventId).toBeUndefined();
+  });
+
+  it("marca también las asesorías presenciales en el Calendar de Neutrottt", async () => {
+    insertCalendarEvent
+      .mockResolvedValueOnce({ id: "event-presencial" })
+      .mockResolvedValueOnce({ id: "brand-presencial" });
+
+    const result = await syncOnReserved({
+      ...virtualBooking,
+      id: "AS-2",
+      mode: "presencial",
+      durationMin: 30,
+    });
+
+    expect(insertCalendarEvent).toHaveBeenNthCalledWith(
+      2,
+      expect.objectContaining({ calendarId: "neutrottt.tech@gmail.com" }),
+      expect.objectContaining({ createMeet: false }),
+    );
+    expect(result).toEqual({
+      eventId: "event-presencial",
+      meetingLink: undefined,
+      meetEventId: "brand-presencial",
+    });
   });
 });

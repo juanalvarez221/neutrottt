@@ -13,6 +13,7 @@ import { formatSlotLabel, isSlotTaken } from "@/shared/lib/advisorySlots";
 import type { AdvisoryBooking, AdvisoryClientBrief, AdvisoryMode } from "@/shared/lib/advisoryTypes";
 import { enforcePublicWrite } from "@/shared/lib/security/guardRequest.server";
 import { acquireLock } from "@/shared/lib/storage/distributedLock.server";
+import { registrarHechoCrm } from "@/shared/lib/crm/personas.server";
 
 export const dynamic = "force-dynamic";
 
@@ -93,6 +94,19 @@ export async function POST(request: Request) {
       };
 
       await addAdvisoryBooking(booking);
+
+      try {
+        await registrarHechoCrm({
+          nombre: clientName,
+          whatsapp: phone,
+          email,
+          evento: "asesoria_agendada",
+          origen: "asesoria",
+          referencia_id: booking.id,
+        });
+      } catch (crmError) {
+        console.error("[crm:sync-asesoria]", crmError);
+      }
 
       const googleSync = await syncOnReserved(booking);
       if (googleSync) {

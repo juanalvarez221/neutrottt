@@ -64,4 +64,5 @@ export const RATE_LIMITS = {
   reschedule: { limit: 20, windowSeconds: 60 * 60 },
   analitica: { limit: 90, windowSeconds: 60 },
   slots: { limit: 120, windowSeconds: 60 },
+  captura: { limit: 20, windowSeconds: 60 * 60 },
 } as const;

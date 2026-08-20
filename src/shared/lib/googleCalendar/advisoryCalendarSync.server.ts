@@ -97,53 +97,83 @@ export type AdvisoryCalendarSyncResult = {
   meetEventId?: string;
 };
 
-function meetEventContent(booking: AdvisoryBooking) {
-  return {
-    summary: `Asesoría virtual · ${booking.clientName}`,
-    description: [
-      "Sala Neutrottt",
-      `Cliente: ${booking.clientName}`,
-      `Horario: ${formatSlotLabel(booking.startsAt, "es-CO")}`,
-      `Duración: ${booking.durationMin} min aprox.`,
-    ].join("\n"),
-    location: "Google Meet",
-    colorId: "8",
-  };
+function descriptionWithSala(description: string, meetingLink?: string) {
+  return meetingLink ? `${description}\n\nSala: ${meetingLink}` : description;
 }
 
-async function createBrandMeeting(
+function locationWithSala(
+  booking: AdvisoryBooking,
+  fallback: string,
+  meetingLink?: string,
+) {
+  if (booking.mode === "virtual" && meetingLink) return meetingLink;
+  return fallback;
+}
+
+/**
+ * Evento real en el Calendar de Neutrottt (virtual y presencial).
+ * Si Google Meet no sale, el evento se queda igual: el hueco queda marcado.
+ */
+async function createBrandBookingEvent(
   config: GoogleCalendarConfig,
   booking: AdvisoryBooking,
+  confirmed: boolean,
 ): Promise<{ meetingLink?: string; meetEventId?: string }> {
-  if (booking.mode !== "virtual" || !config.createMeet || !usesSeparateMeetCalendar(config)) {
+  if (!usesSeparateMeetCalendar(config)) {
     return {};
   }
 
   const meetConfig = brandMeetCalendarConfig(config);
+  const content = eventContent(booking, confirmed);
   try {
-    const meetEvent = await insertCalendarEvent(meetConfig, {
-      ...meetEventContent(booking),
+    const brandEvent = await insertCalendarEvent(meetConfig, {
+      ...content,
       startsAt: booking.startsAt,
       endsAt: eventEndsAt(booking),
-      createMeet: true,
+      createMeet: booking.mode === "virtual" && config.createMeet,
     });
-    if (meetEvent.hangoutLink) {
-      return { meetingLink: meetEvent.hangoutLink, meetEventId: meetEvent.id };
-    }
-    if (meetEvent.id) {
-      try {
-        await deleteCalendarEvent(meetConfig, meetEvent.id);
-      } catch {
-        // sala vacía: no dejamos el evento huérfano si podemos evitarlo
-      }
-    }
+    return { meetingLink: brandEvent.hangoutLink, meetEventId: brandEvent.id };
   } catch (error) {
     console.warn(
-      "[google-calendar:meet]",
+      "[google-calendar:brand]",
       error instanceof Error ? error.message : String(error),
     );
+    return {};
   }
-  return {};
+}
+
+async function patchBookingCalendars(
+  config: GoogleCalendarConfig,
+  booking: AdvisoryBooking,
+  payload: {
+    summary: string;
+    description: string;
+    location: string;
+    startsAt?: string;
+    endsAt?: string;
+  },
+  meetingLink?: string,
+) {
+  const description = descriptionWithSala(payload.description, meetingLink);
+  const location = locationWithSala(booking, payload.location, meetingLink);
+  const patch = {
+    ...payload,
+    description,
+    location,
+  };
+
+  await patchCalendarEvent(config, booking.googleCalendarEventId!, patch);
+
+  if (booking.googleMeetEventId && usesSeparateMeetCalendar(config)) {
+    try {
+      await patchCalendarEvent(brandMeetCalendarConfig(config), booking.googleMeetEventId, patch);
+    } catch (error) {
+      console.warn(
+        "[google-calendar:brand-patch]",
+        error instanceof Error ? error.message : String(error),
+      );
+    }
+  }
 }
 
 async function createBookingEvent(
@@ -160,23 +190,37 @@ async function createBookingEvent(
     createMeet: booking.mode === "virtual" && config.createMeet && !separateMeet,
   });
 
-  const brandMeet = await createBrandMeeting(config, booking);
+  const brandEvent = await createBrandBookingEvent(config, booking, confirmed);
   const meetingLink =
-    brandMeet.meetingLink ||
+    brandEvent.meetingLink ||
     result.hangoutLink ||
     (booking.mode === "virtual" ? buildAdvisoryMeetingRoomUrl(booking.id) : undefined);
 
   if (meetingLink && meetingLink !== result.hangoutLink) {
     await patchCalendarEvent(config, result.id, {
-      description: `${content.description}\n\nSala: ${meetingLink}`,
-      location: booking.mode === "presencial" ? content.location : meetingLink,
+      description: descriptionWithSala(content.description, meetingLink),
+      location: locationWithSala(booking, content.location, meetingLink),
     });
+  }
+
+  if (brandEvent.meetEventId && meetingLink && meetingLink !== brandEvent.meetingLink) {
+    try {
+      await patchCalendarEvent(brandMeetCalendarConfig(config), brandEvent.meetEventId, {
+        description: descriptionWithSala(content.description, meetingLink),
+        location: locationWithSala(booking, content.location, meetingLink),
+      });
+    } catch (error) {
+      console.warn(
+        "[google-calendar:brand-sala]",
+        error instanceof Error ? error.message : String(error),
+      );
+    }
   }
 
   return {
     eventId: result.id,
     meetingLink,
-    meetEventId: brandMeet.meetEventId,
+    meetEventId: brandEvent.meetEventId,
   };
 }
 
@@ -202,15 +246,16 @@ export async function syncOnConfirmed(booking: AdvisoryBooking): Promise<Advisor
   try {
     const content = eventContent(booking, true);
     if (booking.googleCalendarEventId) {
-      const description = booking.meetingLink
-        ? `${content.description}\n\nSala: ${booking.meetingLink}`
-        : content.description;
-      await patchCalendarEvent(config, booking.googleCalendarEventId, {
-        summary: content.summary,
-        description,
-        location:
-          booking.meetingLink && booking.mode === "virtual" ? booking.meetingLink : content.location,
-      });
+      await patchBookingCalendars(
+        config,
+        booking,
+        {
+          summary: content.summary,
+          description: content.description,
+          location: content.location,
+        },
+        booking.meetingLink,
+      );
       return undefined;
     }
     return await createBookingEvent(config, booking, true);
@@ -241,29 +286,7 @@ export async function syncOnRescheduled(booking: AdvisoryBooking): Promise<Advis
 
   if (booking.googleCalendarEventId) {
     try {
-      const description = booking.meetingLink
-        ? `${content.description}\n\nSala: ${booking.meetingLink}`
-        : content.description;
-      await patchCalendarEvent(config, booking.googleCalendarEventId, {
-        ...payload,
-        description,
-        location:
-          booking.meetingLink && booking.mode === "virtual" ? booking.meetingLink : payload.location,
-      });
-      if (booking.googleMeetEventId && usesSeparateMeetCalendar(config)) {
-        try {
-          await patchCalendarEvent(brandMeetCalendarConfig(config), booking.googleMeetEventId, {
-            ...meetEventContent(booking),
-            startsAt: payload.startsAt,
-            endsAt: payload.endsAt,
-          });
-        } catch (error) {
-          console.warn(
-            "[google-calendar:reschedule-meet]",
-            error instanceof Error ? error.message : String(error),
-          );
-        }
-      }
+      await patchBookingCalendars(config, booking, payload, booking.meetingLink);
       return undefined;
     } catch (error) {
       console.warn(

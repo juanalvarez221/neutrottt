@@ -1,4 +1,6 @@
 import { createJsonDocumentStorage } from "@/shared/lib/storage/jsonDocumentStorage.server";
+import { registrarHechoCrm } from "@/shared/lib/crm/personas.server";
+import type { EventoCrm } from "@/shared/lib/crm/tipos";
 import {
   resolveQuoteStatus,
   type QuoteStatusSlug,
@@ -72,6 +74,29 @@ const storage = createJsonDocumentStorage<QuoteRequestRecord[]>({
   redisKey: "neutrott:quote-requests",
 });
 
+function eventoCrmDesdeCotizacion(record: QuoteRequestRecord): EventoCrm {
+  if (record.statusSlug === "paid_scheduled") return "cotizacion_aceptada";
+  if (record.advisoryBookingId || record.statusSlug === "advisory_scheduled") {
+    return "asesoria_agendada";
+  }
+  return "cotizacion_enviada";
+}
+
+async function sincronizarCrm(record: QuoteRequestRecord) {
+  try {
+    await registrarHechoCrm({
+      nombre: record.clientName,
+      whatsapp: record.whatsapp,
+      email: record.email,
+      evento: eventoCrmDesdeCotizacion(record),
+      origen: record.advisoryBookingId ? "asesoria" : "cotizacion",
+      referencia_id: record.id,
+    });
+  } catch (error) {
+    console.error("[crm:sync-cotizacion]", error);
+  }
+}
+
 async function readAll(): Promise<QuoteRequestRecord[]> {
   const records = await storage.read();
   return Array.isArray(records) ? records : [];
@@ -129,6 +154,7 @@ export async function upsertQuoteRequest(input: QuoteRequestInput): Promise<Upse
     : [record, ...records];
 
   await storage.write(next);
+  await sincronizarCrm(record);
   return { record, created: !existing };
 }
 
@@ -149,6 +175,7 @@ export async function updateQuoteRequestStatus(
   };
   records[index] = updated;
   await storage.write(records);
+  await sincronizarCrm(updated);
   return updated;
 }
 
@@ -192,5 +219,6 @@ export async function saveOfficialQuoteSent(
   };
   records[index] = updated;
   await storage.write(records);
+  await sincronizarCrm(updated);
   return updated;
 }
