@@ -19,6 +19,7 @@ import {
   removeSelectionTarget,
   resolveSelectedAtomicZoneIds,
 } from "@/widgets/body-3d/interaction";
+import { setActivePublicTargetsForHit } from "@/widgets/body-3d/interaction/bodyPublicMaskHit";
 import {
   getPrimaryPublicSelectionTarget,
   getPublicSelectionOptionsForAtomicZone,
