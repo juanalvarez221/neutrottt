@@ -1,4 +1,4 @@
-/** Canonical public origin for Neutrottt on Vercel. */
+/** Alias estable en Vercel. El dominio propio se toma de NEXT_PUBLIC_SITE_URL. */
 export const CANONICAL_SITE_URL = "https://neutrott.vercel.app";
 
 export function getSiteOrigin() {

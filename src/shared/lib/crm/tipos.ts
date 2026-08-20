@@ -23,6 +23,7 @@ export type Persona = {
   email: string;
   estado: EstadoPersona;
   origen: string;
+  id_visitante: string | null;
   creado_en: string;
   actualizado_en: string;
   pasado_a_prospecto_en: string | null;
@@ -46,4 +47,5 @@ export type RegistroCrmInput = {
   origen?: string;
   referencia_id?: string;
   detalle?: string;
+  id_visitante?: string;
 };

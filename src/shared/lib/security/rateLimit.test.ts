@@ -13,6 +13,26 @@ describe("clientIp", () => {
 });
 
 describe("esPeticionDelSitio", () => {
+  it("acepta el dominio propio y el alias de Vercel", () => {
+    const custom = new Request("https://neutrottt.com/api/quote-requests", {
+      method: "POST",
+      headers: {
+        origin: "https://neutrottt.com",
+        host: "neutrottt.com",
+      },
+    });
+    expect(esPeticionDelSitio(custom)).toBe(true);
+
+    const alias = new Request("https://neutrott.vercel.app/api/quote-requests", {
+      method: "POST",
+      headers: {
+        origin: "https://neutrottt.com",
+        host: "neutrott.vercel.app",
+      },
+    });
+    expect(esPeticionDelSitio(alias)).toBe(true);
+  });
+
   it("acepta Origin del mismo host", () => {
     const request = new Request("https://neutrott.vercel.app/api/quote-requests", {
       method: "POST",

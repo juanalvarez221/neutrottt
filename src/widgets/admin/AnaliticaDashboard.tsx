@@ -16,6 +16,7 @@ import { cn } from "@/shared/lib/cn";
 import { ETIQUETAS_CANAL } from "@/shared/lib/analitica/catalogo";
 import { formatDuracion, formatPorcentaje } from "@/shared/lib/analitica/fechaEstudio";
 import { CAPA_ORO_VACIA, type CapaOro } from "@/shared/lib/analitica/tipos";
+import type { RecorridoVisitante } from "@/shared/lib/analitica/navegacion";
 
 function Kpi({
   label,
@@ -76,6 +77,7 @@ function BarRow({
 
 export function AnaliticaDashboard() {
   const [oro, setOro] = useState<CapaOro | null>(null);
+  const [recorridos, setRecorridos] = useState<RecorridoVisitante[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [etlBusy, setEtlBusy] = useState(false);
@@ -84,14 +86,22 @@ export function AnaliticaDashboard() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch("/api/admin/analitica/resumen", { cache: "no-store" });
+      const [res, navRes] = await Promise.all([
+        fetch("/api/admin/analitica/resumen", { cache: "no-store" }),
+        fetch("/api/admin/analitica/navegacion", { cache: "no-store" }),
+      ]);
       const payload = (await res.json()) as CapaOro & { error?: string };
+      const navPayload = (await navRes.json()) as {
+        visitantes?: RecorridoVisitante[];
+        error?: string;
+      };
       if (!res.ok) {
         setError(payload.error ?? "No se pudieron leer las métricas.");
         setOro(null);
         return;
       }
       setOro(payload);
+      if (navRes.ok) setRecorridos(navPayload.visitantes ?? []);
     } catch {
       setError("Error de conexión con el almacén analítico.");
       setOro(null);
@@ -145,12 +155,12 @@ export function AnaliticaDashboard() {
               Almacén analítico
             </p>
             <h1 className="mt-1 text-3xl font-semibold tracking-tight text-zinc-50 sm:text-4xl">
-              Métricas de estudio
+              Metricas web
             </h1>
             <p className="mt-2 max-w-[65ch] text-sm leading-relaxed text-zinc-400">
-              Hechos objetivos de la web: permanencia, interacciones y origen de
-              conexión. Sin nombres ni datos personales. Ventana de 30 días,
-              zona horaria America/Bogota.
+              Recorrido real de cada visitante, permanencia e interacciones.
+              Ventana America/Bogota. Los nombres aparecen solo si esa persona
+              dejo datos en cotizacion.
             </p>
           </div>
 
@@ -197,13 +207,52 @@ export function AnaliticaDashboard() {
             <div className="px-6 py-14 text-left">
               <Activity className="h-5 w-5 text-amber-300" strokeWidth={1.5} />
               <h2 className="mt-4 text-lg font-semibold text-zinc-50">
-                Aún no hay hechos en bronce
+                Aun no hay hechos en bronce
               </h2>
               <p className="mt-2 max-w-[60ch] text-sm leading-relaxed text-zinc-400">
-                Navega el sitio público (inicio, cotización, selector de zona). El
-                colector escribe eventos; el ETL los convierte en métricas. Vuelve
-                aquí y pulsa Correr ETL.
+                Entra al sitio publico (inicio, cotizacion, selector de zona). El
+                colector escribe cada vista; aqui veras el recorrido por persona.
               </p>
+            </div>
+          </Card>
+        ) : null}
+
+        {recorridos.length > 0 ? (
+          <Card className="mt-8">
+            <div className="p-5 sm:p-6">
+              <h2 className="text-sm font-semibold uppercase tracking-[0.14em] text-zinc-300">
+                Navegacion por visitante
+              </h2>
+              <p className="mt-1 text-xs text-zinc-500">
+                Ultimos 14 dias. Cada fila es un navegador; si cotizo, se muestra el nombre.
+              </p>
+              <div className="mt-4 space-y-4">
+                {recorridos.map((row) => (
+                  <div
+                    key={row.id_visitante}
+                    className="rounded-xl border border-white/10 bg-white/[0.03] px-3 py-3"
+                  >
+                    <div className="flex flex-wrap items-baseline justify-between gap-2">
+                      <p className="text-sm font-semibold text-zinc-100">
+                        {row.persona_nombre ?? `Visitante ${row.id_visitante.slice(0, 8)}`}
+                      </p>
+                      <p className="font-mono text-[11px] text-zinc-500">
+                        {row.vistas} vistas · {formatDuracion(row.duracion_ms)} · {row.ciudad}, {row.pais}
+                      </p>
+                    </div>
+                    <p className="mt-2 text-xs leading-relaxed text-zinc-400">
+                      {row.pasos
+                        .filter((paso) => paso.tipo_evento === "vista_pagina" || paso.tipo_evento === "zona_corporal")
+                        .map((paso) =>
+                          paso.tipo_evento === "zona_corporal"
+                            ? paso.etiqueta ?? paso.valor ?? "zona"
+                            : paso.etiqueta_ruta,
+                        )
+                        .join(" → ")}
+                    </p>
+                  </div>
+                ))}
+              </div>
             </div>
           </Card>
         ) : null}

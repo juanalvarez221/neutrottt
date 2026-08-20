@@ -33,7 +33,7 @@ const SCHEMA_STATEMENTS = [
     clave TEXT PRIMARY KEY,
     valor TEXT NOT NULL
   )`,
-  `CREATE TABLE IF NOT EXISTS admins (
+    `CREATE TABLE IF NOT EXISTS admins (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     email TEXT NOT NULL UNIQUE,
     nombre TEXT NOT NULL,
@@ -42,6 +42,9 @@ const SCHEMA_STATEMENTS = [
     creado_en TIMESTAMPTZ NOT NULL DEFAULT now(),
     ultimo_acceso_en TIMESTAMPTZ
   )`,
+  `ALTER TABLE personas ADD COLUMN IF NOT EXISTS id_visitante TEXT NOT NULL DEFAULT ''`,
+  `CREATE INDEX IF NOT EXISTS personas_visitante_idx
+    ON personas (id_visitante) WHERE id_visitante <> ''`,
 ];
 
 let client: postgres.Sql | null = null;

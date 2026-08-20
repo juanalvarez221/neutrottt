@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
 import {
   Activity,
   CalendarDays,
@@ -154,7 +153,6 @@ function extractClosestSessions(text: string) {
 }
 
 export function NeutrotttAdminDashboard() {
-  const router = useRouter();
   const [quotes, setQuotes] = useState<SmartQuoteRequest[]>(() =>
     getSmartQuoteRequests(),
   );
@@ -168,29 +166,18 @@ export function NeutrotttAdminDashboard() {
     } catch {
       // Aun si falla la red, llevamos al usuario al login.
     }
-    router.replace("/admin/login");
-    router.refresh();
+    window.location.assign("/admin/login");
   };
   const [adjustments, setAdjustments] = useState<
     Record<string, { sessionPrice: number; sessionsCount: number }>
   >({});
-  const [externalProjects, setExternalProjects] = useState<ExternalProject[]>([
-    {
-      id: "X-1",
-      client: "Juan C.",
-      project: "Lettering cuello (referido)",
-      sessionDate: "2026-05-18",
-    },
-  ]);
+  const [externalProjects, setExternalProjects] = useState<ExternalProject[]>([]);
   const [externalForm, setExternalForm] = useState({
     client: "",
     project: "",
     sessionDate: "",
   });
-  const [assets, setAssets] = useState<AssetItem[]>([
-    { id: "A-1", name: "dragon_sketch_v3.png", linkedTo: "Cliente: Laura M." },
-    { id: "A-2", name: "flash_dark_rose.procreate", linkedTo: "Flash disponible" },
-  ]);
+  const [assets, setAssets] = useState<AssetItem[]>([]);
   const [assetLink, setAssetLink] = useState({ target: "", mode: "Cliente" });
   const [quoteValue, setQuoteValue] = useState(900000);
   const [inkCost, setInkCost] = useState(90000);

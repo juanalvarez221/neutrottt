@@ -9,6 +9,7 @@ type CapturaBody = {
   nombre?: string;
   whatsapp?: string;
   email?: string;
+  id_visitante?: string;
 };
 
 export async function POST(request: Request) {
@@ -40,6 +41,7 @@ export async function POST(request: Request) {
       email,
       evento: "captura",
       origen: "cotizador",
+      id_visitante: typeof body.id_visitante === "string" ? body.id_visitante : "",
     });
     return NextResponse.json({ ok: true, id: persona?.id ?? null, estado: persona?.estado ?? null });
   } catch (error) {

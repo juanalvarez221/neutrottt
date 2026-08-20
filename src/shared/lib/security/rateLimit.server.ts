@@ -63,7 +63,7 @@ export const RATE_LIMITS = {
   book: { limit: 6, windowSeconds: 60 * 60 },
   confirm: { limit: 30, windowSeconds: 60 * 60 },
   reschedule: { limit: 20, windowSeconds: 60 * 60 },
-  analitica: { limit: 90, windowSeconds: 60 },
+  analitica: { limit: 180, windowSeconds: 60 },
   slots: { limit: 120, windowSeconds: 60 },
   captura: { limit: 20, windowSeconds: 60 * 60 },
 } as const;

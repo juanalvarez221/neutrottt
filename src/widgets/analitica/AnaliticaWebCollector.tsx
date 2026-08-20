@@ -3,9 +3,9 @@
 import { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 import { ANALITICA_EVENTO_DOM, type HechoAnaliticaCliente } from "@/shared/lib/analitica/emitirCliente";
+import { leerIdVisitante } from "@/shared/lib/analitica/visitanteCliente";
 import type { EventoCliente, TipoEvento } from "@/shared/lib/analitica/tipos";
 
-const VISITANTE_KEY = "neutrott.analitica.visitante";
 const SESION_KEY = "neutrott.analitica.sesion";
 const ACTIVIDAD_KEY = "neutrott.analitica.actividad";
 const TIMEOUT_MS = 30 * 60_000;
@@ -47,11 +47,7 @@ function leerSesion(): string | null {
 }
 
 function ids(): { id_sesion: string; id_visitante: string } {
-  let visitante = leer(VISITANTE_KEY);
-  if (!visitante) {
-    visitante = uuid();
-    escribir(VISITANTE_KEY, visitante);
-  }
+  const visitante = leerIdVisitante();
   const now = Date.now();
   const last = Number(leer(ACTIVIDAD_KEY) ?? "0");
   let sesion = leerSesion();
@@ -79,16 +75,16 @@ function utm() {
   };
 }
 
-function enviar(lote: EventoCliente[]) {
+function enviar(lote: EventoCliente[], urgente = false) {
   if (lote.length === 0) return;
   const body = JSON.stringify({ eventos: lote });
-  if (typeof navigator.sendBeacon === "function") {
+  if (urgente && typeof navigator.sendBeacon === "function") {
     const blob = new Blob([body], { type: "application/json" });
-    const ok = navigator.sendBeacon("/api/analitica/eventos", blob);
-    if (ok) return;
+    if (navigator.sendBeacon("/api/analitica/eventos", blob)) return;
   }
   void fetch("/api/analitica/eventos", {
     method: "POST",
+    credentials: "same-origin",
     headers: { "Content-Type": "application/json" },
     body,
     keepalive: true,
@@ -110,6 +106,7 @@ export function AnaliticaWebCollector() {
   ) {
     if (pathname.startsWith("/admin")) return;
     const { id_sesion, id_visitante } = ids();
+    if (!id_visitante || !id_sesion) return;
     const evento: EventoCliente = {
       id_evento: uuid(),
       id_sesion,
@@ -132,7 +129,7 @@ export function AnaliticaWebCollector() {
     if (flush) {
       const lote = cola.current;
       cola.current = [];
-      enviar(lote);
+      enviar(lote, true);
     }
   }
 
@@ -142,9 +139,9 @@ export function AnaliticaWebCollector() {
   useEffect(() => {
     if (pathname.startsWith("/admin")) return;
     rutaRef.current = pathname;
-    emitir("vista_pagina");
+    emitir("vista_pagina", {}, true);
     if (pathname.startsWith("/cotizacion")) {
-      emitir("paso_cotizacion", { etiqueta: pathname });
+      emitir("paso_cotizacion", { etiqueta: pathname }, true);
     }
 
     const onClick = (event: MouseEvent) => {

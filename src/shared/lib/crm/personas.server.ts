@@ -18,6 +18,7 @@ type PersonaRow = {
   email: string;
   estado: EstadoPersona;
   origen: string;
+  id_visitante?: string | null;
   creado_en: Date | string;
   actualizado_en: Date | string;
   pasado_a_prospecto_en: Date | string | null;
@@ -37,6 +38,7 @@ function mapPersona(row: PersonaRow): Persona {
     email: row.email,
     estado: row.estado,
     origen: row.origen,
+    id_visitante: row.id_visitante?.trim() || null,
     creado_en: iso(row.creado_en) ?? new Date().toISOString(),
     actualizado_en: iso(row.actualizado_en) ?? new Date().toISOString(),
     pasado_a_prospecto_en: iso(row.pasado_a_prospecto_en),
@@ -82,6 +84,7 @@ export async function registrarHechoCrm(
   const whatsapp = (input.whatsapp ?? "").trim();
   const emailNorm = normalizarEmail(email);
   const whatsappNorm = normalizarWhatsapp(whatsapp);
+  const idVisitante = (input.id_visitante ?? "").trim().slice(0, 80);
   if (!emailNorm && !whatsappNorm) return null;
 
   const existente = await buscarPersona(sql, emailNorm, whatsappNorm);
@@ -114,6 +117,10 @@ export async function registrarHechoCrm(
           ELSE ${emailNorm}
         END,
         estado = ${estado},
+        id_visitante = CASE
+          WHEN ${idVisitante} = '' THEN id_visitante
+          ELSE ${idVisitante}
+        END,
         actualizado_en = ${now},
         pasado_a_prospecto_en = ${prospectoEn},
         pasado_a_cliente_en = ${clienteEn}
@@ -125,10 +132,10 @@ export async function registrarHechoCrm(
     const inserted = await sql<PersonaRow[]>`
       INSERT INTO personas (
         nombre, whatsapp, email, whatsapp_normalizado, email_normalizado,
-        estado, origen, pasado_a_prospecto_en, pasado_a_cliente_en
+        estado, origen, id_visitante, pasado_a_prospecto_en, pasado_a_cliente_en
       ) VALUES (
         ${nombre}, ${whatsapp}, ${email}, ${whatsappNorm}, ${emailNorm},
-        ${estado}, ${input.origen ?? "cotizador"}, ${prospectoEn}, ${clienteEn}
+        ${estado}, ${input.origen ?? "cotizador"}, ${idVisitante}, ${prospectoEn}, ${clienteEn}
       )
       RETURNING *
     `;

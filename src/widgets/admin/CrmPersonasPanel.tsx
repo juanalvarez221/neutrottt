@@ -106,7 +106,7 @@ export function CrmPersonasPanel() {
 
         {!loading && configurada && personas.length === 0 ? (
           <p className="mt-3 text-xs text-zinc-500">
-            Aún no hay personas. Entran solas cuando alguien deja nombre y contacto en cotización.
+            Aun no hay personas. Entran solas cuando alguien deja nombre y contacto en cotizacion.
           </p>
         ) : null}
 
@@ -141,7 +141,7 @@ export function CrmPersonasPanel() {
                       onClick={() => void promover(persona.id, "acuerdo_asesoria")}
                       className="rounded-lg border border-white/10 px-2 py-1 text-[11px] text-zinc-300 transition hover:bg-white/10 disabled:opacity-50"
                     >
-                      Acuerdo en asesoría
+                      Acuerdo en asesoria
                     </button>
                   ) : null}
                   <button
@@ -150,7 +150,7 @@ export function CrmPersonasPanel() {
                     onClick={() => void promover(persona.id, "cotizacion_aceptada")}
                     className="rounded-lg border border-emerald-500/20 px-2 py-1 text-[11px] text-emerald-100 transition hover:bg-emerald-500/10 disabled:opacity-50"
                   >
-                    Aceptó cotización
+                    Acepto cotizacion
                   </button>
                 </div>
               ) : null}
