@@ -4,7 +4,7 @@ import "./globals.css";
 import { LanguageProvider } from "@/shared/i18n/LanguageProvider";
 import { HtmlLangSync } from "@/widgets/i18n/HtmlLangSync";
 import { NavigationScrollManager } from "@/widgets/navigation/NavigationScrollManager";
-import { DeferredChrome } from "@/widgets/layout/DeferredChrome";
+import { PublicAtmosphere } from "@/widgets/layout/PublicAtmosphere";
 import { ErrorBoundary } from "@/shared/ui/ErrorBoundary";
 
 const fontSans = Montserrat({
@@ -69,15 +69,10 @@ export default function RootLayout({
         <LanguageProvider>
           <HtmlLangSync />
           <NavigationScrollManager />
-          <div aria-hidden className="amber-storm">
-            <span className="amber-storm__flash amber-storm__flash--a" />
-            <span className="amber-storm__flash amber-storm__flash--b" />
-            <span className="amber-storm__flash amber-storm__flash--c" />
-          </div>
+          <PublicAtmosphere />
           <div className="relative z-10">
             <ErrorBoundary>{children}</ErrorBoundary>
           </div>
-          <DeferredChrome />
         </LanguageProvider>
       </body>
     </html>

@@ -1,12 +1,29 @@
 /**
  * Sesión admin firmada con HMAC-SHA256 vía Web Crypto.
- * Funciona tanto en el runtime Edge (middleware) como en Node (route handlers).
- * NUNCA importar desde componentes client: usa secretos del servidor.
+ * Funciona en Edge (proxy) y Node. No importar desde Client Components.
  */
-export const ADMIN_SESSION_COOKIE = "neutrottt_admin_session";
+import { esCorreoAdmin } from "@/shared/lib/adminEmail";
 
-/** Duración de la sesión: 10 horas. */
-export const ADMIN_SESSION_TTL_SECONDS = 10 * 60 * 60;
+export const LEGACY_ADMIN_SESSION_COOKIE = "neutrottt_admin_session";
+
+/** Prefijo __Host- exige Secure, Path=/ y sin Domain. Solo en producción. */
+export const ADMIN_SESSION_COOKIE =
+  process.env.NODE_ENV === "production" ? "__Host-ntt_admin" : LEGACY_ADMIN_SESSION_COOKIE;
+
+/** Duración de la sesión: 4 horas. */
+export const ADMIN_SESSION_TTL_SECONDS = 4 * 60 * 60;
+
+const SESSION_VERSION = 1;
+
+export function adminSessionCookieAttrs(maxAge: number) {
+  return {
+    httpOnly: true as const,
+    sameSite: "strict" as const,
+    secure: process.env.NODE_ENV === "production",
+    path: "/" as const,
+    maxAge,
+  };
+}
 
 function bytesToBase64Url(bytes: Uint8Array): string {
   let binary = "";
@@ -45,54 +62,60 @@ async function hmacSign(secret: string, data: string): Promise<Uint8Array> {
   return new Uint8Array(signature);
 }
 
-/** Crea un token de sesión firmado. Incluye el correo si el login fue nominado. */
+/** Crea un token de sesión firmado. El correo nominado es obligatorio. */
 export async function signSessionToken(
   secret: string,
+  email: string,
   ttlSeconds = ADMIN_SESSION_TTL_SECONDS,
-  email?: string,
 ): Promise<string> {
+  const normalized = email.trim().toLowerCase();
+  if (!esCorreoAdmin(normalized)) {
+    throw new Error("invalid admin email");
+  }
   const exp = Date.now() + ttlSeconds * 1000;
   const payload = bytesToBase64Url(
-    new TextEncoder().encode(JSON.stringify({ exp, email: email?.trim().toLowerCase() || undefined })),
+    new TextEncoder().encode(JSON.stringify({ v: SESSION_VERSION, exp, email: normalized })),
   );
   const signature = bytesToBase64Url(await hmacSign(secret, payload));
   return `${payload}.${signature}`;
 }
 
-/** Verifica firma y expiración del token. */
+type SessionPayload = {
+  v?: number;
+  exp?: number;
+  email?: string;
+};
+
+/** Verifica firma, versión, expiración y correo nominado. */
 export async function verifySessionToken(
   secret: string,
   token: string | undefined | null,
 ): Promise<boolean> {
-  if (!secret || !token) return false;
-  const [payload, signature] = token.split(".");
-  if (!payload || !signature) return false;
-
-  const expected = bytesToBase64Url(await hmacSign(secret, payload));
-  if (!timingSafeEqual(signature, expected)) return false;
-
-  try {
-    const data = JSON.parse(new TextDecoder().decode(base64UrlToBytes(payload))) as {
-      exp?: number;
-    };
-    if (typeof data.exp !== "number" || Date.now() > data.exp) return false;
-    return true;
-  } catch {
-    return false;
-  }
+  return (await readSessionEmail(secret, token)) !== null;
 }
 
-/** PIN principal (ADMIN_PIN) con ADMIN_PASSWORD como alias. */
-export function getAdminCredential(): string | null {
-  return process.env.ADMIN_PIN?.trim() || process.env.ADMIN_PASSWORD?.trim() || null;
+export async function readSessionEmail(
+  secret: string,
+  token: string | undefined | null,
+): Promise<string | null> {
+  if (!secret || !token) return null;
+  const [payload, signature] = token.split(".");
+  if (!payload || !signature) return null;
+
+  const expected = bytesToBase64Url(await hmacSign(secret, payload));
+  if (!timingSafeEqual(signature, expected)) return null;
+
+  try {
+    const data = JSON.parse(new TextDecoder().decode(base64UrlToBytes(payload))) as SessionPayload;
+    if (data.v !== SESSION_VERSION) return null;
+    if (typeof data.exp !== "number" || Date.now() > data.exp) return null;
+    if (typeof data.email !== "string" || !esCorreoAdmin(data.email)) return null;
+    return data.email;
+  } catch {
+    return null;
+  }
 }
 
 export function getAdminSessionSecret(): string | null {
   return process.env.ADMIN_SESSION_SECRET?.trim() || null;
-}
-
-export function verifyAdminCredential(input: string): boolean {
-  const expected = getAdminCredential();
-  if (!expected) return false;
-  return timingSafeEqual(input, expected);
 }

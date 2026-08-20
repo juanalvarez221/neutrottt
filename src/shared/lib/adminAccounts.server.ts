@@ -1,4 +1,5 @@
 import { hashPassword, verifyPassword } from "@/shared/lib/adminPassword";
+import { esCorreoAdmin } from "@/shared/lib/adminEmail";
 import { getCrmSql, hasDatabaseConfig } from "@/shared/lib/crm/postgres.server";
 
 export type AdminAccount = {
@@ -15,6 +16,19 @@ type AdminRow = {
   activo: boolean;
 };
 
+let dummyHashPromise: Promise<string> | null = null;
+
+function dummyHash(): Promise<string> {
+  dummyHashPromise ??= hashPassword("__neutrott-dummy-not-a-user__");
+  return dummyHashPromise;
+}
+
+async function verifyWithDummy(password: string): Promise<null> {
+  const stored = await dummyHash();
+  await verifyPassword(password || " ", stored);
+  return null;
+}
+
 export async function upsertAdminAccount(input: {
   email: string;
   nombre: string;
@@ -24,7 +38,7 @@ export async function upsertAdminAccount(input: {
   if (!sql) return null;
   const email = input.email.trim().toLowerCase();
   const nombre = input.nombre.trim();
-  if (!email || !nombre || !input.password) return null;
+  if (!esCorreoAdmin(email) || !nombre || !input.password) return null;
   const password_hash = await hashPassword(input.password);
   const rows = await sql<AdminRow[]>`
     INSERT INTO admins (email, nombre, password_hash, activo)
@@ -44,11 +58,17 @@ export async function authenticateAdminEmail(
   emailRaw: string,
   password: string,
 ): Promise<AdminAccount | null> {
-  if (!hasDatabaseConfig()) return null;
-  const sql = await getCrmSql();
-  if (!sql) return null;
   const email = emailRaw.trim().toLowerCase();
-  if (!email || !password) return null;
+  if (!esCorreoAdmin(email) || !password) {
+    return verifyWithDummy(password);
+  }
+  if (!hasDatabaseConfig()) {
+    return verifyWithDummy(password);
+  }
+  const sql = await getCrmSql();
+  if (!sql) {
+    return verifyWithDummy(password);
+  }
   const rows = await sql<AdminRow[]>`
     SELECT id, email, nombre, password_hash, activo
     FROM admins
@@ -56,7 +76,9 @@ export async function authenticateAdminEmail(
     LIMIT 1
   `;
   const row = rows[0];
-  if (!row || !row.activo) return null;
+  if (!row || !row.activo) {
+    return verifyWithDummy(password);
+  }
   const ok = await verifyPassword(password, row.password_hash);
   if (!ok) return null;
   await sql`UPDATE admins SET ultimo_acceso_en = now() WHERE id = ${row.id}`;

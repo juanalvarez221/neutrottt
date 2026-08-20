@@ -164,7 +164,7 @@ export function NeutrotttAdminDashboard() {
     if (loggingOut) return;
     setLoggingOut(true);
     try {
-      await fetch("/api/admin/auth/logout", { method: "POST" });
+      await fetch("/api/admin/auth/logout", { method: "POST", credentials: "same-origin" });
     } catch {
       // Aun si falla la red, llevamos al usuario al login.
     }

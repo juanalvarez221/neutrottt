@@ -13,7 +13,7 @@ export const config = {
 };
 
 function isAuthExempt(pathname: string): boolean {
-  return pathname === "/admin/login" || pathname.startsWith("/api/admin/auth");
+  return pathname === "/admin/login" || pathname === "/api/admin/auth/login" || pathname === "/api/admin/auth/logout";
 }
 
 export async function proxy(request: NextRequest) {

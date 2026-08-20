@@ -57,7 +57,8 @@ export async function checkRateLimit(input: RateLimitInput): Promise<RateLimitRe
 
 /** Ventanas usadas por las APIs públicas. */
 export const RATE_LIMITS = {
-  adminLogin: { limit: 8, windowSeconds: 15 * 60 },
+  adminLogin: { limit: 5, windowSeconds: 15 * 60 },
+  adminLoginEmail: { limit: 5, windowSeconds: 15 * 60 },
   quote: { limit: 12, windowSeconds: 60 * 60 },
   book: { limit: 6, windowSeconds: 60 * 60 },
   confirm: { limit: 30, windowSeconds: 60 * 60 },
