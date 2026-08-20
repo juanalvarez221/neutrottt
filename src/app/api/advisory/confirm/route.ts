@@ -4,9 +4,11 @@ import {
   getAdvisoryBookingByToken,
   updateAdvisoryBooking,
 } from "@/shared/lib/advisoryStore.server";
+import { resolveVirtualMeetingLink } from "@/shared/lib/advisoryConfig";
 import { formatSlotLabel } from "@/shared/lib/advisorySlots";
 import { syncOnConfirmed } from "@/shared/lib/googleCalendar/advisoryCalendarSync.server";
 import { sendAdvisoryChangeInternalEmail } from "@/shared/lib/notifications/internalArtistNotifications.server";
+import { enforcePublicWrite } from "@/shared/lib/security/guardRequest.server";
 
 export const dynamic = "force-dynamic";
 
@@ -15,6 +17,9 @@ type ConfirmBody = {
 };
 
 export async function POST(request: Request) {
+  const limited = await enforcePublicWrite(request, "confirm");
+  if (limited) return limited;
+
   try {
     const body = (await request.json()) as ConfirmBody;
     const token = body.token?.trim();
@@ -66,9 +71,14 @@ export async function POST(request: Request) {
     if (googleSync) {
       updated.googleCalendarEventId = googleSync.eventId;
       updated.meetingLink = googleSync.meetingLink;
+      updated.googleMeetEventId = googleSync.meetEventId;
+    }
+    updated.meetingLink = resolveVirtualMeetingLink(updated.mode, updated.id, updated.meetingLink);
+    if (googleSync || updated.meetingLink) {
       await updateAdvisoryBooking(updated.id, {
-        googleCalendarEventId: googleSync.eventId,
-        ...(googleSync.meetingLink ? { meetingLink: googleSync.meetingLink } : {}),
+        ...(googleSync ? { googleCalendarEventId: googleSync.eventId } : {}),
+        ...(googleSync?.meetEventId ? { googleMeetEventId: googleSync.meetEventId } : {}),
+        ...(updated.meetingLink ? { meetingLink: updated.meetingLink } : {}),
       });
     }
 

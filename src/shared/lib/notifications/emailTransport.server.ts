@@ -1,51 +1,45 @@
-import { BRAND } from "@/shared/config/brand";
+import { STUDIO_MAIL, getStudioFromHeader, getStudioReplyTo } from "@/shared/config/mail";
+import { getGmailSmtpConfig, sendViaGmailSmtp } from "@/shared/lib/notifications/gmailSmtp.server";
 
 /**
- * Transporte de email compartido (Resend + fallback preview en consola).
- * Mismo comportamiento que usaba advisoryNotifications: si no hay RESEND_API_KEY,
- * se loguea un preview y se considera ok (no rompe ningún flujo).
+ * Transporte de email (Gmail SMTP).
+ * Si faltan credenciales, se loguea un preview y no se rompe el flujo.
+ *
+ * From: cuenta de marca (neutrottt.tech@gmail.com).
+ * To interno: bandeja del artista (gonzalezcardo06@gmail.com).
  */
 export type EmailPayload = {
   to: string;
   subject: string;
   html: string;
   text: string;
+  replyTo?: string;
 };
 
 export type EmailResult = { ok: boolean; preview: boolean };
 
 export async function sendBrandedEmail(payload: EmailPayload): Promise<EmailResult> {
-  const apiKey = process.env.RESEND_API_KEY?.trim();
-  const from = process.env.RESEND_FROM_EMAIL?.trim() ?? `${BRAND.name} <onboarding@resend.dev>`;
+  const from = getStudioFromHeader();
+  const fromAddress = STUDIO_MAIL.fromAddress;
+  const replyTo = payload.replyTo?.trim() || getStudioReplyTo();
+  const smtp = getGmailSmtpConfig();
 
-  if (!apiKey) {
-    console.info("[email:preview]", payload.subject, "→", payload.to);
+  if (!smtp) {
+    console.info("[email:preview]", payload.subject, "→", payload.to, "replyTo:", replyTo);
     console.info(payload.text);
     return { ok: true, preview: true };
   }
 
   try {
-    const response = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        from,
-        to: [payload.to],
-        subject: payload.subject,
-        html: payload.html,
-        text: payload.text,
-      }),
+    await sendViaGmailSmtp({
+      fromHeader: from,
+      fromAddress,
+      to: payload.to,
+      replyTo,
+      subject: payload.subject,
+      text: payload.text,
+      html: payload.html,
     });
-
-    if (!response.ok) {
-      const detail = await response.text().catch(() => "");
-      console.error("[email:error]", response.status, detail);
-      return { ok: false, preview: false };
-    }
-
     return { ok: true, preview: false };
   } catch (error) {
     console.error("[email:error]", error instanceof Error ? error.message : String(error));
@@ -55,8 +49,8 @@ export async function sendBrandedEmail(payload: EmailPayload): Promise<EmailResu
 
 /**
  * Email del artista/estudio para notificaciones internas.
- * Si no está configurado, devuelve null (el llamador hace preview/log).
+ * Prioriza ARTIST_NOTIFICATIONS_EMAIL; si falta, usa la bandeja de trabajo configurada.
  */
 export function getArtistNotificationsEmail(): string | null {
-  return process.env.ARTIST_NOTIFICATIONS_EMAIL?.trim() || null;
+  return process.env.ARTIST_NOTIFICATIONS_EMAIL?.trim() || STUDIO_MAIL.artistInbox;
 }

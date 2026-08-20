@@ -38,6 +38,10 @@ export type QuoteRequestRecord = {
   statusSlug: QuoteStatusSlug;
   createdAt: string;
   updatedAt: string;
+  officialSessionPrice?: number;
+  officialSessionCount?: number;
+  officialNote?: string;
+  officialSentAt?: string;
 };
 
 /** Payload entrante desde el cliente (campos crudos, sin estado resuelto). */
@@ -114,6 +118,10 @@ export async function upsertQuoteRequest(input: QuoteRequestInput): Promise<Upse
     statusSlug: slug,
     createdAt: input.createdAt || existing?.createdAt || now,
     updatedAt: now,
+    officialSessionPrice: existing?.officialSessionPrice,
+    officialSessionCount: existing?.officialSessionCount,
+    officialNote: existing?.officialNote,
+    officialSentAt: existing?.officialSentAt,
   };
 
   const next = existing
@@ -135,6 +143,49 @@ export async function updateQuoteRequestStatus(
   const { slug, label } = resolveQuoteStatus(status);
   const updated: QuoteRequestRecord = {
     ...records[index],
+    statusSlug: slug,
+    statusLabel: label,
+    updatedAt: new Date().toISOString(),
+  };
+  records[index] = updated;
+  await storage.write(records);
+  return updated;
+}
+
+export type OfficialQuoteAdjustment = {
+  sessionPrice: number;
+  sessionCount: number;
+  note?: string;
+};
+
+export function isValidOfficialQuoteAdjustment(input: OfficialQuoteAdjustment): boolean {
+  return (
+    Number.isFinite(input.sessionPrice) &&
+    input.sessionPrice > 0 &&
+    Number.isInteger(input.sessionCount) &&
+    input.sessionCount >= 1 &&
+    input.sessionCount <= 40
+  );
+}
+
+/** Guarda la cifra oficial y marca la cotización como enviada. */
+export async function saveOfficialQuoteSent(
+  id: string,
+  adjustment: OfficialQuoteAdjustment,
+): Promise<QuoteRequestRecord | null> {
+  if (!isValidOfficialQuoteAdjustment(adjustment)) return null;
+
+  const records = await readAll();
+  const index = records.findIndex((record) => record.id === id);
+  if (index === -1) return null;
+
+  const { slug, label } = resolveQuoteStatus("sent");
+  const updated: QuoteRequestRecord = {
+    ...records[index],
+    officialSessionPrice: Math.round(adjustment.sessionPrice),
+    officialSessionCount: adjustment.sessionCount,
+    officialNote: adjustment.note?.trim() || undefined,
+    officialSentAt: new Date().toISOString(),
     statusSlug: slug,
     statusLabel: label,
     updatedAt: new Date().toISOString(),

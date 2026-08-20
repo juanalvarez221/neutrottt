@@ -2,8 +2,11 @@ import { NextResponse } from "next/server";
 import { loadAdvisoryStore, saveAdvisoryStore } from "@/shared/lib/advisoryStore.server";
 import { getSlotsForDay, listUpcomingDays } from "@/shared/lib/advisorySlots";
 import type { AdvisoryMode, AdvisorySlot } from "@/shared/lib/advisoryTypes";
-import { getExternalBusyIntervals } from "@/shared/lib/googleCalendar/advisoryCalendarSync.server";
+import { getAvailabilityAndBusy } from "@/shared/lib/googleCalendar/advisoryCalendarSync.server";
 import { rangeOverlapsBusy, type BusyInterval } from "@/shared/lib/googleCalendar/googleCalendarClient.server";
+import { bogotaDayBounds, sliceAvailabilityWindows } from "@/shared/lib/advisoryAvailability";
+import { timingSafeEqual } from "@/shared/lib/adminSession";
+import { enforcePublicWrite } from "@/shared/lib/security/guardRequest.server";
 
 export const dynamic = "force-dynamic";
 
@@ -20,6 +23,9 @@ function filterSlotsByBusy(
 }
 
 export async function GET(request: Request) {
+  const limited = await enforcePublicWrite(request, "slots", { requireSameOrigin: false });
+  if (limited) return limited;
+
   const { searchParams } = new URL(request.url);
   const mode = searchParams.get("mode");
   const dateKey = searchParams.get("date");
@@ -33,18 +39,57 @@ export async function GET(request: Request) {
     const durationMin = store[mode as AdvisoryMode].durationMin;
 
     if (dateKey) {
-      const dayStart = new Date(`${dateKey}T00:00:00-05:00`).toISOString();
-      const dayEnd = new Date(`${dateKey}T23:59:59-05:00`).toISOString();
-      const busy = await getExternalBusyIntervals(dayStart, dayEnd);
-      const slots = filterSlotsByBusy(
-        getSlotsForDay(store, mode as AdvisoryMode, dateKey),
-        durationMin,
-        busy,
-      );
-      return NextResponse.json({ date: dateKey, mode, slots });
+      const bounds = bogotaDayBounds(dateKey);
+      const schedule = await getAvailabilityAndBusy(bounds.start, bounds.end);
+      const slots = schedule.calendarEnabled
+        ? sliceAvailabilityWindows({
+            windows: schedule.windows,
+            busy: schedule.busy,
+            store,
+            durationMin,
+            dateKey,
+          })
+        : filterSlotsByBusy(
+            getSlotsForDay(store, mode as AdvisoryMode, dateKey),
+            durationMin,
+            schedule.busy,
+          );
+      return NextResponse.json({ date: dateKey, mode, slots, source: schedule.calendarEnabled ? "calendar" : "weekly" });
     }
 
-    const days = listUpcomingDays(store.horizonDays).map((day) => ({
+    const horizon = listUpcomingDays(store.horizonDays);
+    const firstDay = horizon[0];
+    const lastDay = horizon[horizon.length - 1];
+    if (!firstDay || !lastDay) {
+      return NextResponse.json({
+        mode,
+        durationMin,
+        studioName: mode === "presencial" ? "Estudio Emerald" : undefined,
+        days: [],
+        source: "weekly",
+      });
+    }
+
+    const range = await getAvailabilityAndBusy(
+      bogotaDayBounds(firstDay).start,
+      bogotaDayBounds(lastDay).end,
+    );
+
+    const days = (
+      range.calendarEnabled
+        ? horizon.filter((day) => {
+            if (store.blockedDates.includes(day)) return false;
+            const bounds = bogotaDayBounds(day);
+            const dayStart = new Date(bounds.start).getTime();
+            const dayEnd = new Date(bounds.end).getTime();
+            return range.windows.some((window) => {
+              const windowStart = new Date(window.start).getTime();
+              const windowEnd = new Date(window.end).getTime();
+              return windowStart < dayEnd && windowEnd > dayStart;
+            });
+          })
+        : horizon
+    ).map((day) => ({
       date: day,
       slots: [],
     }));
@@ -54,6 +99,7 @@ export async function GET(request: Request) {
       durationMin,
       studioName: mode === "presencial" ? "Estudio Emerald" : undefined,
       days,
+      source: range.calendarEnabled ? "calendar" : "weekly",
     });
   } catch (error) {
     console.error("[advisory:slots]", error instanceof Error ? error.message : error);
@@ -62,8 +108,9 @@ export async function GET(request: Request) {
 }
 
 export async function PUT(request: Request) {
-  const pin = request.headers.get("x-advisory-pin");
-  if (!pin || pin !== process.env.ADVISORY_ADMIN_PIN) {
+  const pin = request.headers.get("x-advisory-pin")?.trim() ?? "";
+  const expected = process.env.ADVISORY_ADMIN_PIN?.trim() ?? "";
+  if (!expected || !pin || !timingSafeEqual(pin, expected)) {
     return NextResponse.json({ error: "No autorizado." }, { status: 401 });
   }
 

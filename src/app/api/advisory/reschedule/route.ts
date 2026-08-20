@@ -6,8 +6,10 @@ import {
   loadAdvisoryStore,
   updateAdvisoryBooking,
 } from "@/shared/lib/advisoryStore.server";
-import { syncOnRescheduled } from "@/shared/lib/googleCalendar/advisoryCalendarSync.server";
+import { resolveVirtualMeetingLink } from "@/shared/lib/advisoryConfig";
+import { isCalendarSlotOpen, syncOnRescheduled } from "@/shared/lib/googleCalendar/advisoryCalendarSync.server";
 import { sendAdvisoryChangeInternalEmail } from "@/shared/lib/notifications/internalArtistNotifications.server";
+import { enforcePublicWrite } from "@/shared/lib/security/guardRequest.server";
 
 export const dynamic = "force-dynamic";
 
@@ -17,6 +19,9 @@ type RescheduleBody = {
 };
 
 export async function POST(request: Request) {
+  const limited = await enforcePublicWrite(request, "reschedule");
+  if (limited) return limited;
+
   try {
     const body = (await request.json()) as RescheduleBody;
     const token = body.token?.trim();
@@ -41,7 +46,7 @@ export async function POST(request: Request) {
     const store = await loadAdvisoryStore();
     const durationMin = store[booking.mode].durationMin;
 
-    if (isSlotTaken(store, startsAt, durationMin)) {
+    if (isSlotTaken(store, startsAt, durationMin) || !(await isCalendarSlotOpen(startsAt, durationMin))) {
       return NextResponse.json(
         { error: "Ese horario ya no está disponible. Elige otro." },
         { status: 409 },
@@ -69,9 +74,14 @@ export async function POST(request: Request) {
     if (googleSync) {
       updated.googleCalendarEventId = googleSync.eventId;
       updated.meetingLink = googleSync.meetingLink;
+      updated.googleMeetEventId = googleSync.meetEventId;
+    }
+    updated.meetingLink = resolveVirtualMeetingLink(updated.mode, updated.id, updated.meetingLink);
+    if (googleSync || updated.meetingLink) {
       await updateAdvisoryBooking(updated.id, {
-        googleCalendarEventId: googleSync.eventId,
-        ...(googleSync.meetingLink ? { meetingLink: googleSync.meetingLink } : {}),
+        ...(googleSync ? { googleCalendarEventId: googleSync.eventId } : {}),
+        ...(googleSync?.meetEventId ? { googleMeetEventId: googleSync.meetEventId } : {}),
+        ...(updated.meetingLink ? { meetingLink: updated.meetingLink } : {}),
       });
     }
 
@@ -83,7 +93,6 @@ export async function POST(request: Request) {
       booking: {
         id: updated.id,
         label: formatSlotLabel(updated.startsAt, "es-CO"),
-        confirmationToken: updated.confirmationToken,
       },
     });
   } catch {

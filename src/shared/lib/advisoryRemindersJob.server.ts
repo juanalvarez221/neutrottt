@@ -41,8 +41,8 @@ export async function runAdvisoryRemindersJob() {
       });
       if (released) {
         await syncOnReleased(booking);
-        if (booking.googleCalendarEventId) {
-          await updateAdvisoryBooking(booking.id, {}, { unset: ["googleCalendarEventId"] });
+        if (booking.googleCalendarEventId || booking.googleMeetEventId) {
+          await updateAdvisoryBooking(booking.id, {}, { unset: ["googleCalendarEventId", "googleMeetEventId"] });
         }
         await sendAdvisoryChangeInternalEmail(released, "released");
         await sendAdvisorySlotReleasedNotice(released);

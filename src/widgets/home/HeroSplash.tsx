@@ -114,6 +114,7 @@ export function HeroSplash({
       <div className="pointer-events-none absolute left-1/2 top-[74%] h-60 w-[82vw] -translate-x-1/2 bg-[radial-gradient(ellipse_at_center,rgba(214,161,90,0.2),transparent_68%)] blur-[46px]" />
       <section
         ref={sectionRef}
+        data-analitica-seccion="inicio"
         className="relative min-h-[100dvh] w-full"
       >
         <motion.div
@@ -238,6 +239,7 @@ export function HeroSplash({
               href="/cotizacion"
               target="_blank"
               rel="noopener noreferrer"
+              data-analitica="cta_cotizar_inicio"
               className="btn-accent typo-cta group inline-flex w-full items-center justify-center gap-2 rounded-xl px-5 py-3.5 active:translate-y-0 md:py-4"
             >
               {t("heroCta")}
@@ -315,7 +317,7 @@ export function HeroSplash({
         <div className="absolute bottom-0 z-20 h-1 w-full bg-gradient-to-r from-transparent via-white/10 to-transparent" />
       </section>
 
-      <div id="about-intro" className="scroll-mt-0">
+      <div id="about-intro" className="scroll-mt-0" data-analitica-seccion="estudio">
         <LazyMount minHeight="28rem">
           <AboutIntroSection />
         </LazyMount>

@@ -36,7 +36,7 @@ export async function POST(request: Request) {
         status: "cancelled",
         releasedAt: new Date().toISOString(),
       },
-      { unset: ["googleCalendarEventId"] },
+      { unset: ["googleCalendarEventId", "googleMeetEventId"] },
     );
 
     if (!updated) {

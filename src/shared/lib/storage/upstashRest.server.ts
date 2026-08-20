@@ -38,6 +38,33 @@ export async function upstashCommand<T = unknown>(
   return payload.result ?? null;
 }
 
+/** Pipeline REST de Upstash (varias órdenes en un round-trip). */
+export async function upstashPipeline(
+  commands: (string | number)[][],
+): Promise<unknown[]> {
+  if (commands.length === 0) return [];
+  const baseUrl = process.env.UPSTASH_REDIS_REST_URL?.trim();
+  const token = process.env.UPSTASH_REDIS_REST_TOKEN?.trim();
+  if (!baseUrl || !token) {
+    throw new Error("Upstash Redis no está configurado (faltan URL o token).");
+  }
+  const response = await fetch(`${baseUrl}/pipeline`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(commands),
+    cache: "no-store",
+  });
+  if (!response.ok) {
+    const detail = await response.text().catch(() => "");
+    throw new Error(`Upstash pipeline ${response.status}. ${detail}`.trim());
+  }
+  const payload = (await response.json()) as Array<{ result?: unknown }>;
+  return payload.map((row) => row.result ?? null);
+}
+
 export function isProductionRuntime() {
   return process.env.NODE_ENV === "production";
 }

@@ -367,7 +367,10 @@ export function ProjectsCarousel() {
   const { t } = useSiteLanguage();
 
   return (
-    <section className="page-section section-surface section-surface--portfolio section-divider relative w-full overflow-x-clip">
+    <section
+      data-analitica-seccion="proyectos"
+      className="page-section section-surface section-surface--portfolio section-divider relative w-full overflow-x-clip"
+    >
       <div className="page-section-pad relative z-10 page-section-y">
         <p className="typo-eyebrow">{t("projectsTag")}</p>
 

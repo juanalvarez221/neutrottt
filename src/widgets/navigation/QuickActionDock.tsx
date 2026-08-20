@@ -147,6 +147,7 @@ function QuickActionDockPanel({ pathname }: { pathname: string }) {
             href="/cotizacion"
             target="_blank"
             rel="noopener noreferrer"
+            data-analitica="cta_cotizar_dock"
             aria-label={t("quickActionsQuote")}
             className={cn(
               "quick-action-dock__cta",

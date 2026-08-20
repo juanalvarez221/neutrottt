@@ -22,6 +22,13 @@ function normalizeSize(size: string) {
     .trim();
 }
 
+export function defaultSessionCountFromEstimate(estimateSessions?: string) {
+  const nums = estimateSessions?.match(/\d+/g)?.map(Number) ?? [];
+  if (!nums.length) return 3;
+  if (nums.length === 1) return nums[0];
+  return Math.round((nums[0] + nums[1]) / 2);
+}
+
 export function getSizeSessionRange(size: string): [number, number] {
   const normalized = normalizeSize(size);
   if (normalized.includes("gran")) return [4, 6];

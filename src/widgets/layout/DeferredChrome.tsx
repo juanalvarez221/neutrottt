@@ -13,11 +13,20 @@ const LanguagePrompt = dynamic(
   { ssr: false },
 );
 
+const AnaliticaWebCollector = dynamic(
+  () =>
+    import("@/widgets/analitica/AnaliticaWebCollector").then(
+      (mod) => mod.AnaliticaWebCollector,
+    ),
+  { ssr: false },
+);
+
 export function DeferredChrome() {
   return (
     <>
       <QuickActionDock />
       <LanguagePrompt />
+      <AnaliticaWebCollector />
     </>
   );
 }

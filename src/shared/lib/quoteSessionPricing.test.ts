@@ -3,6 +3,7 @@ import {
   SESSION_PRICE_CONSECUTIVE_DAYS,
   SESSION_PRICE_SEPARATE_DAYS,
   buildQuoteSessionEstimate,
+  defaultSessionCountFromEstimate,
 } from "@/shared/lib/quoteSessionPricing";
 
 function digits(value: string) {
@@ -26,5 +27,10 @@ describe("quote session pricing", () => {
     expect(digits(estimate.separatePerSession)).toBe("1500000");
     expect(digits(estimate.consecutiveTotal)).toBe("24000004800000");
     expect(digits(estimate.separateTotal)).toBe("30000006000000");
+  });
+
+  it("toma el punto medio del rango de sesiones orientativo", () => {
+    expect(defaultSessionCountFromEstimate("2 a 4 sesiones")).toBe(3);
+    expect(defaultSessionCountFromEstimate("5 sesiones")).toBe(5);
   });
 });

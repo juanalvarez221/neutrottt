@@ -7,6 +7,7 @@ import {
   signSessionToken,
   verifyAdminCredential,
 } from "@/shared/lib/adminSession";
+import { enforcePublicWrite } from "@/shared/lib/security/guardRequest.server";
 
 export const dynamic = "force-dynamic";
 
@@ -16,6 +17,9 @@ type LoginBody = {
 };
 
 export async function POST(request: Request) {
+  const limited = await enforcePublicWrite(request, "adminLogin");
+  if (limited) return limited;
+
   const secret = getAdminSessionSecret();
   const credential = getAdminCredential();
 

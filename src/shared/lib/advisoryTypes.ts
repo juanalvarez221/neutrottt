@@ -34,6 +34,8 @@ export type AdvisoryBooking = {
   releasedAt?: string;
   previousStartsAt?: string;
   googleCalendarEventId?: string;
+  /** Evento de Meet en el Calendar de Neutrottt (distinto al de la agenda del artista). */
+  googleMeetEventId?: string;
   brief?: AdvisoryClientBrief;
   meetingLink?: string;
 };

@@ -49,6 +49,7 @@ next-env.d.ts
 /public/models/interaction/pilot/
 /test-results/
 /data/quote-requests.json
+/data/analitica/
 tools/_tmp*
 tools/body-regions/.blender-path.local
 tools/blender/__pycache__/

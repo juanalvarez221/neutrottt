@@ -4,10 +4,14 @@ import {
   type QuoteRequestInput,
 } from "@/shared/lib/storage/quoteRequestStore.server";
 import { sendNewQuoteInternalEmail } from "@/shared/lib/notifications/internalArtistNotifications.server";
+import { enforcePublicWrite } from "@/shared/lib/security/guardRequest.server";
 
 export const dynamic = "force-dynamic";
 
 export async function POST(request: Request) {
+  const limited = await enforcePublicWrite(request, "quote");
+  if (limited) return limited;
+
   try {
     const body = (await request.json()) as QuoteRequestInput;
 
@@ -26,7 +30,7 @@ export async function POST(request: Request) {
       await sendNewQuoteInternalEmail(record);
     }
 
-    return NextResponse.json({ ok: true, request: record });
+    return NextResponse.json({ ok: true, id: record.id, created });
   } catch {
     return NextResponse.json(
       { error: "No se pudo registrar la solicitud de cotización." },

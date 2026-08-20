@@ -41,7 +41,7 @@ import {
   type BodyCoverage,
 } from "@/widgets/body-3d/domain/bodyPublicSelectionCatalog";
 import { resolveTargetToAtomicZoneIds } from "@/widgets/body-3d/domain/bodySelectionTargets";
-import { setActivePublicTargetsForHit } from "@/widgets/body-3d/interaction/bodyPublicMaskHit";
+import { emitirHechoAnalitica } from "@/shared/lib/analitica/emitirCliente";
 import {
   getCameraFocusForAtomicZone,
   getFullBodyCameraPose,
@@ -469,11 +469,16 @@ export function BodyPremiumSelector({
       setShowContainedOverride(false);
       setReplacingTargetId(null);
       setDistantCandidateId(null);
-      setConfirmedTargetId(targetToken);
-      setSheetMode("zone");
-      setSheetState(isCoarsePointer ? "peek" : "closed");
-      orientCameraToPublicTarget(targetToken);
-      return;
+    setConfirmedTargetId(targetToken);
+    setSheetMode("zone");
+    setSheetState(isCoarsePointer ? "peek" : "closed");
+    orientCameraToPublicTarget(targetToken);
+    emitirHechoAnalitica({
+      tipo_evento: "zona_corporal",
+      etiqueta: getPublicShortLabel(targetToken),
+      valor: targetToken,
+    });
+    return;
     }
 
     const result = tryAddContiguousPublicTarget(selectedTargetIds, targetToken);
@@ -494,6 +499,11 @@ export function BodyPremiumSelector({
     setSheetMode("zone");
     setSheetState(isCoarsePointer ? "peek" : "closed");
     orientCameraToPublicTarget(targetToken);
+    emitirHechoAnalitica({
+      tipo_evento: "zona_corporal",
+      etiqueta: getPublicShortLabel(targetToken),
+      valor: targetToken,
+    });
   }
 
   function handleSelectOption(targetId: string) {

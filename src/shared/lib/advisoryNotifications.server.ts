@@ -1,35 +1,71 @@
 import { BRAND } from "@/shared/config/brand";
-import { getStudioFullAddress } from "@/shared/config/studio";
+import { getStudioFullAddress, STUDIO } from "@/shared/config/studio";
 import type { AdvisoryBooking } from "@/shared/lib/advisoryTypes";
 import { formatSlotLabel } from "@/shared/lib/advisorySlots";
 import { getSiteOrigin } from "@/shared/lib/siteOrigin.server";
 import { sendBrandedEmail, type EmailPayload } from "@/shared/lib/notifications/emailTransport.server";
+import {
+  wrapStudioEmail,
+  type EmailFact,
+} from "@/shared/lib/notifications/emailBrandLayout.server";
 
 function modeLabel(mode: AdvisoryBooking["mode"]) {
-  return mode === "presencial" ? "Presencial (Estudio Emerald)" : "Virtual";
+  return mode === "presencial" ? "Presencial en Estudio Emerald" : "Virtual";
+}
+
+/**
+ * Lo que el cliente necesita para presentarse.
+ * Nada de brief, contacto ni datos que ya escribió en el cotizador.
+ */
+export function clientReservationFacts(booking: AdvisoryBooking): EmailFact[] {
+  const facts: EmailFact[] = [
+    { label: "Cuándo", value: formatSlotLabel(booking.startsAt, "es-CO") },
+    { label: "Formato", value: modeLabel(booking.mode) },
+    { label: "Tiempo", value: `${booking.durationMin} min aprox.` },
+  ];
+
+  if (booking.mode === "presencial") {
+    facts.push({ label: "Lugar", value: getStudioFullAddress() });
+    facts.push({
+      label: "Cómo llegar",
+      value: "Abrir en Google Maps",
+      href: STUDIO.mapsUrl,
+    });
+  }
+
+  if (booking.mode === "virtual" && booking.meetingLink?.trim()) {
+    facts.push({
+      label: "Sala",
+      value: booking.meetingLink.trim(),
+      href: booking.meetingLink.trim(),
+    });
+  }
+
+  return facts;
 }
 
 export function buildAdvisoryBookingDetailsText(booking: AdvisoryBooking) {
-  const slotLabel = formatSlotLabel(booking.startsAt, "es-CO");
-  const lines = [
-    `Modalidad: ${modeLabel(booking.mode)}`,
-    `Horario: ${slotLabel}`,
-    `Duración: ${booking.durationMin} min APROX.`,
-    `Nombre: ${booking.clientName}`,
-    `Teléfono: ${booking.phone}`,
-    `Correo: ${booking.email}`,
-    `Detalles también enviados por correo y WhatsApp.`,
-  ];
-  if (booking.mode === "presencial") {
-    lines.push(`Dirección: ${getStudioFullAddress()}`);
+  return clientReservationFacts(booking)
+    .map((fact) => `${fact.label}: ${fact.value}`)
+    .join("\n");
+}
+
+function clientReservationClosing(booking: AdvisoryBooking, variant: "book" | "remind" | "confirm" | "reschedule") {
+  const arrive =
+    booking.mode === "presencial"
+      ? "Llega unos minutos antes. En recepción puedes preguntar por Neutrottt."
+      : "Entra a la sala unos minutos antes con el enlace.";
+
+  if (variant === "remind") {
+    return `${arrive} Si no confirmas al menos 6 horas antes, suelto el horario.`;
   }
-  if (booking.meetingLink?.trim()) {
-    lines.push(`Reunión: ${booking.meetingLink.trim()}`);
+  if (variant === "confirm") {
+    return arrive;
   }
-  if (booking.projectNotes) {
-    lines.push(`Notas: ${booking.projectNotes}`);
+  if (variant === "reschedule") {
+    return `${arrive} Un día antes te pido confirmar otra vez.`;
   }
-  return lines.join("\n");
+  return `${arrive} Un día antes te escribo para que confirmes si vienes. Si no llega esa confirmación, suelto el horario.`;
 }
 
 function confirmUrl(token: string) {
@@ -86,31 +122,30 @@ async function sendWhatsApp(toPhone: string, body: string) {
 
 export async function sendAdvisoryBookingConfirmationEmail(booking: AdvisoryBooking) {
   const slotLabel = formatSlotLabel(booking.startsAt, "es-CO");
-  const subject = `${BRAND.name} · Asesoría reservada · ${slotLabel}`;
+  const closing = clientReservationClosing(booking, "book");
+  const subject = `${BRAND.name} · El hueco quedó a tu nombre · ${slotLabel}`;
   const text = [
-    `Hola ${booking.clientName},`,
+    `${BRAND.name}`,
+    "Experto en sombras y lettering",
     "",
-    "Tu asesoría quedó reservada. Estos son los datos:",
+    `${booking.clientName},`,
+    "",
+    `El hueco ya tiene tu nombre: ${slotLabel}.`,
     "",
     buildAdvisoryBookingDetailsText(booking),
     "",
-    "Un día antes te escribiremos por correo o WhatsApp para confirmar tu asistencia.",
-    "Si confirmas, el cupo queda fijo en la agenda. Si no respondes a tiempo, liberamos el horario para otra persona y te ayudamos a reagendar.",
+    closing,
     "",
-    `- ${BRAND.name}`,
+    BRAND.name,
   ].join("\n");
 
-  const html = `
-    <div style="font-family:Inter,Arial,sans-serif;line-height:1.6;color:#e7e5e4;background:#0c0a09;padding:32px">
-      <div style="max-width:560px;margin:0 auto;background:#1c1917;border:1px solid #44403c;border-radius:16px;padding:28px">
-        <p style="margin:0 0 8px;font-size:12px;letter-spacing:0.14em;text-transform:uppercase;color:#d6d3d1">Asesoría reservada</p>
-        <h1 style="margin:0 0 16px;font-size:24px;color:#fafaf9">Hola ${booking.clientName}</h1>
-        <p style="margin:0 0 20px;color:#d6d3d1">Tu cupo quedó apartado. Revisa los detalles:</p>
-        <pre style="white-space:pre-wrap;background:#0c0a09;border:1px solid #292524;border-radius:12px;padding:16px;color:#f5f5f4;font-size:14px">${buildAdvisoryBookingDetailsText(booking)}</pre>
-        <p style="margin:20px 0 0;color:#a8a29e;font-size:14px">Un día antes te contactaremos para confirmar asistencia. Si no confirmas a tiempo, liberamos el horario y podrás reagendar.</p>
-      </div>
-    </div>
-  `;
+  const html = wrapStudioEmail({
+    kicker: "Asesoría",
+    headline: booking.clientName,
+    lead: `El hueco ya tiene tu nombre: ${slotLabel}.`,
+    facts: clientReservationFacts(booking),
+    closing,
+  });
 
   return sendEmail({ to: booking.email, subject, html, text });
 }
@@ -118,42 +153,46 @@ export async function sendAdvisoryBookingConfirmationEmail(booking: AdvisoryBook
 export async function sendAdvisoryAttendanceReminder(booking: AdvisoryBooking) {
   const slotLabel = formatSlotLabel(booking.startsAt, "es-CO");
   const link = confirmUrl(booking.confirmationToken);
-  const subject = `${BRAND.name} · Confirma tu asesoría · ${slotLabel}`;
+  const closing = clientReservationClosing(booking, "remind");
+  const subject = `${BRAND.name} · Mañana es ${slotLabel}`;
   const text = [
-    `Hola ${booking.clientName},`,
+    `${BRAND.name}`,
     "",
-    `Tu asesoría es mañana: ${slotLabel}.`,
+    `${booking.clientName}, mañana es tu asesoría: ${slotLabel}.`,
     "",
-    "Confirma tu asistencia aquí:",
+    buildAdvisoryBookingDetailsText(booking),
+    "",
+    "Confirma si vienes:",
     link,
     "",
-    "Si no confirmas antes de 6 horas del horario, liberamos el cupo para otra persona. Luego podrás reagendar en un nuevo espacio.",
+    closing,
     "",
-    `- ${BRAND.name}`,
+    BRAND.name,
   ].join("\n");
 
-  const html = `
-    <div style="font-family:Inter,Arial,sans-serif;line-height:1.6;color:#e7e5e4;background:#0c0a09;padding:32px">
-      <div style="max-width:560px;margin:0 auto;background:#1c1917;border:1px solid #44403c;border-radius:16px;padding:28px">
-        <p style="margin:0 0 8px;font-size:12px;letter-spacing:0.14em;text-transform:uppercase;color:#fbbf24">Confirmar asistencia</p>
-        <h1 style="margin:0 0 12px;font-size:24px;color:#fafaf9">¿Vas a asistir?</h1>
-        <p style="margin:0 0 8px;color:#d6d3d1">Tu asesoría es <strong>${slotLabel}</strong>.</p>
-        <p style="margin:0 0 20px;color:#a8a29e;font-size:14px">Confirma para mantener el cupo en la agenda.</p>
-        <a href="${link}" style="display:inline-block;background:#b45309;color:#fffaf0;text-decoration:none;padding:12px 20px;border-radius:12px;font-weight:600">Confirmar asistencia</a>
-        <p style="margin:20px 0 0;color:#78716c;font-size:13px">Si no confirmas a tiempo, el horario vuelve a estar disponible y te enviamos un enlace para reagendar.</p>
-      </div>
-    </div>
-  `;
+  const html = wrapStudioEmail({
+    kicker: "Mañana",
+    headline: "Vas a venir",
+    lead: `La asesoría es ${slotLabel}. Necesito que confirmes el hueco.`,
+    facts: clientReservationFacts(booking),
+    action: { href: link, label: "Confirmar que voy" },
+    closing,
+  });
 
   const emailResult = await sendEmail({ to: booking.email, subject, html, text });
 
-  const whatsappBody = [
-    `Hola ${booking.clientName}, soy ${BRAND.name}.`,
-    `Confirma tu asesoría ${modeLabel(booking.mode)} para ${slotLabel}.`,
-    `Enlace: ${link}`,
-  ].join(" ");
+  const whatsappLines = [
+    `${BRAND.name}. ${booking.clientName}, mañana es tu asesoría ${modeLabel(booking.mode)}: ${slotLabel}.`,
+    `Confirma aquí: ${link}`,
+  ];
+  if (booking.mode === "virtual" && booking.meetingLink?.trim()) {
+    whatsappLines.push(`Sala: ${booking.meetingLink.trim()}`);
+  }
+  if (booking.mode === "presencial") {
+    whatsappLines.push(`Lugar: ${getStudioFullAddress()}`);
+  }
 
-  const whatsappResult = await sendWhatsApp(booking.phone, whatsappBody);
+  const whatsappResult = await sendWhatsApp(booking.phone, whatsappLines.join(" "));
 
   return {
     email: emailResult,
@@ -164,35 +203,31 @@ export async function sendAdvisoryAttendanceReminder(booking: AdvisoryBooking) {
 export async function sendAdvisorySlotReleasedNotice(booking: AdvisoryBooking) {
   const slotLabel = formatSlotLabel(booking.startsAt, "es-CO");
   const link = rescheduleUrl(booking.confirmationToken);
-  const subject = `${BRAND.name} · Cupo liberado · reagenda tu asesoría`;
+  const subject = `${BRAND.name} · El hueco de ${slotLabel} volvió a la libreta`;
   const text = [
-    `Hola ${booking.clientName},`,
+    `${BRAND.name}`,
     "",
-    `No recibimos confirmación de asistencia para ${slotLabel}, así que liberamos el horario para otra persona.`,
+    `${booking.clientName}, no llegó la confirmación para ${slotLabel}. Suelto el horario.`,
     "",
-    "Si aún quieres la asesoría, elige un nuevo cupo aquí:",
+    "Si todavía quieres sentarte, elige otro hueco:",
     link,
     "",
-    `- ${BRAND.name}`,
+    BRAND.name,
   ].join("\n");
 
-  const html = `
-    <div style="font-family:Inter,Arial,sans-serif;line-height:1.6;color:#e7e5e4;background:#0c0a09;padding:32px">
-      <div style="max-width:560px;margin:0 auto;background:#1c1917;border:1px solid #44403c;border-radius:16px;padding:28px">
-        <p style="margin:0 0 8px;font-size:12px;letter-spacing:0.14em;text-transform:uppercase;color:#fb7185">Cupo liberado</p>
-        <h1 style="margin:0 0 12px;font-size:24px;color:#fafaf9">¿Quieres reagendar?</h1>
-        <p style="margin:0 0 8px;color:#d6d3d1">Liberamos <strong>${slotLabel}</strong> porque no confirmaste a tiempo.</p>
-        <p style="margin:0 0 20px;color:#a8a29e;font-size:14px">El horario ya está disponible para otra persona. Si sigues interesado, elige otro espacio:</p>
-        <a href="${link}" style="display:inline-block;background:#44403c;color:#fafaf9;text-decoration:none;padding:12px 20px;border-radius:12px;font-weight:600">Reagendar asesoría</a>
-      </div>
-    </div>
-  `;
+  const html = wrapStudioEmail({
+    kicker: "Libreta",
+    headline: "Suelto el hueco",
+    lead: `No llegó la confirmación para ${slotLabel}. El horario volvió a la libreta.`,
+    action: { href: link, label: "Elegir otro hueco" },
+    closing: "Si todavía quieres sentarte, hay otros espacios.",
+  });
 
   const emailResult = await sendEmail({ to: booking.email, subject, html, text });
 
   const whatsappBody = [
-    `Hola ${booking.clientName}, liberamos tu cupo de ${slotLabel} por falta de confirmación.`,
-    `Reagenda aquí: ${link}`,
+    `${BRAND.name}. ${booking.clientName}, suelto el hueco de ${slotLabel}: no llegó la confirmación.`,
+    `Otro horario: ${link}`,
   ].join(" ");
 
   const whatsappResult = await sendWhatsApp(booking.phone, whatsappBody);
@@ -205,58 +240,54 @@ export async function sendAdvisorySlotReleasedNotice(booking: AdvisoryBooking) {
 
 export async function sendAdvisoryAttendanceConfirmedEmail(booking: AdvisoryBooking) {
   const slotLabel = formatSlotLabel(booking.startsAt, "es-CO");
-  const subject = `${BRAND.name} · Asistencia confirmada · ${slotLabel}`;
+  const closing = clientReservationClosing(booking, "confirm");
+  const subject = `${BRAND.name} · Quedó marcado · ${slotLabel}`;
   const text = [
-    `Hola ${booking.clientName},`,
+    `${BRAND.name}`,
     "",
-    `Listo: tu asistencia quedó confirmada para ${slotLabel}.`,
+    `${booking.clientName}, quedó marcado: ${slotLabel}.`,
     "",
     buildAdvisoryBookingDetailsText(booking),
     "",
-    "Nos vemos pronto.",
+    closing,
     "",
-    `- ${BRAND.name}`,
+    BRAND.name,
   ].join("\n");
 
-  const html = `
-    <div style="font-family:Inter,Arial,sans-serif;line-height:1.6;color:#e7e5e4;background:#0c0a09;padding:32px">
-      <div style="max-width:560px;margin:0 auto;background:#1c1917;border:1px solid #44403c;border-radius:16px;padding:28px">
-        <p style="margin:0 0 8px;font-size:12px;letter-spacing:0.14em;text-transform:uppercase;color:#34d399">Asistencia confirmada</p>
-        <h1 style="margin:0 0 12px;font-size:24px;color:#fafaf9">Te esperamos</h1>
-        <p style="margin:0 0 16px;color:#d6d3d1">Tu cupo quedó fijo en la agenda para <strong>${slotLabel}</strong>.</p>
-        <pre style="white-space:pre-wrap;background:#0c0a09;border:1px solid #292524;border-radius:12px;padding:16px;color:#f5f5f4;font-size:14px">${buildAdvisoryBookingDetailsText(booking)}</pre>
-      </div>
-    </div>
-  `;
+  const html = wrapStudioEmail({
+    kicker: "Marcado",
+    headline: "Te espero",
+    lead: `El hueco quedó fijo: ${slotLabel}.`,
+    facts: clientReservationFacts(booking),
+    closing,
+  });
 
   return sendEmail({ to: booking.email, subject, html, text });
 }
 
 export async function sendAdvisoryRescheduledEmail(booking: AdvisoryBooking) {
   const slotLabel = formatSlotLabel(booking.startsAt, "es-CO");
-  const subject = `${BRAND.name} · Asesoría reagendada · ${slotLabel}`;
+  const closing = clientReservationClosing(booking, "reschedule");
+  const subject = `${BRAND.name} · El hueco ahora es ${slotLabel}`;
   const text = [
-    `Hola ${booking.clientName},`,
+    `${BRAND.name}`,
     "",
-    "Tu asesoría quedó reagendada:",
+    `${booking.clientName}, movimos el hueco a ${slotLabel}.`,
     "",
     buildAdvisoryBookingDetailsText(booking),
     "",
-    "Un día antes te pediremos confirmar asistencia de nuevo.",
+    closing,
     "",
-    `- ${BRAND.name}`,
+    BRAND.name,
   ].join("\n");
 
-  const html = `
-    <div style="font-family:Inter,Arial,sans-serif;line-height:1.6;color:#e7e5e4;background:#0c0a09;padding:32px">
-      <div style="max-width:560px;margin:0 auto;background:#1c1917;border:1px solid #44403c;border-radius:16px;padding:28px">
-        <p style="margin:0 0 8px;font-size:12px;letter-spacing:0.14em;text-transform:uppercase;color:#fbbf24">Reagendado</p>
-        <h1 style="margin:0 0 12px;font-size:24px;color:#fafaf9">Nuevo horario</h1>
-        <pre style="white-space:pre-wrap;background:#0c0a09;border:1px solid #292524;border-radius:12px;padding:16px;color:#f5f5f4;font-size:14px">${buildAdvisoryBookingDetailsText(booking)}</pre>
-        <p style="margin:16px 0 0;color:#a8a29e;font-size:14px">Te recordaremos confirmar asistencia un día antes.</p>
-      </div>
-    </div>
-  `;
+  const html = wrapStudioEmail({
+    kicker: "Otro hueco",
+    headline: "Lo movimos",
+    lead: `El nuevo horario es ${slotLabel}.`,
+    facts: clientReservationFacts(booking),
+    closing,
+  });
 
   return sendEmail({ to: booking.email, subject, html, text });
 }

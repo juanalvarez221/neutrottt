@@ -1,5 +1,8 @@
 import { NextResponse } from "next/server";
-import { updateQuoteRequestStatus } from "@/shared/lib/storage/quoteRequestStore.server";
+import {
+  getQuoteRequestById,
+  updateQuoteRequestStatus,
+} from "@/shared/lib/storage/quoteRequestStore.server";
 
 export const dynamic = "force-dynamic";
 
@@ -8,6 +11,22 @@ type PatchBody = {
   statusSlug?: string;
   statusLabel?: string;
 };
+
+export async function GET(
+  _request: Request,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  try {
+    const { id } = await params;
+    const record = await getQuoteRequestById(id);
+    if (!record) {
+      return NextResponse.json({ error: "Solicitud no encontrada." }, { status: 404 });
+    }
+    return NextResponse.json({ request: record });
+  } catch {
+    return NextResponse.json({ error: "No se pudo leer la solicitud." }, { status: 500 });
+  }
+}
 
 export async function PATCH(
   request: Request,

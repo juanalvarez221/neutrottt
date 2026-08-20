@@ -23,6 +23,13 @@ export type CalendarEventResult = {
   hangoutLink?: string;
 };
 
+export type ListedCalendarEvent = {
+  id: string;
+  summary: string;
+  start: string;
+  end: string;
+};
+
 function encodeCalendarId(config: GoogleCalendarConfig): string {
   return encodeURIComponent(config.calendarId);
 }
@@ -57,6 +64,68 @@ export async function queryBusyIntervals(
     calendars?: Record<string, { busy?: BusyInterval[] }>;
   };
   return data.calendars?.[config.calendarId]?.busy ?? [];
+}
+
+/** Lista eventos del rango (incluye recurrencias expandidas). */
+export async function listCalendarEvents(
+  config: GoogleCalendarConfig,
+  timeMin: string,
+  timeMax: string,
+): Promise<ListedCalendarEvent[]> {
+  const token = await getGoogleAccessToken(config);
+  const events: ListedCalendarEvent[] = [];
+  let pageToken: string | undefined;
+
+  do {
+    const params = new URLSearchParams({
+      timeMin,
+      timeMax,
+      singleEvents: "true",
+      orderBy: "startTime",
+      maxResults: "250",
+      timeZone: TIME_ZONE,
+    });
+    if (pageToken) params.set("pageToken", pageToken);
+
+    const response = await googleFetch(
+      `${CALENDAR_BASE}/calendars/${encodeCalendarId(config)}/events?${params.toString()}`,
+      {
+        method: "GET",
+        headers: { Authorization: `Bearer ${token}` },
+      },
+    );
+
+    if (!response.ok) {
+      const detail = await response.text().catch(() => "");
+      throw new Error(`Listar eventos falló (${response.status}). ${detail}`.trim());
+    }
+
+    const data = (await response.json()) as {
+      nextPageToken?: string;
+      items?: Array<{
+        id?: string;
+        summary?: string;
+        start?: { dateTime?: string; date?: string };
+        end?: { dateTime?: string; date?: string };
+      }>;
+    };
+
+    for (const item of data.items ?? []) {
+      const start = item.start?.dateTime ?? (item.start?.date ? `${item.start.date}T00:00:00${"-05:00"}` : "");
+      const end = item.end?.dateTime ?? (item.end?.date ? `${item.end.date}T00:00:00${"-05:00"}` : "");
+      if (!item.id || !start || !end) continue;
+      events.push({
+        id: item.id,
+        summary: item.summary ?? "",
+        start: new Date(start).toISOString(),
+        end: new Date(end).toISOString(),
+      });
+    }
+
+    pageToken = data.nextPageToken;
+  } while (pageToken);
+
+  return events;
 }
 
 function buildEventBody(input: CalendarEventInput) {
@@ -94,14 +163,47 @@ function buildEventBody(input: CalendarEventInput) {
   return body;
 }
 
+function hangoutFromEvent(data: {
+  hangoutLink?: string;
+  conferenceData?: { entryPoints?: Array<{ entryPointType?: string; uri?: string }> };
+}): string | undefined {
+  return (
+    data.hangoutLink ??
+    data.conferenceData?.entryPoints?.find((entry) => entry.entryPointType === "video")?.uri
+  );
+}
+
+export async function getCalendarEvent(
+  config: GoogleCalendarConfig,
+  eventId: string,
+): Promise<CalendarEventResult> {
+  const token = await getGoogleAccessToken(config);
+  const response = await googleFetch(
+    `${CALENDAR_BASE}/calendars/${encodeCalendarId(config)}/events/${encodeURIComponent(eventId)}`,
+    {
+      method: "GET",
+      headers: { Authorization: `Bearer ${token}` },
+    },
+  );
+  if (!response.ok) {
+    const detail = await response.text().catch(() => "");
+    throw new Error(`Leer evento falló (${response.status}). ${detail}`.trim());
+  }
+  const data = (await response.json()) as { id: string } & Parameters<typeof hangoutFromEvent>[0];
+  return { id: data.id, hangoutLink: hangoutFromEvent(data) };
+}
+
 export async function insertCalendarEvent(
   config: GoogleCalendarConfig,
   input: CalendarEventInput,
 ): Promise<CalendarEventResult> {
   const token = await getGoogleAccessToken(config);
-  const conferenceParam = input.createMeet ? "?conferenceDataVersion=1" : "";
+  const params = new URLSearchParams();
+  if (input.createMeet) params.set("conferenceDataVersion", "1");
+  if (input.attendees?.length) params.set("sendUpdates", "all");
+  const query = params.toString() ? `?${params.toString()}` : "";
   const response = await googleFetch(
-    `${CALENDAR_BASE}/calendars/${encodeCalendarId(config)}/events${conferenceParam}`,
+    `${CALENDAR_BASE}/calendars/${encodeCalendarId(config)}/events${query}`,
     {
       method: "POST",
       headers: {
@@ -114,11 +216,19 @@ export async function insertCalendarEvent(
 
   if (!response.ok) {
     const detail = await response.text().catch(() => "");
+    if (input.createMeet && /conference/i.test(detail)) {
+      return insertCalendarEvent(config, { ...input, createMeet: false });
+    }
     throw new Error(`Crear evento falló (${response.status}). ${detail}`.trim());
   }
 
-  const data = (await response.json()) as { id: string; hangoutLink?: string };
-  return { id: data.id, hangoutLink: data.hangoutLink };
+  const data = (await response.json()) as { id: string } & Parameters<typeof hangoutFromEvent>[0];
+  const hangoutLink = hangoutFromEvent(data);
+  if (input.createMeet && !hangoutLink) {
+    const fetched = await getCalendarEvent(config, data.id);
+    return { id: data.id, hangoutLink: fetched.hangoutLink };
+  }
+  return { id: data.id, hangoutLink };
 }
 
 export async function patchCalendarEvent(

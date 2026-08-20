@@ -1,6 +1,7 @@
 import {
   getGoogleCalendarConfig,
   isGoogleCalendarEnabled,
+  usesSeparateMeetCalendar,
 } from "@/shared/lib/googleCalendar/googleCalendarConfig";
 import { getGoogleAccessToken } from "@/shared/lib/googleCalendar/googleAuth.server";
 import { queryBusyIntervals } from "@/shared/lib/googleCalendar/googleCalendarClient.server";
@@ -73,8 +74,10 @@ async function checkGoogleCalendar(): Promise<IntegrationCheck> {
       state: "ok",
       detail: `Conectado a ${config.calendarId}. ${busy.length} bloque(s) ocupado(s) en la próxima hora.`,
       hint: config.createMeet
-        ? "Meet activo para virtuales (requiere Google Workspace)."
-        : "Meet desactivado (correcto para Gmail personal).",
+        ? usesSeparateMeetCalendar(config)
+          ? `Meet se crea en ${config.meetCalendarId} (cuenta Neutrottt). Comparte ese Calendar con el service account y dale permiso de "Hacer cambios en eventos".`
+          : "Meet activo en el mismo calendario de agenda (requiere Google Workspace)."
+        : "Meet desactivado (correcto para Gmail personal: la sala de respaldo es Jitsi Neutrottt).",
     };
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
@@ -89,27 +92,29 @@ async function checkGoogleCalendar(): Promise<IntegrationCheck> {
 }
 
 function checkEmail(): IntegrationCheck {
-  const hasResend = Boolean(process.env.RESEND_API_KEY?.trim());
+  const hasGmail = Boolean(
+    process.env.GMAIL_SMTP_USER?.trim() && process.env.GMAIL_SMTP_APP_PASSWORD?.trim(),
+  );
   const artistEmail = getArtistNotificationsEmail();
 
-  if (!hasResend) {
+  if (!hasGmail) {
     return {
       id: "email",
-      label: "Correo (Resend)",
+      label: "Correo (Gmail)",
       state: "preview",
-      detail: "Sin RESEND_API_KEY: los emails se imprimen en consola del servidor.",
-      hint: "Define RESEND_API_KEY y RESEND_FROM_EMAIL para envío real.",
+      detail: "Sin GMAIL_SMTP_USER / GMAIL_SMTP_APP_PASSWORD: los emails se imprimen en consola.",
+      hint: "Define las credenciales SMTP de neutrottt.tech@gmail.com. Los avisos internos llegan a ARTIST_NOTIFICATIONS_EMAIL.",
     };
   }
 
   return {
     id: "email",
-    label: "Correo (Resend)",
+    label: "Correo (Gmail)",
     state: "ok",
     detail: artistEmail
-      ? `Resend configurado. Notificaciones internas → ${artistEmail}`
-      : "Resend configurado. Falta ARTIST_NOTIFICATIONS_EMAIL para avisos al artista.",
-    hint: artistEmail ? undefined : "Añade ARTIST_NOTIFICATIONS_EMAIL en .env.local",
+      ? `Gmail SMTP activo (${process.env.GMAIL_SMTP_USER?.trim()}). Avisos internos → ${artistEmail}`
+      : "Gmail SMTP activo. Falta ARTIST_NOTIFICATIONS_EMAIL para avisos al artista.",
+    hint: artistEmail ? undefined : "Añade ARTIST_NOTIFICATIONS_EMAIL en el entorno.",
   };
 }
 

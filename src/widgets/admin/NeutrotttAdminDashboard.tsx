@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
+  Activity,
   CalendarDays,
   CircleDollarSign,
   Clock3,
@@ -13,6 +14,7 @@ import {
   Send,
   UserRound,
 } from "lucide-react";
+import Link from "next/link";
 import { AppShell } from "@/widgets/layout/AppShell";
 import { Card } from "@/shared/ui/Card";
 import { cn } from "@/shared/lib/cn";
@@ -85,6 +87,8 @@ type QuoteRequestRecordLite = {
   estimatePerSession?: string;
   estimateTotal?: string;
   statusLabel: string;
+  officialSessionPrice?: number;
+  officialSessionCount?: number;
 };
 
 /** Mapea un registro persistido del backend al shape que usa el admin. */
@@ -111,6 +115,8 @@ function backendToSmartQuote(record: QuoteRequestRecordLite): SmartQuoteRequest 
     estimatePerSession: record.estimatePerSession ?? "",
     estimateTotal: record.estimateTotal ?? "",
     status: (record.statusLabel as SmartQuoteStatus) ?? "Pendiente de Ajuste",
+    adminSessionPrice: record.officialSessionPrice,
+    adminSessionCount: record.officialSessionCount,
   };
 }
 
@@ -157,109 +163,11 @@ const money = new Intl.NumberFormat("es-CO", {
   maximumFractionDigits: 0,
 });
 
-function sanitizePhone(rawPhone: string) {
-  return rawPhone.replace(/[^\d]/g, "");
-}
-
 function extractClosestSessions(text: string) {
   const nums = text.match(/\d+/g)?.map(Number) ?? [];
   if (!nums.length) return 1;
   if (nums.length === 1) return nums[0];
   return Math.round((nums[0] + nums[1]) / 2);
-}
-
-function estimateImageCard(
-  quote: SmartQuoteRequest,
-  sessionPrice: number,
-  sessionsCount: number,
-  total: number,
-) {
-  const canvas = document.createElement("canvas");
-  canvas.width = 1200;
-  canvas.height = 1600;
-  const ctx = canvas.getContext("2d");
-  if (!ctx) return null;
-
-  const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-  gradient.addColorStop(0, "#09090b");
-  gradient.addColorStop(1, "#12101a");
-  ctx.fillStyle = gradient;
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-  ctx.fillStyle = "rgba(245,158,11,0.25)";
-  ctx.beginPath();
-  ctx.arc(980, 140, 260, 0, Math.PI * 2);
-  ctx.fill();
-
-  ctx.fillStyle = "#ffffff";
-  ctx.font = "700 58px Montserrat, sans-serif";
-  ctx.fillText("NEUTROTTT", 70, 120);
-
-  ctx.fillStyle = "#c4b5fd";
-  ctx.font = "600 36px Montserrat, sans-serif";
-  ctx.fillText("Cotizacion Profesional", 70, 180);
-
-  ctx.strokeStyle = "rgba(255,255,255,0.16)";
-  ctx.strokeRect(60, 240, 1080, 1260);
-
-  const rows = [
-    `Cliente: ${quote.clientName}`,
-    `Telefono: ${quote.phone}`,
-    `Tamano: ${quote.size}`,
-    `Zona: ${quote.zone}`,
-    `Estilo: ${quote.style}`,
-    `Sesiones: ${sessionsCount} (estimacion cercana)`,
-    `Valor por sesion: ${money.format(sessionPrice)}`,
-    `Total proyectado: ${money.format(total)}`,
-    `Notas: ${quote.notes || "Sin notas adicionales"}`,
-  ];
-
-  let y = 320;
-  ctx.fillStyle = "#e5e7eb";
-  rows.forEach((line, index) => {
-    ctx.font = index === 7 ? "700 40px Montserrat, sans-serif" : "500 34px Montserrat, sans-serif";
-    ctx.fillText(line, 95, y);
-    y += 118;
-  });
-
-  ctx.fillStyle = "rgba(255,255,255,0.65)";
-  ctx.font = "500 28px Montserrat, sans-serif";
-  ctx.fillText(
-    `Generada: ${new Date().toLocaleString("es-CO", {
-      dateStyle: "short",
-      timeStyle: "short",
-    })}`,
-    95,
-    1460,
-  );
-
-  return canvas.toDataURL("image/png");
-}
-
-async function shareImageIfPossible(dataUrl: string, filename: string, text: string) {
-  const response = await fetch(dataUrl);
-  const blob = await response.blob();
-  const file = new File([blob], filename, { type: "image/png" });
-
-  if (
-    typeof navigator !== "undefined" &&
-    "share" in navigator &&
-    "canShare" in navigator &&
-    navigator.canShare?.({ files: [file] })
-  ) {
-    await navigator.share({
-      title: "Cotizacion Neutrottt",
-      text,
-      files: [file],
-    });
-    return true;
-  }
-
-  const link = document.createElement("a");
-  link.href = dataUrl;
-  link.download = filename;
-  link.click();
-  return false;
 }
 
 export function NeutrotttAdminDashboard() {
@@ -388,45 +296,6 @@ export function NeutrotttAdminDashboard() {
     setQuotes((prev) => prev.map((quote) => (quote.id === id ? { ...quote, status } : quote)));
     updateSmartQuoteRequest(id, { status });
     void patchQuoteRequestStatusBackend(id, status);
-  };
-
-  const adjustAndSendWhatsApp = async (quote: SmartQuoteRequest) => {
-    const adjusted = adjustments[quote.id];
-    const sessionPrice = adjusted?.sessionPrice ?? quote.adminSessionPrice ?? SESSION_PRICE_SEPARATE_DAYS;
-    const sessionsCount =
-      adjusted?.sessionsCount ??
-      quote.adminSessionCount ??
-      extractClosestSessions(quote.estimateSessions);
-    const total = sessionPrice * sessionsCount;
-
-    setQuotes((prev) =>
-      prev.map((item) =>
-        item.id === quote.id
-          ? {
-              ...item,
-              adminSessionPrice: sessionPrice,
-              adminSessionCount: sessionsCount,
-              status: "Enviada",
-            }
-          : item,
-      ),
-    );
-    updateSmartQuoteRequest(quote.id, {
-      adminSessionPrice: sessionPrice,
-      adminSessionCount: sessionsCount,
-      status: "Enviada",
-    });
-    void patchQuoteRequestStatusBackend(quote.id, "Enviada");
-
-    const shortMessage = `Hola ${quote.clientName}, espero que estes muy bien. Te comparto tu cotizacion profesional de Neutrottt: ${sessionsCount} sesiones aprox con un valor de ${money.format(sessionPrice)} por sesion (total ${money.format(total)}). Quedo atento para agendarte con toda la energia.`;
-
-    const card = estimateImageCard(quote, sessionPrice, sessionsCount, total);
-    if (card) {
-      await shareImageIfPossible(card, `cotizacion-${quote.id}.png`, shortMessage);
-    }
-
-    const waLink = `https://wa.me/${sanitizePhone(quote.phone)}?text=${encodeURIComponent(shortMessage)}`;
-    window.open(waLink, "_blank", "noopener,noreferrer");
   };
 
   const addExternalProject = () => {
@@ -614,6 +483,12 @@ export function NeutrotttAdminDashboard() {
               >
                 <CalendarDays className="h-4 w-4" /> Asesorías
               </button>
+              <Link
+                href="/admin/analitica"
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm font-semibold text-zinc-200 transition hover:bg-white/10"
+              >
+                <Activity className="h-4 w-4" /> Métricas web
+              </Link>
             </div>
           </div>
         </Card>
@@ -776,13 +651,12 @@ export function NeutrotttAdminDashboard() {
                             </label>
                           </div>
 
-                          <button
-                            onClick={() => adjustAndSendWhatsApp(quote)}
-                            className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-amber-500/30 bg-amber-600/15 px-3 py-2.5 text-xs font-semibold text-amber-100 transition hover:bg-amber-600/25 sm:w-auto"
+                          <Link
+                            href={`/admin/cotizaciones/${quote.id}`}
+                            className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-amber-500/30 bg-amber-600/15 px-3 py-2.5 text-xs font-semibold text-amber-100 transition hover:bg-amber-600/25 active:scale-[0.98] sm:w-auto"
                           >
-                            <Send className="h-3.5 w-3.5" /> Ajustar y enviar por
-                            WhatsApp
-                          </button>
+                            <Send className="h-3.5 w-3.5" /> Ajustar y enviar cotización
+                          </Link>
                         </div>
                       );
                     })

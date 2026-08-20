@@ -4,8 +4,12 @@
  * - Si está habilitada pero faltan variables críticas → error claro (no silencioso).
  * Todo vive server-side; nunca se expone al cliente.
  */
+import { STUDIO_MAIL } from "@/shared/config/mail";
+
 export type GoogleCalendarConfig = {
   calendarId: string;
+  /** Calendar de la cuenta Neutrottt: ahí se crea el Meet, no en la agenda del artista. */
+  meetCalendarId: string;
   clientEmail: string;
   privateKey: string;
   createMeet: boolean;
@@ -38,11 +42,21 @@ export function getGoogleCalendarConfig(): GoogleCalendarConfig | null {
 
   const createMeetSetting = process.env.GOOGLE_CALENDAR_CREATE_MEET?.trim().toLowerCase();
   const createMeet = createMeetSetting === undefined ? true : createMeetSetting === "true";
+  const meetCalendarId = process.env.GOOGLE_MEET_CALENDAR_ID?.trim() || STUDIO_MAIL.fromAddress;
 
   return {
     calendarId,
+    meetCalendarId,
     clientEmail,
     privateKey,
     createMeet,
   };
+}
+
+export function usesSeparateMeetCalendar(config: GoogleCalendarConfig): boolean {
+  return config.meetCalendarId.trim().toLowerCase() !== config.calendarId.trim().toLowerCase();
+}
+
+export function brandMeetCalendarConfig(config: GoogleCalendarConfig): GoogleCalendarConfig {
+  return { ...config, calendarId: config.meetCalendarId };
 }
