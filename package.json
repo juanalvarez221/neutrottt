@@ -16,7 +16,8 @@
     "perf:assets": "node scripts/perf-budget.mjs",
     "responsive:audit": "node scripts/responsive-audit.mjs",
     "advisory:health": "node scripts/advisory-health.mjs",
-    "crm:migrate": "node scripts/crm-migrate.mjs"
+    "crm:migrate": "node scripts/crm-migrate.mjs",
+    "admin:seed": "node scripts/seed-admins.mjs"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",

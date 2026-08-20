@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
-import { KeyRound, Loader2, ShieldCheck } from "lucide-react";
+import { KeyRound, Loader2, Mail, ShieldCheck } from "lucide-react";
 
 function sanitizeNext(next: string | null): string {
   if (!next || !next.startsWith("/admin")) return "/admin";
@@ -16,13 +16,14 @@ export function AdminLoginForm() {
   const searchParams = useSearchParams();
   const nextPath = sanitizeNext(searchParams.get("next"));
 
-  const [pin, setPin] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    if (!pin.trim() || submitting) return;
+    if (!password.trim() || submitting) return;
     setSubmitting(true);
     setError("");
 
@@ -30,7 +31,10 @@ export function AdminLoginForm() {
       const response = await fetch("/api/admin/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ pin: pin.trim() }),
+        body: JSON.stringify({
+          email: email.trim(),
+          password: password.trim(),
+        }),
       });
       const payload = (await response.json().catch(() => ({}))) as { error?: string };
 
@@ -72,12 +76,31 @@ export function AdminLoginForm() {
           Estudio Neutrottt
         </h1>
         <p className="mt-2 text-sm leading-relaxed text-zinc-400">
-          Este panel es privado. Ingresa tu clave para gestionar agenda y cotizaciones.
+          Este panel es privado. Entra con tu correo Neutrottt y tu clave.
         </p>
 
         <form onSubmit={handleSubmit} className="mt-6 flex flex-col gap-2">
-          <label htmlFor="admin-pin" className="text-xs font-medium text-zinc-400">
-            Clave de acceso
+          <label htmlFor="admin-email" className="text-xs font-medium text-zinc-400">
+            Correo
+          </label>
+          <div className="relative">
+            <Mail
+              className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-500"
+              strokeWidth={1.5}
+            />
+            <input
+              id="admin-email"
+              type="email"
+              autoComplete="username"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+              placeholder="tu@neutrottt.com"
+              className="w-full rounded-xl border border-white/10 bg-black/40 py-3 pl-9 pr-3 text-sm text-zinc-50 outline-none transition focus:border-amber-500/40 focus:bg-black/55 placeholder:text-zinc-600"
+            />
+          </div>
+
+          <label htmlFor="admin-password" className="mt-2 text-xs font-medium text-zinc-400">
+            Contraseña
           </label>
           <div className="relative">
             <KeyRound
@@ -85,13 +108,12 @@ export function AdminLoginForm() {
               strokeWidth={1.5}
             />
             <input
-              id="admin-pin"
+              id="admin-password"
               type="password"
-              inputMode="numeric"
               autoComplete="current-password"
-              value={pin}
-              onChange={(event) => setPin(event.target.value)}
-              placeholder="••••••"
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              placeholder="••••••••"
               className="w-full rounded-xl border border-white/10 bg-black/40 py-3 pl-9 pr-3 text-sm text-zinc-50 outline-none transition focus:border-amber-500/40 focus:bg-black/55 placeholder:text-zinc-600"
             />
           </div>
@@ -104,7 +126,7 @@ export function AdminLoginForm() {
 
           <button
             type="submit"
-            disabled={submitting || !pin.trim()}
+            disabled={submitting || !email.trim() || !password.trim()}
             className="mt-3 inline-flex items-center justify-center gap-2 rounded-xl border border-amber-500/30 bg-amber-600/20 px-4 py-3 text-sm font-semibold text-amber-50 transition hover:bg-amber-600/30 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
           >
             {submitting ? <Loader2 className="h-4 w-4 animate-spin" strokeWidth={1.5} /> : null}

@@ -39,6 +39,15 @@ const statements = [
     clave TEXT PRIMARY KEY,
     valor TEXT NOT NULL
   )`,
+  `CREATE TABLE IF NOT EXISTS admins (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    email TEXT NOT NULL UNIQUE,
+    nombre TEXT NOT NULL,
+    password_hash TEXT NOT NULL,
+    activo BOOLEAN NOT NULL DEFAULT true,
+    creado_en TIMESTAMPTZ NOT NULL DEFAULT now(),
+    ultimo_acceso_en TIMESTAMPTZ
+  )`,
 ];
 
 const sql = postgres(url, { ssl: "require", max: 1 });
@@ -50,7 +59,7 @@ const tables = await sql`
   select table_name
   from information_schema.tables
   where table_schema = 'public'
-    and table_name in ('personas', 'persona_hechos', 'crm_meta')
+    and table_name in ('personas', 'persona_hechos', 'crm_meta', 'admins')
   order by table_name
 `;
 await sql.end();

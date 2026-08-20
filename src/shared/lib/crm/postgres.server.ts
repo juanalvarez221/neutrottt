@@ -33,6 +33,15 @@ const SCHEMA_STATEMENTS = [
     clave TEXT PRIMARY KEY,
     valor TEXT NOT NULL
   )`,
+  `CREATE TABLE IF NOT EXISTS admins (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    email TEXT NOT NULL UNIQUE,
+    nombre TEXT NOT NULL,
+    password_hash TEXT NOT NULL,
+    activo BOOLEAN NOT NULL DEFAULT true,
+    creado_en TIMESTAMPTZ NOT NULL DEFAULT now(),
+    ultimo_acceso_en TIMESTAMPTZ
+  )`,
 ];
 
 let client: postgres.Sql | null = null;

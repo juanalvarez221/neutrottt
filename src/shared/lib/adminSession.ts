@@ -45,13 +45,16 @@ async function hmacSign(secret: string, data: string): Promise<Uint8Array> {
   return new Uint8Array(signature);
 }
 
-/** Crea un token de sesión firmado. El payload solo contiene la expiración. */
+/** Crea un token de sesión firmado. Incluye el correo si el login fue nominado. */
 export async function signSessionToken(
   secret: string,
   ttlSeconds = ADMIN_SESSION_TTL_SECONDS,
+  email?: string,
 ): Promise<string> {
   const exp = Date.now() + ttlSeconds * 1000;
-  const payload = bytesToBase64Url(new TextEncoder().encode(JSON.stringify({ exp })));
+  const payload = bytesToBase64Url(
+    new TextEncoder().encode(JSON.stringify({ exp, email: email?.trim().toLowerCase() || undefined })),
+  );
   const signature = bytesToBase64Url(await hmacSign(secret, payload));
   return `${payload}.${signature}`;
 }
