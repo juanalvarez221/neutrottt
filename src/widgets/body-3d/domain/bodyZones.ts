@@ -242,8 +242,8 @@ function headAtomic(
 export const ATOMIC_HEAD_NECK_ZONES: readonly AtomicBodyZoneDefinition[] = [
   headAtomic("neck_front", "Cuello frente", "center"),
   headAtomic("neck_back", "Nuca", "center"),
-  headAtomic("neck_left", "Cuello izquierdo", "left"),
-  headAtomic("neck_right", "Cuello derecho", "right"),
+  headAtomic("neck_left", "Cuello lateral izquierdo", "left"),
+  headAtomic("neck_right", "Cuello lateral derecho", "right"),
   headAtomic("face_left", "Rostro izquierdo", "left"),
   headAtomic("face_right", "Rostro derecho", "right"),
   headAtomic("head_top", "Coronilla", "center"),

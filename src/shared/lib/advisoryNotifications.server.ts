@@ -14,7 +14,7 @@ export function buildAdvisoryBookingDetailsText(booking: AdvisoryBooking) {
   const lines = [
     `Modalidad: ${modeLabel(booking.mode)}`,
     `Horario: ${slotLabel}`,
-    `Duración: ${booking.durationMin} min`,
+    `Duración: ${booking.durationMin} min APROX.`,
     `Nombre: ${booking.clientName}`,
     `Teléfono: ${booking.phone}`,
     `Correo: ${booking.email}`,

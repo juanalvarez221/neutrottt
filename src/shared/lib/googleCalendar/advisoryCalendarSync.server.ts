@@ -50,7 +50,7 @@ function eventContent(booking: AdvisoryBooking, confirmed: boolean) {
     `• Cliente: ${booking.clientName}`,
     `• Modalidad: ${modeLabel}`,
     `• Horario: ${formatSlotLabel(booking.startsAt, "es-CO")}`,
-    `• Duración: ${booking.durationMin} min`,
+    `• Duración: ${booking.durationMin} min APROX.`,
     `• Estado: ${confirmed ? "Confirmada" : "Pendiente de confirmar"}`,
     `• WhatsApp: ${booking.phone}`,
     `• Email: ${booking.email}`,

@@ -14,10 +14,13 @@ import {
   getLogicalRegionForVisualHit,
   normalizeLogicalPublicHit,
 } from "@/widgets/body-3d/domain/bodyPublicLogicalRegions";
+import { resolveLateralNeckPublicHit } from "@/widgets/body-3d/domain/bodyPublicNeckHit";
 import { getPrimaryPublicSelectionTarget } from "@/widgets/body-3d/domain/bodyPublicSelectionRouting";
 import { isPublicSelectableBodyTarget } from "@/widgets/body-3d/domain/bodyPublicSelectionTargets";
+import { BODY_ZONES_BY_ID } from "@/widgets/body-3d/domain/bodyZones";
 import {
   BODY_PUBLIC_SELECTION_CATALOG,
+  getPublicCatalogEntry,
   stripCoverageToken,
   type PublicBodySelectionTargetId,
 } from "@/widgets/body-3d/domain/bodyPublicSelectionCatalog";
@@ -134,6 +137,13 @@ const PUBLIC_TO_CANONICAL_ATOMIC: Readonly<Record<string, string>> = {
   // Aliases legacy
   upper_back_large: "upper_back_center",
   lower_back_large: "mid_back_center",
+  // Hombros: el mesh de interacción es pequeño y el rayo suele ganar
+  // pecho/brazo/espalda. La máscara (índices 16/17) es la autoridad de hit.
+  right_shoulder: "right_shoulder",
+  left_shoulder: "left_shoulder",
+  // Laterales de cuello: la máscara (índices 7/8) pinta bandas finas.
+  neck_left: "neck_left",
+  neck_right: "neck_right",
 };
 
 export function getPublicTargetForMaskIndex(
@@ -153,7 +163,14 @@ export function getSurfaceRegionIdForMaskIndex(
 export function canonicalAtomicForPublicTarget(
   publicTargetId: string,
 ): string | null {
-  return PUBLIC_TO_CANONICAL_ATOMIC[publicTargetId] ?? null;
+  const bare = stripCoverageToken(publicTargetId).regionId;
+  if (PUBLIC_TO_CANONICAL_ATOMIC[bare]) {
+    return PUBLIC_TO_CANONICAL_ATOMIC[bare];
+  }
+  const member = getPublicCatalogEntry(bare)?.memberIds[0];
+  if (member && BODY_ZONES_BY_ID[member]) return member;
+  if (BODY_ZONES_BY_ID[bare]) return bare;
+  return null;
 }
 
 export type MaskResolvedHit = {
@@ -190,16 +207,21 @@ export async function resolvePublicHitFromUv(
   if (maskIndex <= 0) {
     // Unpainted atlas texel — categorical mask says non-selectable here.
     // Do not let oversized interaction meshes reclaim abdomen/chest.
+    // Lateral neck is an exception: thin bands often sit on empty texels.
+    const lateral = resolveLateralNeckPublicHit(atomicId, null);
     return {
       maskIndex: 0,
       surfaceRegionId: null,
-      publicTargetId: null,
-      effectiveAtomicId: atomicId,
+      publicTargetId: lateral,
+      effectiveAtomicId: lateral ?? atomicId,
     };
   }
 
   const surfaceRegionId = getSurfaceRegionIdForMaskIndex(maskIndex);
-  let publicTargetId = getPublicTargetForMaskIndex(maskIndex);
+  let publicTargetId = resolveLateralNeckPublicHit(
+    atomicId,
+    getPublicTargetForMaskIndex(maskIndex),
+  );
 
   // Logical composite: when full_back is active, upper/lower surfaces resolve to it.
   if (surfaceRegionId && publicTargetId) {

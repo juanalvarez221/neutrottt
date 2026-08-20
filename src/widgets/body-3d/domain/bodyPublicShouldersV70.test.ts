@@ -28,6 +28,13 @@ import {
   getPublicShortLabel,
   getPublicDescription,
 } from "@/widgets/body-3d/domain/bodyPublicRegionMeta";
+import { getPrimaryPublicSelectionTarget } from "@/widgets/body-3d/domain/bodyPublicSelectionRouting";
+import {
+  canonicalAtomicForPublicTarget,
+  getPublicTargetForMaskIndex,
+  getSurfaceRegionIdForMaskIndex,
+} from "@/widgets/body-3d/interaction/bodyPublicMaskHit";
+import { getMaskIndexForRegionId } from "@/widgets/body-3d/domain/bodyPublicRegionMask";
 
 const ROOT = path.resolve(import.meta.dirname, "../../../..");
 const ART = path.join(ROOT, "artifacts/shoulders-v70");
@@ -175,6 +182,37 @@ describe("Shoulders V7.0 — UX metadata + cameras", () => {
     expect(getPublicDescription("left_shoulder")).toMatch(/completa/i);
     expect(getPreferredBodyView("right_shoulder")).toBe("front-right");
     expect(getPreferredBodyView("left_shoulder")).toBe("front-left");
+  });
+
+  it("routes mask hover/select to the shoulder atomic, not chest or arm", () => {
+    expect(canonicalAtomicForPublicTarget("right_shoulder")).toBe(
+      "right_shoulder",
+    );
+    expect(canonicalAtomicForPublicTarget("left_shoulder")).toBe(
+      "left_shoulder",
+    );
+    expect(getPrimaryPublicSelectionTarget("right_shoulder")).toBe(
+      "right_shoulder",
+    );
+    expect(getPrimaryPublicSelectionTarget("left_shoulder")).toBe(
+      "left_shoulder",
+    );
+
+    const rightIndex = getMaskIndexForRegionId("right_shoulder_surface");
+    const leftIndex = getMaskIndexForRegionId("left_shoulder_surface");
+    expect(rightIndex).toBe(16);
+    expect(leftIndex).toBe(17);
+    expect(getPublicTargetForMaskIndex(16)).toBe("right_shoulder");
+    expect(getPublicTargetForMaskIndex(17)).toBe("left_shoulder");
+    expect(getSurfaceRegionIdForMaskIndex(16)).toBe("right_shoulder_surface");
+    expect(getSurfaceRegionIdForMaskIndex(17)).toBe("left_shoulder_surface");
+
+    expect(resolvePublicTargetHighlightRegions("right_shoulder")).toEqual([
+      "right_shoulder_surface",
+    ]);
+    expect(resolvePublicTargetHighlightRegions("left_shoulder")).toEqual([
+      "left_shoulder_surface",
+    ]);
   });
 
   it("keeps official hover/preview/selected opacities", () => {

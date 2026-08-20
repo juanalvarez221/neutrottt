@@ -66,6 +66,8 @@ describe("public region professional metadata", () => {
     expect(getPublicShortLabel("head_top")).toBe("Coronilla");
     expect(getPublicShortLabel("neck_front")).toBe("Cuello anterior");
     expect(getPublicShortLabel("neck_back")).toBe("Nuca");
+    expect(getPublicShortLabel("neck_left")).toBe("Cuello lateral izquierdo");
+    expect(getPublicShortLabel("neck_right")).toBe("Cuello lateral derecho");
     expect(getPublicShortLabel("right_ribs")).toBe("Costillas derechas");
     expect(getPublicDescription("right_ribs")).toMatch(/margen costal/i);
     expect(getPublicShortLabel("left_flank")).toBe("Costado izquierdo");

@@ -348,13 +348,14 @@ export const SITE_COPY = {
       "Es una charla gratuita para afinar zona, referencias y propuesta de tu pieza. Elige presencial o virtual; después ves los horarios.",
     quoteAdvisoryFreeBadge: "100% gratis",
     quoteAdvisoryFreeNote: "Sin ningún costo. Ni presencial, ni virtual.",
-    quoteAdvisoryPresencialTitle: "Presencial",
+    quoteAdvisoryPresencialTitle: "Presencial · 30 min APROX.",
     quoteAdvisoryPresencialStudio: "Estudio Emerald · Medellín",
     quoteAdvisoryPresencialBody:
-      "En Estudio Emerald: zona, referencias y propuesta personalizada.",
-    quoteAdvisoryVirtualTitle: "Virtual · 15 min",
+      "En Estudio Emerald, unos 30 minutos aprox.: zona, referencias y propuesta personalizada.",
+    quoteAdvisoryVirtualTitle: "Virtual · 15 min APROX.",
     quoteAdvisoryVirtualPlatform: "Google Meet",
-    quoteAdvisoryVirtualBody: "Por videollamada, 15 minutos. Misma conversación, otro formato.",
+    quoteAdvisoryVirtualBody:
+      "Por videollamada, unos 15 minutos aprox. Misma conversación, otro formato.",
     quoteAdvisoryVirtualDetail: "Enlace al confirmar la reserva",
     quoteAdvisoryPresencialCta: "Ver agenda presencial",
     quoteAdvisoryVirtualCta: "Ver agenda virtual",
@@ -369,7 +370,8 @@ export const SITE_COPY = {
     quoteAdvisoryBookingAssuranceTitle: "Sin spam",
     quoteAdvisoryBookingAssurance:
       "La asesoría no tiene ningún costo. Usamos tu nombre, correo y WhatsApp solo para confirmar el horario y enviarte los detalles. No enviamos promociones ni mensajes masivos.",
-    quoteAdvisoryBookingDuration: "Duración: {minutes} min",
+    quoteAdvisoryDurationShort: "{minutes} min APROX.",
+    quoteAdvisoryBookingDuration: "Duración: {minutes} min APROX.",
     quoteAdvisoryBookingDayLabel: "Día disponible",
     quoteAdvisoryBookingTimeLabel: "Horario disponible",
     quoteAdvisoryBookingSummary: "Tu asesoría quedará así",
@@ -591,18 +593,20 @@ export const SITE_COPY = {
     quoteSummaryTag: "Inversión",
     quoteSummaryTitle: "Valor por sesión",
     quoteSummaryBody:
-      "El precio depende de cómo agendemos tus sesiones. Piezas medianas (8-20 cm).",
+      "El valor por jornada depende de cómo organicemos las fechas: días seguidos o días aparte. Aplica a piezas medianas (8–20 cm).",
     quotePricingSectionTitle: "Tarifas",
     quotePricingSizeLabel: "Tamaño",
     quotePricingZoneLabel: "Zona",
     quotePricingConsecutiveTitle: "Días seguidos",
-    quotePricingConsecutiveHint: "Sesiones en fechas consecutivas.",
+    quotePricingConsecutiveHint:
+      "Sesiones en jornadas consecutivas, una al día siguiente de la otra.",
     quotePricingSeparateTitle: "Días aparte",
-    quotePricingSeparateHint: "Con más de un día entre cada sesión.",
+    quotePricingSeparateHint:
+      "Sesiones con uno o más días de separación entre cada cita.",
     quotePricingPerSession: "por sesión",
     quotePricingEstimatedTotal: "Total estimado",
     quotePricingFootnote:
-      "El total depende de cuántas sesiones requiera tu pieza. Lo definimos juntos al agendar.",
+      "Los totales son una estimación según el rango de sesiones. El plan definitivo se confirma al agendar.",
     quoteActionTitle: "Siguiente paso",
     quoteActionBody:
       "Reviso tu proyecto y te respondo para coordinar fechas y cerrar el plan de sesiones.",
@@ -983,13 +987,14 @@ export const SITE_COPY = {
       "A free conversation to refine placement, references, and a tailored proposal for your piece. Pick in-person or virtual; available times come next.",
     quoteAdvisoryFreeBadge: "100% free",
     quoteAdvisoryFreeNote: "No cost at all. In person or virtual.",
-    quoteAdvisoryPresencialTitle: "In person",
+    quoteAdvisoryPresencialTitle: "In person · 30 min approx.",
     quoteAdvisoryPresencialStudio: "Estudio Emerald · Medellín",
     quoteAdvisoryPresencialBody:
-      "At Estudio Emerald: placement, references, and a tailored proposal.",
-    quoteAdvisoryVirtualTitle: "Virtual · 15 min",
+      "At Estudio Emerald, about 30 minutes: placement, references, and a tailored proposal.",
+    quoteAdvisoryVirtualTitle: "Virtual · 15 min approx.",
     quoteAdvisoryVirtualPlatform: "Google Meet",
-    quoteAdvisoryVirtualBody: "Over video call, 15 minutes. Same conversation, different format.",
+    quoteAdvisoryVirtualBody:
+      "Over video call, about 15 minutes. Same conversation, different format.",
     quoteAdvisoryVirtualDetail: "Link sent after booking",
     quoteAdvisoryPresencialCta: "View in-person calendar",
     quoteAdvisoryVirtualCta: "View virtual calendar",
@@ -1003,7 +1008,8 @@ export const SITE_COPY = {
     quoteAdvisoryBookingAssuranceTitle: "No spam",
     quoteAdvisoryBookingAssurance:
       "The advisory has no cost. We use your name, email, and WhatsApp only to confirm the time and share appointment details. We never send promotions or mass messages.",
-    quoteAdvisoryBookingDuration: "Duration: {minutes} min",
+    quoteAdvisoryDurationShort: "{minutes} min approx.",
+    quoteAdvisoryBookingDuration: "Duration: {minutes} min approx.",
     quoteAdvisoryBookingDayLabel: "Available day",
     quoteAdvisoryBookingTimeLabel: "Available time",
     quoteAdvisoryBookingSummary: "Your advisory will be",
@@ -1225,18 +1231,20 @@ export const SITE_COPY = {
     quoteSummaryTag: "Investment",
     quoteSummaryTitle: "Rate per session",
     quoteSummaryBody:
-      "Pricing depends on how we schedule your sessions. Medium pieces (8-20 cm).",
+      "The rate per session depends on how we schedule the dates: back-to-back days or separate days. Applies to medium pieces (8–20 cm).",
     quotePricingSectionTitle: "Rates",
     quotePricingSizeLabel: "Size",
     quotePricingZoneLabel: "Area",
     quotePricingConsecutiveTitle: "Back-to-back days",
-    quotePricingConsecutiveHint: "Sessions on consecutive dates.",
+    quotePricingConsecutiveHint:
+      "Sessions on consecutive workdays, one right after the other.",
     quotePricingSeparateTitle: "Separate days",
-    quotePricingSeparateHint: "More than one day between each session.",
+    quotePricingSeparateHint:
+      "Sessions with one or more days between each appointment.",
     quotePricingPerSession: "per session",
     quotePricingEstimatedTotal: "Estimated total",
     quotePricingFootnote:
-      "The total depends on how many sessions your piece needs. We define it together when booking.",
+      "Totals are an estimate based on the session range. The final plan is confirmed when booking.",
     quoteActionTitle: "Next step",
     quoteActionBody:
       "I review your project and reply to coordinate dates and lock in the session plan.",

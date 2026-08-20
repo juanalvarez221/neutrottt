@@ -149,11 +149,11 @@ const ATOMIC_PUBLIC_ROUTES: Record<string, RouteRule> = {
   // Hombros
   right_shoulder: {
     primary: "right_shoulder",
-    amplify: ["right_upper_arm", "right_full_sleeve"],
+    amplify: ["right_upper_arm", "right_full_sleeve", "neck_right"],
   },
   left_shoulder: {
     primary: "left_shoulder",
-    amplify: ["left_upper_arm", "left_full_sleeve"],
+    amplify: ["left_upper_arm", "left_full_sleeve", "neck_left"],
   },
 
   // Bíceps / tríceps
@@ -481,19 +481,19 @@ const ATOMIC_PUBLIC_ROUTES: Record<string, RouteRule> = {
   },
   neck_front: {
     primary: "neck_front",
-    amplify: ["full_neck"],
+    amplify: ["neck_right", "neck_left", "neck_back", "full_neck"],
   },
   neck_back: {
     primary: "neck_back",
-    amplify: ["full_neck"],
+    amplify: ["neck_right", "neck_left", "neck_front", "full_neck"],
   },
   neck_left: {
     primary: "neck_left",
-    amplify: ["full_neck"],
+    amplify: ["neck_front", "neck_right", "neck_back", "full_neck"],
   },
   neck_right: {
     primary: "neck_right",
-    amplify: ["full_neck"],
+    amplify: ["neck_front", "neck_left", "neck_back", "full_neck"],
   },
 };
 

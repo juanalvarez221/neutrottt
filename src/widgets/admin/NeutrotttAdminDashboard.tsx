@@ -34,7 +34,9 @@ import {
 } from "@/shared/lib/designHistory";
 import { AdvisoryAgendaPanel } from "@/widgets/admin/AdvisoryAgendaPanel";
 import {
+  SESSION_PRICE_CONSECUTIVE_DAYS,
   SESSION_PRICE_SEPARATE_DAYS,
+  formatCop,
 } from "@/shared/lib/quoteSessionPricing";
 
 type ExternalProject = {
@@ -629,8 +631,9 @@ export function NeutrotttAdminDashboard() {
                   </h2>
                 </div>
                 <p className="mt-1 text-xs text-zinc-400">
-                  Ajusta precio fijo por sesion, numero de sesiones y enviala por
-                  WhatsApp en un clic.
+                  Ajusta el valor por sesion y el numero de jornadas. Referencia:
+                  dias seguidos {formatCop(SESSION_PRICE_CONSECUTIVE_DAYS)} · dias
+                  aparte {formatCop(SESSION_PRICE_SEPARATE_DAYS)}.
                 </p>
 
                 <div className="mt-3 space-y-3">

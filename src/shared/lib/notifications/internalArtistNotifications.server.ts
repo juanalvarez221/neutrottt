@@ -162,7 +162,7 @@ export async function sendNewAdvisoryInternalEmail(booking: AdvisoryBooking) {
     { label: "WhatsApp", value: booking.phone },
     { label: "Email", value: booking.email },
     { label: "Modalidad", value: modeLabel(booking.mode) },
-    { label: "Duración", value: `${booking.durationMin} min` },
+    { label: "Duración", value: `${booking.durationMin} min APROX.` },
     { label: "Fecha y hora", value: formatSlotLabel(booking.startsAt, "es-CO") },
     { label: "Estado", value: statusEs(booking.status) },
     { label: "Tamaño", value: booking.size || "Proyecto grande" },

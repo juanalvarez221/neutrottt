@@ -11,6 +11,7 @@ import {
 } from "@/widgets/body-3d/cameraViewHelpers";
 import type { BodyCameraView } from "@/widgets/body-3d/bodyViewerTypes";
 import type { CameraFocusPose } from "@/widgets/body-3d/ux/bodyCameraFocus";
+import { stepOrbitCamera } from "@/widgets/body-3d/ux/bodyCameraOrbit";
 
 type BodyCameraControllerProps = {
   view: BodyCameraView;
@@ -23,12 +24,32 @@ type BodyCameraControllerProps = {
   reducedMotion?: boolean;
 };
 
+function applyPose(
+  camera: { position: Vector3; lookAt: (v: Vector3) => void },
+  orbit: OrbitControlsImpl | null,
+  position: Vector3,
+  look: Vector3,
+  enableOrbit: boolean,
+) {
+  camera.position.copy(position);
+  if (orbit) {
+    orbit.target.copy(look);
+    orbit.enabled = enableOrbit;
+    if (enableOrbit) orbit.update();
+  } else {
+    camera.lookAt(look);
+  }
+}
+
 /**
  * Interpola cámara hacia presets o focus regional.
  * Tras animar, re-habilita OrbitControls — no lucha con el usuario.
  *
  * Importante: no depender del prop `target` controlado de OrbitControls;
  * este controller es la única autoridad del look-at durante la animación.
+ *
+ * Frente/Espalda se interpolan en órbita esférica. Un lerp lineal atravesaría
+ * el look-at y OrbitControls.update() reconstruiría un azimuth inestable.
  */
 export function BodyCameraController({
   view,
@@ -43,6 +64,10 @@ export function BodyCameraController({
   const targetPos = useRef(getCameraPositionForView(view, framing));
   const targetLook = useRef(getCameraLookTarget(framing));
   const animating = useRef(false);
+  const animElapsed = useRef(0);
+  const currentLook = useRef(getCameraLookTarget(framing));
+  const scratchPos = useRef(new Vector3());
+  const scratchLook = useRef(new Vector3());
 
   // Sembrar look-at inicial cuando OrbitControls monta (sin prop controlado).
   useEffect(() => {
@@ -73,21 +98,19 @@ export function BodyCameraController({
       targetLook.current = getCameraLookTarget(framing);
     }
     animating.current = true;
+    animElapsed.current = 0;
 
     const orbit = orbitRef.current;
     if (orbit) {
       orbit.enabled = false;
+      currentLook.current.copy(orbit.target);
+    } else {
+      currentLook.current.copy(targetLook.current);
     }
 
     if (reducedMotion) {
-      camera.position.copy(targetPos.current);
-      if (orbit) {
-        orbit.target.copy(targetLook.current);
-        orbit.enabled = true;
-        orbit.update();
-      } else {
-        camera.lookAt(targetLook.current);
-      }
+      applyPose(camera, orbit, targetPos.current, targetLook.current, true);
+      currentLook.current.copy(targetLook.current);
       animating.current = false;
     }
   }, [
@@ -105,29 +128,37 @@ export function BodyCameraController({
     if (!animating.current) return;
 
     const orbit = orbitRef.current;
-    // Más agresivo para llegar a vistas canónicas (BACK real) sin quedarse
-    // en un frontal-diagonal a mitad de camino.
-    const alpha = 1 - Math.exp(-6.5 * delta);
+    animElapsed.current += delta;
+    // Órbita agresiva: Frente↔Espalda es 180° y debe llegar al hemisferio real.
+    const alpha = 1 - Math.exp(-10.5 * delta);
+    const forceSnap = animElapsed.current > 1.15;
 
-    camera.position.lerp(targetPos.current, alpha);
-    if (orbit) {
-      orbit.target.lerp(targetLook.current, alpha);
-      orbit.update();
-    } else {
-      camera.lookAt(targetLook.current);
+    const settled =
+      forceSnap ||
+      stepOrbitCamera(
+        camera.position,
+        currentLook.current,
+        targetPos.current,
+        targetLook.current,
+        alpha,
+        scratchPos.current,
+        scratchLook.current,
+      );
+
+    if (!forceSnap) {
+      // No llamar orbit.update() a mitad de órbita: reconstruye spherical
+      // y puede clavar la cámara en un frontal-diagonal.
+      camera.position.copy(scratchPos.current);
+      currentLook.current.copy(scratchLook.current);
+      if (orbit) {
+        orbit.target.copy(scratchLook.current);
+      }
+      camera.lookAt(currentLook.current);
     }
 
-    const posDone = camera.position.distanceTo(targetPos.current) < 0.008;
-    const lookDone =
-      !orbit || orbit.target.distanceTo(targetLook.current) < 0.008;
-
-    if (posDone && lookDone) {
-      camera.position.copy(targetPos.current);
-      if (orbit) {
-        orbit.target.copy(targetLook.current);
-        orbit.enabled = true;
-        orbit.update();
-      }
+    if (settled) {
+      applyPose(camera, orbit, targetPos.current, targetLook.current, true);
+      currentLook.current.copy(targetLook.current);
       animating.current = false;
     }
   });

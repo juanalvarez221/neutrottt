@@ -28,7 +28,10 @@ import {
   BODY_PUBLIC_REGION_MASK_SRC,
   getMaskIndexForRegionId,
 } from "@/widgets/body-3d/domain/bodyPublicRegionMask";
-import type { PublicHighlightRegionId } from "@/widgets/body-3d/domain/bodyPublicHighlightRegions";
+import {
+  resolvePublicTargetHighlightRegions,
+  type PublicHighlightRegionId,
+} from "@/widgets/body-3d/domain/bodyPublicHighlightRegions";
 import { REGION_MASK_COVERAGE_GLSL } from "@/widgets/body-3d/interaction/regionMaskCoverage";
 import {
   resolveGeometryFieldCandidateIds,
@@ -590,7 +593,12 @@ export function BodyPublicRegionMaskHighlight({
   useLayoutEffect(() => {
     const selectedIds = selectedKey ? selectedKey.split("|") : [];
     const previewIds = previewKey ? previewKey.split("|") : [];
-    const hoverIds = hoverKey ? [hoverKey] : [];
+    const hoverIds = hoverKey
+      ? (() => {
+          const expanded = resolvePublicTargetHighlightRegions(hoverKey);
+          return expanded.length > 0 ? [...expanded] : [hoverKey];
+        })()
+      : [];
     const targets = overlay.targets;
     const derivedCache = derivedCacheRef.current;
     let cancelled = false;

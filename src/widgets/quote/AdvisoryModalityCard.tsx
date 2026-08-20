@@ -4,6 +4,7 @@ import type { LucideIcon } from "lucide-react";
 import { ArrowUpRight } from "lucide-react";
 import { motion, useReducedMotion } from "framer-motion";
 import { cn } from "@/shared/lib/cn";
+import { useSiteLanguage } from "@/shared/i18n/LanguageProvider";
 
 const easeOut = [0.22, 1, 0.36, 1] as const;
 
@@ -33,6 +34,7 @@ export function AdvisoryModalityCard({
   onClick: () => void;
 }) {
   const reduceMotion = useReducedMotion();
+  const { t } = useSiteLanguage();
 
   return (
     <motion.button
@@ -56,7 +58,7 @@ export function AdvisoryModalityCard({
           <Icon className="h-[18px] w-[18px]" strokeWidth={1.65} />
         </span>
         <span className="advisory-modality-card__duration typo-tech">
-          {durationMin} min
+          {t("quoteAdvisoryDurationShort").replace("{minutes}", String(durationMin))}
         </span>
       </span>
 

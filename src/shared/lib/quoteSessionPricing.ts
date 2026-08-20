@@ -1,8 +1,8 @@
 /** Precio por sesión cuando las fechas son días consecutivos. */
-export const SESSION_PRICE_CONSECUTIVE_DAYS = 1_000_000;
+export const SESSION_PRICE_CONSECUTIVE_DAYS = 1_200_000;
 
-/** Precio por sesión cuando hay más de un día entre cada cita. */
-export const SESSION_PRICE_SEPARATE_DAYS = 1_200_000;
+/** Precio por sesión cuando hay uno o más días de separación entre citas. */
+export const SESSION_PRICE_SEPARATE_DAYS = 1_500_000;
 
 export type QuoteSessionEstimate = {
   sessions: string;

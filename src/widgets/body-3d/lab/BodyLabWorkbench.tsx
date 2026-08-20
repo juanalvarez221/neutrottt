@@ -32,6 +32,10 @@ import { BodyPremiumSelector } from "@/widgets/body-3d/ux/BodyPremiumSelector";
 import { PublicRegionAuditPanel } from "@/widgets/body-3d/lab/PublicRegionAuditPanel";
 import { resolvePublicTargetHighlightRegions } from "@/widgets/body-3d/domain/bodyPublicHighlightRegions";
 import {
+  getCameraLookTarget,
+  getCameraPositionForView,
+} from "@/widgets/body-3d/cameraViewHelpers";
+import {
   getCameraPoseForPublicTarget,
   toCardinalCameraView,
   getPreferredBodyView,
@@ -102,7 +106,10 @@ export function BodyLabWorkbench() {
   function handleCameraViewChange(view: BodyCameraView) {
     setCameraView(view);
     setCameraViewToken((token) => token + 1);
-    setFocusPose(null);
+    setFocusPose({
+      position: getCameraPositionForView(view, activeModel.camera),
+      target: getCameraLookTarget(activeModel.camera),
+    });
     setFocusToken((token) => token + 1);
   }
 

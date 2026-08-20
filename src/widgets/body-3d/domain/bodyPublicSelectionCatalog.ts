@@ -619,7 +619,8 @@ export const BODY_PUBLIC_SELECTION_CATALOG: readonly PublicBodyCatalogEntry[] = 
   entry({
     id: "neck_left",
     shortLabel: "Cuello lateral izquierdo",
-    description: "Superficie lateral izquierda del cuello",
+    description:
+      "Superficie lateral izquierda del cuello, de la mandíbula a la clavícula",
     side: "left",
     surface: "lateral",
     category: "neck",
@@ -627,11 +628,14 @@ export const BODY_PUBLIC_SELECTION_CATALOG: readonly PublicBodyCatalogEntry[] = 
     preferredView: "front-left",
     focusSection: "head",
     memberIds: ["neck_left"],
+    fullLabel:
+      "Cuello lateral izquierdo · De la mandíbula a la clavícula",
   }),
   entry({
     id: "neck_right",
     shortLabel: "Cuello lateral derecho",
-    description: "Superficie lateral derecha del cuello",
+    description:
+      "Superficie lateral derecha del cuello, de la mandíbula a la clavícula",
     side: "right",
     surface: "lateral",
     category: "neck",
@@ -639,6 +643,8 @@ export const BODY_PUBLIC_SELECTION_CATALOG: readonly PublicBodyCatalogEntry[] = 
     preferredView: "front-right",
     focusSection: "head",
     memberIds: ["neck_right"],
+    fullLabel:
+      "Cuello lateral derecho · De la mandíbula a la clavícula",
   }),
   entry({
     id: "full_neck",

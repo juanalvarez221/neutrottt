@@ -186,6 +186,8 @@ describe("Neck V6.3 — logical full_neck + hover contract", () => {
   it("exposes professional public labels and cameras", () => {
     expect(getPublicShortLabel("neck_front")).toMatch(/anterior/i);
     expect(getPublicDescription("neck_back")).toMatch(/posterior/i);
+    expect(getPublicShortLabel("neck_left")).toMatch(/lateral izquierdo/i);
+    expect(getPublicShortLabel("neck_right")).toMatch(/lateral derecho/i);
     expect(getPreferredBodyView("neck_right")).toBe("front-right");
     expect(getPreferredBodyView("neck_left")).toBe("front-left");
     expect(getPreferredBodyView("full_neck")).toBe("front-right");

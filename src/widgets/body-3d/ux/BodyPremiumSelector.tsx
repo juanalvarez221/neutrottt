@@ -53,7 +53,11 @@ import {
   toCardinalCameraView,
 } from "@/widgets/body-3d/ux/bodyPreferredCamera";
 import type { FittedBodyFraming } from "@/widgets/body-3d/ux/bodyFitFraming";
-import type { BodyCameraFraming } from "@/widgets/body-3d/cameraViewHelpers";
+import {
+  getCameraLookTarget,
+  getCameraPositionForView,
+  type BodyCameraFraming,
+} from "@/widgets/body-3d/cameraViewHelpers";
 import {
   findContainingSelections,
   replaceContainingSelection,
@@ -367,7 +371,12 @@ export function BodyPremiumSelector({
   function handleCameraViewChange(view: BodyCameraView) {
     setCameraView(view);
     setCameraViewToken((t) => t + 1);
-    setFocusPose(null);
+    // Pose canónica explícita: Frente/Espalda deben orbitar de verdad
+    // al hemisferio pedido, no quedarse en un frontal-diagonal.
+    setFocusPose({
+      position: getCameraPositionForView(view, activeFraming),
+      target: getCameraLookTarget(activeFraming),
+    });
     setCameraFocused(false);
     setFocusToken((t) => t + 1);
   }

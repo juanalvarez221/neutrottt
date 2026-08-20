@@ -36,6 +36,7 @@ import type {
   InteractionDebugLayer,
 } from "@/widgets/body-3d/domain/bodyZones";
 import { BODY_81_INTERACTION_MODEL_SRC } from "@/widgets/body-3d/domain/bodyZones";
+import { getPrimaryPublicSelectionTarget } from "@/widgets/body-3d/domain/bodyPublicSelectionRouting";
 import { BodyAutoFit } from "@/widgets/body-3d/ux/BodyAutoFit";
 import type { CameraFocusPose } from "@/widgets/body-3d/ux/bodyCameraFocus";
 import {
@@ -165,6 +166,10 @@ function BodyScene({
   const showInteraction =
     isProduction && isSpatialInteraction(labInteractionMode);
   const usePublicHighlight = labInteractionMode === "premium";
+  const hoverPublicRegionId = useMemo(() => {
+    if (!hoveredAtomicZoneId) return null;
+    return getPrimaryPublicSelectionTarget(hoveredAtomicZoneId);
+  }, [hoveredAtomicZoneId]);
   const selectionFocusActive =
     previewPublicRegionIds.length > 0 ||
     selectedPublicRegionIds.length > 0 ||
@@ -203,6 +208,7 @@ function BodyScene({
               <BodyPublicRegionMaskHighlight
                 rotation={model.rotation}
                 scale={model.scale ?? 1}
+                hoveredPublicRegionId={hoverPublicRegionId}
                 previewPublicRegionIds={previewPublicRegionIds}
                 selectedPublicRegionIds={selectedPublicRegionIds}
               />
