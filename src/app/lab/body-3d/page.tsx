@@ -1,4 +1,9 @@
+import type { Metadata } from "next";
 import { BodyLabWorkbench } from "@/widgets/body-3d/lab/BodyLabWorkbench";
+
+export const metadata: Metadata = {
+  robots: { index: false, follow: false, nocache: true },
+};
 
 export default function LabBody3DPage() {
   return (

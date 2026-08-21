@@ -6,6 +6,9 @@ import { HtmlLangSync } from "@/widgets/i18n/HtmlLangSync";
 import { NavigationScrollManager } from "@/widgets/navigation/NavigationScrollManager";
 import { PublicAtmosphere } from "@/widgets/layout/PublicAtmosphere";
 import { ErrorBoundary } from "@/shared/ui/ErrorBoundary";
+import { BRAND } from "@/shared/config/brand";
+import { STUDIO, getStudioFullAddress } from "@/shared/config/studio";
+import { CANONICAL_SITE_URL } from "@/shared/lib/site";
 
 const fontSans = Montserrat({
   variable: "--font-sans",
@@ -40,18 +43,64 @@ const fontGothic = UnifrakturMaguntia({
   preload: false,
 });
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim() || CANONICAL_SITE_URL;
+const siteTitle = "Neutrottt · Sombras y Lettering";
+const siteDescription = "Lettering y sombras · Neutrottt · Medellín.";
+
 export const metadata: Metadata = {
-  title: "Neutrottt · Sombras y Lettering",
-  description: "Lettering y sombras · Neutrottt · Medellín.",
-  metadataBase: new URL(
-    process.env.NEXT_PUBLIC_SITE_URL?.trim() || "https://neutrott.vercel.app",
-  ),
+  metadataBase: new URL(siteUrl),
+  title: {
+    default: siteTitle,
+    template: "%s · Neutrottt",
+  },
+  description: siteDescription,
+  applicationName: BRAND.name,
+  authors: [{ name: BRAND.name, url: siteUrl }],
+  creator: BRAND.name,
+  publisher: BRAND.name,
+  category: "studio",
+  alternates: { canonical: "/" },
+  openGraph: {
+    type: "website",
+    locale: "es_CO",
+    url: "/",
+    siteName: BRAND.name,
+    title: siteTitle,
+    description: siteDescription,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: siteTitle,
+    description: siteDescription,
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   themeColor: "#17110d",
+};
+
+const studioJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "TattooParlor",
+  name: BRAND.name,
+  url: siteUrl,
+  image: `${siteUrl.replace(/\/$/, "")}/brand/hero-portrait-full.png`,
+  telephone: `+${BRAND.whatsappPhone}`,
+  address: {
+    "@type": "PostalAddress",
+    streetAddress: STUDIO.addressLine1,
+    addressLocality: STUDIO.city,
+    addressRegion: STUDIO.region,
+    addressCountry: "CO",
+  },
+  areaServed: getStudioFullAddress(),
+  sameAs: [BRAND.instagramUrl],
 };
 
 export default function RootLayout({
@@ -66,6 +115,10 @@ export default function RootLayout({
       className={`${fontSans.variable} ${fontDisplay.variable} ${fontMono.variable} ${fontGothic.variable} h-full antialiased`}
     >
       <body suppressHydrationWarning className="min-h-full flex flex-col bg-background text-ivory">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(studioJsonLd) }}
+        />
         <LanguageProvider>
           <HtmlLangSync />
           <NavigationScrollManager />

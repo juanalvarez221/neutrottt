@@ -5,6 +5,7 @@ import { getStudioFullAddress } from "@/shared/config/studio";
 import {
   brandMeetCalendarConfig,
   getGoogleCalendarConfig,
+  isGoogleCalendarEnabled,
   usesSeparateMeetCalendar,
   type GoogleCalendarConfig,
 } from "@/shared/lib/googleCalendar/googleCalendarConfig";
@@ -18,16 +19,14 @@ import {
 } from "@/shared/lib/googleCalendar/googleCalendarClient.server";
 import {
   bogotaDayBounds,
-  isAdvisoryAvailabilityTitle,
+  partitionCalendarAvailability,
   slotFitsAvailability,
 } from "@/shared/lib/advisoryAvailability";
 
 /**
- * Capa de sincronización con Google Calendar para asesorías.
- * REGLA: el sistema interno es la fuente de verdad. Estas funciones son best-effort:
- * nunca lanzan errores que rompan reservar/confirmar/liberar/reagendar.
- * Un error de configuración (habilitado pero incompleto) se registra de forma clara en server.
- *
+ * Disponibilidad pública: bloques Asesorias en la agenda del artista.
+ * Reservas: el store interno sigue siendo la fuente de verdad; Calendar es best-effort
+ * al crear/actualizar eventos y nunca debe tumbar confirmar/liberar/reagendar.
  * Meet se crea en el Calendar de Neutrottt (meetCalendarId), no en la agenda del artista.
  * El cliente nunca se invita como attendee: el enlace viaja por el correo de marca.
  */
@@ -356,29 +355,34 @@ async function removeEvent(booking: AdvisoryBooking, reason: string): Promise<vo
   }
 }
 
-/** Bloques Asesorias (disponibles) y el resto ocupado. Fail-open: windows=[], busy=[]. */
+/**
+ * Disponibilidad pública: solo bloques cuyo título es Asesorias.
+ * Si Calendar está activo, nunca se cae a la plantilla semanal.
+ */
 export async function getAvailabilityAndBusy(
   timeMin: string,
   timeMax: string,
 ): Promise<{ windows: BusyInterval[]; busy: BusyInterval[]; calendarEnabled: boolean }> {
+  if (!isGoogleCalendarEnabled()) {
+    return { windows: [], busy: [], calendarEnabled: false };
+  }
+
   const config = resolveConfig();
-  if (!config) return { windows: [], busy: [], calendarEnabled: false };
+  if (!config) {
+    console.warn("[google-calendar:availability] GOOGLE_CALENDAR_ENABLED=true pero la config está incompleta.");
+    return { windows: [], busy: [], calendarEnabled: true };
+  }
+
   try {
     const events = await listCalendarEvents(config, timeMin, timeMax);
-    const windows: BusyInterval[] = [];
-    const busy: BusyInterval[] = [];
-    for (const event of events) {
-      const interval = { start: event.start, end: event.end };
-      if (isAdvisoryAvailabilityTitle(event.summary)) windows.push(interval);
-      else busy.push(interval);
-    }
-    return { windows, busy, calendarEnabled: true };
+    const partitioned = partitionCalendarAvailability(events);
+    return { ...partitioned, calendarEnabled: true };
   } catch (error) {
     console.warn(
       "[google-calendar:availability]",
       error instanceof Error ? error.message : String(error),
     );
-    return { windows: [], busy: [], calendarEnabled: false };
+    return { windows: [], busy: [], calendarEnabled: true };
   }
 }
 

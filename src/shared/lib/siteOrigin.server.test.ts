@@ -21,12 +21,16 @@ describe("getSiteOrigin", () => {
     else process.env.RENDER_EXTERNAL_URL = originalRenderExternalUrl;
   });
 
+  it("publica el dominio propio como origen canónico", () => {
+    expect(CANONICAL_SITE_URL).toBe("https://neutrottt.com");
+  });
+
   it("prefers NEXT_PUBLIC_SITE_URL and strips trailing slash", () => {
-    process.env.NEXT_PUBLIC_SITE_URL = "https://neutrott.vercel.app/";
+    process.env.NEXT_PUBLIC_SITE_URL = "https://neutrottt.com/";
     delete process.env.VERCEL_URL;
     delete process.env.RENDER_EXTERNAL_URL;
 
-    expect(getSiteOrigin()).toBe("https://neutrott.vercel.app");
+    expect(getSiteOrigin()).toBe("https://neutrottt.com");
   });
 
   it("uses canonical production alias when VERCEL_ENV is production", () => {

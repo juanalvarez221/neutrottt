@@ -5,6 +5,8 @@ import type { AdvisoryStore } from "@/shared/lib/advisoryTypes";
 
 const STEP_MIN = 15;
 
+const IGNORE_EVENT_TYPES = new Set(["workingLocation", "birthday", "fromGmail"]);
+
 export function isAdvisoryAvailabilityTitle(summary?: string | null): boolean {
   const normalized = (summary ?? "")
     .normalize("NFD")
@@ -18,6 +20,39 @@ export function isAdvisoryAvailabilityTitle(summary?: string | null): boolean {
     compact.startsWith("asesorias ") ||
     compact.startsWith("asesoria ")
   );
+}
+
+export type CalendarAvailabilityEvent = {
+  summary?: string | null;
+  start: string;
+  end: string;
+  transparency?: string | null;
+  eventType?: string | null;
+};
+
+/**
+ * Solo el título Asesorias abre cupos. El resto opaco ocupa.
+ * Ubicación laboral, cumpleaños y Gmail no tapan la ventana.
+ */
+export function partitionCalendarAvailability(events: CalendarAvailabilityEvent[]): {
+  windows: BusyInterval[];
+  busy: BusyInterval[];
+} {
+  const windows: BusyInterval[] = [];
+  const busy: BusyInterval[] = [];
+
+  for (const event of events) {
+    if (event.eventType && IGNORE_EVENT_TYPES.has(event.eventType)) continue;
+    const interval = { start: event.start, end: event.end };
+    if (isAdvisoryAvailabilityTitle(event.summary)) {
+      windows.push(interval);
+      continue;
+    }
+    if ((event.transparency ?? "opaque").toLowerCase() === "transparent") continue;
+    busy.push(interval);
+  }
+
+  return { windows, busy };
 }
 
 function formatTimeKey(date: Date): string {

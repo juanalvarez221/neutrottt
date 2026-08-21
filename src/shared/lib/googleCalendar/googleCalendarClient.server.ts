@@ -28,6 +28,8 @@ export type ListedCalendarEvent = {
   summary: string;
   start: string;
   end: string;
+  transparency?: string;
+  eventType?: string;
 };
 
 function encodeCalendarId(config: GoogleCalendarConfig): string {
@@ -105,12 +107,16 @@ export async function listCalendarEvents(
       items?: Array<{
         id?: string;
         summary?: string;
+        transparency?: string;
+        eventType?: string;
+        status?: string;
         start?: { dateTime?: string; date?: string };
         end?: { dateTime?: string; date?: string };
       }>;
     };
 
     for (const item of data.items ?? []) {
+      if (item.status === "cancelled") continue;
       const start = item.start?.dateTime ?? (item.start?.date ? `${item.start.date}T00:00:00${"-05:00"}` : "");
       const end = item.end?.dateTime ?? (item.end?.date ? `${item.end.date}T00:00:00${"-05:00"}` : "");
       if (!item.id || !start || !end) continue;
@@ -119,6 +125,8 @@ export async function listCalendarEvents(
         summary: item.summary ?? "",
         start: new Date(start).toISOString(),
         end: new Date(end).toISOString(),
+        transparency: item.transparency,
+        eventType: item.eventType,
       });
     }
 

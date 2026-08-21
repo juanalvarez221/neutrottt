@@ -1,8 +1,14 @@
+import {
+  CANONICAL_SITE_HOST,
+  VERCEL_ALIAS_HOST,
+  WWW_SITE_HOST,
+} from "@/shared/lib/site";
+
 /** Hosts públicos de producción. El Origin del POST debe coincidir con uno. */
 export const PRODUCTION_HOSTS = [
-  "neutrott.vercel.app",
-  "neutrottt.com",
-  "www.neutrottt.com",
+  CANONICAL_SITE_HOST,
+  WWW_SITE_HOST,
+  VERCEL_ALIAS_HOST,
 ] as const;
 
 export function stripHostPort(host: string): string {

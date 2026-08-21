@@ -8,11 +8,20 @@ const nextConfig: NextConfig = {
     optimizePackageImports: ["lucide-react", "framer-motion", "gsap", "@gsap/react"],
   },
   async redirects() {
+    const wwwToApex = (source: string, destination: string) => ({
+      source,
+      has: [{ type: "host" as const, value: "www.neutrottt.com" }],
+      destination,
+      permanent: true,
+    });
+
     return [
       { source: "/perfil", destination: "/contacto", permanent: true },
       { source: "/citas", destination: "/contacto", permanent: true },
       { source: "/cotizacion/estilo", destination: "/cotizacion/referencia", permanent: true },
       { source: "/body-zone-demo", destination: "/cotizacion/ubicacion", permanent: false },
+      wwwToApex("/", "https://neutrottt.com/"),
+      wwwToApex("/:path*", "https://neutrottt.com/:path*"),
     ];
   },
   images: {
@@ -50,6 +59,12 @@ const nextConfig: NextConfig = {
         source: "/admin/:path*",
         headers: [
           { key: "Cache-Control", value: "no-store, max-age=0" },
+          { key: "X-Robots-Tag", value: "noindex, nofollow" },
+        ],
+      },
+      {
+        source: "/lab/:path*",
+        headers: [
           { key: "X-Robots-Tag", value: "noindex, nofollow" },
         ],
       },

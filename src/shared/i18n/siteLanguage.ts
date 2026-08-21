@@ -378,7 +378,8 @@ export const SITE_COPY = {
     quoteAdvisoryBookingConfirm: "Confirmar asesoría",
     quoteAdvisoryBookingLoadError: "No se pudieron cargar los horarios.",
     quoteAdvisoryBookingSubmitError: "No se pudo confirmar la reserva.",
-    quoteAdvisoryBookingEmpty: "No hay horarios disponibles por ahora. Escríbeme por WhatsApp.",
+    quoteAdvisoryBookingEmpty:
+      "Aún no hay cupos abiertos. Cuando Gonzalez publique bloques Asesorias en su agenda, aparecen aquí.",
     quoteAdvisoryConfirmStep: "Confirmación",
     quoteAdvisoryConfirmTitle: "Confirma tu asistencia",
     quoteAdvisoryConfirmBody:
@@ -997,7 +998,8 @@ export const SITE_COPY = {
     quoteAdvisoryBookingConfirm: "Confirm advisory",
     quoteAdvisoryBookingLoadError: "Could not load available times.",
     quoteAdvisoryBookingSubmitError: "Could not confirm the booking.",
-    quoteAdvisoryBookingEmpty: "No times available right now. Message me on WhatsApp.",
+    quoteAdvisoryBookingEmpty:
+      "No open slots yet. When Gonzalez publishes Asesorias blocks on his calendar, they show up here.",
     quoteAdvisoryConfirmStep: "Confirmation",
     quoteAdvisoryConfirmTitle: "Confirm your attendance",
     quoteAdvisoryConfirmBody:

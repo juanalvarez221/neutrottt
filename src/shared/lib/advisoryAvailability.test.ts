@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   isAdvisoryAvailabilityTitle,
+  partitionCalendarAvailability,
   sliceAvailabilityWindows,
   slotFitsAvailability,
 } from "./advisoryAvailability";
@@ -23,6 +24,42 @@ describe("isAdvisoryAvailabilityTitle", () => {
     expect(isAdvisoryAvailabilityTitle("Asesorias virtual")).toBe(true);
     expect(isAdvisoryAvailabilityTitle("[PENDIENTE] Virtual · Camila")).toBe(false);
     expect(isAdvisoryAvailabilityTitle("Reunión")).toBe(false);
+  });
+});
+
+describe("partitionCalendarAvailability", () => {
+  const block = {
+    start: "2026-08-22T19:00:00.000Z",
+    end: "2026-08-22T21:00:00.000Z",
+  };
+
+  it("abre cupos solo con título Asesorias", () => {
+    const { windows, busy } = partitionCalendarAvailability([
+      { ...block, summary: "Asesorías" },
+      { ...block, summary: "Tatuaje sesión" },
+    ]);
+    expect(windows).toEqual([block]);
+    expect(busy).toHaveLength(1);
+  });
+
+  it("no deja que ubicación laboral o eventos libres tapen Asesorias", () => {
+    const { windows, busy } = partitionCalendarAvailability([
+      { ...block, summary: "Asesorias" },
+      {
+        start: "2026-08-22T00:00:00.000Z",
+        end: "2026-08-23T00:00:00.000Z",
+        summary: "Office",
+        eventType: "workingLocation",
+      },
+      {
+        start: "2026-08-22T20:00:00.000Z",
+        end: "2026-08-22T20:30:00.000Z",
+        summary: "Recordatorio",
+        transparency: "transparent",
+      },
+    ]);
+    expect(windows).toHaveLength(1);
+    expect(busy).toEqual([]);
   });
 });
 

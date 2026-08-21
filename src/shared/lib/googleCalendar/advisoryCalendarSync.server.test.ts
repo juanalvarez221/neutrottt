@@ -27,6 +27,7 @@ vi.mock("@/shared/lib/googleCalendar/googleCalendarConfig", async (importOrigina
       privateKey: "secret",
       createMeet: true,
     })),
+    isGoogleCalendarEnabled: vi.fn(() => true),
   };
 });
 
@@ -39,7 +40,7 @@ vi.mock("@/shared/lib/googleCalendar/googleCalendarClient.server", () => ({
   getCalendarEvent,
 }));
 
-import { syncOnReserved } from "./advisoryCalendarSync.server";
+import { getAvailabilityAndBusy, isCalendarSlotOpen, syncOnReserved } from "./advisoryCalendarSync.server";
 
 const virtualBooking = {
   id: "AS-1",
@@ -145,5 +146,46 @@ describe("syncOnReserved", () => {
       meetingLink: undefined,
       meetEventId: "brand-presencial",
     });
+  });
+});
+
+describe("getAvailabilityAndBusy", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("lee bloques Asesorias y no cae a weekly si Google falla", async () => {
+    listCalendarEvents.mockResolvedValueOnce([
+      {
+        id: "win",
+        summary: "Asesorias",
+        start: "2026-08-22T19:00:00.000Z",
+        end: "2026-08-22T21:00:00.000Z",
+      },
+      {
+        id: "busy",
+        summary: "Sesión",
+        start: "2026-08-22T19:30:00.000Z",
+        end: "2026-08-22T20:00:00.000Z",
+      },
+    ]);
+
+    const open = await getAvailabilityAndBusy(
+      "2026-08-22T05:00:00.000Z",
+      "2026-08-23T05:00:00.000Z",
+    );
+    expect(open.calendarEnabled).toBe(true);
+    expect(open.windows).toHaveLength(1);
+    expect(open.busy).toHaveLength(1);
+
+    listCalendarEvents.mockRejectedValueOnce(new Error("403 forbidden"));
+    listCalendarEvents.mockRejectedValueOnce(new Error("403 forbidden"));
+    const closed = await getAvailabilityAndBusy(
+      "2026-08-22T05:00:00.000Z",
+      "2026-08-23T05:00:00.000Z",
+    );
+    expect(closed.calendarEnabled).toBe(true);
+    expect(closed.windows).toEqual([]);
+    expect(await isCalendarSlotOpen("2026-08-22T19:00:00.000Z", 30)).toBe(false);
   });
 });
