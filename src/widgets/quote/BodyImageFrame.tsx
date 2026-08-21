@@ -6,7 +6,9 @@ import {
   getBodyImageAspectRatio,
   getBodyImageIntrinsic,
 } from "@/shared/lib/bodyImageMeta";
-import { BODY_REFERENCE_IMAGE_FRAME } from "@/widgets/quote/quoteRefinementUi";
+
+const BODY_REFERENCE_IMAGE_FRAME =
+  "overflow-hidden rounded-lg border border-white/15 bg-stone-100 shadow-[0_2px_14px_rgba(0,0,0,0.2),inset_0_0_0_1px_rgba(0,0,0,0.05)]";
 
 type BodyImageFrameProps = {
   src: string;

@@ -1,7 +1,7 @@
 /**
  * Right Ribs V4.2 — real canvas raycast hit tests.
  *
- *   npx playwright test e2e/right-ribs-v42-raycast.spec.ts --config=playwright.v23.config.ts
+ *   npx playwright test e2e/right-ribs-v42-raycast.spec.ts --config=playwright.anatomy-smoke.config.ts
  */
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";

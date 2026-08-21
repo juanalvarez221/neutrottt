@@ -122,7 +122,7 @@ export function QuoteLocationStep({ size }: { size: string }) {
       }
 
       const params = buildBody3DNavigationParams(size, selectedBodyTargets);
-      router.push(`/cotizacion/estilo?${params.toString()}`);
+      router.push(`/cotizacion/referencia?${params.toString()}`);
       return;
     }
 
@@ -169,7 +169,7 @@ export function QuoteLocationStep({ size }: { size: string }) {
       params.set("legFaceScope", legSelection.faceScope);
     }
     if (legSelection?.extent) params.set("legExtent", legSelection.extent);
-    router.push(`/cotizacion/estilo?${params.toString()}`);
+    router.push(`/cotizacion/referencia?${params.toString()}`);
   }
 
   if (!gateReady) {

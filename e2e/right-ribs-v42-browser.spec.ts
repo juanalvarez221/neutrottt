@@ -1,7 +1,7 @@
 /**
  * Right Ribs V4.2 — browser visual evidence.
  *
- *   npx playwright test e2e/right-ribs-v42-browser.spec.ts --config=playwright.v23.config.ts
+ *   npx playwright test e2e/right-ribs-v42-browser.spec.ts --config=playwright.anatomy-smoke.config.ts
  */
 import { existsSync, mkdirSync, readFileSync } from "node:fs";
 import path from "node:path";
