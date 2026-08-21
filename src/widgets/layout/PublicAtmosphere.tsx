@@ -2,11 +2,12 @@
 
 import { usePathname } from "next/navigation";
 import { DeferredChrome } from "@/widgets/layout/DeferredChrome";
+import { isStaffUiPath } from "@/shared/config/adminGate";
 
-/** El panel y el login no llevan dock, idioma ni atmósfera pública. */
+/** El panel y el acceso del estudio no llevan dock, idioma ni atmósfera pública. */
 export function PublicAtmosphere() {
   const pathname = usePathname();
-  if (pathname.startsWith("/admin")) return null;
+  if (isStaffUiPath(pathname)) return null;
   return (
     <>
       <div aria-hidden className="amber-storm">

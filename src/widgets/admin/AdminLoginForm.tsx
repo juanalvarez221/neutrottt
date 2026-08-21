@@ -3,17 +3,11 @@
 import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 
-function sanitizeNext(next: string | null): string {
-  if (!next || !next.startsWith("/") || next.startsWith("//") || next.includes("\\")) {
-    return "/admin";
-  }
-  if (!next.startsWith("/admin") || next.startsWith("/admin/login")) return "/admin";
-  return next;
-}
+import { sanitizeAdminNext } from "@/shared/config/adminGate";
 
 export function AdminLoginForm() {
   const searchParams = useSearchParams();
-  const nextPath = sanitizeNext(searchParams.get("next"));
+  const nextPath = sanitizeAdminNext(searchParams.get("next"));
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");

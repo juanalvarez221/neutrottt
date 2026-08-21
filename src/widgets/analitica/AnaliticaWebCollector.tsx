@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
+import { isStaffUiPath } from "@/shared/config/adminGate";
 import { ANALITICA_EVENTO_DOM, type HechoAnaliticaCliente } from "@/shared/lib/analitica/emitirCliente";
 import { leerIdVisitante } from "@/shared/lib/analitica/visitanteCliente";
 import type { EventoCliente, TipoEvento } from "@/shared/lib/analitica/tipos";
@@ -104,7 +105,7 @@ export function AnaliticaWebCollector() {
     extra: Partial<EventoCliente> = {},
     flush = false,
   ) {
-    if (pathname.startsWith("/admin")) return;
+    if (isStaffUiPath(pathname)) return;
     const { id_sesion, id_visitante } = ids();
     if (!id_visitante || !id_sesion) return;
     const evento: EventoCliente = {
@@ -137,7 +138,7 @@ export function AnaliticaWebCollector() {
   emitirRef.current = emitir;
 
   useEffect(() => {
-    if (pathname.startsWith("/admin")) return;
+    if (isStaffUiPath(pathname)) return;
     rutaRef.current = pathname;
     emitir("vista_pagina", {}, true);
     if (pathname.startsWith("/cotizacion")) {

@@ -12,6 +12,7 @@ import {
   Route,
 } from "lucide-react";
 import { cn } from "@/shared/lib/cn";
+import { ADMIN_GATE_PATH } from "@/shared/config/adminGate";
 import { ADMIN_NAV, isAdminNavActive, type AdminNavHref } from "@/widgets/admin/adminNav";
 
 const ICONS: Record<AdminNavHref, typeof LayoutGrid> = {
@@ -26,7 +27,7 @@ export function AdminChrome({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [loggingOut, setLoggingOut] = useState(false);
 
-  if (pathname.startsWith("/admin/login")) return children;
+  if (pathname === ADMIN_GATE_PATH) return children;
 
   const handleLogout = async () => {
     if (loggingOut) return;
@@ -39,7 +40,7 @@ export function AdminChrome({ children }: { children: React.ReactNode }) {
     } catch {
       // Aun si falla la red, cerramos la vista local.
     }
-    window.location.assign("/admin/login");
+    window.location.assign(ADMIN_GATE_PATH);
   };
 
   return (

@@ -1,23 +1,35 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { isAdminGatePath } from "@/shared/config/adminGate";
 import { readSessionCookieValue, verifySessionToken } from "@/shared/lib/adminSession";
 
 /**
- * Protege el área administrativa (convención "proxy" de Next 16, antes "middleware"):
- * - Páginas /admin/* (excepto /admin/login) → redirige al login si no hay sesión.
- * - APIs administrativas → responden 401 JSON si no hay sesión.
- * El flujo público de cotización/agenda no pasa por aquí.
+ * Protege el área administrativa:
+ * - La entrada pública es ADMIN_GATE_PATH, no /admin/login.
+ * - /admin/* sin sesión responde 404 (no delata el panel).
+ * - APIs administrativas → 401 JSON si no hay sesión.
  */
 export const config = {
-  matcher: ["/admin/:path*", "/api/admin/:path*", "/api/advisory/bookings"],
+  matcher: ["/admin/:path*", "/k7x4n9qm2p", "/k7x4n9qm2p/", "/api/admin/:path*", "/api/advisory/bookings"],
 };
 
 function isAuthExempt(pathname: string): boolean {
+  const path = pathname.length > 1 ? pathname.replace(/\/$/, "") : pathname;
   return (
-    pathname === "/admin/login" ||
-    pathname === "/api/admin/auth/login" ||
-    pathname === "/api/admin/auth/logout"
+    isAdminGatePath(path) ||
+    path === "/api/admin/auth/login" ||
+    path === "/api/admin/auth/logout"
   );
+}
+
+function concealPanel() {
+  return new NextResponse(null, {
+    status: 404,
+    headers: {
+      "Cache-Control": "no-store",
+      "X-Robots-Tag": "noindex, nofollow",
+    },
+  });
 }
 
 export async function proxy(request: NextRequest) {
@@ -44,8 +56,5 @@ export async function proxy(request: NextRequest) {
     return NextResponse.json({ error: "No autorizado." }, { status: 401 });
   }
 
-  const loginUrl = request.nextUrl.clone();
-  loginUrl.pathname = "/admin/login";
-  loginUrl.search = `next=${encodeURIComponent(pathname)}`;
-  return NextResponse.redirect(loginUrl);
+  return concealPanel();
 }

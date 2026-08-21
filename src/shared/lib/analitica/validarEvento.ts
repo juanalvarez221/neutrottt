@@ -1,3 +1,4 @@
+import { ADMIN_GATE_PATH } from "@/shared/config/adminGate";
 import { TIPOS_EVENTO, type EventoCliente, type TipoEvento } from "@/shared/lib/analitica/tipos";
 
 const MAX_TEXTO = 80;
@@ -15,7 +16,7 @@ function esIso(value: string): boolean {
   return Number.isFinite(t);
 }
 
-const RUTAS_BLOQUEADAS = ["/admin", "/api"];
+const RUTAS_BLOQUEADAS = ["/admin", "/api", ADMIN_GATE_PATH];
 
 export function rutaPublica(ruta: string): boolean {
   const path = (ruta.split("?")[0] ?? "/").toLowerCase();
