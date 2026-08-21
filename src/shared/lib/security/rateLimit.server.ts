@@ -38,21 +38,26 @@ function memoryLimit(key: string, limit: number, windowSeconds: number): RateLim
 }
 
 export async function checkRateLimit(input: RateLimitInput): Promise<RateLimitResult> {
-  const id = fingerprint(input.bucket, input.subject);
-  if (!hasUpstashConfig()) {
-    return memoryLimit(id, input.limit, input.windowSeconds);
-  }
+  try {
+    const id = fingerprint(input.bucket, input.subject);
+    if (!hasUpstashConfig()) {
+      return memoryLimit(id, input.limit, input.windowSeconds);
+    }
 
-  const key = `neutrott:rl:${input.bucket}:${id}`;
-  const count = await upstashCommand<number>(["INCR", key]);
-  if ((count ?? 0) === 1) {
-    await upstashCommand(["EXPIRE", key, input.windowSeconds]);
+    const key = `neutrott:rl:${input.bucket}:${id}`;
+    const count = await upstashCommand<number>(["INCR", key]);
+    if ((count ?? 0) === 1) {
+      await upstashCommand(["EXPIRE", key, input.windowSeconds]);
+    }
+    if ((count ?? 0) > input.limit) {
+      const ttl = await upstashCommand<number>(["TTL", key]);
+      return { ok: false, retryAfter: Math.max(1, ttl && ttl > 0 ? ttl : input.windowSeconds) };
+    }
+    return { ok: true };
+  } catch (error) {
+    console.error("[rate-limit]", error);
+    return { ok: true };
   }
-  if ((count ?? 0) > input.limit) {
-    const ttl = await upstashCommand<number>(["TTL", key]);
-    return { ok: false, retryAfter: Math.max(1, ttl && ttl > 0 ? ttl : input.windowSeconds) };
-  }
-  return { ok: true };
 }
 
 /** Ventanas usadas por las APIs públicas. */

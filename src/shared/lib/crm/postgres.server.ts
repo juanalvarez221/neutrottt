@@ -1,5 +1,15 @@
 import postgres from "postgres";
 
+const ADMIN_TABLE = `CREATE TABLE IF NOT EXISTS admins (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    email TEXT NOT NULL UNIQUE,
+    nombre TEXT NOT NULL,
+    password_hash TEXT NOT NULL,
+    activo BOOLEAN NOT NULL DEFAULT true,
+    creado_en TIMESTAMPTZ NOT NULL DEFAULT now(),
+    ultimo_acceso_en TIMESTAMPTZ
+  )`;
+
 const SCHEMA_STATEMENTS = [
   `CREATE TABLE IF NOT EXISTS personas (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -33,15 +43,7 @@ const SCHEMA_STATEMENTS = [
     clave TEXT PRIMARY KEY,
     valor TEXT NOT NULL
   )`,
-    `CREATE TABLE IF NOT EXISTS admins (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    email TEXT NOT NULL UNIQUE,
-    nombre TEXT NOT NULL,
-    password_hash TEXT NOT NULL,
-    activo BOOLEAN NOT NULL DEFAULT true,
-    creado_en TIMESTAMPTZ NOT NULL DEFAULT now(),
-    ultimo_acceso_en TIMESTAMPTZ
-  )`,
+  ADMIN_TABLE,
   `ALTER TABLE personas ADD COLUMN IF NOT EXISTS id_visitante TEXT NOT NULL DEFAULT ''`,
   `CREATE INDEX IF NOT EXISTS personas_visitante_idx
     ON personas (id_visitante) WHERE id_visitante <> ''`,
@@ -57,6 +59,8 @@ export function databaseUrl(): string | null {
 export function hasDatabaseConfig() {
   return Boolean(databaseUrl());
 }
+
+let adminReady: Promise<postgres.Sql | null> | null = null;
 
 function createClient(url: string) {
   const local = /localhost|127\.0\.0\.1/i.test(url);
@@ -75,7 +79,14 @@ export async function getCrmSql(): Promise<postgres.Sql | null> {
     schemaReady = (async () => {
       if (!client) client = createClient(url);
       for (const statement of SCHEMA_STATEMENTS) {
-        await client.unsafe(statement);
+        try {
+          await client.unsafe(statement);
+        } catch (error) {
+          const optional =
+            statement.includes("id_visitante") || statement.includes("personas_visitante_idx");
+          console.error("[crm:schema]", error);
+          if (!optional) throw error;
+        }
       }
       return client;
     })().catch((error) => {
@@ -84,4 +95,21 @@ export async function getCrmSql(): Promise<postgres.Sql | null> {
     });
   }
   return schemaReady;
+}
+
+/** Solo tabla admins. El login no debe esperar migraciones del CRM. */
+export async function getAdminSql(): Promise<postgres.Sql | null> {
+  const url = databaseUrl();
+  if (!url) return null;
+  if (!adminReady) {
+    adminReady = (async () => {
+      if (!client) client = createClient(url);
+      await client.unsafe(ADMIN_TABLE);
+      return client;
+    })().catch((error) => {
+      adminReady = null;
+      throw error;
+    });
+  }
+  return adminReady;
 }

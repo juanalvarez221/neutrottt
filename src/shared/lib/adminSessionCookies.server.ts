@@ -6,14 +6,11 @@ import {
 } from "@/shared/lib/adminSession";
 
 function expireLegacyCookies(response: NextResponse) {
-  const production = process.env.NODE_ENV === "production";
   for (const name of ADMIN_SESSION_COOKIE_LEGACY) {
-    const hostPrefix = name.startsWith("__Host-");
-    if (hostPrefix && !production) continue;
     response.cookies.set(name, "", {
       httpOnly: true,
-      sameSite: hostPrefix ? "strict" : "lax",
-      secure: hostPrefix ? true : production,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
       path: "/",
       maxAge: 0,
     });

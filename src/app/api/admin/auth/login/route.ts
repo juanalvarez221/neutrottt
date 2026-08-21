@@ -12,6 +12,7 @@ import { checkRateLimit, RATE_LIMITS } from "@/shared/lib/security/rateLimit.ser
 import { esPeticionDelSitio } from "@/shared/lib/security/sameOrigin";
 
 export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
 
 const DENIED = () => {
   const response = NextResponse.json({ error: "No se pudo entrar." }, { status: 401 });
@@ -48,38 +49,38 @@ async function limited(
 }
 
 export async function POST(request: Request) {
-  if (!esPeticionDelSitio(request)) {
-    console.warn("[admin-auth] origen rechazado");
-    return DENIED();
-  }
-
-  const ip = clientIp(request.headers);
-  const ipBlocked = await limited("adminAuthIp", ip);
-  if (ipBlocked) return ipBlocked;
-
-  const secret = getAdminSessionSecret();
-  if (!secret) {
-    console.error("[admin-auth] Falta secreto de sesión.");
-    return DENIED();
-  }
-
-  let email = "";
-  let password = "";
   try {
-    const body = (await request.json()) as LoginBody;
-    email = typeof body.email === "string" ? normalizarCorreo(body.email) : "";
-    password = typeof body.password === "string" ? body.password : "";
-  } catch {
-    return DENIED();
-  }
+    if (!esPeticionDelSitio(request)) {
+      console.warn("[admin-auth] origen rechazado");
+      return DENIED();
+    }
 
-  if (password.length > 256) password = password.slice(0, 256);
+    const ip = clientIp(request.headers);
+    const ipBlocked = await limited("adminAuthIp", ip);
+    if (ipBlocked) return ipBlocked;
 
-  const emailSubject = esCorreoValido(email) ? email : `invalid:${ip}`;
-  const emailBlocked = await limited("adminAuthEmail", emailSubject);
-  if (emailBlocked) return emailBlocked;
+    const secret = getAdminSessionSecret();
+    if (!secret) {
+      console.error("[admin-auth] Falta secreto de sesión.");
+      return DENIED();
+    }
 
-  try {
+    let email = "";
+    let password = "";
+    try {
+      const body = (await request.json()) as LoginBody;
+      email = typeof body.email === "string" ? normalizarCorreo(body.email) : "";
+      password = typeof body.password === "string" ? body.password : "";
+    } catch {
+      return DENIED();
+    }
+
+    if (password.length > 256) password = password.slice(0, 256);
+
+    const emailSubject = esCorreoValido(email) ? email : `invalid:${ip}`;
+    const emailBlocked = await limited("adminAuthEmail", emailSubject);
+    if (emailBlocked) return emailBlocked;
+
     const account = await authenticateAdminEmail(email, password);
     if (!account) return DENIED();
 

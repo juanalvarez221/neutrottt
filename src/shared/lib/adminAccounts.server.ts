@@ -1,6 +1,6 @@
 import { hashPassword, verifyPassword } from "@/shared/lib/adminPassword";
 import { esCorreoValido, normalizarCorreo } from "@/shared/lib/adminEmail";
-import { getCrmSql, hasDatabaseConfig } from "@/shared/lib/crm/postgres.server";
+import { getAdminSql, hasDatabaseConfig } from "@/shared/lib/crm/postgres.server";
 
 export type AdminAccount = {
   id: string;
@@ -34,7 +34,7 @@ export async function upsertAdminAccount(input: {
   nombre: string;
   password: string;
 }): Promise<AdminAccount | null> {
-  const sql = await getCrmSql();
+  const sql = await getAdminSql();
   if (!sql) return null;
   const email = normalizarCorreo(input.email);
   const nombre = input.nombre.trim();
@@ -68,9 +68,9 @@ export async function authenticateAdminEmail(
     return verifyWithDummy(password);
   }
 
-  let sql: Awaited<ReturnType<typeof getCrmSql>> = null;
+  let sql: Awaited<ReturnType<typeof getAdminSql>> = null;
   try {
-    sql = await getCrmSql();
+    sql = await getAdminSql();
   } catch (error) {
     console.error("[admin-auth] db", error);
     return verifyWithDummy(password);

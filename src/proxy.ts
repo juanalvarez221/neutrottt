@@ -29,7 +29,12 @@ export async function proxy(request: NextRequest) {
 
   const token = readSessionCookieValue((name) => request.cookies.get(name)?.value);
   const secret = process.env.ADMIN_SESSION_SECRET?.trim();
-  const valid = secret ? await verifySessionToken(secret, token) : false;
+  let valid = false;
+  try {
+    valid = secret ? await verifySessionToken(secret, token) : false;
+  } catch (error) {
+    console.error("[admin-proxy]", error);
+  }
 
   if (valid) {
     return NextResponse.next();

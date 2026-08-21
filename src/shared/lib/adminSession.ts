@@ -6,11 +6,8 @@ import { esCorreoValido, normalizarCorreo } from "@/shared/lib/adminEmail";
 
 export const ADMIN_SESSION_COOKIE = "ntt_admin";
 
-/** Nombres viejos que hay que leer y borrar tras el cambio de cookie. */
-export const ADMIN_SESSION_COOKIE_LEGACY = [
-  "neutrottt_admin_session",
-  "__Host-ntt_admin",
-] as const;
+/** Nombre anterior; se borra al entrar o salir. */
+export const ADMIN_SESSION_COOKIE_LEGACY = ["neutrottt_admin_session"] as const;
 
 export const ADMIN_SESSION_COOKIE_CANDIDATES = [
   ADMIN_SESSION_COOKIE,
