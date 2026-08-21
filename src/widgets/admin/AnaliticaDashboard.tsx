@@ -4,7 +4,6 @@ import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import {
   Activity,
-  ArrowLeft,
   Clock3,
   GitBranch,
   MapPin,
@@ -140,27 +139,18 @@ export function AnaliticaDashboard() {
   const maxEmbudo = data.embudo[0]?.sesiones ?? 0;
 
   return (
-    <main className="min-h-[100dvh] bg-background px-4 py-6 text-zinc-100 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-[1400px]">
+    <div>
         <div className="flex flex-col gap-6 lg:grid lg:grid-cols-[1.35fr_0.65fr] lg:items-end">
           <div>
-            <Link
-              href="/admin"
-              className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-semibold text-zinc-300 transition hover:bg-white/8 active:scale-[0.98]"
-            >
-              <ArrowLeft className="h-3.5 w-3.5" strokeWidth={1.5} />
-              Panel
-            </Link>
-            <p className="mt-5 font-mono text-[11px] uppercase tracking-[0.18em] text-amber-200/80">
-              Almacén analítico
+            <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-amber-200/80">
+              Uso del sitio
             </p>
             <h1 className="mt-1 text-3xl font-semibold tracking-tight text-zinc-50 sm:text-4xl">
-              Metricas web
+              Métricas
             </h1>
             <p className="mt-2 max-w-[65ch] text-sm leading-relaxed text-zinc-400">
-              Recorrido real de cada visitante, permanencia e interacciones.
-              Ventana America/Bogota. Los nombres aparecen solo si esa persona
-              dejo datos en cotizacion.
+              Sesiones, permanencia e interacciones. Ventana America/Bogota.
+              Los nombres aparecen solo si esa persona dejó datos en cotización.
             </p>
           </div>
 
@@ -220,12 +210,22 @@ export function AnaliticaDashboard() {
         {recorridos.length > 0 ? (
           <Card className="mt-8">
             <div className="p-5 sm:p-6">
-              <h2 className="text-sm font-semibold uppercase tracking-[0.14em] text-zinc-300">
-                Navegacion por visitante
-              </h2>
-              <p className="mt-1 text-xs text-zinc-500">
-                Ultimos 14 dias. Cada fila es un navegador; si cotizo, se muestra el nombre.
-              </p>
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <h2 className="text-sm font-semibold uppercase tracking-[0.14em] text-zinc-300">
+                    Navegación por visitante
+                  </h2>
+                  <p className="mt-1 text-xs text-zinc-500">
+                    Últimos 14 días. El detalle por paso del cotizador está en Recorridos.
+                  </p>
+                </div>
+                <Link
+                  href="/admin/recorridos"
+                  className="shrink-0 text-xs font-semibold text-zinc-500 transition hover:text-zinc-200"
+                >
+                  Recorridos
+                </Link>
+              </div>
               <div className="mt-4 space-y-4">
                 {recorridos.map((row) => (
                   <div
@@ -394,7 +394,6 @@ export function AnaliticaDashboard() {
             </p>
           </>
         ) : null}
-      </div>
-    </main>
+    </div>
   );
 }

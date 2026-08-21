@@ -139,14 +139,13 @@ export function QuoteAdjustPanel({ quoteId }: { quoteId: string }) {
   };
 
   return (
-    <main className="min-h-[100dvh] bg-background px-4 py-6 text-zinc-100 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-[1400px]">
+    <div>
         <Link
-          href="/admin"
+          href="/admin/cotizaciones"
           className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-semibold text-zinc-300 transition hover:bg-white/8 active:scale-[0.98]"
         >
           <ArrowLeft className="h-3.5 w-3.5" strokeWidth={1.5} />
-          Panel
+          Cotizaciones
         </Link>
 
         <div className="mt-6 grid gap-6 lg:grid-cols-[1.2fr_0.8fr] lg:items-start">
@@ -309,7 +308,6 @@ export function QuoteAdjustPanel({ quoteId }: { quoteId: string }) {
             </Card>
           ) : null}
         </div>
-      </div>
-    </main>
+    </div>
   );
 }
