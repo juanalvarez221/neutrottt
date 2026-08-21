@@ -10,6 +10,7 @@ import {
   MousePointer2,
   RefreshCw,
 } from "lucide-react";
+import { AdminDangerPurge } from "@/widgets/admin/AdminDangerPurge";
 import { Card } from "@/shared/ui/Card";
 import { cn } from "@/shared/lib/cn";
 import { ETIQUETAS_CANAL } from "@/shared/lib/analitica/catalogo";
@@ -101,6 +102,7 @@ export function AnaliticaDashboard() {
       }
       setOro(payload);
       if (navRes.ok) setRecorridos(navPayload.visitantes ?? []);
+      else if (navPayload.error) setError(navPayload.error);
     } catch {
       setError("Error de conexión con el almacén analítico.");
       setOro(null);
@@ -155,6 +157,7 @@ export function AnaliticaDashboard() {
           </div>
 
           <div className="flex flex-wrap items-center gap-2 lg:justify-end">
+            <AdminDangerPurge categoria="analitica" onPurged={() => void cargar()} />
             <button
               type="button"
               onClick={() => void correrEtl()}

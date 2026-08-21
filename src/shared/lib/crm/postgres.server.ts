@@ -80,6 +80,20 @@ const SCHEMA_STATEMENTS = [
     valor JSONB NOT NULL,
     actualizado_en TIMESTAMPTZ NOT NULL DEFAULT now()
   )`,
+
+  `CREATE TABLE IF NOT EXISTS analitica_eventos (
+    id_evento TEXT PRIMARY KEY,
+    fecha_estudio DATE NOT NULL,
+    ocurrido_en TIMESTAMPTZ NOT NULL,
+    payload JSONB NOT NULL
+  )`,
+  `CREATE INDEX IF NOT EXISTS analitica_eventos_fecha_idx
+    ON analitica_eventos (fecha_estudio, ocurrido_en)`,
+  `CREATE TABLE IF NOT EXISTS analitica_oro (
+    id TEXT PRIMARY KEY,
+    valor JSONB NOT NULL,
+    actualizado_en TIMESTAMPTZ NOT NULL DEFAULT now()
+  )`,
 ];
 
 let client: postgres.Sql | null = null;

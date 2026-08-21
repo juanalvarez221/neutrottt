@@ -10,7 +10,10 @@ export async function GET() {
   try {
     const fechas = fechasVentana(new Date().toISOString(), 14);
     const [bronce, personas] = await Promise.all([
-      leerEventosBronce(fechas),
+      leerEventosBronce(fechas).catch((error) => {
+        console.error("[analitica:navegacion:bronce]", error);
+        return [] as Awaited<ReturnType<typeof leerEventosBronce>>;
+      }),
       listarPersonas().catch(() => []),
     ]);
     const visitantes = construirNavegacionVisitantes(bronce, personas, 50);
@@ -21,9 +24,10 @@ export async function GET() {
     });
   } catch (error) {
     console.error("[analitica:navegacion]", error);
-    return NextResponse.json(
-      { error: "No se pudo leer la navegación." },
-      { status: 500 },
-    );
+    return NextResponse.json({
+      generado_en: new Date().toISOString(),
+      hechos: 0,
+      visitantes: [],
+    });
   }
 }

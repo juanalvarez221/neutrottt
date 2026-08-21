@@ -108,6 +108,12 @@ export async function listCotizacionesFromPostgres(): Promise<QuoteRequestRecord
   return rows.map(mapCotizacionRow);
 }
 
+export async function deleteAllCotizacionesPostgres(): Promise<void> {
+  const sql = await getCrmSql();
+  if (!sql) return;
+  await sql`DELETE FROM cotizaciones`;
+}
+
 export async function upsertCotizacionPostgres(record: QuoteRequestRecord): Promise<void> {
   const sql = await getCrmSql();
   if (!sql) {

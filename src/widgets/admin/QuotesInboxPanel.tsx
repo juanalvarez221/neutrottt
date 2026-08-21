@@ -8,6 +8,7 @@ import type { RecorridoVisitante } from "@/shared/lib/analitica/navegacion";
 import { formatDuracion } from "@/shared/lib/analitica/fechaEstudio";
 import {
   getSmartQuoteRequests,
+  saveSmartQuoteRequests,
   type SmartQuoteRequest,
 } from "@/shared/lib/smartQuotes";
 import { cn } from "@/shared/lib/cn";
@@ -18,11 +19,11 @@ import {
   AdminSkeleton,
   StatusPill,
 } from "@/widgets/admin/AdminPrimitives";
+import { AdminDangerPurge } from "@/widgets/admin/AdminDangerPurge";
 import { formatRelative, visitorLabel } from "@/widgets/admin/adminFormat";
 import {
   backendToSmartQuote,
   isQuoteConfirmed,
-  mergeQuotes,
   QUOTE_STATUS_SHORT,
   QUOTE_STATUS_TONE,
   type QuoteRequestRecordLite,
@@ -56,7 +57,8 @@ export function QuotesInboxPanel() {
       if (quotesRes.ok) {
         const data = (await quotesRes.json()) as { requests?: QuoteRequestRecordLite[] };
         const backend = (data.requests ?? []).map(backendToSmartQuote);
-        setQuotes((prev) => mergeQuotes(backend, prev));
+        saveSmartQuoteRequests(backend);
+        setQuotes(backend);
       } else {
         setError("No se pudieron leer las cotizaciones recibidas.");
       }
@@ -121,6 +123,16 @@ export function QuotesInboxPanel() {
         kicker="Bandeja"
         title="Cotizaciones"
         description="Las que ya envió la gente, las que confirmó, y las que empezaron el flujo y se quedaron a mitad."
+        actions={
+          <AdminDangerPurge
+            categoria="cotizaciones"
+            onPurged={() => {
+              saveSmartQuoteRequests([]);
+              setQuotes([]);
+              void load();
+            }}
+          />
+        }
       />
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">

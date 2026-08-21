@@ -10,6 +10,7 @@ import {
   AdminPageHeader,
   AdminSkeleton,
 } from "@/widgets/admin/AdminPrimitives";
+import { AdminDangerPurge } from "@/widgets/admin/AdminDangerPurge";
 import { formatRelative, visitorLabel } from "@/widgets/admin/adminFormat";
 import {
   abandonoPorPaso,
@@ -60,6 +61,7 @@ export function QuoteJourneysPanel() {
         kicker="Embudo vivo"
         title="Recorridos"
         description="Quién entró a cotizar, hasta qué paso llegó y en qué pantalla se quedó. Los nombres aparecen cuando esa persona dejó datos."
+        actions={<AdminDangerPurge categoria="recorridos" onPurged={() => void load()} />}
       />
 
       {error ? <AdminError message={error} /> : null}

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { CalendarDays, Loader2, RefreshCw, X } from "lucide-react";
 import { Card } from "@/shared/ui/Card";
 import { formatSlotLabel } from "@/shared/lib/advisorySlots";
+import { AdminDangerPurge } from "@/widgets/admin/AdminDangerPurge";
 
 type AdvisoryBookingRow = {
   id: string;
@@ -86,6 +87,7 @@ export function AdvisoryAgendaPanel() {
 
   return (
     <div className="space-y-4">
+      <AdminDangerPurge categoria="asesorias" onPurged={() => void loadBookings()} />
       <Card>
       <div className="p-4 sm:p-5">
         <div className="flex items-center justify-between gap-3">

@@ -1,12 +1,14 @@
 import { createJsonDocumentStorage } from "@/shared/lib/storage/jsonDocumentStorage.server";
 import { registrarHechoCrm } from "@/shared/lib/crm/personas.server";
 import { hasDatabaseConfig } from "@/shared/lib/crm/postgres.server";
+import { hasUpstashConfig, upstashCommand } from "@/shared/lib/storage/upstashRest.server";
 import type { EventoCrm } from "@/shared/lib/crm/tipos";
 import {
   resolveQuoteStatus,
   type QuoteStatusSlug,
 } from "@/shared/lib/quoteRequestStatus";
 import {
+  deleteAllCotizacionesPostgres,
   listCotizacionesFromPostgres,
   upsertCotizacionPostgres,
 } from "@/shared/lib/storage/postgresQuoteStore.server";
@@ -122,6 +124,24 @@ async function persistAll(records: QuoteRequestRecord[], changed: QuoteRequestRe
 export async function listQuoteRequests(): Promise<QuoteRequestRecord[]> {
   const records = await readAll();
   return [...records].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+}
+
+export async function deleteAllQuoteRequests(): Promise<void> {
+  if (hasUpstashConfig()) {
+    try {
+      await upstashCommand(["DEL", "neutrott:quote-requests"]);
+    } catch (error) {
+      console.error("[cotizaciones:purge-redis]", error);
+    }
+  }
+  try {
+    await storage.write([]);
+  } catch (error) {
+    console.error("[cotizaciones:purge-legacy]", error);
+  }
+  if (hasDatabaseConfig()) {
+    await deleteAllCotizacionesPostgres();
+  }
 }
 
 export async function getQuoteRequestById(id: string): Promise<QuoteRequestRecord | null> {

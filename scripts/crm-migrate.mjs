@@ -84,6 +84,19 @@ const statements = [
     valor JSONB NOT NULL,
     actualizado_en TIMESTAMPTZ NOT NULL DEFAULT now()
   )`,
+  `CREATE TABLE IF NOT EXISTS analitica_eventos (
+    id_evento TEXT PRIMARY KEY,
+    fecha_estudio DATE NOT NULL,
+    ocurrido_en TIMESTAMPTZ NOT NULL,
+    payload JSONB NOT NULL
+  )`,
+  `CREATE INDEX IF NOT EXISTS analitica_eventos_fecha_idx
+    ON analitica_eventos (fecha_estudio, ocurrido_en)`,
+  `CREATE TABLE IF NOT EXISTS analitica_oro (
+    id TEXT PRIMARY KEY,
+    valor JSONB NOT NULL,
+    actualizado_en TIMESTAMPTZ NOT NULL DEFAULT now()
+  )`,
 ];
 
 const sql = postgres(url, { ssl: "require", max: 1 });
@@ -95,7 +108,7 @@ const tables = await sql`
   select table_name
   from information_schema.tables
   where table_schema = 'public'
-    and table_name in ('personas', 'persona_hechos', 'crm_meta', 'admins', 'cotizaciones', 'agenda')
+    and table_name in ('personas', 'persona_hechos', 'crm_meta', 'admins', 'cotizaciones', 'agenda', 'analitica_eventos', 'analitica_oro')
   order by table_name
 `;
 await sql.end();
