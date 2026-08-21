@@ -379,7 +379,7 @@ export const SITE_COPY = {
     quoteAdvisoryBookingLoadError: "No se pudieron cargar los horarios.",
     quoteAdvisoryBookingSubmitError: "No se pudo confirmar la reserva.",
     quoteAdvisoryBookingEmpty:
-      "Aún no hay cupos abiertos. Cuando Gonzalez publique bloques Asesorias en su agenda, aparecen aquí.",
+      "Aún no hay cupos abiertos. Cuando Neutro publique bloques Asesorias en su agenda, aparecen aquí.",
     quoteAdvisoryConfirmStep: "Confirmación",
     quoteAdvisoryConfirmTitle: "Confirma tu asistencia",
     quoteAdvisoryConfirmBody:
@@ -999,7 +999,7 @@ export const SITE_COPY = {
     quoteAdvisoryBookingLoadError: "Could not load available times.",
     quoteAdvisoryBookingSubmitError: "Could not confirm the booking.",
     quoteAdvisoryBookingEmpty:
-      "No open slots yet. When Gonzalez publishes Asesorias blocks on his calendar, they show up here.",
+      "No open slots yet. When Neutro publishes Asesorias blocks on his calendar, they show up here.",
     quoteAdvisoryConfirmStep: "Confirmation",
     quoteAdvisoryConfirmTitle: "Confirm your attendance",
     quoteAdvisoryConfirmBody:

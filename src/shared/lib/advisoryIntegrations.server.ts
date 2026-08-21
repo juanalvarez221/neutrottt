@@ -25,7 +25,7 @@ export type IntegrationCheck = {
 function googleErrorHint(message: string): string | undefined {
   const lower = message.toLowerCase();
   if (lower.includes("403") || lower.includes("forbidden")) {
-    return `En Google Calendar de Gonzalez, comparte la agenda con el service account y dale al menos "Ver todos los datos del evento". El título de los bloques abiertos debe ser Asesorias.`;
+    return `En Google Calendar de Neutro, comparte la agenda con el service account y dale al menos "Ver todos los datos del evento". El título de los bloques abiertos debe ser Asesorias.`;
   }
   if (lower.includes("401") || lower.includes("invalid_grant") || lower.includes("unauthorized")) {
     return "Revisa GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY (comillas, \\n) y que el service account siga activo.";

@@ -21,7 +21,7 @@ vi.mock("@/shared/lib/googleCalendar/googleCalendarConfig", async (importOrigina
   return {
     ...actual,
     getGoogleCalendarConfig: vi.fn(() => ({
-      calendarId: "gonzalez@example.com",
+      calendarId: "neutro@example.com",
       meetCalendarId: "neutrottt.tech@gmail.com",
       clientEmail: "service@example.com",
       privateKey: "secret",
@@ -73,7 +73,7 @@ describe("syncOnReserved", () => {
 
     expect(insertCalendarEvent).toHaveBeenNthCalledWith(
       1,
-      expect.objectContaining({ calendarId: "gonzalez@example.com" }),
+      expect.objectContaining({ calendarId: "neutro@example.com" }),
       expect.objectContaining({ createMeet: false }),
     );
     expect(insertCalendarEvent).toHaveBeenNthCalledWith(

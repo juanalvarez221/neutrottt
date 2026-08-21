@@ -6,7 +6,7 @@ import { getGmailSmtpConfig, sendViaGmailSmtp } from "@/shared/lib/notifications
  * Si faltan credenciales, se loguea un preview y no se rompe el flujo.
  *
  * From: cuenta de marca (neutrottt.tech@gmail.com).
- * To interno: bandeja del artista (gonzalezcardo06@gmail.com).
+ * To interno: bandeja de trabajo de Neutro.
  */
 export type EmailPayload = {
   to: string;
