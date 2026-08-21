@@ -1,10 +1,15 @@
 import { createJsonDocumentStorage } from "@/shared/lib/storage/jsonDocumentStorage.server";
 import { registrarHechoCrm } from "@/shared/lib/crm/personas.server";
+import { hasDatabaseConfig } from "@/shared/lib/crm/postgres.server";
 import type { EventoCrm } from "@/shared/lib/crm/tipos";
 import {
   resolveQuoteStatus,
   type QuoteStatusSlug,
 } from "@/shared/lib/quoteRequestStatus";
+import {
+  listCotizacionesFromPostgres,
+  upsertCotizacionPostgres,
+} from "@/shared/lib/storage/postgresQuoteStore.server";
 
 export type QuoteAdvisoryMode = "presencial" | "virtual";
 
@@ -98,8 +103,20 @@ async function sincronizarCrm(record: QuoteRequestRecord) {
 }
 
 async function readAll(): Promise<QuoteRequestRecord[]> {
+  if (hasDatabaseConfig()) {
+    const fromPostgres = await listCotizacionesFromPostgres();
+    if (fromPostgres) return fromPostgres;
+  }
   const records = await storage.read();
   return Array.isArray(records) ? records : [];
+}
+
+async function persistAll(records: QuoteRequestRecord[], changed: QuoteRequestRecord) {
+  if (hasDatabaseConfig()) {
+    await upsertCotizacionPostgres(changed);
+    return;
+  }
+  await storage.write(records);
 }
 
 export async function listQuoteRequests(): Promise<QuoteRequestRecord[]> {
@@ -153,7 +170,7 @@ export async function upsertQuoteRequest(input: QuoteRequestInput): Promise<Upse
     ? records.map((item) => (item.id === record.id ? record : item))
     : [record, ...records];
 
-  await storage.write(next);
+  await persistAll(next, record);
   await sincronizarCrm(record);
   return { record, created: !existing };
 }
@@ -174,7 +191,7 @@ export async function updateQuoteRequestStatus(
     updatedAt: new Date().toISOString(),
   };
   records[index] = updated;
-  await storage.write(records);
+  await persistAll(records, updated);
   await sincronizarCrm(updated);
   return updated;
 }
@@ -218,7 +235,7 @@ export async function saveOfficialQuoteSent(
     updatedAt: new Date().toISOString(),
   };
   records[index] = updated;
-  await storage.write(records);
+  await persistAll(records, updated);
   await sincronizarCrm(updated);
   return updated;
 }

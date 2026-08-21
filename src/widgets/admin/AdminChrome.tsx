@@ -9,8 +9,6 @@ import {
   ClipboardList,
   LayoutGrid,
   LogOut,
-  MoreHorizontal,
-  Palette,
   Route,
 } from "lucide-react";
 import { cn } from "@/shared/lib/cn";
@@ -22,13 +20,11 @@ const ICONS: Record<AdminNavHref, typeof LayoutGrid> = {
   "/admin/asesorias": CalendarDays,
   "/admin/recorridos": Route,
   "/admin/analitica": Activity,
-  "/admin/estudio": Palette,
 };
 
 export function AdminChrome({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [loggingOut, setLoggingOut] = useState(false);
-  const [moreOpen, setMoreOpen] = useState(false);
 
   if (pathname.startsWith("/admin/login")) return children;
 
@@ -45,9 +41,6 @@ export function AdminChrome({ children }: { children: React.ReactNode }) {
     }
     window.location.assign("/admin/login");
   };
-
-  const primary = ADMIN_NAV.filter((item) => item.primary);
-  const secondary = ADMIN_NAV.filter((item) => !item.primary);
 
   return (
     <div className="min-h-[100dvh] bg-background text-zinc-100">
@@ -110,7 +103,7 @@ export function AdminChrome({ children }: { children: React.ReactNode }) {
 
       <nav className="fixed inset-x-0 bottom-0 z-30 border-t border-white/10 bg-[#17110d]/95 px-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 backdrop-blur-md lg:hidden">
         <div className="grid grid-cols-5 gap-1">
-          {primary.slice(0, 4).map((item) => {
+          {ADMIN_NAV.map((item) => {
             const Icon = ICONS[item.href];
             const active = isAdminNavActive(pathname, item.href);
             return (
@@ -127,50 +120,8 @@ export function AdminChrome({ children }: { children: React.ReactNode }) {
               </Link>
             );
           })}
-          <button
-            type="button"
-            onClick={() => setMoreOpen((open) => !open)}
-            className={cn(
-              "flex min-h-12 flex-col items-center justify-center gap-1 rounded-xl px-1 text-[10px] font-semibold tracking-wide",
-              moreOpen || secondary.some((item) => isAdminNavActive(pathname, item.href))
-                ? "bg-white/8 text-zinc-50"
-                : "text-zinc-500",
-            )}
-          >
-            <MoreHorizontal className="h-4 w-4" strokeWidth={1.6} />
-            Más
-          </button>
         </div>
       </nav>
-
-      {moreOpen ? (
-        <div className="fixed inset-0 z-40 lg:hidden">
-          <button
-            type="button"
-            aria-label="Cerrar menú"
-            className="absolute inset-0 bg-black/50"
-            onClick={() => setMoreOpen(false)}
-          />
-          <div className="absolute inset-x-0 bottom-0 rounded-t-3xl border border-white/10 bg-[#1c1612] px-4 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-4">
-            <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-zinc-500">
-              Más secciones
-            </p>
-            <div className="mt-3 space-y-1">
-              {primary.slice(4).concat(secondary).map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  onClick={() => setMoreOpen(false)}
-                  className="flex items-center justify-between rounded-xl border border-white/8 bg-white/[0.03] px-3 py-3"
-                >
-                  <span className="text-sm font-semibold text-zinc-100">{item.label}</span>
-                  <span className="text-xs text-zinc-500">{item.hint}</span>
-                </Link>
-              ))}
-            </div>
-          </div>
-        </div>
-      ) : null}
     </div>
   );
 }

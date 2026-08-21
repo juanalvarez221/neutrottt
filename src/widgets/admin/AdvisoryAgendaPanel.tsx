@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { CalendarDays, Loader2, RefreshCw, X } from "lucide-react";
-import { AdvisoryIntegrationsPanel } from "@/widgets/admin/AdvisoryIntegrationsPanel";
 import { Card } from "@/shared/ui/Card";
 import { formatSlotLabel } from "@/shared/lib/advisorySlots";
 
@@ -87,8 +86,6 @@ export function AdvisoryAgendaPanel() {
 
   return (
     <div className="space-y-4">
-      <AdvisoryIntegrationsPanel />
-
       <Card>
       <div className="p-4 sm:p-5">
         <div className="flex items-center justify-between gap-3">

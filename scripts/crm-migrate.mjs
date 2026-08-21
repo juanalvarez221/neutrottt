@@ -48,6 +48,42 @@ const statements = [
     creado_en TIMESTAMPTZ NOT NULL DEFAULT now(),
     ultimo_acceso_en TIMESTAMPTZ
   )`,
+  `ALTER TABLE personas ADD COLUMN IF NOT EXISTS id_visitante TEXT NOT NULL DEFAULT ''`,
+  `CREATE INDEX IF NOT EXISTS personas_visitante_idx
+    ON personas (id_visitante) WHERE id_visitante <> ''`,
+  `CREATE TABLE IF NOT EXISTS cotizaciones (
+    id TEXT PRIMARY KEY,
+    client_name TEXT NOT NULL,
+    whatsapp TEXT NOT NULL DEFAULT '',
+    email TEXT NOT NULL DEFAULT '',
+    project_size TEXT NOT NULL DEFAULT '',
+    body_placement TEXT NOT NULL DEFAULT '',
+    reference_notes TEXT NOT NULL DEFAULT '',
+    connection_answers JSONB NOT NULL DEFAULT '{}'::jsonb,
+    collaboration_mode TEXT,
+    advisory_mode TEXT,
+    advisory_scheduled_at TIMESTAMPTZ,
+    advisory_booking_id TEXT,
+    style TEXT,
+    estimate_sessions TEXT,
+    estimate_per_session TEXT,
+    estimate_total TEXT,
+    status_label TEXT NOT NULL,
+    status_slug TEXT NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    official_session_price INTEGER,
+    official_session_count INTEGER,
+    official_note TEXT,
+    official_sent_at TIMESTAMPTZ
+  )`,
+  `CREATE INDEX IF NOT EXISTS cotizaciones_created_idx ON cotizaciones (created_at DESC)`,
+  `CREATE INDEX IF NOT EXISTS cotizaciones_status_idx ON cotizaciones (status_slug)`,
+  `CREATE TABLE IF NOT EXISTS agenda (
+    id TEXT PRIMARY KEY,
+    valor JSONB NOT NULL,
+    actualizado_en TIMESTAMPTZ NOT NULL DEFAULT now()
+  )`,
 ];
 
 const sql = postgres(url, { ssl: "require", max: 1 });
@@ -59,7 +95,7 @@ const tables = await sql`
   select table_name
   from information_schema.tables
   where table_schema = 'public'
-    and table_name in ('personas', 'persona_hechos', 'crm_meta', 'admins')
+    and table_name in ('personas', 'persona_hechos', 'crm_meta', 'admins', 'cotizaciones', 'agenda')
   order by table_name
 `;
 await sql.end();

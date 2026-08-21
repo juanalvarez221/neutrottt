@@ -3,8 +3,7 @@ export type AdminNavHref =
   | "/admin/cotizaciones"
   | "/admin/asesorias"
   | "/admin/recorridos"
-  | "/admin/analitica"
-  | "/admin/estudio";
+  | "/admin/analitica";
 
 export type AdminNavItem = {
   href: AdminNavHref;
@@ -43,12 +42,6 @@ export const ADMIN_NAV: readonly AdminNavItem[] = [
     label: "Métricas",
     hint: "Uso del sitio",
     primary: true,
-  },
-  {
-    href: "/admin/estudio",
-    label: "Estudio",
-    hint: "Taller, CRM e insumos",
-    primary: false,
   },
 ] as const;
 

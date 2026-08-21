@@ -6,8 +6,8 @@ import type { AdvisoryStore } from "@/shared/lib/advisoryTypes";
  * (archivo local en desarrollo, Upstash Redis en producción).
  */
 export interface AdvisoryStorageAdapter {
-  /** Identificador del medio: "file" | "redis". */
-  readonly name: "file" | "redis";
+  /** Identificador del medio: "file" | "redis" | "postgres". */
+  readonly name: "file" | "redis" | "postgres";
   /** Devuelve el store persistido o null si todavía no existe. */
   read(): Promise<AdvisoryStore | null>;
   /** Persiste el store completo. Debe lanzar error si la escritura falla. */

@@ -15,7 +15,7 @@ export default function AdminAsesoriasPage() {
       <AdminPageHeader
         kicker="Agenda"
         title="Asesorías"
-        description="Reservas vivas, confirmación de asistencia e integraciones. Lo pendiente de confirmar aparece primero en Inicio."
+        description="Reservas vivas y confirmación de asistencia. Lo pendiente de confirmar aparece primero en Inicio."
       />
       <AdvisoryAgendaPanel />
     </div>

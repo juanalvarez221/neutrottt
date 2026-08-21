@@ -1,28 +1,31 @@
 import type { AdvisoryStorageAdapter } from "@/shared/lib/storage/advisoryStorage.types";
 import { fileAdvisoryStorage } from "@/shared/lib/storage/fileAdvisoryStorage.server";
 import { redisAdvisoryStorage } from "@/shared/lib/storage/redisAdvisoryStorage.server";
+import { postgresAdvisoryStorage } from "@/shared/lib/storage/postgresAdvisoryStorage.server";
+import { hasDatabaseConfig } from "@/shared/lib/crm/postgres.server";
 import { hasUpstashConfig, isProductionRuntime } from "@/shared/lib/storage/upstashRest.server";
 
-const MISSING_UPSTASH_MESSAGE = [
+const MISSING_STORAGE_MESSAGE = [
   "Configuración de almacenamiento inválida en producción.",
-  "La agenda de asesorías requiere Upstash Redis cuando NODE_ENV=production.",
-  "Define las variables UPSTASH_REDIS_REST_URL y UPSTASH_REDIS_REST_TOKEN en el entorno (por ejemplo, en Vercel).",
-  "El fallback a archivo local solo está permitido en desarrollo para evitar pérdida de datos.",
+  "La agenda de asesorías requiere DATABASE_URL (Postgres) o Upstash Redis.",
+  "Define DATABASE_URL en Vercel. El fallback a archivo local solo está permitido en desarrollo.",
 ].join(" ");
 
 /**
- * Selecciona el medio de almacenamiento:
- * - Si hay credenciales de Upstash → Redis (dev o prod).
- * - Si no hay credenciales y estamos en producción → error claro (sin fallback a /tmp).
- * - Si no hay credenciales y estamos en desarrollo → archivo local.
+ * Postgres es la fuente de verdad. Redis queda como legado.
+ * En local, sin credenciales, se usa el archivo del repo.
  */
 export function resolveAdvisoryStorage(): AdvisoryStorageAdapter {
+  if (hasDatabaseConfig()) {
+    return postgresAdvisoryStorage;
+  }
+
   if (hasUpstashConfig()) {
     return redisAdvisoryStorage;
   }
 
   if (isProductionRuntime()) {
-    throw new Error(MISSING_UPSTASH_MESSAGE);
+    throw new Error(MISSING_STORAGE_MESSAGE);
   }
 
   return fileAdvisoryStorage;

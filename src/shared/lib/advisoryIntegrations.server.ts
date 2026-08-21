@@ -9,7 +9,7 @@ import { queryBusyIntervals } from "@/shared/lib/googleCalendar/googleCalendarCl
 import { loadAdvisoryStore } from "@/shared/lib/advisoryStore.server";
 import { getArtistNotificationsEmail } from "@/shared/lib/notifications/emailTransport.server";
 import { resolveAdvisoryStorage } from "@/shared/lib/storage/resolveAdvisoryStorage.server";
-import { hasUpstashConfig } from "@/shared/lib/storage/upstashRest.server";
+import { hasDatabaseConfig } from "@/shared/lib/crm/postgres.server";
 import { getSiteOrigin } from "@/shared/lib/siteOrigin.server";
 
 export type IntegrationState = "ok" | "preview" | "disabled" | "error";
@@ -169,13 +169,15 @@ async function checkStorage(): Promise<IntegrationCheck> {
       label: "Almacenamiento",
       state: "ok",
       detail:
-        adapter.name === "redis"
-          ? `Upstash Redis · ${activeBookings} reserva(s) activa(s)`
-          : `Archivo local (dev) · ${activeBookings} reserva(s) activa(s)`,
+        adapter.name === "postgres"
+          ? `Postgres · ${activeBookings} reserva(s) activa(s)`
+          : adapter.name === "redis"
+            ? `Upstash Redis · ${activeBookings} reserva(s) activa(s)`
+            : `Archivo local (dev) · ${activeBookings} reserva(s) activa(s)`,
       hint:
         adapter.name === "file" && process.env.NODE_ENV === "production"
-          ? "En producción debes usar Upstash Redis."
-          : hasUpstashConfig()
+          ? "En producción debes usar Postgres (DATABASE_URL)."
+          : hasDatabaseConfig()
             ? undefined
             : "En local se usa data/advisory-store.json",
     };
